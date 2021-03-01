@@ -49,6 +49,16 @@ void _printNumber(char *buffer, unsigned int number, int base){
 
 void _printHex(char *buffer, unsigned int hexnumber){
     /* First count how many digit is*/
+    buffer = _getHexString(buffer, hexnumber);
+    _printStr(buffer);
+
+}
+
+void _printNewLine(){
+    VIDEO_PTR = VIDEO_MEM + ((((VIDEO_PTR - VIDEO_MEM) / (_SCR_W * 2)) + 1) * (_SCR_W * 2));
+}
+
+char *_getHexString(char *buffer, unsigned int hexnumber){
     unsigned int tmpnumber = hexnumber;
     int shift = 0;
     char *hexstring = buffer;
@@ -74,11 +84,5 @@ void _printHex(char *buffer, unsigned int hexnumber){
         }
         *hexstring = '\0';
     }
-
-    _printStr(buffer);
-
-}
-
-void _printNewLine(){
-    VIDEO_PTR = VIDEO_MEM + ((((VIDEO_PTR - VIDEO_MEM) / (_SCR_W * 2)) + 1) * (_SCR_W * 2));
+    return buffer;
 }

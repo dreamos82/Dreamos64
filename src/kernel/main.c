@@ -9,17 +9,12 @@
 #include <kernel/qemu.h>
 #include <main.h>
 
-unsigned int log_enabled;
-
-void _parse_multiboot_headers(){
-
-}
 void kernel_start(unsigned long addr, unsigned long magic){
     //struct multiboot_tag *tag;
     extern unsigned int end;
     struct multiboot_header* boot_info = (struct multiboot_header*) 0x100000;
     struct multiboot_tag *tag = (struct multiboot_tag*) (addr+8);
-    log_enabled = qemu_init_debug();
+    unsigned int log_enabled = qemu_init_debug();
     
     //unsigned int *video_mem = (unsigned int*)0xb8020;
     //*video_mem = 0x024f;
@@ -44,6 +39,8 @@ void kernel_start(unsigned long addr, unsigned long magic){
     unsigned int *val = (unsigned int *) 0x100000;
     _printStr("Magic: ");
     _printHex(number, *val);
+    qemu_write_string(number);
+    qemu_write_string("\n");
     val++;
     _printNewLine();
     _printStr("Flags: ");
@@ -52,6 +49,9 @@ void kernel_start(unsigned long addr, unsigned long magic){
     val++;  
     _printStr("Header Length: ");
     _printHex(number, *val); 
+    _printStr(" OMT: ");
+    _printStr(number);
+
     val++;  
     _printNewLine();
     _printStr("Checksum: ");
