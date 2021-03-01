@@ -96,6 +96,13 @@ To run just execute:
     make run
 ```
 
+If you use instead:
+```bash
+make debug
+```
+
+It will output logging information on a logfile.
+
 More info to be added.
 
 
