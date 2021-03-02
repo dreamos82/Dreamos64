@@ -9,13 +9,51 @@
 #include <kernel/qemu.h>
 #include <main.h>
 
+struct multiboot_tag_framebuffer *tagfb;
+
+void _read_configuration_from_multiboot(unsigned long addr){
+    struct multiboot_tag* tag;
+    char number[30];
+	for (tag=(struct multiboot_tag *) (addr + 8);
+		tag->type != MULTIBOOT_TAG_TYPE_END;
+		tag = (struct multiboot_tag *) ((multiboot_uint8_t *) tag 
+										+ ((tag->size + 7) & ~7))){
+
+        switch(tag->type){
+            case MULTIBOOT_TAG_TYPE_FRAMEBUFFER:
+                qemu_write_string("Found Multiboot framebuffer: ");
+                _getHexString(number, tag->type);
+                qemu_write_string(number);
+                qemu_write_string("\n");
+                tagfb = (struct multiboot_tag_framebuffer *) tag;
+                qemu_write_string("---framebuffer-type: ");
+                _getHexString(number, tagfb->common.framebuffer_type);
+                qemu_write_string(number);
+                qemu_write_string("\n");
+                qemu_write_string("---framebuffer-width: ");
+                _getHexString(number, tagfb->common.framebuffer_width);
+                qemu_write_string(number);
+                qemu_write_string("\n");
+                qemu_write_string("---framebuffer-height: ");
+                _getHexString(number, tagfb->common.framebuffer_height);
+                qemu_write_string(number);
+                qemu_write_string("\n");
+
+
+                break;
+        }
+
+    }
+
+}
 void kernel_start(unsigned long addr, unsigned long magic){
     //struct multiboot_tag *tag;
     extern unsigned int end;
     struct multiboot_header* boot_info = (struct multiboot_header*) 0x100000;
     struct multiboot_tag *tag = (struct multiboot_tag*) (addr+8);
     unsigned int log_enabled = qemu_init_debug();
-    
+    _read_configuration_from_multiboot(addr);
+        
     //unsigned int *video_mem = (unsigned int*)0xb8020;
     //*video_mem = 0x024f;
     //_printCh('@', WHITE);
@@ -95,11 +133,14 @@ void kernel_start(unsigned long addr, unsigned long magic){
 		tag = (struct multiboot_tag *) ((multiboot_uint8_t *) tag 
 										+ ((tag->size + 7) & ~7)))
 		{
-			_printStr("Tag 0x");
-			_printHex(number, tag->type);
-			_printStr(" Size 0x");
-			_printHex(number , tag->size);
-			_printNewLine();
+			qemu_write_string("Tag 0x");
+			_getHexString(number, tag->type);
+			qemu_write_string(number);
+			qemu_write_string("\n");
+			qemu_write_string(" Size 0x");
+			_getHexString(number, tag->size);
+			qemu_write_string(number);
+			qemu_write_string("\n");
 		}
 
     qemu_write_string("Hello qemu log\n");
