@@ -1,4 +1,4 @@
-CFLAGS = -std=gnu99 \
+CFLAGS := -std=gnu99 \
 		-ffreestanding \
 		-O2 \
 		-Wall \
@@ -6,7 +6,12 @@ CFLAGS = -std=gnu99 \
 		-I src/include \
 		-I src/include/kernel
 
-BUILD = build/
+BUILD := build
+PRJ_FOLDERS := src
+
+SRC_C_FILES := $(shell find $(PRJ_FOLDERS) -type f -name "\*.c")
+SRC_H_FILES := $(shell find $(PRJ_FOLDERS) -type f -name "\*.h")
+SRC_ASM_FILES := $(shell find $(PRJ_FOLDERS) -type f -name "\*.")
 
 default: build
 
@@ -45,6 +50,6 @@ build/%.o: src/%.c
 	mkdir -p "$(@D)"
 	x86_64-elf-gcc ${CFLAGS} -c "$<" -o "$@"
 
-build/kernel.bin: build/multiboot_header.o build/boot.o build/kernel/debug/qemu.o build/kernel/io/serial.o build/main.o build/kernel/main.o build/kernel/io/video.o build/kernel/io/io.o src/linker.ld
-	ld -n -o build/kernel.bin -T src/linker.ld build/multiboot_header.o build/boot.o build/main.o build/kernel/main.o build/kernel/io/io.o build/kernel/io/video.o build/kernel/io/serial.o build/kernel/debug/qemu.o -Map build/kernel.map
+build/kernel.bin: build/multiboot_header.o build/boot.o build/kernel/cpu/idt.o build/kernel/debug/qemu.o build/kernel/io/serial.o build/main.o build/kernel/main.o build/kernel/io/video.o build/kernel/io/io.o src/linker.ld
+	ld -n -o build/kernel.bin -T src/linker.ld build/multiboot_header.o build/kernel/cpu/idt.o build/boot.o build/main.o build/kernel/main.o build/kernel/io/io.o build/kernel/io/video.o build/kernel/io/serial.o build/kernel/debug/qemu.o -Map build/kernel.map
 

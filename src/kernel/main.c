@@ -38,8 +38,15 @@ void _read_configuration_from_multiboot(unsigned long addr){
                 _getHexString(number, tagfb->common.framebuffer_height);
                 qemu_write_string(number);
                 qemu_write_string("\n");
-
-
+                qemu_write_string("---framebuffer-address: ");
+                _getHexString(number, tagfb->common.framebuffer_addr);
+                qemu_write_string(number);
+                qemu_write_string("\n");
+                qemu_write_string("---framebuffer-bpp: ");
+                _getHexString(number, tagfb->common.framebuffer_bpp);
+                qemu_write_string(number);
+                qemu_write_string("\n");
+                //set_fb_data(tagfb);
                 break;
         }
 
@@ -52,6 +59,9 @@ void kernel_start(unsigned long addr, unsigned long magic){
     struct multiboot_header* boot_info = (struct multiboot_header*) 0x100000;
     struct multiboot_tag *tag = (struct multiboot_tag*) (addr+8);
     unsigned int log_enabled = qemu_init_debug();
+    qemu_write_string("Hello qemu log\n");
+    qemu_write_string("==============\n");
+
     _read_configuration_from_multiboot(addr);
         
     //unsigned int *video_mem = (unsigned int*)0xb8020;
@@ -124,9 +134,14 @@ void kernel_start(unsigned long addr, unsigned long magic){
 	}
     _printNewLine();
     _printStr("Tag = type: ");
+    qemu_write_string("Tag = type: ");
     _printNumber(number, tag->type, 10);
+    qemu_write_string(number);
     _printStr(" - size: ");
+    qemu_write_string(" - size: ");
     _printNumber(number, tag->size, 10);
+    qemu_write_string(number);
+    qemu_write_string("\n");
 	_printNewLine();
 	for (tag = (struct multiboot_tag *) (addr + 8);
 		tag->type != MULTIBOOT_TAG_TYPE_END;
@@ -143,8 +158,6 @@ void kernel_start(unsigned long addr, unsigned long magic){
 			qemu_write_string("\n");
 		}
 
-    qemu_write_string("Hello qemu log\n");
-    qemu_write_string("==============\n");
     //_printStr(" Type: ");
     //_printHex(number, boot_mem->type);
     //_printNewLine();

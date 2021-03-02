@@ -1,8 +1,34 @@
+#include <multiboot.h>
 #include <kernel/video.h>
 
 char *VIDEO_MEM = (char *) 0xb8000;
 char *VIDEO_PTR = (char *) 0xb8020;
 
+void *FRAMEBUFFER_MEM = 0;
+unsigned int FRAMEBUFFER_PITCH = 0;
+unsigned int FRAMEBUFFER_POS_X = 0;
+unsigned int FRAMEBUFFER_POS_Y = 0;
+unsigned char FRAMEBUFFER_BPP = 0;
+
+
+void set_fb_data(struct multiboot_tag_framebuffer *fbtag){
+    FRAMEBUFFER_MEM = (void*)(unsigned long)fbtag->common.framebuffer_addr;
+    FRAMEBUFFER_PITCH = fbtag->common.framebuffer_pitch;
+    FRAMEBUFFER_BPP = fbtag->common.framebuffer_bpp;
+    if(FRAMEBUFFER_MEM == 0xFD000000){
+        qemu_write_string("Framebuffer aroun 4g");
+    } else {
+        qemu_write_string("There is a bug in hex handling");
+    }
+
+
+    multiboot_uint32_t *pixel = FRAMEBUFFER_MEM;
+    //                  *pixel = 0xFFFFFFFF;
+    //*FRAMEBUFFER_MEM=4;
+    //multiboot_uint16_t *pixel =
+//    unsigned int *px_addr = FRAMEBUFFER_MEM + 3 * FRAMEBUFFER_BPP + 10 * FRAMEBUFFER_BPP;
+//    *px_addr++ = 4;
+}
 
 
 void _printCh(char c, character_color color){
