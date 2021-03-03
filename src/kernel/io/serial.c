@@ -1,6 +1,7 @@
 #include <kernel/serial.h>
+#include <io.h>
 
-void init_serial(int port){
+int init_serial(int port){
 
    outportb(port + 1, 0x00);    // Disable all interrupts
    outportb(port + 3, 0x80);    // Enable DLAB (set baud rate divisor)
@@ -20,4 +21,5 @@ void init_serial(int port){
    // If serial is not faulty set it in normal operation mode
    // (not-loopback with IRQs enabled and OUT#1 and OUT#2 bits enabled)
    outportb(port + 4, 0x0F);
+   return 0;
 }
