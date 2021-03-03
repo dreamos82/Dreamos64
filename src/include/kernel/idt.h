@@ -1,6 +1,8 @@
 #ifndef _IDT_H
 #define _IDT_H
 
+#include <stdint.h>
+
 #define IDT_SIZE 256
 
 #define IDT_PRESENT_FLAG 0x80
@@ -12,18 +14,18 @@
 
 
 typedef struct IDT_desc {
-   unsigned short offset_low;
-   unsigned short segment_selector;
-   unsigned char ist; //only first 2 bits are used, the rest is 0
-   unsigned char flags; //P(resent) DPL (0) TYPE
-   unsigned short offset_mid;
-   unsigned int offset_high;
-   unsigned int reserved; //0
+   uint16_t offset_low;
+   uint16_t segment_selector;
+   uint8_t ist; //only first 2 bits are used, the rest is 0
+   uint8_t flags; //P(resent) DPL (0) TYPE
+   uint16_t offset_mid;
+   uint32_t offset_high;
+   uint32_t reserved; //0
 } __attribute__((__packed__))IDT_descriptor;
 
 typedef struct IDT_reg {
-    unsigned short limit;
-    unsigned long offset;
+    uint16_t limit;
+    uint64_t offset;
 }__attribute__((__packed__))IDT_register;
 
 void init_idt();

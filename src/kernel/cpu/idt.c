@@ -1,10 +1,17 @@
 #include <idt.h>
+#include <video.h>
 #include <kernel/qemu.h>
+#include <stdint.h>
 
 static IDT_descriptor idt_table[IDT_SIZE];
 
 void int_14(){
-	qemu_write_string("Page fault called");
+	qemu_write_string("Page fault called\n");
+	qemu_write_string("Looping...");
+	/*uint64_t test = 25;
+	char number[30] = "";
+	_getHexString(number, test);*/
+	//qemu_write_string(number);
 	while(1);
 }
 
