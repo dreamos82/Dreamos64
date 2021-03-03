@@ -44,20 +44,20 @@ void init_idt(){
 	set_idt_entry(0x0E, IDT_PRESENT_FLAG | IDT_INTERRUPT_TYPE_FLAG, 0x08, 0,int_14);
 }
 
-void set_idt_entry(unsigned short idx, unsigned char flags, unsigned short selector, unsigned char ist, void (*handler)() ){
+void set_idt_entry(uint16_t idx, uint8_t flags, uint16_t selector, uint8_t ist, void (*handler)() ){
 	idt_table[idx].flags = flags;
 	idt_table[idx].ist = ist;
 	idt_table[idx].segment_selector = selector;
-	idt_table[idx].offset_low = (unsigned short) ((unsigned long)handler&0xFFFF);
-	idt_table[idx].offset_mid = (unsigned short) ((unsigned long)handler >> 16);
-	idt_table[idx].offset_high = (unsigned int)((unsigned long)handler>> 32);
+	idt_table[idx].offset_low = (uint16_t) ((uint64_t)handler&0xFFFF);
+	idt_table[idx].offset_mid = (uint16_t) ((uint64_t)handler >> 16);
+	idt_table[idx].offset_high = (uint32_t)((uint64_t)handler>> 32);
 	idt_table[idx].reserved = 0x0;
 }
 
 void load_idt(){
 	IDT_register idtr;
 	idtr.limit =  IDT_SIZE * sizeof(IDT_descriptor) - 1;
-	idtr.offset = (unsigned long)&idt_table;
+	idtr.offset = (uint64_t)&idt_table;
 
 	__asm__ __volatile__("lidt %0": :"g" (idtr));
 }

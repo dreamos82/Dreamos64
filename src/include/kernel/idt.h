@@ -29,7 +29,7 @@ typedef struct IDT_reg {
 }__attribute__((__packed__))IDT_register;
 
 void init_idt();
-void set_idt_entry(unsigned short, unsigned char, unsigned short, unsigned char, void (*)());
+void set_idt_entry(uint16_t, uint8_t, uint16_t, uint8_t, void (*)());
 
 void default_isr();
 void int_14();
