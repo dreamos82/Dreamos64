@@ -11,7 +11,8 @@ PRJ_FOLDERS := src
 
 SRC_C_FILES := $(shell find $(PRJ_FOLDERS) -type f -name "\*.c")
 SRC_H_FILES := $(shell find $(PRJ_FOLDERS) -type f -name "\*.h")
-SRC_ASM_FILES := $(shell find $(PRJ_FOLDERS) -type f -name "\*.")
+SRC_ASM_FILES := $(shell find $(PRJ_FOLDERS) -type f -name "*.s")
+OBJ_ASM_FILE := $(patsubst src/%.s, build/%.o, $(SRC_ASM_FILES))
 
 default: build
 
@@ -33,23 +34,19 @@ build/os.iso: build/kernel.bin grub.cfg
 	cp build/kernel.bin build/isofiles/boot
 	grub-mkrescue -o build/DreamOs64.iso build/isofiles
 
-build/multiboot_header.o: src/asm/multiboot_header.s
-	mkdir -p build
-	nasm -f elf64 src/asm/multiboot_header.s -o build/multiboot_header.o
-
-build/boot.o: src/asm/boot.s
-	mkdir -p build
-	nasm -f elf64 src/asm/boot.s -o build/boot.o
-
-build/main.o: src/asm/main.s
-	mkdir -p build
-	nasm -f elf64 src/asm/main.s -o build/main.o
+build/asm/%.o: src/asm/%.s
+	echo "$(<D)"
+	mkdir -p "$(@D)"
+	nasm -f elf64 "$<" -o "$@"
 
 build/%.o: src/%.c
 	echo "$(@D)"
 	mkdir -p "$(@D)"
 	x86_64-elf-gcc ${CFLAGS} -c "$<" -o "$@"
 
-build/kernel.bin: build/multiboot_header.o build/boot.o build/kernel/cpu/idt.o build/kernel/debug/qemu.o build/kernel/io/serial.o build/main.o build/kernel/main.o build/kernel/io/video.o build/kernel/io/io.o src/linker.ld
-	ld -n -o build/kernel.bin -T src/linker.ld build/multiboot_header.o build/kernel/cpu/idt.o build/boot.o build/main.o build/kernel/main.o build/kernel/io/io.o build/kernel/io/video.o build/kernel/io/serial.o build/kernel/debug/qemu.o -Map build/kernel.map
+build/kernel.bin: $(OBJ_ASM_FILE) build/kernel/cpu/idt.o build/kernel/debug/qemu.o build/kernel/io/serial.o build/kernel/main.o build/kernel/io/video.o build/kernel/io/io.o src/linker.ld
+	echo $(SRC_ASM_FILE)
+	echo $(OBJ_ASM_FILE)
+	ld -n -o build/kernel.bin -T src/linker.ld $(OBJ_ASM_FILE) build/kernel/cpu/idt.o build/kernel/main.o build/kernel/io/io.o build/kernel/io/video.o build/kernel/io/serial.o build/kernel/debug/qemu.o -Map build/kernel.map
+
 
