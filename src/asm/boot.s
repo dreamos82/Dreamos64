@@ -13,7 +13,7 @@ start:
     or eax, 0b11        ; set writable and present bits to 1
     mov dword [p4_table + 0], eax   ; Copy eax content into the entry 0 of p4 table
 
-    mov eax, p2_table   ; Let's do it again, wit p2_table
+    mov eax, p2_table   ; Let's do it again, with p2_table
     or eax, 0b11       ; Set the writable and present bits
     mov dword [p3_table + 0], eax   ; Copy eax content in the 0th entry of p3
 
@@ -92,8 +92,11 @@ p2_table:
 
 section .rodata
 
+; gdt table needs at least 3 entries:
+;     the first entry is always null
+;     the other two are data segment and code segment.
 gdt64:
-    dq  0
+    dq  0	;first entry = 0
 .code equ $ - gdt64
     ; set the following values:
     ; descriptor type: bit 44 has to be 1 for code and data segments
@@ -101,9 +104,9 @@ gdt64:
     ; read/write: bit 41 1 means that is readable
     ; executable: bit 43 it has to be 1 for code segments
     ; 64bit: bit 53 1 if this is a 64bit gdt
-    dq (1 <<44) | (1 << 47) | (1 << 41) | (1 << 43) | (1 << 53)
+    dq (1 <<44) | (1 << 47) | (1 << 41) | (1 << 43) | (1 << 53)  ;second entry=code
 .data equ $ - gdt64
-    dq (1 << 44) | (1 << 47) | (1 << 41)
+    dq (1 << 44) | (1 << 47) | (1 << 41)	;third entry = data
 
 .pointer:
     dw .pointer - gdt64 - 1

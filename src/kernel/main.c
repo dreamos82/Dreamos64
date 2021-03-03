@@ -7,6 +7,7 @@
 #include <kernel/video.h>
 #include <kernel/io.h>
 #include <kernel/qemu.h>
+#include <kernel/idt.h>
 #include <main.h>
 
 struct multiboot_tag_framebuffer *tagfb;
@@ -63,7 +64,9 @@ void kernel_start(unsigned long addr, unsigned long magic){
     qemu_write_string("==============\n");
 
     _read_configuration_from_multiboot(addr);
-        
+    init_idt();
+    load_idt();
+    asm("int $0x0e");
     //unsigned int *video_mem = (unsigned int*)0xb8020;
     //*video_mem = 0x024f;
     //_printCh('@', WHITE);

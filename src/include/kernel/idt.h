@@ -1,11 +1,15 @@
 #ifndef _IDT_H
 #define _IDT_H
 
-#define IDT_SIZE 255
+#define IDT_SIZE 256
 
 #define IDT_PRESENT_FLAG 0x80
 #define IDT_INTERRUPT_TYPE_FLAG 0x0E
 #define IDT_SEGMENT_SELECTOR 0x08
+
+
+/* TODO: DEFINE of: interrupt type, interrupt ids, wrapper function */
+
 
 typedef struct IDT_desc {
    unsigned short offset_low;
@@ -14,7 +18,7 @@ typedef struct IDT_desc {
    unsigned char flags; //P(resent) DPL (0) TYPE
    unsigned short offset_mid;
    unsigned int offset_high;
-   unsigned int reserved;
+   unsigned int reserved; //0
 } __attribute__((__packed__))IDT_descriptor;
 
 typedef struct IDT_reg {
@@ -23,7 +27,8 @@ typedef struct IDT_reg {
 }__attribute__((__packed__))IDT_register;
 
 void init_idt();
-void set_idt_entry(unsigned short, unsigned char, unsigned short, void (*)());
+void set_idt_entry(unsigned short, unsigned char, unsigned short, unsigned char, void (*)());
 
 void default_isr();
+void int_14();
 #endif
