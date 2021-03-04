@@ -5,9 +5,13 @@
 
 static IDT_descriptor idt_table[IDT_SIZE];
 
-void int_14(){
-	qemu_write_string("Page fault called\n");
-	qemu_write_string("Looping...");
+void interrupts_handler(uint32_t test){
+	if (test == 14){
+		qemu_write_string("Page fault called\n");
+		qemu_write_string("Looping...");
+	} else {
+		qemu_write_string("Another exception called...");
+	}
 	/*uint64_t test = 25;
 	char number[30] = "";
 	_getHexString(number, test);*/

@@ -31,10 +31,10 @@ typedef struct IDT_reg {
 void init_idt();
 void set_idt_entry(uint16_t , uint8_t, uint16_t, uint8_t, void (*)());
 
-void interrupt_handler();
+void interrupts_handler(uint32_t test);
 
 void default_isr();
-void int_14();
+void int_14(uint32_t test);
 
 extern void interrupt_service_routine_14();
 #endif

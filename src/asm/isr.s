@@ -1,6 +1,6 @@
 [bits  64]
-
-[extern int_14]
+; TODO: push exception code
+[extern interrupts_handler]
 
 %macro interrupt_service_routine 1
 [global interrupt_service_routine_%1]
@@ -14,9 +14,27 @@ interrupt_service_routine_%1:
 	push rbp
 	push rsi
 	push rdi
+	push r8
+    push r9
+    push r10
+    push r11
+    push r12
+    push r13
+    push r14
+    push r15
+    mov rdi, %1
 	cld
-	call int_14
+	call interrupts_handler
+	pop r15
+	pop r14
+	pop r13
+	pop r12
+	pop r11
+	pop r10
+	pop r9
+	pop r8
 	pop rdi
+	pop rsi
 	pop rsi
 	pop rbp
 	pop rsp
