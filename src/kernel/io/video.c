@@ -1,4 +1,5 @@
 #include <multiboot.h>
+#include <stdint.h>
 #include <kernel/video.h>
 
 char *VIDEO_MEM = (char *) 0xb8000;

@@ -29,8 +29,12 @@ typedef struct IDT_reg {
 }__attribute__((__packed__))IDT_register;
 
 void init_idt();
-void set_idt_entry(uint16_t, uint8_t, uint16_t, uint8_t, void (*)());
+void set_idt_entry(uint16_t , uint8_t, uint16_t, uint8_t, void (*)());
+
+void interrupt_handler();
 
 void default_isr();
 void int_14();
+
+extern void interrupt_service_routine_14();
 #endif
