@@ -33,10 +33,9 @@ interrupt_service_routine_error_code_%1:
 
 %macro save_context 0
     push rax
+    push rbx
     push rcx
     push rdx
-    push rbx
-    push rsp
     push rbp
     push rsi
     push rdi
@@ -61,12 +60,10 @@ interrupt_service_routine_error_code_%1:
     pop r8
     pop rdi
     pop rsi
-    pop rsi
     pop rbp
-    pop rsp
-    pop rbx
     pop rdx
     pop rcx
+    pop rbx
     pop rax
 %endmacro
 
