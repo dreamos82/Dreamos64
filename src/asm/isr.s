@@ -6,6 +6,32 @@
 [global interrupt_service_routine_%1]
 interrupt_service_routine_%1:
     cli
+    push 0	; since we have no error code, to keep things consistent we push a default EC of 0
+    push %1 ; pushing the interrupt number for easier identification by the handler
+	save_context
+	mov rdi, %1
+    cld
+    call interrupts_handler
+	restore_context
+    iretq
+%endmacro
+
+%macro interrupt_service_routine_error_code 1
+[global interrupt_service_routine_error_code_%1]
+interrupt_service_routine_error_code_%1:
+    cli
+    push %1 ; In this case the error code is already present on the stack
+	save_context
+	mov rdi, %1
+    cld
+    call interrupts_handler
+	restore_context
+    iretq
+%endmacro
+
+
+
+%macro save_context 0
     push rax
     push rcx
     push rdx
@@ -22,9 +48,9 @@ interrupt_service_routine_%1:
     push r13
     push r14
     push r15
-    mov rdi, %1
-    cld
-    call interrupts_handler
+%endmacro
+
+%macro restore_context 0
     pop r15
     pop r14
     pop r13
@@ -42,7 +68,6 @@ interrupt_service_routine_%1:
     pop rdx
     pop rcx
     pop rax
-    iretq
 %endmacro
 
-interrupt_service_routine 14
+interrupt_service_routine_error_code 14

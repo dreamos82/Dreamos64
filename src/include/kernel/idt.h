@@ -36,5 +36,5 @@ void interrupts_handler(uint32_t test);
 void default_isr();
 void int_14(uint32_t test);
 
-extern void interrupt_service_routine_14();
+extern void interrupt_service_routine_error_code_14();
 #endif
