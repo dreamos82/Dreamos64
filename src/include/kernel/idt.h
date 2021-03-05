@@ -2,6 +2,7 @@
 #define _IDT_H
 
 #include <stdint.h>
+#include <cpu.h>
 
 #define IDT_SIZE 256
 
@@ -31,10 +32,11 @@ typedef struct IDT_reg {
 void init_idt();
 void set_idt_entry(uint16_t , uint8_t, uint16_t, uint8_t, void (*)());
 
-void interrupts_handler(uint32_t test);
+void interrupts_handler(cpu_status_t*);
 
 void default_isr();
-void int_14(uint32_t test);
+void int_14(cpu_status_t*);
 
 extern void interrupt_service_routine_error_code_14();
+extern void interrupt_service_routine_7();
 #endif

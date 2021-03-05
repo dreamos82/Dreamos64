@@ -66,7 +66,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
     _read_configuration_from_multiboot(addr);
     init_idt();
     load_idt();
-    asm("int $0x0e");
+    asm("int $0x07");
     //unsigned int *video_mem = (unsigned int*)0xb8020;
     //*video_mem = 0x024f;
     //_printCh('@', WHITE);

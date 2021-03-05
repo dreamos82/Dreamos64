@@ -9,7 +9,7 @@ interrupt_service_routine_%1:
     push 0	; since we have no error code, to keep things consistent we push a default EC of 0
     push %1 ; pushing the interrupt number for easier identification by the handler
 	save_context
-	mov rdi, %1
+	mov rdi, rsp
     cld
     call interrupts_handler
 	restore_context
@@ -22,7 +22,7 @@ interrupt_service_routine_error_code_%1:
     cli
     push %1 ; In this case the error code is already present on the stack
 	save_context
-	mov rdi, %1
+	mov rdi, rsp
     cld
     call interrupts_handler
 	restore_context
@@ -68,3 +68,4 @@ interrupt_service_routine_error_code_%1:
 %endmacro
 
 interrupt_service_routine_error_code 14
+interrupt_service_routine 7

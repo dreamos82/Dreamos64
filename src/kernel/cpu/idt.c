@@ -5,9 +5,12 @@
 
 static IDT_descriptor idt_table[IDT_SIZE];
 
-void interrupts_handler(uint32_t test){
-	if (test == 14){
+void interrupts_handler(cpu_status_t *status){
+	if (status->interrupt_number == 14){
 		qemu_write_string("Page fault called\n");
+		qemu_write_string("Looping...");
+	}if (status->interrupt_number == 7){
+		qemu_write_string("Device not available\n");
 		qemu_write_string("Looping...");
 	} else {
 		qemu_write_string("Another exception called...");
@@ -46,6 +49,7 @@ void init_idt(){
 	set_idt_entry(0x0C, IDT_PRESENT_FLAG | IDT_INTERRUPT_TYPE_FLAG, 0x08, 0,int_14);
 	set_idt_entry(0x0D, IDT_PRESENT_FLAG | IDT_INTERRUPT_TYPE_FLAG, 0x08, 0,int_14);*/
 	set_idt_entry(0x0E, IDT_PRESENT_FLAG | IDT_INTERRUPT_TYPE_FLAG, 0x08, 0, interrupt_service_routine_error_code_14);
+	set_idt_entry(0x07, IDT_PRESENT_FLAG | IDT_INTERRUPT_TYPE_FLAG, 0x08, 0, interrupt_service_routine_7);
 }
 
 void set_idt_entry(uint16_t idx, uint8_t flags, uint16_t selector, uint8_t ist, void (*handler)() ){
