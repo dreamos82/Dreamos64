@@ -1,5 +1,4 @@
 [bits  64]
-; TODO: push exception code
 [extern interrupts_handler]
 
 %macro interrupt_service_routine 1

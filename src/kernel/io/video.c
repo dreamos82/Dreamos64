@@ -1,6 +1,9 @@
 #include <multiboot.h>
 #include <stdint.h>
 #include <kernel/video.h>
+#ifdef DEBUG
+	#include <qemu.h>
+#endif
 
 char *VIDEO_MEM = (char *) 0xb8000;
 char *VIDEO_PTR = (char *) 0xb8020;
@@ -23,8 +26,8 @@ void set_fb_data(struct multiboot_tag_framebuffer *fbtag){
     }
 
 
-    //multiboot_uint32_t *pixel = FRAMEBUFFER_MEM;
-    //                  *pixel = 0xFFFFFFFF;
+    multiboot_uint32_t *pixel = FRAMEBUFFER_MEM;
+                      *pixel = 0xFFFFFFFF;
     //*FRAMEBUFFER_MEM=4;
     //multiboot_uint16_t *pixel =
 	//    unsigned int *px_addr = FRAMEBUFFER_MEM + 3 * FRAMEBUFFER_BPP + 10 * FRAMEBUFFER_BPP;

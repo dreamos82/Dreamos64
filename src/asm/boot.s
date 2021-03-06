@@ -36,6 +36,17 @@ start:
         
         jne .map_p2_table   ; if ecx < 512 then loop
 
+    ; This section is temporary, is here only to test the framebuffer features!
+    ; Will be removed once the the memory management will be implemented
+    mov eax, fbb_p2_table
+    or eax, 0b11
+    mov dword [p3_table + 8 * 3], eax
+
+    mov eax, 0xFD000000
+    or eax, 0b10000011
+    mov [fbb_p2_table + 8 * 488], eax
+
+
     ; All set... now we are nearly ready to enter into 64 bit
     ; Is possible to move into cr3 only from another register
     ; So let's move p4_table address into eax first
@@ -88,6 +99,13 @@ p4_table:
 p3_table:
     resb 4096
 p2_table:
+    resb 4096
+
+; This section is temporary to test the framebuffer
+align 4096
+fbb_p3_table:
+    resb 4096
+fbb_p2_table:
     resb 4096
 
 section .rodata

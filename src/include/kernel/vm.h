@@ -1,6 +1,8 @@
 #ifndef _VM_H
 #define _VM_H
 
-void page_fault_handle();
+#include <stdint.h>
+
+void page_fault_handle(uint64_t);
 
 #endif
