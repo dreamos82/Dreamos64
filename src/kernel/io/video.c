@@ -44,6 +44,9 @@ void _printStr(char *string){
         } else {
             _printCh(*string, WHITE);
         }
+        #ifdef DEBUG
+			qemu_write_char(*string);
+		#endif
         string++;
     }
 }
@@ -83,6 +86,9 @@ void _printHex(char *buffer, unsigned int hexnumber){
 
 void _printNewLine(){
     VIDEO_PTR = VIDEO_MEM + ((((VIDEO_PTR - VIDEO_MEM) / (_SCR_W * 2)) + 1) * (_SCR_W * 2));
+    #ifdef DEBUG
+			qemu_write_char('\n');
+	#endif
 }
 
 char *_getHexString(char *buffer, unsigned int hexnumber){

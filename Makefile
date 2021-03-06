@@ -9,6 +9,7 @@ CFLAGS := -std=gnu99 \
 
 BUILD := build
 PRJ_FOLDERS := src
+DEBUG := 0
 
 SRC_C_FILES := $(shell find $(PRJ_FOLDERS) -type f -name "*.c")
 SRC_H_FILES := $(shell find $(PRJ_FOLDERS) -type f -name "*.h")
@@ -27,6 +28,7 @@ clean:
 run: build/os.iso
 	qemu-system-x86_64 -cdrom build/DreamOs64.iso
 
+debug: DEBUG=1
 debug: build/os.iso
 	qemu-system-x86_64 -cdrom build/DreamOs64.iso -serial file:dreamos64.log
 
@@ -44,7 +46,12 @@ build/%.o: src/%.s
 build/%.o: src/%.c
 	echo "$(@D)"
 	mkdir -p "$(@D)"
-	x86_64-elf-gcc ${CFLAGS} -c "$<" -o "$@"
+ifeq ($(DEBUG),'0')
+		x86_64-elf-gcc ${CFLAGS} -c "$<" -o "$@"
+else
+		@echo "Compiling with DEBUG flag"
+		x86_64-elf-gcc ${CFLAGS} -DDEBUG=1 -c "$<" -o "$@"
+endif
 
 build/kernel.bin: $(OBJ_ASM_FILE) $(OBJ_C_FILE) src/linker.ld
 	echo $(OBJ_ASM_FILE)
