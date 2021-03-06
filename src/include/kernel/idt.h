@@ -13,6 +13,41 @@
 
 /* TODO: DEFINE of: interrupt type, interrupt ids, wrapper function */
 
+static const char *exception_names[] = {
+  "Divide by Zero Error",
+  "Debug",
+  "Non Maskable Interrupt",
+  "Breakpoint",
+  "Overflow",
+  "Bound Range",
+  "Invalid Opcode",
+  "Device Not Available",
+  "Double Fault",
+  "Coprocessor Segment Overrun",
+  "Invalid TSS",
+  "Segment Not Present",
+  "Stack-Segment Fault",
+  "General Protection Fault",
+  "Page Fault",
+  "Reserved",
+  "x87 Floating-Point Exception",
+  "Alignment Check",
+  "Machine Check",
+  "SIMD Floating-Point Exception",
+  "Reserved",
+  "Reserved",
+  "Reserved",
+  "Reserved",
+  "Reserved",
+  "Reserved",
+  "Reserved",
+  "Reserved",
+  "Reserved",
+  "Reserved",
+  "Security Exception",
+  "Reserved"
+};
+
 
 typedef struct IDT_desc {
    uint16_t offset_low;
@@ -35,8 +70,27 @@ void set_idt_entry(uint16_t , uint8_t, uint16_t, uint8_t, void (*)());
 void interrupts_handler(cpu_status_t*);
 
 void default_isr();
-void int_14(cpu_status_t*);
 
-extern void interrupt_service_routine_error_code_14();
+//extern void interrupt_service_routine_error_code_14();
+// extern void interrupt_service_routine_7();
+extern void interrupt_service_routine_0();
+extern void interrupt_service_routine_1();
+extern void interrupt_service_routine_2();
+extern void interrupt_service_routine_3();
+extern void interrupt_service_routine_4();
+extern void interrupt_service_routine_5();
+extern void interrupt_service_routine_6();
 extern void interrupt_service_routine_7();
+extern void interrupt_service_routine_error_code_8();
+extern void interrupt_service_routine_9();
+extern void interrupt_service_routine_error_code_10();
+extern void interrupt_service_routine_error_code_11();
+extern void interrupt_service_routine_error_code_12();
+extern void interrupt_service_routine_error_code_13();
+extern void interrupt_service_routine_error_code_14();
+extern void interrupt_service_routine_15();
+extern void interrupt_service_routine_16();
+extern void interrupt_service_routine_error_code_17();
+extern void interrupt_service_routine_18();
+
 #endif

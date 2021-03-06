@@ -13,6 +13,8 @@ interrupt_service_routine_%1:
     cld
     call interrupts_handler
 	restore_context
+	add rsp, 16
+	sti
     iretq
 %endmacro
 
@@ -26,6 +28,8 @@ interrupt_service_routine_error_code_%1:
     cld
     call interrupts_handler
 	restore_context
+	add rsp, 16
+	sti
     iretq
 %endmacro
 
@@ -67,5 +71,22 @@ interrupt_service_routine_error_code_%1:
     pop rax
 %endmacro
 
-interrupt_service_routine_error_code 14
+interrupt_service_routine 0
+interrupt_service_routine 1
+interrupt_service_routine 2
+interrupt_service_routine 3
+interrupt_service_routine 4
+interrupt_service_routine 5
+interrupt_service_routine 6
 interrupt_service_routine 7
+interrupt_service_routine_error_code 8
+interrupt_service_routine 9
+interrupt_service_routine_error_code 10
+interrupt_service_routine_error_code 11
+interrupt_service_routine_error_code 12
+interrupt_service_routine_error_code 13
+interrupt_service_routine_error_code 14
+interrupt_service_routine 15
+interrupt_service_routine 16
+interrupt_service_routine_error_code 17
+interrupt_service_routine 18

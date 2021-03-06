@@ -6,20 +6,27 @@
 static IDT_descriptor idt_table[IDT_SIZE];
 
 void interrupts_handler(cpu_status_t *status){
+	qemu_write_string(exception_names[status->interrupt_number]);
+	qemu_write_string("\n");
+	if (status->error_code == 0){
+		qemu_write_string("mmaa...\n");
+	}
 	if (status->interrupt_number == 14){
 		qemu_write_string("Page fault called\n");
-		qemu_write_string("Looping...");
-	}if (status->interrupt_number == 7){
+		qemu_write_string("Looping...\n");
+	} else if (status->interrupt_number == 7){
 		qemu_write_string("Device not available\n");
 		qemu_write_string("Looping...");
+	} else if (status->interrupt_number == 13){
+		char number[10 ] = "";
+		qemu_write_string("Device not available\n");
+		qemu_write_string("Looping...");
+		_getHexString(number, status->error_code);
+		qemu_write_string(number);
 	} else {
 		qemu_write_string("Another exception called...");
 	}
-	/*uint64_t test = 25;
-	char number[30] = "";
-	_getHexString(number, test);*/
-	//qemu_write_string(number);
-	while(1);
+	qemu_write_string("Arriving here\n");
 }
 
 void init_idt(){
@@ -34,22 +41,25 @@ void init_idt(){
 		idt_table[i].segment_selector = 0;
 		i++;
 	}
-	/*set_idt_entry(0x00, IDT_PRESENT_FLAG | IDT_INTERRUPT_TYPE_FLAG, 0x08, 0,int_14);
-	set_idt_entry(0x01, IDT_PRESENT_FLAG | IDT_INTERRUPT_TYPE_FLAG, 0x08, 0,int_14);
-	set_idt_entry(0x02, IDT_PRESENT_FLAG | IDT_INTERRUPT_TYPE_FLAG, 0x08, 0,int_14);
-	set_idt_entry(0x03, IDT_PRESENT_FLAG | IDT_INTERRUPT_TYPE_FLAG, 0x08, 0,int_14);
-	set_idt_entry(0x04, IDT_PRESENT_FLAG | IDT_INTERRUPT_TYPE_FLAG, 0x08, 0,int_14);
-	set_idt_entry(0x05, IDT_PRESENT_FLAG | IDT_INTERRUPT_TYPE_FLAG, 0x08, 0,int_14);
-	set_idt_entry(0x06, IDT_PRESENT_FLAG | IDT_INTERRUPT_TYPE_FLAG, 0x08, 0,int_14);
-	set_idt_entry(0x07, IDT_PRESENT_FLAG | IDT_INTERRUPT_TYPE_FLAG, 0x08, 0,int_14);
-	set_idt_entry(0x08, IDT_PRESENT_FLAG | IDT_INTERRUPT_TYPE_FLAG, 0x08, 0,int_14);
-	set_idt_entry(0x09, IDT_PRESENT_FLAG | IDT_INTERRUPT_TYPE_FLAG, 0x08, 0,int_14);
-	set_idt_entry(0x0A, IDT_PRESENT_FLAG | IDT_INTERRUPT_TYPE_FLAG, 0x08, 0,int_14);
-	set_idt_entry(0x0B, IDT_PRESENT_FLAG | IDT_INTERRUPT_TYPE_FLAG, 0x08, 0,int_14);
-	set_idt_entry(0x0C, IDT_PRESENT_FLAG | IDT_INTERRUPT_TYPE_FLAG, 0x08, 0,int_14);
-	set_idt_entry(0x0D, IDT_PRESENT_FLAG | IDT_INTERRUPT_TYPE_FLAG, 0x08, 0,int_14);*/
-	set_idt_entry(0x0E, IDT_PRESENT_FLAG | IDT_INTERRUPT_TYPE_FLAG, 0x08, 0, interrupt_service_routine_error_code_14);
+	set_idt_entry(0x00, IDT_PRESENT_FLAG | IDT_INTERRUPT_TYPE_FLAG, 0x08, 0, interrupt_service_routine_0);
+	set_idt_entry(0x01, IDT_PRESENT_FLAG | IDT_INTERRUPT_TYPE_FLAG, 0x08, 0, interrupt_service_routine_1);
+	set_idt_entry(0x02, IDT_PRESENT_FLAG | IDT_INTERRUPT_TYPE_FLAG, 0x08, 0, interrupt_service_routine_2);
+	set_idt_entry(0x03, IDT_PRESENT_FLAG | IDT_INTERRUPT_TYPE_FLAG, 0x08, 0, interrupt_service_routine_3);
+	set_idt_entry(0x04, IDT_PRESENT_FLAG | IDT_INTERRUPT_TYPE_FLAG, 0x08, 0, interrupt_service_routine_4);
+	set_idt_entry(0x05, IDT_PRESENT_FLAG | IDT_INTERRUPT_TYPE_FLAG, 0x08, 0, interrupt_service_routine_5);
+	set_idt_entry(0x06, IDT_PRESENT_FLAG | IDT_INTERRUPT_TYPE_FLAG, 0x08, 0, interrupt_service_routine_6);
 	set_idt_entry(0x07, IDT_PRESENT_FLAG | IDT_INTERRUPT_TYPE_FLAG, 0x08, 0, interrupt_service_routine_7);
+	set_idt_entry(0x08, IDT_PRESENT_FLAG | IDT_INTERRUPT_TYPE_FLAG, 0x08, 0, interrupt_service_routine_error_code_8);
+	set_idt_entry(0x09, IDT_PRESENT_FLAG | IDT_INTERRUPT_TYPE_FLAG, 0x08, 0, interrupt_service_routine_9);
+	set_idt_entry(0x0A, IDT_PRESENT_FLAG | IDT_INTERRUPT_TYPE_FLAG, 0x08, 0, interrupt_service_routine_error_code_10);
+	set_idt_entry(0x0B, IDT_PRESENT_FLAG | IDT_INTERRUPT_TYPE_FLAG, 0x08, 0, interrupt_service_routine_error_code_11);
+	set_idt_entry(0x0C, IDT_PRESENT_FLAG | IDT_INTERRUPT_TYPE_FLAG, 0x08, 0, interrupt_service_routine_error_code_12);
+	set_idt_entry(0x0D, IDT_PRESENT_FLAG | IDT_INTERRUPT_TYPE_FLAG, 0x08, 0, interrupt_service_routine_error_code_13);
+	set_idt_entry(0x0E, IDT_PRESENT_FLAG | IDT_INTERRUPT_TYPE_FLAG, 0x08, 0, interrupt_service_routine_error_code_14);
+	set_idt_entry(0x0F, IDT_PRESENT_FLAG | IDT_INTERRUPT_TYPE_FLAG, 0x08, 0, interrupt_service_routine_15);
+	set_idt_entry(0x10, IDT_PRESENT_FLAG | IDT_INTERRUPT_TYPE_FLAG, 0x08, 0, interrupt_service_routine_16);
+	set_idt_entry(0x11, IDT_PRESENT_FLAG | IDT_INTERRUPT_TYPE_FLAG, 0x08, 0, interrupt_service_routine_error_code_17);
+	set_idt_entry(0x12, IDT_PRESENT_FLAG | IDT_INTERRUPT_TYPE_FLAG, 0x08, 0, interrupt_service_routine_18);
 }
 
 void set_idt_entry(uint16_t idx, uint8_t flags, uint16_t selector, uint8_t ist, void (*handler)() ){

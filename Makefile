@@ -4,7 +4,8 @@ CFLAGS := -std=gnu99 \
 		-Wall \
 		-Wextra \
 		-I src/include \
-		-I src/include/kernel
+		-I src/include/kernel \
+		-mno-red-zone
 
 BUILD := build
 PRJ_FOLDERS := src
