@@ -47,7 +47,7 @@ void _read_configuration_from_multiboot(unsigned long addr){
                 _getHexString(number, tagfb->common.framebuffer_bpp);
                 qemu_write_string(number);
                 qemu_write_string("\n");
-                //set_fb_data(tagfb);
+                set_fb_data(tagfb);
                 break;
         }
 
@@ -63,10 +63,10 @@ void kernel_start(unsigned long addr, unsigned long magic){
     qemu_write_string("Hello qemu log\n");
     qemu_write_string("==============\n");
 
-    _read_configuration_from_multiboot(addr);
     init_idt();
     load_idt();
-//    asm("int $0x0e");
+    _read_configuration_from_multiboot(addr);
+    //asm("int $0x0e");
     
     qemu_write_string("---Ok\n");
     //unsigned int *video_mem = (unsigned int*)0xb8020;
@@ -92,8 +92,6 @@ void kernel_start(unsigned long addr, unsigned long magic){
     unsigned int *val = (unsigned int *) 0x100000;
     _printStr("Magic: ");
     _printHex(number, *val);
-    qemu_write_string(number);
-    qemu_write_string("\n");
     val++;
     _printNewLine();
     _printStr("Flags: ");

@@ -2,31 +2,22 @@
 #include <video.h>
 #include <kernel/qemu.h>
 #include <stdint.h>
+#include <vm.h>
 
 static IDT_descriptor idt_table[IDT_SIZE];
 
 void interrupts_handler(cpu_status_t *status){
 	qemu_write_string(exception_names[status->interrupt_number]);
 	qemu_write_string("\n");
-	if (status->error_code == 0){
-		qemu_write_string("mmaa...\n");
+	switch(status->interrupt_number){
+		case PAGE_FAULT:
+			_printStr("---To be handled\n");
+            page_fault_handle();
+			break;
+		default:
+			_printStr("Actually i don't know what to do... Better going crazy... asdfasdasdsD");
+			break;
 	}
-	if (status->interrupt_number == 14){
-		qemu_write_string("Page fault called\n");
-		qemu_write_string("Looping...\n");
-	} else if (status->interrupt_number == 7){
-		qemu_write_string("Device not available\n");
-		qemu_write_string("Looping...");
-	} else if (status->interrupt_number == 13){
-		char number[10 ] = "";
-		qemu_write_string("Device not available\n");
-		qemu_write_string("Looping...");
-		_getHexString(number, status->error_code);
-		qemu_write_string(number);
-	} else {
-		qemu_write_string("Another exception called...");
-	}
-	qemu_write_string("Arriving here\n");
 }
 
 void init_idt(){
