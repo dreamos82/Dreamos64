@@ -4,6 +4,7 @@
 #ifdef DEBUG
 	#include <qemu.h>
 #endif
+#include <image.h>
 
 char *VIDEO_MEM = (char *) 0xb8000;
 char *VIDEO_PTR = (char *) 0xb8020;
@@ -19,20 +20,31 @@ void set_fb_data(struct multiboot_tag_framebuffer *fbtag){
     FRAMEBUFFER_MEM = (void*)(uint64_t)fbtag->common.framebuffer_addr;
     FRAMEBUFFER_PITCH = fbtag->common.framebuffer_pitch;
     FRAMEBUFFER_BPP = fbtag->common.framebuffer_bpp;
-    if(FRAMEBUFFER_MEM == 0xFD000000){
-        qemu_write_string("Framebuffer aroun 4g");
-    } else {
-        qemu_write_string("There is a bug in hex handling");
-    }
-
 
     multiboot_uint32_t *pixel = FRAMEBUFFER_MEM;
                       *pixel = 0xFFFFFFFF;
     //*FRAMEBUFFER_MEM=4;
     //multiboot_uint16_t *pixel =
-	//    unsigned int *px_addr = FRAMEBUFFER_MEM + 3 * FRAMEBUFFER_BPP + 10 * FRAMEBUFFER_BPP;
-	//    *px_addr++ = 4;
+	unsigned int *px_addr = FRAMEBUFFER_MEM + 300 * FRAMEBUFFER_BPP + 300 * FRAMEBUFFER_PITCH;
+	*px_addr++ = 0xEE6F;
 }
+
+/*void test_image(){
+	unsigned int *px_addr = FRAMEBUFFER_MEM;
+    int k=0;
+    for (int i=0; i<72; i++){
+        unsigned int row = i * FRAMEBUFFER_PITCH;
+        for (int j=0; j<88; j++){
+            //HEADER_PIXEL(header_data, px_addr);
+            px_addr[j*4] = MagickImage[i+j + k];
+            px_addr[j*4+1] = MagickImage[i+j+1 + k];
+            px_addr[j*4+2] = MagickImage[i+j+2 + k];
+            k +=3;
+            //px_addr = FRAMEBUFFER_MEM + row + j * FRAMEBUFFER_BPP; 
+        }
+        px_addr +=3200;
+    }
+}*/
 
 
 void _printCh(char c, character_color color){

@@ -11,6 +11,9 @@
 #include <main.h>
 
 struct multiboot_tag_framebuffer *tagfb;
+extern char _binary_fonts_default_psf_size;
+extern char _binary_fonts_default_psf_start;
+extern char _binary_fonts_default_psf_end;
 
 void _read_configuration_from_multiboot(unsigned long addr){
     struct multiboot_tag* tag;
@@ -66,6 +69,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
     init_idt();
     load_idt();
     _read_configuration_from_multiboot(addr);
+    //test_image();
     //asm("int $0x0e");
     
     qemu_write_string("---Ok\n");
@@ -160,6 +164,17 @@ void kernel_start(unsigned long addr, unsigned long magic){
 			qemu_write_string(number);
 			qemu_write_string("\n");
 		}
+
+    PSF_font *font = (PSF_font*)&_binary_fonts_default_psf_start;
+    _getHexString(number, font->magic);
+    _printStr("Magic: "); 
+    _printStr(number);
+    _printNewLine();
+    _getHexString(number, font->numglyph);
+    _printStr("Number of glyphs: "); 
+    _printStr(number);
+    _printNewLine();
+
 
     //_printStr(" Type: ");
     //_printHex(number, boot_mem->type);
