@@ -49,7 +49,11 @@ void _read_configuration_from_multiboot(unsigned long addr){
                 qemu_write_string("---framebuffer-bpp: ");
                 _getHexString(number, tagfb->common.framebuffer_bpp);
                 qemu_write_string(number);
-                qemu_write_string("\n");
+                qemu_write_string("\n"); 
+                qemu_write_string("---framebuffer-pitch: ");
+                _getHexString(number, tagfb->common.framebuffer_pitch);
+                qemu_write_string(number);
+                qemu_write_string("\n"); 
                 set_fb_data(tagfb);
                 break;
         }
@@ -60,7 +64,6 @@ void _read_configuration_from_multiboot(unsigned long addr){
 void kernel_start(unsigned long addr, unsigned long magic){
     //struct multiboot_tag *tag;
     extern unsigned int end;
-    struct multiboot_header* boot_info = (struct multiboot_header*) 0x100000;
     struct multiboot_tag *tag = (struct multiboot_tag*) (addr+8);
     unsigned int log_enabled = qemu_init_debug();
     qemu_write_string("Hello qemu log\n");
@@ -174,16 +177,25 @@ void kernel_start(unsigned long addr, unsigned long magic){
     _printStr("Number of glyphs: "); 
     _printStr(number);
     _printNewLine();
-
-
-    //_printStr(" Type: ");
-    //_printHex(number, boot_mem->type);
-    //_printNewLine();
-    //_printStr(" MemL: ");
-    //_printHex(number, boot_mem->mem_lower);
-    //_printNewLine();
-    //_printStr(" MemU: ");
-    //_printHex(number, boot_mem->mem_upper);
-   
+    _getHexString(number, font->bytesperglyph);
+    _printStr("Bytes per glyphs: "); 
+    _printStr(number);
+    _printNewLine();
+    _getHexString(number, font->flags);
+    _printStr("Flags: "); 
+    _printStr(number);
+    _printNewLine();
+    _getHexString(number, font->version);
+    _printStr("Version: "); 
+    _printStr(number);
+    _printNewLine();
+     _getHexString(number, font->width);
+    _printStr("Width: "); 
+    _printStr(number);
+    _printNewLine();
+   _getHexString(number, font->height);
+    _printStr("Height: "); 
+    _printStr(number);
+    _printNewLine();
 
 }
