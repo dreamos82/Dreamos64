@@ -8,6 +8,7 @@
 #include <kernel/io.h>
 #include <kernel/qemu.h>
 #include <kernel/idt.h>
+#include <kernel/framebuffer.h>
 #include <main.h>
 
 struct multiboot_tag_framebuffer *tagfb;
@@ -177,6 +178,10 @@ void kernel_start(unsigned long addr, unsigned long magic){
     _printStr("Number of glyphs: "); 
     _printStr(number);
     _printNewLine();
+    _getHexString(number, font->headersize);
+    _printStr("Header size: "); 
+    _printStr(number);
+    _printNewLine();
     _getHexString(number, font->bytesperglyph);
     _printStr("Bytes per glyphs: "); 
     _printStr(number);
@@ -197,5 +202,5 @@ void kernel_start(unsigned long addr, unsigned long magic){
     _printStr("Height: "); 
     _printStr(number);
     _printNewLine();
-
+    _fb_putchar(70, 0, 10, 0xFFFFFF, 0x000000);
 }
