@@ -21,26 +21,6 @@ void set_fb_data(struct multiboot_tag_framebuffer *fbtag){
     FRAMEBUFFER_PITCH = fbtag->common.framebuffer_pitch;
     FRAMEBUFFER_BPP = fbtag->common.framebuffer_bpp;
 
-    multiboot_uint32_t *pixel = FRAMEBUFFER_MEM;
-                      *pixel = 0xFFFFFFFF;
-    int i=0;
-    while(i < 1024){
-        *pixel++ = 0xf8ff26;
-        i++;
-    }
-
-    pixel +=4096;
-    i = 4096;
-    while(i < 5110){
-        *pixel++ = 0xf8ff26;
-        i++;
-    }
-
-    //*FRAMEBUFFER_MEM=4;
-    //multiboot_uint16_t *pixel =
-	unsigned int *px_addr = FRAMEBUFFER_MEM + 300 * FRAMEBUFFER_BPP + 300 * FRAMEBUFFER_PITCH;
-	*px_addr++ = 0xEE6F;
-
 }
 
 /*void test_image(){
