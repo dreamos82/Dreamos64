@@ -1,5 +1,26 @@
 # DreamOS64
 
+DreamOS64 is just my recent attempt to write a kernel again after many years far from osdev, 
+But this time in 64bit.
+
+It is not a real replacement of the original DreamOS, and i don't really have any long term plans for it at the moment.
+
+I started this project because i was missing the excitement of low-level programming :) 
+
+## What it does
+
+Actually nothing! :D 
+
+It just prints the OS name and another string. 
+
+What i have implemented so far:
+
+* Long mode 
+* Basic i/o functions (using the VGA bios)
+* Basic framebuffer support (it can print strings on the screen, but only on the first half of the screen, the second half will cause a #PF for now) 
+* IDT Support
+
+
 ## Prerequisites: 
 
 These are the packages you need to build and run it: 
@@ -102,6 +123,8 @@ make debug
 ```
 
 It will output logging information on a logfile.
+
+If you want to enable the framebuffer open the Makefile and change the value of USE_FRAMEBUFFER variable to 1.
 
 More info to be added.
 
