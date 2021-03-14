@@ -203,9 +203,10 @@ void kernel_start(unsigned long addr, unsigned long magic){
     _printStr(number);
     _printNewLine();
     #if USE_FRAMEBUFFER == 1 
-    _fb_putchar('C', 0, 1, 0x000000, 0xFFFFFF);
-    _fb_putchar('i', 1, 1, 0x000000, 0xFFFFFF);
-    _fb_putchar('a', 2, 1, 0x000000, 0xFFFFFF);
-    _fb_putchar('o', 3, 1, 0x000000, 0xFFFFFF);
+    _fb_putchar('C', 1, 1, 0x000000, 0xFFFFFF);
+    _fb_putchar('i', 2, 1, 0x000000, 0xFFFFFF);
+    _fb_putchar('a', 3, 1, 0x000000, 0xFFFFFF);
+    _fb_putchar('o', 4, 1, 0x000000, 0xFFFFFF);
+    _fb_printStr("Dreamos64", 0, 0, 0xFFFFFF, 0x3333ff);
     #endif
 }

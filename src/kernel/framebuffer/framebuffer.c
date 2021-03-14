@@ -7,6 +7,7 @@ extern char _binary_fonts_default_psf_end;
 extern uint32_t FRAMEBUFFER_PITCH;
 extern void *FRAMEBUFFER_MEM;
 
+
 void _fb_putchar(unsigned short int symbol, int cx, int cy, uint32_t fg, uint32_t bg){
     _printStr("Inside fb_putchar");
     char *framebuffer = (char *) FRAMEBUFFER_MEM;
@@ -32,6 +33,21 @@ void _fb_putchar(unsigned short int symbol, int cx, int cy, uint32_t fg, uint32_
         }
         glyph += bytesperline;
         offset +=pitch;
+    }
+}
+
+void _fb_printStr(char *string, int cx, int cy, uint32_t fg, uint32_t bg){
+    while (*string != '\0'){
+        if (*string == '\n'){
+            qemu_write_string("_fb_printStr: \n support not added yet");
+        } else {
+            _fb_putchar(*string, cx, cy, fg, bg);
+        }
+        #ifdef DEBUG
+			qemu_write_char(*string);
+		#endif
+        string++;
+        cx++;
     }
 }
 

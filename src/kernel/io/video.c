@@ -20,7 +20,6 @@ void set_fb_data(struct multiboot_tag_framebuffer *fbtag){
     FRAMEBUFFER_MEM = (void*)(uint64_t)fbtag->common.framebuffer_addr;
     FRAMEBUFFER_PITCH = fbtag->common.framebuffer_pitch;
     FRAMEBUFFER_BPP = fbtag->common.framebuffer_bpp;
-
 }
 
 /*void test_image(){

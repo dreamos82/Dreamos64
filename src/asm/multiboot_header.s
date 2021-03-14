@@ -7,6 +7,7 @@ header_start:
 
     ;compute checksum
     dd 0x100000000 - (0xe85250d6 + 0 + (header_end - header_start))
+
 %if USE_FRAMEBUFFER == 1
 framebuffer_tag_start:
     dw  0x05    ;Type: framebuffer

@@ -8,6 +8,8 @@ CFLAGS := -std=gnu99 \
 		-I src/include/kernel \
 		-mno-red-zone \
 		-DUSE_FRAMEBUFFER=$(USE_FRAMEBUFFER)
+NASMFLAGS := -f elf64 \
+		-D USE_FRAMEBUFFER=$(USE_FRAMEBUFFER) 
 BUILD := build
 PRJ_FOLDERS := src
 FONT_FOLDERS := fonts
@@ -44,7 +46,7 @@ build/os.iso: build/kernel.bin grub.cfg
 build/%.o: src/%.s
 	echo "$(<D)"
 	mkdir -p "$(@D)"
-	nasm -f elf64 -D USE_FRAMEBUFFER=$(USE_FRAMEBUFFER) "$<" -o "$@"
+	nasm ${NASMFLAGS} "$<" -o "$@"
 
 build/%.o: src/%.c
 	echo "$(@D)"

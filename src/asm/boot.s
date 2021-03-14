@@ -1,5 +1,5 @@
 global start
-extern long_mode_start
+extern kernel_start
 
 section .text
 bits 32
@@ -89,7 +89,7 @@ start:
     mov fs, ax  ; extra segment register
     mov gs, ax  ; extra segment register
     ; Far jump to long mode
-    jmp  gdt64.code:long_mode_start
+    jmp  gdt64.code:kernel_start
 
 section .bss
 
