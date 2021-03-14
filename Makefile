@@ -1,3 +1,4 @@
+USE_FRAMEBUFFER := 1
 CFLAGS := -std=gnu99 \
 		-ffreestanding \
 		-O2 \
@@ -5,8 +6,8 @@ CFLAGS := -std=gnu99 \
 		-Wextra \
 		-I src/include \
 		-I src/include/kernel \
-		-mno-red-zone
-
+		-mno-red-zone \
+		-DUSE_FRAMEBUFFER=$(USE_FRAMEBUFFER)
 BUILD := build
 PRJ_FOLDERS := src
 FONT_FOLDERS := fonts
@@ -19,7 +20,6 @@ SRC_FONT_FILES := $(shell find $(FONT_FOLDERS) -type f -name "*.psf")
 OBJ_ASM_FILE := $(patsubst src/%.s, build/%.o, $(SRC_ASM_FILES))
 OBJ_C_FILE := $(patsubst src/%.c, build/%.o, $(SRC_C_FILES))
 OBJ_FONT_FILE := $(patsubst fonts/%.psf, build/%.o, $(SRC_FONT_FILES))
-
 default: build
 
 .PHONY: default build run clean debug
@@ -44,7 +44,7 @@ build/os.iso: build/kernel.bin grub.cfg
 build/%.o: src/%.s
 	echo "$(<D)"
 	mkdir -p "$(@D)"
-	nasm -f elf64 "$<" -o "$@"
+	nasm -f elf64 -D USE_FRAMEBUFFER=$(USE_FRAMEBUFFER) "$<" -o "$@"
 
 build/%.o: src/%.c
 	echo "$(@D)"

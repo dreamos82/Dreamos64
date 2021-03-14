@@ -17,7 +17,7 @@ void _fb_putchar(unsigned short int symbol, int cx, int cy, uint32_t fg, uint32_
         default_font->headersize + (symbol>0&&symbol<default_font->numglyph?symbol:0) * default_font->bytesperglyph;
     int bytesperline =  (default_font->width + 7)/8;
     int offset = (cy * default_font->height * pitch) + 
-        (cx * (default_font->width) * 4);
+        (cx * (default_font->width) * sizeof(PIXEL));
     
     int x, y, line, mask;
 
@@ -25,10 +25,10 @@ void _fb_putchar(unsigned short int symbol, int cx, int cy, uint32_t fg, uint32_
         line = offset;
         mask = 1 << (default_font->width - 1);
         for(x=0; x<default_font->width; x++){
-            //*((uint32_t*) (framebuffer + line)) = ((unsigned int) *glyph) & mask ? fg : bg;
-            *((uint32_t*) (framebuffer + line)) = glyph[x/8] & (0x80 >> (x & 7)) ? fg : bg;
+            //*((uint32_t*) (framebuffer + line)) = *((unsigned int*) glyph) & mask ? fg : bg;
+            *((PIXEL*) (framebuffer + line)) = glyph[x/8] & (0x80 >> (x & 7)) ? fg : bg;
             mask >>= 1;
-            line +=4;
+            line +=sizeof(PIXEL);
         }
         glyph += bytesperline;
         offset +=pitch;

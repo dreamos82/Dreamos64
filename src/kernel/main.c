@@ -202,8 +202,10 @@ void kernel_start(unsigned long addr, unsigned long magic){
     _printStr("Height: "); 
     _printStr(number);
     _printNewLine();
+    #if USE_FRAMEBUFFER == 1 
     _fb_putchar('C', 0, 1, 0x000000, 0xFFFFFF);
     _fb_putchar('i', 1, 1, 0x000000, 0xFFFFFF);
     _fb_putchar('a', 2, 1, 0x000000, 0xFFFFFF);
     _fb_putchar('o', 3, 1, 0x000000, 0xFFFFFF);
+    #endif
 }
