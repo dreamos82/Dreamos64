@@ -9,6 +9,7 @@
 #include <kernel/qemu.h>
 #include <kernel/idt.h>
 #include <kernel/framebuffer.h>
+#include <kernel/psf.h>
 #include <main.h>
 
 struct multiboot_tag_framebuffer *tagfb;
@@ -208,5 +209,11 @@ void kernel_start(unsigned long addr, unsigned long magic){
     _fb_putchar('a', 3, 1, 0x000000, 0xFFFFFF);
     _fb_putchar('o', 4, 1, 0x000000, 0xFFFFFF);
     _fb_printStr("Dreamos64", 0, 0, 0xFFFFFF, 0x3333ff);
+    if(get_PSF_version(&_binary_fonts_default_psf_start) == 1){
+        qemu_write_string("PSF v1 found");
+    }  else {
+        qemu_write_string("PSF v2 found");
+    }
     #endif
+    asm("hlt");
 }

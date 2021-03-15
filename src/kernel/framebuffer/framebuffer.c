@@ -1,11 +1,13 @@
 #include <kernel/framebuffer.h>
 #include <kernel/video.h>
+#include <kernel/psf.h>
 
 extern char _binary_fonts_default_psf_size;
 extern char _binary_fonts_default_psf_start;
 extern char _binary_fonts_default_psf_end;
 extern uint32_t FRAMEBUFFER_PITCH;
 extern void *FRAMEBUFFER_MEM;
+extern void *cur_framebuffer_pos;
 
 
 void _fb_putchar(unsigned short int symbol, int cx, int cy, uint32_t fg, uint32_t bg){
@@ -37,15 +39,15 @@ void _fb_putchar(unsigned short int symbol, int cx, int cy, uint32_t fg, uint32_
 }
 
 void _fb_printStr(char *string, int cx, int cy, uint32_t fg, uint32_t bg){
+    #ifdef DEBUG
+		qemu_write_char(string);
+    #endif
     while (*string != '\0'){
         if (*string == '\n'){
-            qemu_write_string("_fb_printStr: \n support not added yet");
+            qemu_write_string("_fb_printStr: newline support not added yet");
         } else {
             _fb_putchar(*string, cx, cy, fg, bg);
         }
-        #ifdef DEBUG
-			qemu_write_char(*string);
-		#endif
         string++;
         cx++;
     }
