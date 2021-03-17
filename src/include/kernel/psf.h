@@ -13,10 +13,13 @@
 #define PSF1_MODEHASSEQ 0x04
 #define PSF1_MAXMODE    0x05
 
+#define PSF_V1 0x01
+#define PSF_V2 0x02
+
 typedef struct {
     uint8_t magic[2];
     uint8_t mode;
-    uint8_t charsize;
+    uint8_t charsize; /* In psf v1 the width is always 8 so the height is equal the charsize*/
 } PSFv1_Font;
 
 typedef struct {
@@ -31,4 +34,6 @@ typedef struct {
 } PSF_font;
 
 uint8_t get_PSF_version(char *);
+
+uint8_t* get_glyph(uint8_t, uint8_t);
 #endif

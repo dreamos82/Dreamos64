@@ -4,7 +4,7 @@
 #ifdef DEBUG
 	#include <qemu.h>
 #endif
-#include <image.h>
+//#include <image.h>
 
 char *VIDEO_MEM = (char *) 0xb8000;
 char *VIDEO_PTR = (char *) 0xb8020;

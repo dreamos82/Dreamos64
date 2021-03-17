@@ -13,6 +13,7 @@
 #include <main.h>
 
 struct multiboot_tag_framebuffer *tagfb;
+struct multiboot_tag_basic_meminfo *tagmem;
 extern char _binary_fonts_default_psf_size;
 extern char _binary_fonts_default_psf_start;
 extern char _binary_fonts_default_psf_end;
@@ -26,6 +27,21 @@ void _read_configuration_from_multiboot(unsigned long addr){
 										+ ((tag->size + 7) & ~7))){
 
         switch(tag->type){
+            case MULTIBOOT_TAG_TYPE_BASIC_MEMINFO:
+                qemu_write_string("Found basic Mem Info type:");
+                tagmem = (struct multiboot_tag_basic_meminfo *) tag;
+                _getHexString(number, tagmem->type);
+                _printStr(number);
+                _printNewLine();
+                _getHexString(number, tagmem->mem_lower);
+                _printStr("Mem lower: ");
+                _printStr(number);
+                _printNewLine();
+                _getHexString(number, tagmem->mem_upper);
+                _printStr("Mem upper: ");
+                _printStr(number);
+                _printNewLine();
+                break;
             case MULTIBOOT_TAG_TYPE_FRAMEBUFFER:
                 qemu_write_string("Found Multiboot framebuffer: ");
                 _getHexString(number, tag->type);
@@ -208,12 +224,15 @@ void kernel_start(unsigned long addr, unsigned long magic){
     _fb_putchar('i', 2, 1, 0x000000, 0xFFFFFF);
     _fb_putchar('a', 3, 1, 0x000000, 0xFFFFFF);
     _fb_putchar('o', 4, 1, 0x000000, 0xFFFFFF);
+    _fb_putchar('!', 5, 1, 0x000000, 0xFFFFFF);
     _fb_printStr("Dreamos64", 0, 0, 0xFFFFFF, 0x3333ff);
     if(get_PSF_version(&_binary_fonts_default_psf_start) == 1){
-        qemu_write_string("PSF v1 found");
+        qemu_write_string("PSF v1 found\n");
     }  else {
-        qemu_write_string("PSF v2 found");
+        qemu_write_string("PSF v2 found\n");
     }
+    _getHexString(number, sizeof(PSFv1_Font));
+    qemu_write_string(number);
     #endif
     asm("hlt");
 }

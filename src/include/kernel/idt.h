@@ -84,6 +84,7 @@ typedef struct IDT_reg {
 }__attribute__((__packed__))IDT_register;
 
 void init_idt();
+void load_idt();
 void set_idt_entry(uint16_t , uint8_t, uint16_t, uint8_t, void (*)());
 
 void interrupts_handler(cpu_status_t*);
