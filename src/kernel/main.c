@@ -4,13 +4,13 @@
  * */
 
 #include <multiboot.h>
+#include <main.h>
+#include <idt.h>
 #include <kernel/video.h>
 #include <kernel/io.h>
 #include <kernel/qemu.h>
-#include <kernel/idt.h>
 #include <kernel/framebuffer.h>
 #include <kernel/psf.h>
-#include <main.h>
 
 struct multiboot_tag_framebuffer *tagfb;
 struct multiboot_tag_basic_meminfo *tagmem;

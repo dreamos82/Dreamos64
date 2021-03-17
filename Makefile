@@ -6,6 +6,7 @@ CFLAGS := -std=gnu99 \
 		-Wextra \
 		-I src/include \
 		-I src/include/kernel \
+		-I src/include/kernel/x86_64 \
 		-mno-red-zone \
 		-DUSE_FRAMEBUFFER=$(USE_FRAMEBUFFER)
 NASMFLAGS := -f elf64 \
@@ -35,7 +36,7 @@ run: build/os.iso
 
 debug: DEBUG=1
 debug: build/os.iso
-	qemu-system-x86_64 -cdrom build/DreamOs64.iso -serial file:dreamos64.log
+	qemu-system-x86_64 -cdrom build/DreamOs64.iso -serial file:dreamos64.log -m 512M
 
 build/os.iso: build/kernel.bin grub.cfg
 	mkdir -p build/isofiles/boot/grub
