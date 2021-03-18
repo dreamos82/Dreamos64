@@ -6,8 +6,8 @@
 #endif
 //#include <image.h>
 
-char *VIDEO_MEM = (char *) 0xb8000;
-char *VIDEO_PTR = (char *) 0xb8020;
+char *VIDEO_MEM = (char *) 0xc00b8000;
+char *VIDEO_PTR = (char *) 0xc00b8020;
 
 void *FRAMEBUFFER_MEM = 0;
 uint32_t FRAMEBUFFER_PITCH = 0;

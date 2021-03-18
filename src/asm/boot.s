@@ -1,12 +1,13 @@
 global start
 extern kernel_start
 
-section .text
+
+section .multiboot.text
 bits 32
 
 start:
-    mov edi, ebx
-    mov esi, eax
+    mov edi, ebx ; Address of multiboot structure
+    mov esi, eax ; Magic number
     ; For now we are goin to use 2Mib pages 
     ; We need only 3 table levels instead of 4
     mov eax, p3_table   ; Copy p3_table address in eax
@@ -46,12 +47,24 @@ start:
     or eax, 0b10000011
     mov [fbb_p2_table + 8 * 488], eax
 
+    ; Now time to map the kernel in the higher half
+    mov eax, hhk_p2_table   
+    or eax, 0b11
+    mov dword [fbb_p2_table + 0], eax
+
+    mov eax, 0x00000000 ; This is the base address of the kernel
+    or eax, 0b10000011
+    mov [hhk_p2_table + 0], eax
+
+    mov eax, 0x00200000
+    or eax, 0b10000011
+    mov [hhk_p2_table + 8 * 1], eax ;  Multiply by 1 just to highlight the entry number
 
     ; All set... now we are nearly ready to enter into 64 bit
     ; Is possible to move into cr3 only from another register
     ; So let's move p4_table address into eax first
     ; then into cr3
-    mov eax, p4_table
+    mov eax, (p4_table - 0xC0000000)
     mov cr3, eax
 
     ; Now we can enable PAE
@@ -76,7 +89,11 @@ start:
     or eax, 1 << 16 ; Write protect, cpu  can't write to read-only pages when
                     ; privilege level is 0
     mov cr0, eax    ; write back cr0
-
+    
+    lea ebx, [higher_half]
+    jmp ebx
+section .text
+higher_half:
     ; load gdt 
     lgdt [gdt64.pointer]
     
@@ -100,12 +117,29 @@ p3_table:
     resb 4096
 p2_table:
     resb 4096
-
+%ifdef SMALL_PAGES
+; if SMALL_PAGES is defined it means we are using 4k pages
+; For now the first 8mb will be mapped for the kernel.
+; This part is not implemented yet 
+pt1_table:
+    resb 4096
+pt2_table:
+    resb 4096
+pt3_table:
+    resb 4096
+pt4_table:
+    resb 4096
+%endif
 ; This section is temporary to test the framebuffer
 align 4096
 fbb_p3_table:
     resb 4096
 fbb_p2_table:
+    resb 4096
+
+; This section is for loading the kernel in the higher half (0xC0000000)
+; In the P2 Table (pdir) the entry 0 base address will be the mapped to the first 2mb of the kernel 
+hhk_p2_table:
     resb 4096
 
 section .rodata
