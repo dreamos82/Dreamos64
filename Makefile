@@ -8,6 +8,7 @@ CFLAGS := -std=gnu99 \
 		-I src/include/kernel \
 		-I src/include/kernel/x86_64 \
 		-mno-red-zone \
+		-mcmodel=large \
 		-DUSE_FRAMEBUFFER=$(USE_FRAMEBUFFER)
 NASMFLAGS := -f elf64 \
 		-D USE_FRAMEBUFFER=$(USE_FRAMEBUFFER) 
