@@ -37,7 +37,7 @@ run: build/os.iso
 
 debug: DEBUG=1
 debug: build/os.iso
-	qemu-system-x86_64 -cdrom build/DreamOs64.iso -serial file:dreamos64.log -m 512M
+	qemu-system-x86_64 -cdrom build/DreamOs64.iso -serial file:dreamos64.log -m 512M -d int -no-reboot
 
 build/os.iso: build/kernel.bin grub.cfg
 	mkdir -p build/isofiles/boot/grub

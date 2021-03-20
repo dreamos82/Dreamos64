@@ -1,9 +1,10 @@
 ENTRY(start)
 
 SECTIONS {
-    . = 0x00100000;
+    . = 1M;
 
     _kernel_start =.;
+    _kern_virtual_offset = 0xffffffff80000000;
     .multiboot_header :
     {
         /* Be sure that multiboot header is at the beginning */
@@ -15,25 +16,23 @@ SECTIONS {
         *(.multiboot.text)
     }
 
-    . += 0xC0000000;
+    . += _kern_virtual_offset;
 	/* Add a symbol that indicates the start address of the kernel. */
-	.text ALIGN (4K) : AT (ADDR (.text) - 0xC0000000)
+	.text ALIGN (4K) : AT (ADDR (.text) - _kern_virtual_offset)
 	{
 		*(.text)
 	}
-	.rodata ALIGN (4K) : AT (ADDR (.rodata) - 0xC0000000)
+	.rodata ALIGN (4K) : AT (ADDR (.rodata) - _kern_virtual_offset)
 	{
 		*(.rodata)
 	}
-	.data ALIGN (4K) : AT (ADDR (.data) - 0xC0000000)
+	.data ALIGN (4K) : AT (ADDR (.data) - _kern_virtual_offset)
 	{
 		*(.data)
 	}
-	.bss ALIGN (4K) : AT (ADDR (.bss) - 0xC0000000)
+	.bss ALIGN (4K) : AT (ADDR (.bss) - _kern_virtual_offset)
 	{
-		*(COMMON)
 		*(.bss)
-		*(.boot)
 	}
 
     _kernel_end = .;

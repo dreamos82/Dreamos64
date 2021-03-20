@@ -82,6 +82,7 @@ void _read_configuration_from_multiboot(unsigned long addr){
 void kernel_start(unsigned long addr, unsigned long magic){
     //struct multiboot_tag *tag;
     extern unsigned int _kernel_end;
+    _printCh('A', WHITE);
     struct multiboot_tag *tag = (struct multiboot_tag*) (addr+8);
     unsigned int log_enabled = qemu_init_debug();
     qemu_write_string("Hello qemu log\n");
