@@ -9,19 +9,6 @@
 char *VIDEO_MEM = (char *) 0xc00b8000;
 char *VIDEO_PTR = (char *) 0xc00b8020;
 
-void *FRAMEBUFFER_MEM = 0;
-uint32_t FRAMEBUFFER_PITCH = 0;
-uint32_t FRAMEBUFFER_POS_X = 0;
-uint32_t FRAMEBUFFER_POS_Y = 0;
-uint8_t FRAMEBUFFER_BPP = 0;
-
-
-void set_fb_data(struct multiboot_tag_framebuffer *fbtag){
-    FRAMEBUFFER_MEM = (void*)(uint64_t)fbtag->common.framebuffer_addr;
-    FRAMEBUFFER_PITCH = fbtag->common.framebuffer_pitch;
-    FRAMEBUFFER_BPP = fbtag->common.framebuffer_bpp;
-}
-
 /*void test_image(){
 	unsigned int *px_addr = FRAMEBUFFER_MEM;
     int k=0;

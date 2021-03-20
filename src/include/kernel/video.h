@@ -32,6 +32,5 @@ void _printNumber(char*, unsigned int, int);
 void _printHex(char*, unsigned int);
 void _clearScreen();
 
-void set_fb_data(struct multiboot_tag_framebuffer *);
 char* _getHexString(char*, unsigned int);
 #endif

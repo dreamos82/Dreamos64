@@ -1,3 +1,4 @@
+#include <multiboot.h>
 #include <kernel/framebuffer.h>
 #include <kernel/video.h>
 #include <kernel/psf.h>
@@ -5,10 +6,16 @@
 extern char _binary_fonts_default_psf_size;
 extern char _binary_fonts_default_psf_start;
 extern char _binary_fonts_default_psf_end;
-extern uint32_t FRAMEBUFFER_PITCH;
-extern void *FRAMEBUFFER_MEM;
+uint32_t FRAMEBUFFER_PITCH;
+void *FRAMEBUFFER_MEM;
+uint8_t FRAMEBUFFER_BPP = 0;
 extern void *cur_framebuffer_pos;
 
+void set_fb_data(struct multiboot_tag_framebuffer *fbtag){
+    FRAMEBUFFER_MEM = (void*)(uint64_t)fbtag->common.framebuffer_addr;
+    FRAMEBUFFER_PITCH = fbtag->common.framebuffer_pitch;
+    FRAMEBUFFER_BPP = fbtag->common.framebuffer_bpp;
+}
 
 void _fb_putchar(unsigned short int symbol, int cx, int cy, uint32_t fg, uint32_t bg){
     _printStr("Inside fb_putchar");
