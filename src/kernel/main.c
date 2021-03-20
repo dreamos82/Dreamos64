@@ -3,9 +3,9 @@
  * Kernel entry point from bootloader
  * */
 
-#include <multiboot.h>
 #include <main.h>
 #include <idt.h>
+#include <multiboot.h>
 #include <kernel/video.h>
 #include <kernel/io.h>
 #include <kernel/qemu.h>
@@ -81,7 +81,8 @@ void _read_configuration_from_multiboot(unsigned long addr){
 }
 void kernel_start(unsigned long addr, unsigned long magic){
     //struct multiboot_tag *tag;
-    extern unsigned int end;
+    extern unsigned int _kernel_end;
+    _printCh('A', WHITE);
     struct multiboot_tag *tag = (struct multiboot_tag*) (addr+8);
     unsigned int log_enabled = qemu_init_debug();
     qemu_write_string("Hello qemu log\n");
@@ -150,7 +151,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
     _printHex(number, *val);
     _printNewLine();
 	_printStr("End: ");
-	_printHex(number, (unsigned int)&end);
+	_printHex(number, (unsigned int)&_kernel_end);
     _printNewLine();
 	_printStr("Magic: ");
 	_printHex(number, magic);
