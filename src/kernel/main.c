@@ -223,5 +223,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
     _getHexString(number, sizeof(PSFv1_Font));
     qemu_write_string(number);
     #endif
+    char *string = _cpuid();
+    _printStr(string);
     asm("hlt");
 }
