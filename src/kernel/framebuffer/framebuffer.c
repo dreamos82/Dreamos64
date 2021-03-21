@@ -6,10 +6,11 @@
 extern char _binary_fonts_default_psf_size;
 extern char _binary_fonts_default_psf_start;
 extern char _binary_fonts_default_psf_end;
+extern void *cur_framebuffer_pos;
+
 uint32_t FRAMEBUFFER_PITCH;
 void *FRAMEBUFFER_MEM;
 uint8_t FRAMEBUFFER_BPP = 0;
-extern void *cur_framebuffer_pos;
 
 void set_fb_data(struct multiboot_tag_framebuffer *fbtag){
     FRAMEBUFFER_MEM = (void*)(uint64_t)fbtag->common.framebuffer_addr;
@@ -18,7 +19,6 @@ void set_fb_data(struct multiboot_tag_framebuffer *fbtag){
 }
 
 void _fb_putchar(unsigned short int symbol, int cx, int cy, uint32_t fg, uint32_t bg){
-    _printStr("Inside fb_putchar");
     char *framebuffer = (char *) FRAMEBUFFER_MEM;
     PSF_font *default_font = (PSF_font*)&_binary_fonts_default_psf_start;
     uint32_t pitch = FRAMEBUFFER_PITCH;

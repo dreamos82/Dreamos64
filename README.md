@@ -16,6 +16,7 @@ It just prints the OS name and another string.
 What i have implemented so far:
 
 * Long mode 
+* Kernel load in higher half
 * Basic i/o functions (using the VGA bios)
 * Basic framebuffer support (it can print strings on the screen, but only on the first half of the screen, the second half will cause a #PF for now) 
 * IDT Support

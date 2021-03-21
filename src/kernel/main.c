@@ -95,14 +95,6 @@ void kernel_start(unsigned long addr, unsigned long magic){
     //asm("int $0x0e");
     
     qemu_write_string("---Ok\n");
-    //unsigned int *video_mem = (unsigned int*)0xb8020;
-    //*video_mem = 0x024f;
-    //_printCh('@', WHITE);
-    //if(boot_info->flags == 0){
-    //    _printCh('Y', GREEN);
-    //} else {
-    //    _printCh('N', GREEN);
-    //}
     unsigned size = *(unsigned*)addr;
     char number[30];
     _printNewLine();
@@ -110,7 +102,6 @@ void kernel_start(unsigned long addr, unsigned long magic){
     _printNumber(number, size, 10);
     _printCh('@', WHITE);
     _printNewLine();
-    _printStr(" Trying to write something \n Now with a new line");
 
     _printNumber(number, 300, 10);
 
@@ -163,11 +154,8 @@ void kernel_start(unsigned long addr, unsigned long magic){
 	}
     _printNewLine();
     _printStr("Tag = type: ");
-    qemu_write_string("Tag = type: ");
     _printNumber(number, tag->type, 10);
-    qemu_write_string(number);
     _printStr(" - size: ");
-    qemu_write_string(" - size: ");
     _printNumber(number, tag->size, 10);
     qemu_write_string(number);
     qemu_write_string("\n");
