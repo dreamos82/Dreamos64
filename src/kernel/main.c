@@ -11,6 +11,8 @@
 #include <kernel/qemu.h>
 #include <kernel/framebuffer.h>
 #include <kernel/psf.h>
+#include <cpu.h>
+#include <apic.h>
 
 struct multiboot_tag_framebuffer *tagfb;
 struct multiboot_tag_basic_meminfo *tagmem;
@@ -223,7 +225,14 @@ void kernel_start(unsigned long addr, unsigned long magic){
     _getHexString(number, sizeof(PSFv1_Font));
     qemu_write_string(number);
     #endif
-    char *string = _cpuid();
+    char *string = _cpuid_model();
     _printStr(string);
+    uint32_t cpu_info = 0;
+    cpu_info = _cpuid_feature_apic();
+    _getHexString(number, cpu_info);
+    _printNewLine();
+    _printStr(number);
+    _printNewLine();
+    init_apic();
     asm("hlt");
 }
