@@ -16,6 +16,7 @@
 
 struct multiboot_tag_framebuffer *tagfb;
 struct multiboot_tag_basic_meminfo *tagmem;
+struct multiboot_tag_old_acpi *tagold_acpi;
 extern char _binary_fonts_default_psf_size;
 extern char _binary_fonts_default_psf_start;
 extern char _binary_fonts_default_psf_end;
@@ -43,6 +44,24 @@ void _read_configuration_from_multiboot(unsigned long addr){
                 _printStr("Mem upper: ");
                 _printStr(number);
                 _printNewLine();
+                break;
+            case MULTIBOOT_TAG_TYPE_ACPI_OLD:
+                _printStr("Found acpi RSDP\n");
+                tagold_acpi = (struct multiboot_tag_old_acpi *)tag;
+                RSDPDescriptor *descriptor = (RSDPDescriptor *)(++tag);
+                _getHexString(number, tagold_acpi->type);
+                _printStr(number);
+                _printNewLine();
+                _getHexString(number, tagold_acpi->size);
+                _printStr(number);
+                _printNewLine();
+                _printStr("Descriptor signature: ");
+                _printStr(descriptor->Signature);
+                _printNewLine();
+                _printStr("Descriptor OEMID: ");
+                _printStr(descriptor->OEMID);
+                _printNewLine();
+                _printStr(" ---");
                 break;
             case MULTIBOOT_TAG_TYPE_FRAMEBUFFER:
                 qemu_write_string("Found Multiboot framebuffer: ");
@@ -94,7 +113,6 @@ void kernel_start(unsigned long addr, unsigned long magic){
     load_idt();
     _read_configuration_from_multiboot(addr);
     //test_image();
-    //asm("int $0x0e");
     
     qemu_write_string("---Ok\n");
     unsigned size = *(unsigned*)addr;
@@ -225,12 +243,13 @@ void kernel_start(unsigned long addr, unsigned long magic){
     _getHexString(number, sizeof(PSFv1_Font));
     qemu_write_string(number);
     #endif
-    char *string = _cpuid_model();
-    _printStr(string);
+    char *cpuid_model = _cpuid_model();
+    _printStr(cpuid_model);
     uint32_t cpu_info = 0;
     cpu_info = _cpuid_feature_apic();
     _getHexString(number, cpu_info);
-    _printNewLine();
+//    _printNumber(number, cpu_info, 10);
+//    _printNewLine();
     _printStr(number);
     _printNewLine();
     init_apic();

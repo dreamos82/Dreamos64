@@ -30,4 +30,15 @@ typedef struct {
     uint64_t ss;
 } __attribute__((__packed__)) cpu_status_t ;
 
+typedef struct {
+ char Signature[8];
+ uint8_t Checksum;
+ char OEMID[6];
+ uint8_t Revision;
+ uint32_t RsdtAddress;
+} __attribute__ ((packed)) RSDPDescriptor;
+
+extern char* _cpuid_model();
+extern uint32_t _cpuid_feature_apic();
+
 #endif
