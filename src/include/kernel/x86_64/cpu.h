@@ -38,6 +38,7 @@ typedef struct {
  uint32_t RsdtAddress;
 } __attribute__ ((packed)) RSDPDescriptor;
 
+
 extern char* _cpuid_model();
 extern uint32_t _cpuid_feature_apic();
 

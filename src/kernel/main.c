@@ -13,6 +13,7 @@
 #include <kernel/psf.h>
 #include <cpu.h>
 #include <apic.h>
+#include <acpi.h>
 
 struct multiboot_tag_framebuffer *tagfb;
 struct multiboot_tag_basic_meminfo *tagmem;
@@ -61,7 +62,13 @@ void _read_configuration_from_multiboot(unsigned long addr){
                 _printStr("Descriptor OEMID: ");
                 _printStr(descriptor->OEMID);
                 _printNewLine();
+                _getHexString(number, descriptor->Revision);
+                _printStr("Revision: ");
+                _printStr(number);
+                _printNewLine();
                 _printStr(" ---");
+                validate_RSDP(descriptor);
+                parse_RSDT(descriptor);
                 break;
             case MULTIBOOT_TAG_TYPE_FRAMEBUFFER:
                 qemu_write_string("Found Multiboot framebuffer: ");
