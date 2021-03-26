@@ -47,27 +47,32 @@ void _printStr(char *string){
 }
 
 void _printNumber(char *buffer, unsigned int number, int base){
-    char *pointer, *pointerbase;
-    int mod;
-    pointer = buffer;
-    pointerbase = buffer;
-    while (number > 0) {
-        mod = number % base;
-        *pointer++ = mod + '0';
-        number = number / base;
+    switch(base){
+        case 10: {
+            char *pointer, *pointerbase;
+            int mod;
+            pointer = buffer;
+            pointerbase = buffer;
+            while (number > 0) {
+                mod = number % base;
+                *pointer++ = mod + '0';
+                number = number / base;
+            }
+            *pointer--=0;
+            while(pointer > pointerbase){
+                char swap;
+                swap = *pointer;
+                *pointer = *pointerbase;
+                *pointerbase = swap;
+                pointerbase++;
+                pointer--;
+            }
+            break;
+        }
+        case 16:
+            _getHexString(buffer, number);
+            break;
     }
-
-    *pointer--=0;
-    while(pointer > pointerbase){
-        char swap;
-        swap = *pointer;
-        *pointer = *pointerbase;
-        *pointerbase = swap;
-
-        pointerbase++;
-        pointer--;
-    }
-
     _printStr(buffer);
 
 }

@@ -2,7 +2,7 @@
 #include <video.h>
 
 void page_fault_handle(uint64_t error_code){
-    _printStr("Welcome to #PF world\n");
+    _printStr("Welcome to #PF world - Not ready yet... \n");
     char number[10];
     uint64_t cr2_content = 0;
     
