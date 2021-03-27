@@ -47,7 +47,7 @@ void _fb_putchar(unsigned short int symbol, int cx, int cy, uint32_t fg, uint32_
 
 void _fb_printStr(char *string, int cx, int cy, uint32_t fg, uint32_t bg){
     #ifdef DEBUG
-		qemu_write_char(string);
+		qemu_write_string(string);
     #endif
     while (*string != '\0'){
         if (*string == '\n'){
