@@ -14,6 +14,7 @@
 #include <cpu.h>
 #include <apic.h>
 #include <acpi.h>
+#include <string.h>
 
 struct multiboot_tag_framebuffer *tagfb;
 struct multiboot_tag_basic_meminfo *tagmem;
@@ -255,10 +256,11 @@ void kernel_start(unsigned long addr, unsigned long magic){
     uint32_t cpu_info = 0;
     cpu_info = _cpuid_feature_apic();
     _getHexString(number, cpu_info);
-//    _printNumber(number, cpu_info, 10);
-//    _printNewLine();
+    //    _printNumber(number, cpu_info, 10);
+    //    _printNewLine();
     _printStr(number);
     _printNewLine();
+    //test_strcmp();
     init_apic();
     asm("hlt");
 }

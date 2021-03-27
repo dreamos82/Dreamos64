@@ -32,5 +32,5 @@ void _printNumber(char*, unsigned int, int);
 void _printHex(char*, unsigned int);
 void _clearScreen();
 
-char* _getHexString(char*, unsigned int);
+int _getHexString(char*, unsigned int);
 #endif

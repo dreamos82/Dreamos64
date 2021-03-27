@@ -58,10 +58,6 @@ start:
     or eax, 0b10000011
     mov dword [(fbb_p2_table - KERNEL_VIRTUAL_ADDR) + 8 * 488], eax
 
-    ; Now time to map the kernel in the higher half
-    ; mov eax, hhk_p2_table   
-    ; or eax, 0b11
-    ; mov dword [fbb_p2_table + 0], eax
 
     mov eax, 0x000000 ; This is the base address of the kernel
     or eax, 0b10000011

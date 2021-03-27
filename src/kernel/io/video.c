@@ -79,7 +79,7 @@ void _printNumber(char *buffer, unsigned int number, int base){
 
 void _printHex(char *buffer, unsigned int hexnumber){
     /* First count how many digit is*/
-    buffer = _getHexString(buffer, hexnumber);
+    _getHexString(buffer, hexnumber);
     _printStr(buffer);
 
 }
@@ -91,15 +91,16 @@ void _printNewLine(){
 	#endif
 }
 
-char *_getHexString(char *buffer, unsigned int hexnumber){
+int _getHexString(char *buffer, unsigned int hexnumber){
     unsigned int tmpnumber = hexnumber;
     int shift = 0;
+    int size = 0;
     char *hexstring = buffer;
     while (tmpnumber >= 16){
         tmpnumber >>= 4;
         shift++;
     }
-    
+    size = shift;
     /* Now i can print the digits masking every single digit with 0xF 
      * Each hex digit is 4 bytes long. So if i mask number&0xF
      * I obtain exactly the number identified by the digit
@@ -117,5 +118,5 @@ char *_getHexString(char *buffer, unsigned int hexnumber){
         }
         *hexstring = '\0';
     }
-    return buffer;
+    return size;
 }
