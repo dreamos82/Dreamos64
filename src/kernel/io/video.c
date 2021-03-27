@@ -46,6 +46,13 @@ void _printStr(char *string){
     }
 }
 
+void _printStringAndNumber(char *string, unsigned int number){
+    char buffer[30];
+    _printStr(string);
+    _printHex(buffer, number);
+    _printNewLine();
+}
+
 void _printNumber(char *buffer, unsigned int number, int base){
     switch(base){
         case 10: {

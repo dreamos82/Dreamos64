@@ -204,38 +204,14 @@ void kernel_start(unsigned long addr, unsigned long magic){
 		}
 
     PSF_font *font = (PSF_font*)&_binary_fonts_default_psf_start;
-    _getHexString(number, font->magic);
-    _printStr("Magic: "); 
-    _printStr(number);
-    _printNewLine();
-    _getHexString(number, font->numglyph);
-    _printStr("Number of glyphs: "); 
-    _printStr(number);
-    _printNewLine();
-    _getHexString(number, font->headersize);
-    _printStr("Header size: "); 
-    _printStr(number);
-    _printNewLine();
-    _getHexString(number, font->bytesperglyph);
-    _printStr("Bytes per glyphs: "); 
-    _printStr(number);
-    _printNewLine();
-    _getHexString(number, font->flags);
-    _printStr("Flags: "); 
-    _printStr(number);
-    _printNewLine();
-    _getHexString(number, font->version);
-    _printStr("Version: "); 
-    _printStr(number);
-    _printNewLine();
-     _getHexString(number, font->width);
-    _printStr("Width: "); 
-    _printStr(number);
-    _printNewLine();
-   _getHexString(number, font->height);
-    _printStr("Height: "); 
-    _printStr(number);
-    _printNewLine();
+    _printStringAndNumber("Magic: ", font->magic);
+    _printStringAndNumber("Number of glyphs: ", font->numglyph);
+    _printStringAndNumber("Header size: ", font->headersize);
+    _printStringAndNumber("Bytes per glyphs: ", font->bytesperglyph);
+    _printStringAndNumber("Flags: ", font->flags);
+    _printStringAndNumber("Version: ", font->version);
+    _printStringAndNumber("Width: ", font->width);
+    _printStringAndNumber("Height: ", font->height);
     #if USE_FRAMEBUFFER == 1 
     _fb_putchar('C', 1, 1, 0x000000, 0xFFFFFF);
     _fb_putchar('i', 2, 1, 0x000000, 0xFFFFFF);
@@ -248,17 +224,13 @@ void kernel_start(unsigned long addr, unsigned long magic){
     }  else {
         qemu_write_string("PSF v2 found\n");
     }
-    _getHexString(number, sizeof(PSFv1_Font));
-    qemu_write_string(number);
+    _printStringAndNumber("Size of psv1_font: ", sizeof(PSFv1_Font));
     #endif
     char *cpuid_model = _cpuid_model();
     _printStr(cpuid_model);
     uint32_t cpu_info = 0;
     cpu_info = _cpuid_feature_apic();
-    _getHexString(number, cpu_info);
-    //    _printNumber(number, cpu_info, 10);
-    //    _printNewLine();
-    _printStr(number);
+    _printHex(number, cpu_info);
     _printNewLine();
     //test_strcmp();
     init_apic();
