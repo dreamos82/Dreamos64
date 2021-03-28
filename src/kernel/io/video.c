@@ -6,8 +6,8 @@
 #endif
 //#include <image.h>
 
-char *VIDEO_MEM = (char *) 0xc00b8000;
-char *VIDEO_PTR = (char *) 0xc00b8020;
+char *VIDEO_MEM = (char *) 0xb8000;
+char *VIDEO_PTR = (char *) 0xb8000;
 
 /*void test_image(){
 	unsigned int *px_addr = FRAMEBUFFER_MEM;
@@ -96,6 +96,34 @@ void _printNewLine(){
     #ifdef DEBUG
 			qemu_write_char('\n');
 	#endif
+    _scrollUp();
+}
+
+int _getLineNumber(){
+    unsigned int absolute_position = VIDEO_PTR - VIDEO_MEM;
+    return absolute_position / (_SCR_W*2);
+}
+
+void _scrollUp(){
+    if(_getLineNumber() > 24 ){
+        for(int row=0; row < _SCR_H -1; row++){
+            int target_row = row * _SCR_W * 2;
+            int src_row = (row+1) * (_SCR_W) * 2;
+            for(int column=0; column < _SCR_W; column++) {
+                int src_pos = (column * 2) + src_row;
+                int target_pos = (column * 2) + target_row;
+                VIDEO_MEM[target_pos] = VIDEO_MEM[src_pos];
+                VIDEO_MEM[target_pos+1] = VIDEO_MEM[src_pos+1];
+                //VIDEO_MEM[row][column*2] = VIDEO_MEM[(row + 1)][column * 2];
+                //*VIDEO_MEM
+            }           
+        }
+        for(int column = 0; column < _SCR_W * 2; column++){
+            int last_line_pos = (_SCR_H - 1) * (_SCR_W*2) + (column);
+            VIDEO_MEM[last_line_pos] = 0;
+        }
+        VIDEO_PTR = VIDEO_MEM + ((_SCR_W * 2) * 23);
+    }
 }
 
 int _getHexString(char *buffer, unsigned int hexnumber){

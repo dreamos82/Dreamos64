@@ -32,6 +32,8 @@ void _printNumber(char*, unsigned int, int);
 void _printHex(char*, unsigned int);
 void _clearScreen();
 void _printStringAndNumber(char *, unsigned int);
+void _scrollUp();
 
 int _getHexString(char*, unsigned int);
+int _getLineNumber();
 #endif
