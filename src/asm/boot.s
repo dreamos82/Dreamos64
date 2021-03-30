@@ -58,6 +58,11 @@ start:
     or eax, 0b10000011
     mov dword [(fbb_p2_table - KERNEL_VIRTUAL_ADDR) + 8 * 488], eax
 
+    mov eax, 0xFD000000
+    or eax, 0b10000011
+    mov dword [(p2_table - KERNEL_VIRTUAL_ADDR) + 8 * 488], eax
+
+
     ; All set... now we are nearly ready to enter into 64 bit
     ; Is possible to move into cr3 only from another register
     ; So let's move p4_table address into eax first
