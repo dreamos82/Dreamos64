@@ -14,7 +14,7 @@ uint8_t FRAMEBUFFER_BPP = 0;
 
 void set_fb_data(struct multiboot_tag_framebuffer *fbtag){
     //FRAMEBUFFER_MEM = (void*)(uint64_t)fbtag->common.framebuffer_addr;
-    FRAMEBUFFER_MEM = (void*)(uint64_t)0xffffffffbd000000;
+    FRAMEBUFFER_MEM = (void*)(uint64_t)_FRAMEBUFFER_MEM_START;
     FRAMEBUFFER_PITCH = fbtag->common.framebuffer_pitch;
     FRAMEBUFFER_BPP = fbtag->common.framebuffer_bpp;
 }
