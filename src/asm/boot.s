@@ -116,8 +116,13 @@ kernel_jumper:
 higher_half:
     ; Far jump to long mode
     mov rsp, stack.top
-    
     lgdt [gdt64.pointer]
+
+    ; The two lines below are needed to un map the kernel in the lower half
+    ; But i'll leave them commented for now because the code in the kernel need 
+    ; to be changed and some addresses need to be updated (i.e. multiboot stuff)
+    ;mov eax, 0x0
+    ;mov dword [(p4_table - KERNEL_VIRTUAL_ADDR) + 0], eax
     call kernel_start
 
 section .bss
