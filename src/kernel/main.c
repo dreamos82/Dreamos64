@@ -65,7 +65,6 @@ void _read_configuration_from_multiboot(unsigned long addr){
 void kernel_start(unsigned long addr, unsigned long magic){
     //struct multiboot_tag *tag;
     extern unsigned int _kernel_end;
-    _printCh('A', WHITE);
     struct multiboot_tag *tag = (struct multiboot_tag*) (addr+8);
     unsigned int log_enabled = qemu_init_debug();
     qemu_write_string("Hello qemu log\n");
@@ -75,12 +74,13 @@ void kernel_start(unsigned long addr, unsigned long magic){
     load_idt();
     _read_configuration_from_multiboot(addr);
     //test_image();
-    
+    int line_number = _getLineNumber();
     qemu_write_string("---Ok\n");
     unsigned size = *(unsigned*)addr;
     char number[30];
     _printStringAndNumber("Size: ", size);
     
+    _printStringAndNumber("Line Number", line_number);
     unsigned int *val = (unsigned int *) 0x100000;
     _printStringAndNumber("Magic: ", *val);
     val++;
@@ -128,18 +128,18 @@ void kernel_start(unsigned long addr, unsigned long magic){
     _printStringAndNumber("Width: ", font->width);
     _printStringAndNumber("Height: ", font->height);
     #if USE_FRAMEBUFFER == 1 
-    _fb_putchar('C', 1, 1, 0x000000, 0xFFFFFF);
-    _fb_putchar('i', 2, 1, 0x000000, 0xFFFFFF);
-    _fb_putchar('a', 3, 1, 0x000000, 0xFFFFFF);
-    _fb_putchar('o', 4, 1, 0x000000, 0xFFFFFF);
-    _fb_putchar('!', 5, 1, 0x000000, 0xFFFFFF);
-    _fb_printStr("Dreamos64", 0, 0, 0xFFFFFF, 0x3333ff);
-    if(get_PSF_version(&_binary_fonts_default_psf_start) == 1){
-        qemu_write_string("PSF v1 found\n");
-    }  else {
-        qemu_write_string("PSF v2 found\n");
-    }
-    _printStringAndNumber("Size of psv1_font: ", sizeof(PSFv1_Font));
+        _fb_putchar('C', 1, 1, 0x000000, 0xFFFFFF);
+        _fb_putchar('i', 2, 1, 0x000000, 0xFFFFFF);
+        _fb_putchar('a', 3, 1, 0x000000, 0xFFFFFF);
+        _fb_putchar('o', 4, 1, 0x000000, 0xFFFFFF);
+        _fb_putchar('!', 5, 1, 0x000000, 0xFFFFFF);
+        _fb_printStr("Dreamos64", 0, 0, 0xFFFFFF, 0x3333ff);
+        if(get_PSF_version(&_binary_fonts_default_psf_start) == 1){
+            qemu_write_string("PSF v1 found\n");
+        }  else {
+            qemu_write_string("PSF v2 found\n");
+        }
+        _printStringAndNumber("Size of psv1_font: ", sizeof(PSFv1_Font));
     #endif
     char *cpuid_model = _cpuid_model();
     _printStr(cpuid_model);
@@ -149,5 +149,9 @@ void kernel_start(unsigned long addr, unsigned long magic){
     _printNewLine();
     //test_strcmp();
     init_apic();
+    #if USE_FRAMEBUFFER == 0
+        int current_line = _getLineNumber();
+        _printStringAndNumber("Line number: ", current_line);
+    #endif
     asm("hlt");
 }

@@ -5,6 +5,8 @@
 
 #define PIXEL uint32_t
 
+#define _FRAMEBUFFER_MEM_START 0xffffffffbd000000;
+
 void _fb_putchar(unsigned short int symbol, int cx, int cy, uint32_t fg, uint32_t bg);
 void _fb_printStr(char *string, int cx, int cy, uint32_t fg, uint32_t bg);
 

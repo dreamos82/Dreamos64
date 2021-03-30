@@ -6,6 +6,7 @@
 #define _SCR_W 80
 #define _SCR_H 25
 
+#define _VIDEO_MEM_START 0xFFFFFFFF800b8000
 typedef enum {
     BLACK,
     BLUE,

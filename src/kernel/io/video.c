@@ -6,8 +6,8 @@
 #endif
 //#include <image.h>
 
-char *VIDEO_MEM = (char *) 0xb8000;
-char *VIDEO_PTR = (char *) 0xb8000;
+char *VIDEO_MEM = (char *) _VIDEO_MEM_START;
+char *VIDEO_PTR = (char *) _VIDEO_MEM_START;
 
 /*void test_image(){
 	unsigned int *px_addr = FRAMEBUFFER_MEM;
@@ -105,6 +105,9 @@ int _getLineNumber(){
 }
 
 void _scrollUp(){
+    //This scrolling is very basic, and don't works in all cases, but since this is for the legacy VGA driver
+    //and it is needed more for debug purposes, probably it will not be developed much and will be replaced in
+    //the future (if i will be still developing the os)
     if(_getLineNumber() > 24 ){
         for(int row=0; row < _SCR_H -1; row++){
             int target_row = row * _SCR_W * 2;

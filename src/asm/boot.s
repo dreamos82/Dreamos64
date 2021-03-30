@@ -58,14 +58,10 @@ start:
     or eax, 0b10000011
     mov dword [(fbb_p2_table - KERNEL_VIRTUAL_ADDR) + 8 * 488], eax
 
-
-    mov eax, 0x000000 ; This is the base address of the kernel
+    mov eax, 0xFD000000
     or eax, 0b10000011
-    mov dword [(fbb_p2_table - KERNEL_VIRTUAL_ADDR) + 0], eax
+    mov dword [(p2_table - KERNEL_VIRTUAL_ADDR) + 8 * 488], eax
 
-    mov eax, 0x200000
-    or eax, 0b10000011
-    mov dword [(fbb_p2_table - KERNEL_VIRTUAL_ADDR) + 8 * 1], eax ;  Multiply by 1 just to highlight the entry number
 
     ; All set... now we are nearly ready to enter into 64 bit
     ; Is possible to move into cr3 only from another register
@@ -119,8 +115,6 @@ kernel_jumper:
 
 higher_half:
     ; Far jump to long mode
-    mov edx, 0xDEADBEEF
-
     mov rsp, stack.top
     
     lgdt [gdt64.pointer]
@@ -129,13 +123,13 @@ higher_half:
 section .bss
 
 align 4096
-p4_table:
+p4_table: ;PML4
     resb 4096
-p3_table:
+p3_table: ;PDPR
     resb 4096
-p3_table_hh:
-    resb 4096
-p2_table:
+p3_table_hh: ;PDPR
+    resb 4096 
+p2_table: ;PDP
     resb 4096
 %ifdef SMALL_PAGES
 ; if SMALL_PAGES is defined it means we are using 4k pages
