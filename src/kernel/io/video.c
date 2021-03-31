@@ -46,14 +46,14 @@ void _printStr(char *string){
     }
 }
 
-void _printStringAndNumber(char *string, unsigned int number){
+void _printStringAndNumber(char *string, unsigned long number){
     char buffer[30];
     _printStr(string);
     _printHex(buffer, number);
     _printNewLine();
 }
 
-void _printNumber(char *buffer, unsigned int number, int base){
+void _printNumber(char *buffer, unsigned long number, int base){
     switch(base){
         case 10: {
             char *pointer, *pointerbase;
@@ -84,7 +84,7 @@ void _printNumber(char *buffer, unsigned int number, int base){
 
 }
 
-void _printHex(char *buffer, unsigned int hexnumber){
+void _printHex(char *buffer, unsigned long hexnumber){
     /* First count how many digit is*/
     _getHexString(buffer, hexnumber);
     _printStr(buffer);
@@ -129,8 +129,8 @@ void _scrollUp(){
     }
 }
 
-int _getHexString(char *buffer, unsigned int hexnumber){
-    unsigned int tmpnumber = hexnumber;
+int _getHexString(char *buffer, unsigned long hexnumber){
+    unsigned long tmpnumber = hexnumber;
     int shift = 0;
     int size = 0;
     char *hexstring = buffer;

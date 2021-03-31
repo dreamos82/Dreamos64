@@ -89,8 +89,8 @@ void kernel_start(unsigned long addr, unsigned long magic){
     _printStringAndNumber("Header Length: ", *val);
     val++;  
     _printStringAndNumber("Checksum: ", *val);
-   	_printStr("End: ");
-	_printHex(number, (unsigned int)&_kernel_end);
+   	_printStr("Kernel End: ");
+	_printHex(number, (unsigned long)&_kernel_end);
     _printNewLine();
 	_printStr("Magic: ");
 	_printHex(number, magic);

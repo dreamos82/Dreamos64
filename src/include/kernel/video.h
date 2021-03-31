@@ -29,12 +29,12 @@ typedef enum {
 void _printCh(char, character_color);
 void _printStr(char *);
 void _printNewLine();
-void _printNumber(char*, unsigned int, int);
-void _printHex(char*, unsigned int);
+void _printNumber(char*, unsigned long, int);
+void _printHex(char*, unsigned long);
 void _clearScreen();
-void _printStringAndNumber(char *, unsigned int);
+void _printStringAndNumber(char *, unsigned long);
 void _scrollUp();
 
-int _getHexString(char*, unsigned int);
+int _getHexString(char*, unsigned long);
 int _getLineNumber();
 #endif
