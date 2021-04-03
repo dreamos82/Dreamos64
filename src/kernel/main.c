@@ -26,7 +26,6 @@ extern char _binary_fonts_default_psf_end;
 
 void _read_configuration_from_multiboot(unsigned long addr){
     struct multiboot_tag* tag;
-    char number[30];
 	for (tag=(struct multiboot_tag *) (addr + _HIGHER_HALF_KERNEL_MEM_START + 8);
 		tag->type != MULTIBOOT_TAG_TYPE_END;
 		tag = (struct multiboot_tag *) ((multiboot_uint8_t *) tag 
@@ -100,7 +99,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
     val++;  
     _printStringAndNumber("Checksum: ", *val);
    	_printStringAndNumber("Kernel End: ", &_kernel_end);
-	_printHex(number, (unsigned long)&_kernel_end);
+	_printHex(number, (unsigned long)&_kernel_end  - _HIGHER_HALF_KERNEL_MEM_START);
     _printNewLine();
 	_printStr("Magic: ");
 	_printHex(number, magic);
