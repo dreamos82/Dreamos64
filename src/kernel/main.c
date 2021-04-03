@@ -110,21 +110,13 @@ void kernel_start(unsigned long addr, unsigned long magic){
 		_printStr("Ok i'm fucked");
 	}
     _printNewLine();
-    _printStringAndNumber("Tag = type: ", tag->type);
-    _printStringAndNumber(" - size: ", tag->size);
 	for (tag = (struct multiboot_tag *) (addr + _HIGHER_HALF_KERNEL_MEM_START + 8);
 		tag->type != MULTIBOOT_TAG_TYPE_END;
 		tag = (struct multiboot_tag *) ((multiboot_uint8_t *) tag 
 										+ ((tag->size + 7) & ~7)))
 		{
-			qemu_write_string("Tag 0x");
-			_getHexString(number, tag->type);
-			qemu_write_string(number);
-			qemu_write_string("\n");
-			qemu_write_string(" Size 0x");
-			_getHexString(number, tag->size);
-			qemu_write_string(number);
-			qemu_write_string("\n");
+            _printStringAndNumber("Tag 0x", tag->type);
+            _printStringAndNumber("--Size: 0x", tag->size);
 		}
 
     PSF_font *font = (PSF_font*)&_binary_fonts_default_psf_start;
