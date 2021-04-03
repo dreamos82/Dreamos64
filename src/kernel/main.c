@@ -86,17 +86,12 @@ void kernel_start(unsigned long addr, unsigned long magic){
     int line_number = _getLineNumber();
     qemu_write_string("---Ok\n");
     unsigned size = *(unsigned*)addr;
-    char number[30];
     _printStringAndNumber("Size: ", size);
-    
     _printStringAndNumber("Line Number", line_number);
     unsigned int *val = (unsigned int *) 0x100000;
-    _printStringAndNumber("Magic: ", *val);
-    val++;
-    _printStringAndNumber("Flags: ", *val);
-    val++;
-    _printStringAndNumber("Header Length: ", *val);
-    val++;  
+    _printStringAndNumber("Magic: ", *val++);
+    _printStringAndNumber("Flags: ", *val++);
+    _printStringAndNumber("Header Length: ", *val++);
     _printStringAndNumber("Checksum: ", *val);
    	_printStringAndNumber("Kernel End: ", &_kernel_end);
 	_printHex(number, (unsigned long)&_kernel_end  - _HIGHER_HALF_KERNEL_MEM_START);
