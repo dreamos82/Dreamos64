@@ -36,4 +36,5 @@ SECTIONS {
 	}
 
     _kernel_end = .;
+    _kernel_physical_end = . - _kern_virtual_offset;
 }
