@@ -19,14 +19,14 @@
 struct multiboot_tag_framebuffer *tagfb;
 struct multiboot_tag_basic_meminfo *tagmem;
 struct multiboot_tag_old_acpi *tagold_acpi;
+struct multiboot_tag_mmap *tagmmap;
 extern char _binary_fonts_default_psf_size;
 extern char _binary_fonts_default_psf_start;
 extern char _binary_fonts_default_psf_end;
 
 void _read_configuration_from_multiboot(unsigned long addr){
     struct multiboot_tag* tag;
-    char number[30];
-	for (tag=(struct multiboot_tag *) (addr + 8);
+	for (tag=(struct multiboot_tag *) (addr + _HIGHER_HALF_KERNEL_MEM_START + 8);
 		tag->type != MULTIBOOT_TAG_TYPE_END;
 		tag = (struct multiboot_tag *) ((multiboot_uint8_t *) tag 
 										+ ((tag->size + 7) & ~7))){
@@ -56,6 +56,15 @@ void _read_configuration_from_multiboot(unsigned long addr){
                 _printStringAndNumber("---framebuffer-bpp: ", tagfb->common.framebuffer_bpp);
                 _printStringAndNumber("---framebuffer-pitch: ", tagfb->common.framebuffer_pitch);
                 set_fb_data(tagfb);
+                break;
+            case MULTIBOOT_TAG_TYPE_MMAP:
+                tagmmap = (struct multiboot_tag_mmap*) tag;
+                _printStringAndNumber("Memory map entry: ", tagmmap->type);
+                _printStringAndNumber("---Size: ", tagmmap->size);
+                _printStringAndNumber("---Entrysize: ", tagmmap->entry_size);
+                _printStringAndNumber("---EntryVersion: ", tagmmap->entry_version);
+                _printStringAndNumber("---Struct size: ", sizeof(struct multiboot_tag_mmap));
+                _parse_mmap(tagmmap);
                 break;
         }
 
@@ -89,8 +98,8 @@ void kernel_start(unsigned long addr, unsigned long magic){
     _printStringAndNumber("Header Length: ", *val);
     val++;  
     _printStringAndNumber("Checksum: ", *val);
-   	_printStr("Kernel End: ");
-	_printHex(number, (unsigned long)&_kernel_end);
+   	_printStringAndNumber("Kernel End: ", &_kernel_end);
+	_printHex(number, (unsigned long)&_kernel_end  - _HIGHER_HALF_KERNEL_MEM_START);
     _printNewLine();
 	_printStr("Magic: ");
 	_printHex(number, magic);
@@ -103,7 +112,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
     _printNewLine();
     _printStringAndNumber("Tag = type: ", tag->type);
     _printStringAndNumber(" - size: ", tag->size);
-	for (tag = (struct multiboot_tag *) (addr + 8);
+	for (tag = (struct multiboot_tag *) (addr + _HIGHER_HALF_KERNEL_MEM_START + 8);
 		tag->type != MULTIBOOT_TAG_TYPE_END;
 		tag = (struct multiboot_tag *) ((multiboot_uint8_t *) tag 
 										+ ((tag->size + 7) & ~7)))
