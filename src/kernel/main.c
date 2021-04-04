@@ -15,6 +15,7 @@
 #include <apic.h>
 #include <acpi.h>
 #include <string.h>
+#include <bitmap.h>
 
 struct multiboot_tag_framebuffer *tagfb;
 struct multiboot_tag_basic_meminfo *tagmem;
@@ -137,7 +138,9 @@ void kernel_start(unsigned long addr, unsigned long magic){
         _printStringAndNumber("Size of psv1_font: ", sizeof(PSFv1_Font));
     #endif
     char *cpuid_model = _cpuid_model();
-    _printStringAndNumber("Cpuid model: ", cpuid_model);
+    _printStr("Cpuid model: ");
+    _printStr(cpuid_model);
+    _printNewLine();
     uint32_t cpu_info = 0;
     cpu_info = _cpuid_feature_apic();
     _printStringAndNumber("Cpu info result: ", cpu_info);
@@ -147,5 +150,6 @@ void kernel_start(unsigned long addr, unsigned long magic){
         int current_line = _getLineNumber();
         _printStringAndNumber("Line number: ", current_line);
     #endif
+    _initialize_bitmap();
     asm("hlt");
 }
