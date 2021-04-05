@@ -2,17 +2,22 @@
 #define _BITMAP_H
 
 #include <stdint.h>
+#include <stddef.h>
 
-#define PAGE_SIZE_IN_BYTES 0x200000
 #if PAGE_SIZE == 2
     #define PAGE_SIZE_IN_BYTES 0x200000
 #elif PAGE_SIZE == 4
     #define PAGE_SIZE_IN_BYTES 0x1000
 #endif
+
+#define BITMAP_ENTRY_FULL 0xfffffffffffffff
+#define BITMAP_ROW_BITS 64
+
 #define FREE_TO_USE 0
 #define USED 1
-#define RESERVED 2
 
 void _initialize_bitmap();
+
+uint64_t _bitmap_request_frames(uint8_t);
 
 #endif
