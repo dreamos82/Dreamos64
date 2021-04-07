@@ -26,10 +26,10 @@ void _initialize_bitmap(){
     _printStringAndNumber("Actual size in bytes: ", memory_size_in_bytes);
     _printStringAndNumber("Number of bit entries: ", bitmap_size);
     _printStringAndNumber("Number items: ", number_of_entries);
-    _bitmap_request_frames(2);
+    _bitmap_request_frame();
 }
 
-uint64_t _bitmap_request_frames(uint8_t number_of_frames){
+uint64_t _bitmap_request_frame(){
     uint16_t row = 0;
     uint16_t column = 0;
     for (row = 0; row < number_of_entries; row++){
@@ -47,3 +47,17 @@ uint64_t _bitmap_request_frames(uint8_t number_of_frames){
     }
     return NULL;
 }
+
+void _bitmap_set_bit(uint64_t location){
+    memory_map[location / BITMAP_ROW_BITS] |= 1 << (location % BITMAP_ROW_BITS);
+}
+
+void _bitmap_free_bit(uint64_t location){
+    memory_map[location / BITMAP_ROW_BITS] &= ~(1 << (location % BITMAP_ROW_BITS));
+}
+
+void _bitmap_test_bit(uint64_t location){
+    return memory_map[location / BITMAP_ROW_BITS] & (1 << (location % BITMAP_ROW_BITS));
+}
+
+

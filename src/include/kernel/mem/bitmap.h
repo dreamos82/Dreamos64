@@ -18,6 +18,9 @@
 
 void _initialize_bitmap();
 
-uint64_t _bitmap_request_frames(uint8_t);
+uint64_t _bitmap_request_frame();
+void _bitmap_set_bit(uint64_t);
+void _bitmap_free_bit(uint64_t);
+void _bitmap_test_bit(uint64_t);
 
 #endif
