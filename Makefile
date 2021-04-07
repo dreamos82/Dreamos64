@@ -1,4 +1,5 @@
 USE_FRAMEBUFFER := 1
+PAGE_SIZE := 2
 CFLAGS := -std=gnu99 \
 		-ffreestanding \
 		-O2 \
@@ -11,7 +12,8 @@ CFLAGS := -std=gnu99 \
 		-I src/include/libc \
 		-mno-red-zone \
 		-mcmodel=large \
-		-DUSE_FRAMEBUFFER=$(USE_FRAMEBUFFER)
+		-DUSE_FRAMEBUFFER=$(USE_FRAMEBUFFER) \
+		-DPAGE_SIZE=$(PAGE_SIZE)
 NASMFLAGS := -f elf64 \
 		-D USE_FRAMEBUFFER=$(USE_FRAMEBUFFER) 
 BUILD := build
@@ -39,7 +41,7 @@ run: build/os.iso
 
 debug: DEBUG=1
 debug: build/os.iso
-	qemu-system-x86_64 -cdrom build/DreamOs64.iso -serial file:dreamos64.log -m 512M -d int -no-reboot
+	qemu-system-x86_64 -cdrom build/DreamOs64.iso -serial file:dreamos64.log -m 1G -d int -no-reboot
 
 build/os.iso: build/kernel.bin grub.cfg
 	mkdir -p build/isofiles/boot/grub

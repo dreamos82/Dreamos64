@@ -15,6 +15,7 @@
 #include <apic.h>
 #include <acpi.h>
 #include <string.h>
+#include <bitmap.h>
 
 struct multiboot_tag_framebuffer *tagfb;
 struct multiboot_tag_basic_meminfo *tagmem;
@@ -74,6 +75,7 @@ void _read_configuration_from_multiboot(unsigned long addr){
 void kernel_start(unsigned long addr, unsigned long magic){
     //struct multiboot_tag *tag;
     extern unsigned int _kernel_end;
+    extern unsigned int _kernel_physical_end;
     struct multiboot_tag *tag = (struct multiboot_tag*) (addr+8);
     unsigned int log_enabled = qemu_init_debug();
     qemu_write_string("Hello qemu log\n");
@@ -86,23 +88,16 @@ void kernel_start(unsigned long addr, unsigned long magic){
     int line_number = _getLineNumber();
     qemu_write_string("---Ok\n");
     unsigned size = *(unsigned*)addr;
-    char number[30];
     _printStringAndNumber("Size: ", size);
-    
     _printStringAndNumber("Line Number", line_number);
     unsigned int *val = (unsigned int *) 0x100000;
-    _printStringAndNumber("Magic: ", *val);
-    val++;
-    _printStringAndNumber("Flags: ", *val);
-    val++;
-    _printStringAndNumber("Header Length: ", *val);
-    val++;  
+    _printStringAndNumber("Magic: ", *val++);
+    _printStringAndNumber("Flags: ", *val++);
+    _printStringAndNumber("Header Length: ", *val++);
     _printStringAndNumber("Checksum: ", *val);
    	_printStringAndNumber("Kernel End: ", &_kernel_end);
-	_printHex(number, (unsigned long)&_kernel_end  - _HIGHER_HALF_KERNEL_MEM_START);
-    _printNewLine();
-	_printStr("Magic: ");
-	_printHex(number, magic);
+    _printStringAndNumber("Kernel physical end: ", &_kernel_physical_end);
+	_printStringAndNumber("Magic: ", magic);
     _printNewLine();
 	if(magic == 0x36d76289){
 		_printStr("YEEEEH!!!");
@@ -143,16 +138,18 @@ void kernel_start(unsigned long addr, unsigned long magic){
         _printStringAndNumber("Size of psv1_font: ", sizeof(PSFv1_Font));
     #endif
     char *cpuid_model = _cpuid_model();
+    _printStr("Cpuid model: ");
     _printStr(cpuid_model);
+    _printNewLine();
     uint32_t cpu_info = 0;
     cpu_info = _cpuid_feature_apic();
-    _printHex(number, cpu_info);
-    _printNewLine();
+    _printStringAndNumber("Cpu info result: ", cpu_info);
     //test_strcmp();
     init_apic();
     #if USE_FRAMEBUFFER == 0
         int current_line = _getLineNumber();
         _printStringAndNumber("Line number: ", current_line);
     #endif
+    _initialize_bitmap();
     asm("hlt");
 }
