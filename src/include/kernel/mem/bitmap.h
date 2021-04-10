@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
 
 #if PAGE_SIZE == 2
     #define PAGE_SIZE_IN_BYTES 0x200000
@@ -18,9 +19,9 @@
 
 void _initialize_bitmap();
 
-uint64_t _bitmap_request_frame();
+int64_t _bitmap_request_frame();
 void _bitmap_set_bit(uint64_t);
 void _bitmap_free_bit(uint64_t);
-void _bitmap_test_bit(uint64_t);
+bool _bitmap_test_bit(uint64_t);
 
 #endif

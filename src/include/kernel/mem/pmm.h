@@ -4,6 +4,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-uint64_t pmm_alloc_frame();
+void *pmm_alloc_frame();
 bool pmm_check_frame_availability();
 #endif
