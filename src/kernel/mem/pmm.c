@@ -1,6 +1,7 @@
 #include <pmm.h>
 #include <bitmap.h>
 #include <stdbool.h>
+#include <mmap.h>
 #ifndef _TEST_
 #include <video.h>
 #endif
@@ -35,4 +36,10 @@ bool pmm_check_frame_availability() {
         return true;
     }
     return false; 
+}
+
+void pmm_reserve_area(uint64_t starting_address, uint32_t size){
+    #ifndef _TEST_
+    _printStr("coming soon\n");
+    #endif
 }

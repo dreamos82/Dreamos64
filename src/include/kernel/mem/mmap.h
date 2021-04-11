@@ -1,5 +1,5 @@
-#ifndef _MMAP_H
-#define _MMAP_H
+#ifndef _MMAP_H_
+#define _MMAP_H_
 
 #include <multiboot.h>
 #include <stdint.h>
@@ -9,14 +9,8 @@ typedef struct {
     multiboot_memory_map_t *entries;
 } mmap_wrapper;
 
-char *mmap_types[5] = {
-    "Invalid",
-    "Available",
-    "Reserved",
-    "Reclaimable",
-    "NVS",
-    "Defective"
-};
+extern const char *mmap_types[];
+
 void _parse_mmap(struct multiboot_tag_mmap*);
 
 #endif

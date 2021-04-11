@@ -4,6 +4,15 @@
 
 mmap_wrapper mmap_data;
 
+const char *mmap_types[] = {
+    "Invalid",
+    "Available",
+    "Reserved",
+    "Reclaimable",
+    "NVS",
+    "Defective"
+};
+
 void _parse_mmap(struct multiboot_tag_mmap *mmap_root){
     uint32_t entries = mmap_root->size - sizeof(*mmap_root);
     struct multiboot_mmap_entry* mmap_entry = (struct multiboot_mmap_entry *)mmap_root->entries;
@@ -19,10 +28,8 @@ void _parse_mmap(struct multiboot_tag_mmap *mmap_root){
         _printStr(mmap_types[mmap_data.entries[i].type]);
         _printNewLine();
         _printStringAndNumber("---zero:: ", mmap_data.entries[i].zero);
-//        mmap_entry = (struct multiboot_mmap_entry*)((uintptr_t)mmap_entry + mmap_root->entry_size);
         total_entries++;
         i++;
-//        entries -= mmap_root->entry_size;
     }
     _printStringAndNumber("Total entries: ", total_entries);
     _printStringAndNumber("double check: ", (mmap_root->size - sizeof(*mmap_root))/mmap_root->entry_size);
