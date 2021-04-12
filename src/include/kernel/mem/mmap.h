@@ -12,5 +12,5 @@ typedef struct {
 extern const char *mmap_types[];
 
 void _parse_mmap(struct multiboot_tag_mmap*);
-
+void _setup_mmap();
 #endif

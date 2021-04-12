@@ -1,4 +1,5 @@
 #include <mmap.h>
+#include <pmm.h>
 #include <stdint.h>
 
 
@@ -19,6 +20,7 @@ void _parse_mmap(struct multiboot_tag_mmap *mmap_root){
     int total_entries = 0;
     mmap_data.number_of_entries = (mmap_root->size - sizeof(*mmap_root))/mmap_root->entry_size;
     mmap_data.entries = mmap_root->entries;
+#ifndef _TEST_
     int i=0;
     while(i<mmap_data.number_of_entries){
         _printStringAndNumber("Address: ", (uint32_t)mmap_data.entries[i].addr);
@@ -33,6 +35,9 @@ void _parse_mmap(struct multiboot_tag_mmap *mmap_root){
     }
     _printStringAndNumber("Total entries: ", total_entries);
     _printStringAndNumber("double check: ", (mmap_root->size - sizeof(*mmap_root))/mmap_root->entry_size);
+#endif
+}
 
+void _setup_mmap(){
 
 }

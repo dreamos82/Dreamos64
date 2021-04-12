@@ -16,6 +16,7 @@
 #include <acpi.h>
 #include <string.h>
 #include <bitmap.h>
+#include <pmm.h>
 
 struct multiboot_tag_framebuffer *tagfb;
 struct multiboot_tag_basic_meminfo *tagmem;
@@ -150,6 +151,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
         int current_line = _getLineNumber();
         _printStringAndNumber("Line number: ", current_line);
     #endif
-    _initialize_bitmap();
+    pmm_setup();
+    pmm_reserve_area(0x10000, 10);
     asm("hlt");
 }
