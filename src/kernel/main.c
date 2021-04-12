@@ -66,7 +66,7 @@ void _read_configuration_from_multiboot(unsigned long addr){
                 _printStringAndNumber("---Entrysize: ", tagmmap->entry_size);
                 _printStringAndNumber("---EntryVersion: ", tagmmap->entry_version);
                 _printStringAndNumber("---Struct size: ", sizeof(struct multiboot_tag_mmap));
-                _parse_mmap(tagmmap);
+                _mmap_parse(tagmmap);
                 break;
         }
 

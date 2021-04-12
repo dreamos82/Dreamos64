@@ -1,8 +1,11 @@
 #include <mmap.h>
+#include <bitmap.h>
 #include <pmm.h>
 #include <stdint.h>
+#include <multiboot.h>
 
-
+extern uint32_t used_frames;
+extern struct multiboot_tag_basic_meminfo *tagmem;
 mmap_wrapper mmap_data;
 
 const char *mmap_types[] = {
@@ -14,7 +17,7 @@ const char *mmap_types[] = {
     "Defective"
 };
 
-void _parse_mmap(struct multiboot_tag_mmap *mmap_root){
+void _mmap_parse(struct multiboot_tag_mmap *mmap_root){
     uint32_t entries = mmap_root->size - sizeof(*mmap_root);
     struct multiboot_mmap_entry* mmap_entry = (struct multiboot_mmap_entry *)mmap_root->entries;
     int total_entries = 0;
@@ -38,6 +41,24 @@ void _parse_mmap(struct multiboot_tag_mmap *mmap_root){
 #endif
 }
 
-void _setup_mmap(){
-
+void _mmap_setup(){
+    if(used_frames > 0){
+        uint32_t counter = 0;
+        uint64_t mem_limit = (tagmem->mem_upper + 1024) * 1024;
+        while(counter < mmap_data.number_of_entries){
+            if(mmap_data.entries[counter].addr < mem_limit){
+               _printStringAndNumber("found entry: ", mmap_data.entries[counter].addr);
+               uint64_t location = mmap_data.entries[counter].addr / PAGE_SIZE_IN_BYTES;
+               uint32_t number_of_frames = mmap_data.entries[counter].len / PAGE_SIZE_IN_BYTES;
+               for(; number_of_frames > 0; number_of_frames--){
+                   _bitmap_set_bit(location);
+                   used_frames++;
+               }
+            }
+            counter++;
+        }
+        #ifndef _TEST_
+        _printStringAndNumber("coming soon", counter);
+        #endif    
+    }
 }
