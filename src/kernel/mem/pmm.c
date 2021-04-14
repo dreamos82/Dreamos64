@@ -51,11 +51,20 @@ void pmm_reserve_area(uint64_t starting_address, size_t size){
     }
     for(; number_of_frames > 0; number_of_frames--){
        if(!_bitmap_test_bit(location)){
-           _bitmap_set_bit(location);
+           _bitmap_set_bit(location++);
            used_frames++;
        }
     }
 }
 
 void pmm_free_area(uint64_t starting_address, size_t size){
+    uint64_t location = starting_address / PAGE_SIZE_IN_BYTES;
+    uint32_t number_of_frames = size / PAGE_SIZE_IN_BYTES;
+    if((size % PAGE_SIZE_IN_BYTES) != 0){
+        size++;
+    }
+    for(; number_of_frames > 0; number_of_frames--){
+        _bitmap_free_bit(location);
+        used_frames--;
+    }
 }
