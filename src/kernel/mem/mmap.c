@@ -46,7 +46,9 @@ void _mmap_setup(){
         uint32_t counter = 0;
         uint64_t mem_limit = (tagmem->mem_upper + 1024) * 1024;
         while(counter < mmap_data.number_of_entries){
-            if(mmap_data.entries[counter].addr < mem_limit){
+            if(mmap_data.entries[counter].addr < mem_limit &&
+                    mmap_data.entries[counter].type > 1){
+               _printStringAndNumber("Found entry at addr: ", mmap_data.entries[counter].addr);
                pmm_reserve_area(mmap_data.entries[counter].addr, mmap_data.entries[counter].len);
             }
             counter++;
