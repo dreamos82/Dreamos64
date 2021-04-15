@@ -30,8 +30,8 @@ void *pmm_alloc_frame(){
     return NULL;
 }
 
-void pmm_free_frame(void *location){
-    uint64_t frame = ((uint64_t)location) / PAGE_SIZE_IN_BYTES;
+void pmm_free_frame(void *address){
+    uint64_t frame = ((uint64_t)address) / PAGE_SIZE_IN_BYTES;
     _bitmap_free_bit(frame);
     used_frames--;
 }
