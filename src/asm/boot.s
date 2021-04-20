@@ -1,4 +1,12 @@
 %define KERNEL_VIRTUAL_ADDR 0xFFFFFFFF80000000
+%define PAGE_DIR_ENTRY_FLAGS 0b11
+%define PRESENT_BIT 1
+%define WRITE_BIT 0b10
+%ifdef SMALL_PAGES
+%define PAGE_SIZE 0x1000
+%elifndef
+%define PAGE_SIZE 0x200000
+%endif
 section .multiboot.text
 global start
 extern kernel_start
@@ -14,26 +22,26 @@ start:
     ; For now we are goin to use 2Mib pages 
     ; We need only 3 table levels instead of 4
     mov eax, p3_table - KERNEL_VIRTUAL_ADDR; Copy p3_table address in eax
-    or eax, 0b11        ; set writable and present bits to 1
+    or eax, PRESENT_BIT | WRITE_BIT        ; set writable and present bits to 1
     mov dword [(p4_table - KERNEL_VIRTUAL_ADDR) + 0], eax   ; Copy eax content into the entry 0 of p4 table
 
     mov eax, p3_table_hh - KERNEL_VIRTUAL_ADDR
-    or eax, 0b11
+    or eax, PRESENT_BIT | WRITE_BIT
     mov dword [(p4_table - KERNEL_VIRTUAL_ADDR) + 511 * 8], eax
 
     mov eax, p2_table - KERNEL_VIRTUAL_ADDR  ; Let's do it again, with p2_table
-    or eax, 0b11       ; Set the writable and present bits
+    or eax, PRESENT_BIT | WRITE_BIT       ; Set the writable and present bits
     mov dword [(p3_table - KERNEL_VIRTUAL_ADDR) + 0], eax   ; Copy eax content in the 0th entry of p3
 
     mov eax, p2_table - KERNEL_VIRTUAL_ADDR
-    or eax, 0b11
+    or eax, PRESENT_BIT | WRITE_BIT
     mov dword[(p3_table_hh - KERNEL_VIRTUAL_ADDR) + 510 * 8], eax
 
     ; Now let's prepare a loop...
     mov ecx, 0  ; Loop counter
-    
+
     .map_p2_table:
-        mov eax, 0x200000   ; Size of the page
+        mov eax, PAGE_SIZE  ; Size of the page
         mul ecx             ; Multiply by counter
         or eax, 0b10000011 ; We set: huge page bit, writable and present 
 
@@ -51,12 +59,13 @@ start:
     ; This section is temporary, is here only to test the framebuffer features!
     ; Will be removed once the the memory management will be implemented
     mov eax, fbb_p2_table - KERNEL_VIRTUAL_ADDR
-    or eax, 0b11
+    or eax, PRESENT_BIT | WRITE_BIT
     mov dword [(p3_table - KERNEL_VIRTUAL_ADDR)+ 8 * 3], eax
 
-    mov eax, 0xFD000000
-    or eax, 0b10000011
-    mov dword [(fbb_p2_table - KERNEL_VIRTUAL_ADDR) + 8 * 488], eax
+    ;This section will be removed
+    ;mov eax, 0xFD000000
+    ;or eax, 0b10000011
+    ;mov dword [(fbb_p2_table - KERNEL_VIRTUAL_ADDR) + 8 * 488], eax
 
     mov eax, 0xFD000000
     or eax, 0b10000011
@@ -151,8 +160,6 @@ pt4_table:
 %endif
 ; This section is temporary to test the framebuffer
 align 4096
-fbb_p3_table:
-    resb 4096
 fbb_p2_table:
     resb 4096
 
