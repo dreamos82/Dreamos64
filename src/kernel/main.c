@@ -16,6 +16,7 @@
 #include <acpi.h>
 #include <string.h>
 #include <bitmap.h>
+#include <pmm.h>
 
 struct multiboot_tag_framebuffer *tagfb;
 struct multiboot_tag_basic_meminfo *tagmem;
@@ -65,7 +66,7 @@ void _read_configuration_from_multiboot(unsigned long addr){
                 _printStringAndNumber("---Entrysize: ", tagmmap->entry_size);
                 _printStringAndNumber("---EntryVersion: ", tagmmap->entry_version);
                 _printStringAndNumber("---Struct size: ", sizeof(struct multiboot_tag_mmap));
-                _parse_mmap(tagmmap);
+                _mmap_parse(tagmmap);
                 break;
         }
 
@@ -150,7 +151,8 @@ void kernel_start(unsigned long addr, unsigned long magic){
         int current_line = _getLineNumber();
         _printStringAndNumber("Line number: ", current_line);
     #endif
-    _initialize_bitmap();
+    pmm_setup();
+    pmm_reserve_area(0x10000, 10);
     asm("hlt");
 }
 

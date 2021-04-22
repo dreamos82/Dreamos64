@@ -1,15 +1,29 @@
 #include <mmap.h>
+#include <bitmap.h>
+#include <pmm.h>
 #include <stdint.h>
+#include <multiboot.h>
 
-
+extern uint32_t used_frames;
+extern struct multiboot_tag_basic_meminfo *tagmem;
 mmap_wrapper mmap_data;
 
-void _parse_mmap(struct multiboot_tag_mmap *mmap_root){
+const char *mmap_types[] = {
+    "Invalid",
+    "Available",
+    "Reserved",
+    "Reclaimable",
+    "NVS",
+    "Defective"
+};
+
+void _mmap_parse(struct multiboot_tag_mmap *mmap_root){
     uint32_t entries = mmap_root->size - sizeof(*mmap_root);
     struct multiboot_mmap_entry* mmap_entry = (struct multiboot_mmap_entry *)mmap_root->entries;
     int total_entries = 0;
     mmap_data.number_of_entries = (mmap_root->size - sizeof(*mmap_root))/mmap_root->entry_size;
     mmap_data.entries = mmap_root->entries;
+#ifndef _TEST_
     int i=0;
     while(i<mmap_data.number_of_entries){
         _printStringAndNumber("Address: ", (uint32_t)mmap_data.entries[i].addr);
@@ -19,13 +33,25 @@ void _parse_mmap(struct multiboot_tag_mmap *mmap_root){
         _printStr(mmap_types[mmap_data.entries[i].type]);
         _printNewLine();
         _printStringAndNumber("---zero:: ", mmap_data.entries[i].zero);
-//        mmap_entry = (struct multiboot_mmap_entry*)((uintptr_t)mmap_entry + mmap_root->entry_size);
         total_entries++;
         i++;
-//        entries -= mmap_root->entry_size;
     }
     _printStringAndNumber("Total entries: ", total_entries);
     _printStringAndNumber("double check: ", (mmap_root->size - sizeof(*mmap_root))/mmap_root->entry_size);
+#endif
+}
 
-
+void _mmap_setup(){
+    if(used_frames > 0){
+        uint32_t counter = 0;
+        uint64_t mem_limit = (tagmem->mem_upper + 1024) * 1024;
+        while(counter < mmap_data.number_of_entries){
+            if(mmap_data.entries[counter].addr < mem_limit &&
+                    mmap_data.entries[counter].type > 1){
+               _printStringAndNumber("Found entry at addr: ", mmap_data.entries[counter].addr);
+               pmm_reserve_area(mmap_data.entries[counter].addr, mmap_data.entries[counter].len);
+            }
+            counter++;
+        }
+    }
 }
