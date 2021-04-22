@@ -100,9 +100,9 @@ void kernel_start(unsigned long addr, unsigned long magic){
 	_printStringAndNumber("Magic: ", magic);
     _printNewLine();
 	if(magic == 0x36d76289){
-		_printStr("YEEEEH!!!");
+		_printStr("Magic number verified");
 	} else {
-		_printStr("Ok i'm fucked");
+		_printStr("Failed to verify magic number. Something wrong");
 	}
     _printNewLine();
 	for (tag = (struct multiboot_tag *) (addr + _HIGHER_HALF_KERNEL_MEM_START + 8);
@@ -153,3 +153,4 @@ void kernel_start(unsigned long addr, unsigned long magic){
     _initialize_bitmap();
     asm("hlt");
 }
+
