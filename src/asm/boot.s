@@ -2,10 +2,13 @@
 %define PAGE_DIR_ENTRY_FLAGS 0b11
 %define PRESENT_BIT 1
 %define WRITE_BIT 0b10
+%define HUGEPAGE_BIT 0b10000000
 %ifdef SMALL_PAGES
 %define PAGE_SIZE 0x1000
+%define PAGE_TABLE_ENTRY WRITE_BIT | PRESENT_BIT
 %elifndef
 %define PAGE_SIZE 0x200000
+%define PAGE_TABLE_ENTRY HUGEPAGE_BIT | WRITE_BIT | PRESENT_BIT
 %endif
 section .multiboot.text
 global start
@@ -36,7 +39,12 @@ start:
     mov eax, p2_table - KERNEL_VIRTUAL_ADDR
     or eax, PRESENT_BIT | WRITE_BIT
     mov dword[(p3_table_hh - KERNEL_VIRTUAL_ADDR) + 510 * 8], eax
-
+   
+    %ifdef SMAL_PAGES 
+    mov edx, 0
+    .map_pd_table:
+    push edx
+    %endif
     ; Now let's prepare a loop...
     mov ecx, 0  ; Loop counter
 
@@ -55,6 +63,13 @@ start:
                             ; that is 512 entries in a table
         
         jne .map_p2_table   ; if ecx < 512 then loop
+    %ifdef SMALL_PAGES
+    pop edx
+    inc edx
+    cmp edx, 2
+    jne .map_pd_table
+    %endif
+
 
     ; This section is temporary, is here only to test the framebuffer features!
     ; Will be removed once the the memory management will be implemented
