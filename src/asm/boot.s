@@ -6,9 +6,11 @@
 %ifdef SMALL_PAGES
 %define PAGE_SIZE 0x1000
 %define PAGE_TABLE_ENTRY WRITE_BIT | PRESENT_BIT
+%define LOOP_LIMIT 1024
 %elifndef
 %define PAGE_SIZE 0x200000
 %define PAGE_TABLE_ENTRY HUGEPAGE_BIT | WRITE_BIT | PRESENT_BIT
+%define LOOP_LIMIT 512
 %endif
 section .multiboot.text
 global start
@@ -39,52 +41,56 @@ start:
     mov eax, p2_table - KERNEL_VIRTUAL_ADDR
     or eax, PRESENT_BIT | WRITE_BIT
     mov dword[(p3_table_hh - KERNEL_VIRTUAL_ADDR) + 510 * 8], eax
-   
-    %ifdef SMAL_PAGES 
-    mov edx, 0
+    %ifdef SMALL_PAGES 
+    mov ebx, 0
     .map_pd_table:
-    push edx
+        mov eax, pt_tables - KERNEL_VIRTUAL_ADDR
+        or eax, PRESENT_BIT | WRITE_BIT
+        mov dword[(p2_table - KERNEL_VIRTUAL_ADDR) + ebx * 8], eax
+        add eax, 0x1000 * 8
+        inc ebx
+        cmp ebx, 2
+        jne .map_pd_table
     %endif
     ; Now let's prepare a loop...
     mov ecx, 0  ; Loop counter
 
+    mov word [0xb8000], 0x0248  ;Letter 'H'
     .map_p2_table:
         mov eax, PAGE_SIZE  ; Size of the page
         mul ecx             ; Multiply by counter
-        or eax, 0b10000011 ; We set: huge page bit, writable and present 
+        or eax, PAGE_TABLE_ENTRY ; We set: huge page bit, writable and present 
 
         ; Moving the computed value into p2_table entry defined by ecx * 8
         ; ecx is the counter, 8 is the size of a single entry
+        %ifdef SMALL_PAGES
+        mov [(pt_tables - KERNEL_VIRTUAL_ADDR) + ecx * 8], eax
+        %elifndef
         mov [(p2_table - KERNEL_VIRTUAL_ADDR) + ecx * 8], eax
+        %endif
 
         inc ecx             ; Let's increase ecx
-        cmp ecx, 512        ; have we reached 512 ?
+        cmp ecx, LOOP_LIMIT        ; have we reached 512 ?
                             ; each table is 4k size. Each entry is 8bytes
                             ; that is 512 entries in a table
         
         jne .map_p2_table   ; if ecx < 512 then loop
-    %ifdef SMALL_PAGES
-    pop edx
-    inc edx
-    cmp edx, 2
-    jne .map_pd_table
-    %endif
 
-
+    mov word [0xb8002], 0x0248  ;Letter 'H'
     ; This section is temporary, is here only to test the framebuffer features!
     ; Will be removed once the the memory management will be implemented
-    mov eax, fbb_p2_table - KERNEL_VIRTUAL_ADDR
-    or eax, PRESENT_BIT | WRITE_BIT
-    mov dword [(p3_table - KERNEL_VIRTUAL_ADDR)+ 8 * 3], eax
+    ;mov eax, fbb_p2_table - KERNEL_VIRTUAL_ADDR
+    ;or eax, PRESENT_BIT | WRITE_BIT
+    ;mov dword [(p3_table - KERNEL_VIRTUAL_ADDR)+ 8 * 3], eax
 
     ;This section will be removed
     ;mov eax, 0xFD000000
     ;or eax, 0b10000011
     ;mov dword [(fbb_p2_table - KERNEL_VIRTUAL_ADDR) + 8 * 488], eax
 
-    mov eax, 0xFD000000
-    or eax, 0b10000011
-    mov dword [(p2_table - KERNEL_VIRTUAL_ADDR) + 8 * 488], eax
+    ;mov eax, 0xFD000000
+    ;or eax, PAGE_TABLE_ENTRY
+    ;mov dword [(p2_table - KERNEL_VIRTUAL_ADDR) + 8 * 488], eax
 
 
     ; All set... now we are nearly ready to enter into 64 bit
@@ -110,13 +116,13 @@ start:
     ; write back the value
     wrmsr
     
+    mov word [0xb8004], 0x0248  ;Letter 'H'
     ; Now is tiem to enable paging
     mov eax, cr0    ;cr0 contains the values we want to change
     or eax, 1 << 31 ; Paging bit
     or eax, 1 << 16 ; Write protect, cpu  can't write to read-only pages when
                     ; privilege level is 0
     mov cr0, eax    ; write back cr0
-    
     ; load gdt 
     lgdt [gdt64.pointer_low - KERNEL_VIRTUAL_ADDR]
     jmp (0x8):(kernel_jumper - KERNEL_VIRTUAL_ADDR)
@@ -164,14 +170,10 @@ p2_table: ;PDP
 ; if SMALL_PAGES is defined it means we are using 4k pages
 ; For now the first 8mb will be mapped for the kernel.
 ; This part is not implemented yet 
-pt1_table:
-    resb 4096
-pt2_table:
-    resb 4096
-pt3_table:
-    resb 4096
-pt4_table:
-    resb 4096
+pt_tables:
+    resb 8192
+fdd_pt_tables:
+    resb 8192
 %endif
 ; This section is temporary to test the framebuffer
 align 4096
