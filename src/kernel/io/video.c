@@ -109,7 +109,6 @@ void _scrollUp(){
     //and it is needed more for debug purposes, probably it will not be developed much and will be replaced in
     //the future (if i will be still developing the os)
     char *i;
-    int index;
 
     if (VIDEO_PTR >= VIDEO_MEM + ((_SCR_H) * _SCR_W * 2)) {
         for (i=VIDEO_MEM ; i<= (VIDEO_MEM + ((_SCR_H) * _SCR_W * 2) + (_SCR_W * 2));i++)
