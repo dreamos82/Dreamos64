@@ -108,24 +108,13 @@ void _scrollUp(){
     //This scrolling is very basic, and don't works in all cases, but since this is for the legacy VGA driver
     //and it is needed more for debug purposes, probably it will not be developed much and will be replaced in
     //the future (if i will be still developing the os)
-    if(_getLineNumber() > 24 ){
-        for(int row=0; row < _SCR_H -1; row++){
-            int target_row = row * _SCR_W * 2;
-            int src_row = (row+1) * (_SCR_W) * 2;
-            for(int column=0; column < _SCR_W; column++) {
-                int src_pos = (column * 2) + src_row;
-                int target_pos = (column * 2) + target_row;
-                VIDEO_MEM[target_pos] = VIDEO_MEM[src_pos];
-                VIDEO_MEM[target_pos+1] = VIDEO_MEM[src_pos+1];
-                //VIDEO_MEM[row][column*2] = VIDEO_MEM[(row + 1)][column * 2];
-                //*VIDEO_MEM
-            }           
-        }
-        for(int column = 0; column < _SCR_W * 2; column++){
-            int last_line_pos = (_SCR_H - 1) * (_SCR_W*2) + (column);
-            VIDEO_MEM[last_line_pos] = 0;
-        }
-        VIDEO_PTR = VIDEO_MEM + ((_SCR_W * 2) * 23);
+    char *i;
+    int index;
+
+    if (VIDEO_PTR >= VIDEO_MEM + ((_SCR_H) * _SCR_W * 2)) {
+        for (i=VIDEO_MEM ; i<= (VIDEO_MEM + ((_SCR_H) * _SCR_W * 2) + (_SCR_W * 2));i++)
+          *i = i[_SCR_W * 2];
+        VIDEO_PTR = VIDEO_MEM + ((((VIDEO_PTR - VIDEO_MEM) / (_SCR_W * 2)) - 1) * (_SCR_W * 2));
     }
 }
 
