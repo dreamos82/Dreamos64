@@ -43,11 +43,11 @@ start:
     mov dword[(p3_table_hh - KERNEL_VIRTUAL_ADDR) + 510 * 8], eax
     %ifdef SMALL_PAGES 
     mov ebx, 0
+    mov eax, pt_tables - KERNEL_VIRTUAL_ADDR
     .map_pd_table:
-        mov eax, pt_tables - KERNEL_VIRTUAL_ADDR
         or eax, PRESENT_BIT | WRITE_BIT
         mov dword[(p2_table - KERNEL_VIRTUAL_ADDR) + ebx * 8], eax
-        add eax, 0x1000 * 8
+        add eax, 0x1000
         inc ebx
         cmp ebx, 2
         jne .map_pd_table
@@ -55,7 +55,6 @@ start:
     ; Now let's prepare a loop...
     mov ecx, 0  ; Loop counter
 
-    mov word [0xb8000], 0x0248  ;Letter 'H'
     .map_p2_table:
         mov eax, PAGE_SIZE  ; Size of the page
         mul ecx             ; Multiply by counter
@@ -76,7 +75,6 @@ start:
         
         jne .map_p2_table   ; if ecx < 512 then loop
 
-    mov word [0xb8002], 0x0248  ;Letter 'H'
     ; This section is temporary, is here only to test the framebuffer features!
     ; Will be removed once the the memory management will be implemented
     ;mov eax, fbb_p2_table - KERNEL_VIRTUAL_ADDR
@@ -87,11 +85,11 @@ start:
     ;mov eax, 0xFD000000
     ;or eax, 0b10000011
     ;mov dword [(fbb_p2_table - KERNEL_VIRTUAL_ADDR) + 8 * 488], eax
-
-    ;mov eax, 0xFD000000
-    ;or eax, PAGE_TABLE_ENTRY
-    ;mov dword [(p2_table - KERNEL_VIRTUAL_ADDR) + 8 * 488], eax
-
+    %ifndef SMALL_PAGES
+    mov eax, 0xFD000000
+    or eax, PAGE_TABLE_ENTRY
+    mov dword [(p2_table - KERNEL_VIRTUAL_ADDR) + 8 * 488], eax
+    %endif
 
     ; All set... now we are nearly ready to enter into 64 bit
     ; Is possible to move into cr3 only from another register
