@@ -1,5 +1,6 @@
-USE_FRAMEBUFFER := 1
+USE_FRAMEBUFFER := 0
 PAGE_SIZE := 2
+SMALL_PAGES := 1
 CFLAGS := -std=gnu99 \
 		-ffreestanding \
 		-O2 \
@@ -15,7 +16,7 @@ CFLAGS := -std=gnu99 \
 		-DUSE_FRAMEBUFFER=$(USE_FRAMEBUFFER) \
 		-DPAGE_SIZE=$(PAGE_SIZE)
 NASMFLAGS := -f elf64 \
-		-D USE_FRAMEBUFFER=$(USE_FRAMEBUFFER) 
+		-D USE_FRAMEBUFFER=$(USE_FRAMEBUFFER)
 BUILD := build
 PRJ_FOLDERS := src
 FONT_FOLDERS := fonts
@@ -61,7 +62,7 @@ ifeq ($(DEBUG),'0')
 		x86_64-elf-gcc ${CFLAGS} -c "$<" -o "$@"
 else
 		@echo "Compiling with DEBUG flag"
-		x86_64-elf-gcc ${CFLAGS} -DDEBUG=1 -c "$<" -o "$@"
+		x86_64-elf-gcc ${CFLAGS} -g -DDEBUG=1 -c "$<" -o "$@"
 endif
 
 build/%.o: fonts/%.psf

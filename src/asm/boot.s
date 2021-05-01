@@ -114,7 +114,6 @@ start:
     ; write back the value
     wrmsr
     
-    mov word [0xb8004], 0x0248  ;Letter 'H'
     ; Now is tiem to enable paging
     mov eax, cr0    ;cr0 contains the values we want to change
     or eax, 1 << 31 ; Paging bit
@@ -167,7 +166,6 @@ p2_table: ;PDP
 %ifdef SMALL_PAGES
 ; if SMALL_PAGES is defined it means we are using 4k pages
 ; For now the first 8mb will be mapped for the kernel.
-; This part is not implemented yet 
 pt_tables:
     resb 8192
 fdd_pt_tables:

@@ -32,7 +32,6 @@ void _read_configuration_from_multiboot(unsigned long addr){
 		tag->type != MULTIBOOT_TAG_TYPE_END;
 		tag = (struct multiboot_tag *) ((multiboot_uint8_t *) tag 
 										+ ((tag->size + 7) & ~7))){
-
         switch(tag->type){
             case MULTIBOOT_TAG_TYPE_BASIC_MEMINFO:
                 tagmem = (struct multiboot_tag_basic_meminfo *) tag;
@@ -43,7 +42,10 @@ void _read_configuration_from_multiboot(unsigned long addr){
             case MULTIBOOT_TAG_TYPE_ACPI_OLD:
                 tagold_acpi = (struct multiboot_tag_old_acpi *)tag;
                 _printStringAndNumber("Found acpi RSDP: ", tagold_acpi->type);
-                RSDPDescriptor *descriptor = (RSDPDescriptor *)(++tag);
+                _printStringAndNumber("Found acpi RSDP address: ", &tagold_acpi);
+                _printStringAndNumber("asd: ", tagold_acpi->size);
+                RSDPDescriptor *descriptor = (RSDPDescriptor *)(tag+1);
+                _printStringAndNumber("Address: ", &descriptor);
                 _printStringAndNumber("Descriptor revision: ", descriptor->Revision);
                 validate_RSDP(descriptor);
                 parse_RSDT(descriptor);
@@ -68,9 +70,12 @@ void _read_configuration_from_multiboot(unsigned long addr){
                 _printStringAndNumber("---Struct size: ", sizeof(struct multiboot_tag_mmap));
                 _mmap_parse(tagmmap);
                 break;
+            case MULTIBOOT_TAG_TYPE_ELF_SECTIONS:
+                _printStr("Found elf sections");
+                _printNewLine();
         }
-
     }
+    _printStr("End of read configuration\n");
 
 }
 void kernel_start(unsigned long addr, unsigned long magic){
@@ -81,23 +86,20 @@ void kernel_start(unsigned long addr, unsigned long magic){
     unsigned int log_enabled = qemu_init_debug();
     qemu_write_string("Hello qemu log\n");
     qemu_write_string("==============\n");
-
     init_idt();
     load_idt();
+    _printStringAndNumber("Kernel End: ", &_kernel_end);
+    _printStringAndNumber("Kernel physical end: ", &_kernel_physical_end);
     _read_configuration_from_multiboot(addr);
     //test_image();
-    int line_number = _getLineNumber();
     qemu_write_string("---Ok\n");
     unsigned size = *(unsigned*)addr;
     _printStringAndNumber("Size: ", size);
-    _printStringAndNumber("Line Number", line_number);
     unsigned int *val = (unsigned int *) 0x100000;
     _printStringAndNumber("Magic: ", *val++);
     _printStringAndNumber("Flags: ", *val++);
     _printStringAndNumber("Header Length: ", *val++);
     _printStringAndNumber("Checksum: ", *val);
-   	_printStringAndNumber("Kernel End: ", &_kernel_end);
-    _printStringAndNumber("Kernel physical end: ", &_kernel_physical_end);
 	_printStringAndNumber("Magic: ", magic);
     _printNewLine();
 	if(magic == 0x36d76289){

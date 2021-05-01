@@ -13,4 +13,5 @@ void page_fault_handle(uint64_t error_code){
     _getHexString(number, cr2_content);
     _printStr(number);
     _printNewLine();
+    asm("hlt");
 }
