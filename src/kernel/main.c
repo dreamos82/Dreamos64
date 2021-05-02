@@ -48,7 +48,7 @@ void _read_configuration_from_multiboot(unsigned long addr){
                 _printStringAndNumber("Address: ", &descriptor);
                 _printStringAndNumber("Descriptor revision: ", descriptor->Revision);
                 validate_RSDP(descriptor);
-                parse_RSDT(descriptor);
+                //parse_RSDT(descriptor);
                 break;
             case MULTIBOOT_TAG_TYPE_FRAMEBUFFER:
                 _printStringAndNumber("Found multiboot framebuffer: ", tag->type); 
