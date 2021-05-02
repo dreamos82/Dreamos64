@@ -43,7 +43,6 @@ void _read_configuration_from_multiboot(unsigned long addr){
                 tagold_acpi = (struct multiboot_tag_old_acpi *)tag;
                 _printStringAndNumber("Found acpi RSDP: ", tagold_acpi->type);
                 _printStringAndNumber("Found acpi RSDP address: ", &tagold_acpi);
-                _printStringAndNumber("asd: ", tagold_acpi->size);
                 RSDPDescriptor *descriptor = (RSDPDescriptor *)(tag+1);
                 _printStringAndNumber("Address: ", &descriptor);
                 _printStringAndNumber("Descriptor revision: ", descriptor->Revision);
@@ -149,10 +148,6 @@ void kernel_start(unsigned long addr, unsigned long magic){
     _printStringAndNumber("Cpu info result: ", cpu_info);
     //test_strcmp();
     init_apic();
-    #if USE_FRAMEBUFFER == 0
-        int current_line = _getLineNumber();
-        _printStringAndNumber("Line number: ", current_line);
-    #endif
     pmm_setup();
     pmm_reserve_area(0x10000, 10);
     asm("hlt");
