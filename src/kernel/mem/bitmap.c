@@ -37,7 +37,7 @@ void _initialize_bitmap(){
     _printStringAndNumber("Number of bit entries: ", bitmap_size);
     _printStringAndNumber("Number items: ", number_of_entries);
 #endif
-    _bitmap_request_frame();
+    //_bitmap_request_frame();
     //pmm_alloc_frame();
 }
 
