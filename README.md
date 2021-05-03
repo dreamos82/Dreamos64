@@ -20,6 +20,7 @@ What i have implemented so far:
 * Basic i/o functions (using the VGA bios)
 * Basic framebuffer support (it can print strings on the screen, but only on the first half of the screen, the second half will cause a #PF for now) 
 * IDT Support
+* It can load the kernel using 4kb pages or 2Mb pages
 
 
 ## Prerequisites: 
@@ -125,9 +126,11 @@ make debug
 
 It will output logging information on a logfile.
 
-If you want to enable the framebuffer open the Makefile and change the value of USE_FRAMEBUFFER variable to 1.
+There are couple of flags that you can set on the Makefile in order to configure some features: 
 
-More info to be added.
+* USE_FRAMEBUFFER if set to 1 it will enable framebuffer support (still experimental and probably will not work everywhere since is in very early stage of development), in addition you need a PSF v2 font fle in the folder fonts called deafult.psf, if set to 0 (default) it will use the legacy VGA driver
+* SMALL_PAGES if set to 1 it will use 4kb pages (this feature is new, and there are still some problems/unmapped parts that will cause #PF to be generated), if 0 (default) will use 2MB pages. 
+
 
 
 

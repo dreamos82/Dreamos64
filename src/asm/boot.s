@@ -3,11 +3,11 @@
 %define PRESENT_BIT 1
 %define WRITE_BIT 0b10
 %define HUGEPAGE_BIT 0b10000000
-%ifdef SMALL_PAGES
+%if SMALL_PAGES == 1
 %define PAGE_SIZE 0x1000
 %define PAGE_TABLE_ENTRY WRITE_BIT | PRESENT_BIT
 %define LOOP_LIMIT 1024
-%elifndef
+%elif SMALL_PAGES == 0
 %define PAGE_SIZE 0x200000
 %define PAGE_TABLE_ENTRY HUGEPAGE_BIT | WRITE_BIT | PRESENT_BIT
 %define LOOP_LIMIT 512
@@ -41,7 +41,7 @@ start:
     mov eax, p2_table - KERNEL_VIRTUAL_ADDR
     or eax, PRESENT_BIT | WRITE_BIT
     mov dword[(p3_table_hh - KERNEL_VIRTUAL_ADDR) + 510 * 8], eax
-    %ifdef SMALL_PAGES 
+    %if SMALL_PAGES == 1
     mov ebx, 0
     mov eax, pt_tables - KERNEL_VIRTUAL_ADDR
     .map_pd_table:
@@ -62,7 +62,7 @@ start:
 
         ; Moving the computed value into p2_table entry defined by ecx * 8
         ; ecx is the counter, 8 is the size of a single entry
-        %ifdef SMALL_PAGES
+        %if SMALL_PAGES == 1
         mov [(pt_tables - KERNEL_VIRTUAL_ADDR) + ecx * 8], eax
         %elifndef
         mov [(p2_table - KERNEL_VIRTUAL_ADDR) + ecx * 8], eax
@@ -85,7 +85,7 @@ start:
     ;mov eax, 0xFD000000
     ;or eax, 0b10000011
     ;mov dword [(fbb_p2_table - KERNEL_VIRTUAL_ADDR) + 8 * 488], eax
-    %ifndef SMALL_PAGES
+    %if SMALL_PAGES == 0
     mov eax, 0xFD000000
     or eax, PAGE_TABLE_ENTRY
     mov dword [(p2_table - KERNEL_VIRTUAL_ADDR) + 8 * 488], eax
@@ -163,7 +163,7 @@ p3_table_hh: ;PDPR
     resb 4096 
 p2_table: ;PDP
     resb 4096
-%ifdef SMALL_PAGES
+%if SMALL_PAGES == 1
 ; if SMALL_PAGES is defined it means we are using 4k pages
 ; For now the first 8mb will be mapped for the kernel.
 pt_tables:

@@ -1,5 +1,4 @@
-USE_FRAMEBUFFER := 1
-PAGE_SIZE := 2
+USE_FRAMEBUFFER := 0
 SMALL_PAGES := 1
 CFLAGS := -std=gnu99 \
 		-ffreestanding \
@@ -14,9 +13,10 @@ CFLAGS := -std=gnu99 \
 		-mno-red-zone \
 		-mcmodel=large \
 		-DUSE_FRAMEBUFFER=$(USE_FRAMEBUFFER) \
-		-DPAGE_SIZE=$(PAGE_SIZE)
+		-DSMALL_PAGES=$(SMALL_PAGES)
 NASMFLAGS := -f elf64 \
-		-D USE_FRAMEBUFFER=$(USE_FRAMEBUFFER)
+		-D USE_FRAMEBUFFER=$(USE_FRAMEBUFFER) \
+		-D SMALL_PAGES=$(SMALL_PAGES)
 BUILD := build
 PRJ_FOLDERS := src
 FONT_FOLDERS := fonts

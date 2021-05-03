@@ -5,9 +5,9 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-#if PAGE_SIZE == 2
+#if SMALL_PAGES == 0
     #define PAGE_SIZE_IN_BYTES 0x200000
-#elif PAGE_SIZE == 4
+#elif SMALL_PAGES == 1
     #define PAGE_SIZE_IN_BYTES 0x1000
 #endif
 
