@@ -32,6 +32,7 @@ void _initialize_bitmap(){
     memory_map[0] = 0x3ff; //I'm marking first 10 element in the bitmap as taken
     used_frames = 0x09; // Is the number of currently used frames - 1 (since the count starts from 0)
 #ifndef _TEST_
+    _printStringAndNumber("Page size: ", PAGE_SIZE_IN_BYTES);
     _printStringAndNumber("Actual size in bytes: ", memory_size_in_bytes);
     _printStringAndNumber("Number of bit entries: ", bitmap_size);
     _printStringAndNumber("Number items: ", number_of_entries);
