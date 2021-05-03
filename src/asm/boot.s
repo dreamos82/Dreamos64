@@ -64,7 +64,7 @@ start:
         ; ecx is the counter, 8 is the size of a single entry
         %if SMALL_PAGES == 1
         mov [(pt_tables - KERNEL_VIRTUAL_ADDR) + ecx * 8], eax
-        %elifndef
+        %elif SMALL_PAGES == 0
         mov [(p2_table - KERNEL_VIRTUAL_ADDR) + ecx * 8], eax
         %endif
 
@@ -90,7 +90,6 @@ start:
     or eax, PAGE_TABLE_ENTRY
     mov dword [(p2_table - KERNEL_VIRTUAL_ADDR) + 8 * 488], eax
     %endif
-
     ; All set... now we are nearly ready to enter into 64 bit
     ; Is possible to move into cr3 only from another register
     ; So let's move p4_table address into eax first
@@ -163,6 +162,7 @@ p3_table_hh: ;PDPR
     resb 4096 
 p2_table: ;PDP
     resb 4096
+
 %if SMALL_PAGES == 1
 ; if SMALL_PAGES is defined it means we are using 4k pages
 ; For now the first 8mb will be mapped for the kernel.
