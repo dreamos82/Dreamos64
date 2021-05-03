@@ -1,6 +1,5 @@
 USE_FRAMEBUFFER := 0
-PAGE_SIZE := 2
-SMALL_PAGES := 0
+SMALL_PAGES := 1
 CFLAGS := -std=gnu99 \
 		-ffreestanding \
 		-O2 \
@@ -14,7 +13,7 @@ CFLAGS := -std=gnu99 \
 		-mno-red-zone \
 		-mcmodel=large \
 		-DUSE_FRAMEBUFFER=$(USE_FRAMEBUFFER) \
-		-DPAGE_SIZE=$(PAGE_SIZE)
+		-DSMALL_PAGES=$(SMALL_PAGES)
 NASMFLAGS := -f elf64 \
 		-D USE_FRAMEBUFFER=$(USE_FRAMEBUFFER) \
 		-D SMALL_PAGES=$(SMALL_PAGES)
