@@ -1,5 +1,5 @@
 USE_FRAMEBUFFER := 0
-SMALL_PAGES := 1
+SMALL_PAGES := 0
 CFLAGS := -std=gnu99 \
 		-ffreestanding \
 		-O2 \
@@ -14,6 +14,10 @@ CFLAGS := -std=gnu99 \
 		-mcmodel=large \
 		-DUSE_FRAMEBUFFER=$(USE_FRAMEBUFFER) \
 		-DSMALL_PAGES=$(SMALL_PAGES)
+C_DEBUG_FLAGS := -g \
+				-DDEBUG=1
+NASM_DEBUG_FLAGS := -g \
+					-F dwarf
 NASMFLAGS := -f elf64 \
 		-D USE_FRAMEBUFFER=$(USE_FRAMEBUFFER) \
 		-D SMALL_PAGES=$(SMALL_PAGES)
@@ -53,7 +57,12 @@ build/os.iso: build/kernel.bin grub.cfg
 build/%.o: src/%.s
 	echo "$(<D)"
 	mkdir -p "$(@D)"
+	mkdir -p "$(@D)"
+ifeq ($(DEBUG),'0')
 	nasm ${NASMFLAGS} "$<" -o "$@"
+else
+	nasm ${NASM_DEBUG_FLAGS} ${NASMFLAGS} "$<" -o "$@"
+endif
 
 build/%.o: src/%.c
 	echo "$(@D)"
@@ -62,7 +71,7 @@ ifeq ($(DEBUG),'0')
 		x86_64-elf-gcc ${CFLAGS} -c "$<" -o "$@"
 else
 		@echo "Compiling with DEBUG flag"
-		x86_64-elf-gcc ${CFLAGS} -g -DDEBUG=1 -c "$<" -o "$@"
+		x86_64-elf-gcc ${CFLAGS} ${C_DEBUG_FLAGS} -c "$<" -o "$@"
 endif
 
 build/%.o: fonts/%.psf
@@ -75,4 +84,7 @@ build/kernel.bin: $(OBJ_ASM_FILE) $(OBJ_C_FILE) $(OBJ_FONT_FILE) src/linker.ld
 	echo $(OBJ_FONT_FILE)
 	ld -n -o build/kernel.bin -T src/linker.ld $(OBJ_ASM_FILE) $(OBJ_C_FILE) $(OBJ_FONT_FILE) -Map build/kernel.map
 
+gdb: DEBUG=1
+gdb: build/os.iso
+	qemu-system-x86_64 -cdrom build/DreamOs64.iso -serial file:dreamos64.log -m 1G -d int -no-reboot -s -S
 
