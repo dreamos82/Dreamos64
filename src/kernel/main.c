@@ -72,6 +72,11 @@ void _read_configuration_from_multiboot(unsigned long addr){
             case MULTIBOOT_TAG_TYPE_ELF_SECTIONS:
                 _printStr("Found elf sections");
                 _printNewLine();
+                break;
+            default:
+                _printStringAndNumber("Tag 0x", tag->type);
+                _printStringAndNumber("--Size: 0x", tag->size);
+                break;
         }
     }
     _printStr("End of read configuration\n");
@@ -107,14 +112,6 @@ void kernel_start(unsigned long addr, unsigned long magic){
 		_printStr("Failed to verify magic number. Something wrong");
 	}
     _printNewLine();
-	for (tag = (struct multiboot_tag *) (addr + _HIGHER_HALF_KERNEL_MEM_START + 8);
-		tag->type != MULTIBOOT_TAG_TYPE_END;
-		tag = (struct multiboot_tag *) ((multiboot_uint8_t *) tag 
-										+ ((tag->size + 7) & ~7)))
-		{
-            _printStringAndNumber("Tag 0x", tag->type);
-            _printStringAndNumber("--Size: 0x", tag->size);
-		}
 
     PSF_font *font = (PSF_font*)&_binary_fonts_default_psf_start;
     _printStringAndNumber("Magic: ", font->magic);
@@ -150,6 +147,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
     init_apic();
     pmm_setup();
     pmm_reserve_area(0x10000, 10);
+    _printNewLine();
     asm("hlt");
 }
 
