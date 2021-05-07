@@ -3,6 +3,9 @@
 #include <pmm.h>
 #include <stdint.h>
 #include <multiboot.h>
+#ifndef _TEST_
+#include <video.h>
+#endif
 
 extern uint32_t used_frames;
 extern struct multiboot_tag_basic_meminfo *tagmem;
@@ -18,13 +21,11 @@ const char *mmap_types[] = {
 };
 
 void _mmap_parse(struct multiboot_tag_mmap *mmap_root){
-    uint32_t entries = mmap_root->size - sizeof(*mmap_root);
-    struct multiboot_mmap_entry* mmap_entry = (struct multiboot_mmap_entry *)mmap_root->entries;
     int total_entries = 0;
     mmap_data.number_of_entries = (mmap_root->size - sizeof(*mmap_root))/mmap_root->entry_size;
     mmap_data.entries = mmap_root->entries;
 #ifndef _TEST_
-    int i=0;
+    uint32_t i=0;
     while(i<mmap_data.number_of_entries){
         _printStringAndNumber("Address: ", (uint32_t)mmap_data.entries[i].addr);
         _printStringAndNumber("---Len: ", (uint32_t)mmap_data.entries[i].len);

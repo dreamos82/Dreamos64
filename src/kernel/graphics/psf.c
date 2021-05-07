@@ -24,10 +24,10 @@ uint8_t* get_glyph(uint8_t symbolnumber, uint8_t version){
     } else if (version == PSF_V2) {
         PSF_font* loaded_font = (PSF_font *)&_binary_fonts_default_psf_start;
         return  (uint8_t*)loaded_font + loaded_font->headersize + (symbolnumber * loaded_font->bytesperglyph);
-       // return (uint8_t*)&_binary_fonts_default_psf_start + sizeof(PSF_font) + (symbol>0&&symbol<default_font->numglyph?symbol:0) * default_font->bytesperglyph;
     }
+    return 0;
 }
 
 uint32_t get_width(uint8_t version){
-    return 0;
+    return version;
 }
