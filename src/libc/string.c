@@ -1,11 +1,13 @@
 #include <string.h>
+#ifndef TEST
+#include <video.h>
+#endif
 
 /*int strncmp(const char *s1, const char *s2, size_t n){
     return 0;
 }*/
 
 int strcmp(const char *s1, const char *s2){
-    int ret_value = 0;
     while(*s1 && (*s1 == *s2)){
         s1++;
         s2++;

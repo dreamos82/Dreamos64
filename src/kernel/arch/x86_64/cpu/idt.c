@@ -7,7 +7,7 @@
 static IDT_descriptor idt_table[IDT_SIZE];
 
 void interrupts_handler(cpu_status_t *status){
-    qemu_write_string(exception_names[status->interrupt_number]);
+    qemu_write_string((char *) exception_names[status->interrupt_number]);
     qemu_write_string("\n");
     switch(status->interrupt_number){
         case PAGE_FAULT:

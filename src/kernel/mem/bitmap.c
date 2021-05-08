@@ -26,7 +26,7 @@ void _initialize_bitmap(){
     bitmap_size = memory_size_in_bytes / PAGE_SIZE_IN_BYTES;
     used_frames = 0;
     number_of_entries = bitmap_size / 64;
-    for (int i=0; i<number_of_entries; i++){
+    for (uint32_t i=0; i<number_of_entries; i++){
         memory_map[i] = 0x0;
     }
     memory_map[0] = 0x3ff; //I'm marking first 10 element in the bitmap as taken

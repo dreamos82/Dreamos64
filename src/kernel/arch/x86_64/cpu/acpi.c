@@ -29,7 +29,7 @@ int validate_RSDP(RSDPDescriptor *descriptor){
     uint8_t sum = 0;
     char number[30];
 
-    for (int i=0; i < sizeof(RSDPDescriptor); i++){
+    for (uint32_t i=0; i < sizeof(RSDPDescriptor); i++){
         sum += ((char*) descriptor)[i];
         _getHexString(number, sum);
         _printStr(number);

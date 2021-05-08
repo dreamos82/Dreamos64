@@ -2,6 +2,9 @@
 #include <kernel/framebuffer.h>
 #include <kernel/video.h>
 #include <kernel/psf.h>
+//#ifdef DEBUG - This will be uncommented when the framebuffer library will be completed
+#include <qemu.h>
+//#endif
 
 extern char _binary_fonts_default_psf_size;
 extern char _binary_fonts_default_psf_start;
@@ -23,14 +26,14 @@ void _fb_putchar(unsigned short int symbol, int cx, int cy, uint32_t fg, uint32_
     char *framebuffer = (char *) FRAMEBUFFER_MEM;
     PSF_font *default_font = (PSF_font*)&_binary_fonts_default_psf_start;
     uint32_t pitch = FRAMEBUFFER_PITCH;
-    uint32_t charsize = default_font->height * ((default_font->width + 7)/8);
+    //uint32_t charsize = default_font->height * ((default_font->width + 7)/8);
     uint8_t *glyph = (uint8_t*)&_binary_fonts_default_psf_start + 
         default_font->headersize + (symbol>0&&symbol<default_font->numglyph?symbol:0) * default_font->bytesperglyph;
     int bytesperline =  (default_font->width + 7)/8;
     int offset = (cy * default_font->height * pitch) + 
         (cx * (default_font->width) * sizeof(PIXEL));
     
-    int x, y, line, mask;
+    uint32_t x, y, line, mask;
 
     for(y=0; y<default_font->height; y++){
         line = offset;

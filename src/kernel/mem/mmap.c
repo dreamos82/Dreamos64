@@ -31,7 +31,7 @@ void _mmap_parse(struct multiboot_tag_mmap *mmap_root){
         _printStringAndNumber("---Len: ", (uint32_t)mmap_data.entries[i].len);
         _printStringAndNumber("---Type:: ", mmap_data.entries[i].type);
         _printStr("Type str: ");
-        _printStr(mmap_types[mmap_data.entries[i].type]);
+        _printStr((char *) mmap_types[mmap_data.entries[i].type]);
         _printNewLine();
         _printStringAndNumber("---zero:: ", mmap_data.entries[i].zero);
         total_entries++;

@@ -2,6 +2,7 @@
 #define _FRAMEBUFFER_H
 
 #include <stdint.h>
+#include <multiboot.h>
 
 #define PIXEL uint32_t
 
