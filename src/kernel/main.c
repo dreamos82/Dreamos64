@@ -17,6 +17,7 @@
 #include <string.h>
 #include <bitmap.h>
 #include <pmm.h>
+#include <mmap.h>
 
 struct multiboot_tag_framebuffer *tagfb;
 struct multiboot_tag_basic_meminfo *tagmem;
@@ -25,6 +26,8 @@ struct multiboot_tag_mmap *tagmmap;
 extern char _binary_fonts_default_psf_size;
 extern char _binary_fonts_default_psf_start;
 extern char _binary_fonts_default_psf_end;
+extern uint32_t FRAMEBUFFER_MEMORY_SIZE;
+//extern uint64_t p2_table[];
 
 void _read_configuration_from_multiboot(unsigned long addr){
     struct multiboot_tag* tag;
@@ -42,9 +45,9 @@ void _read_configuration_from_multiboot(unsigned long addr){
             case MULTIBOOT_TAG_TYPE_ACPI_OLD:
                 tagold_acpi = (struct multiboot_tag_old_acpi *)tag;
                 _printStringAndNumber("Found acpi RSDP: ", tagold_acpi->type);
-                _printStringAndNumber("Found acpi RSDP address: ", &tagold_acpi);
+                _printStringAndNumber("Found acpi RSDP address: ", (unsigned long) &tagold_acpi);
                 RSDPDescriptor *descriptor = (RSDPDescriptor *)(tag+1);
-                _printStringAndNumber("Address: ", &descriptor);
+                _printStringAndNumber("Address: ", (unsigned long) &descriptor);
                 _printStringAndNumber("Descriptor revision: ", descriptor->Revision);
                 validate_RSDP(descriptor);
                 //parse_RSDT(descriptor);
@@ -59,6 +62,7 @@ void _read_configuration_from_multiboot(unsigned long addr){
                 _printStringAndNumber("---framebuffer-bpp: ", tagfb->common.framebuffer_bpp);
                 _printStringAndNumber("---framebuffer-pitch: ", tagfb->common.framebuffer_pitch);
                 set_fb_data(tagfb);
+                _printStringAndNumber("---Total framebuffer size is:  ", FRAMEBUFFER_MEMORY_SIZE);
                 break;
             case MULTIBOOT_TAG_TYPE_MMAP:
                 tagmmap = (struct multiboot_tag_mmap*) tag;
@@ -86,14 +90,13 @@ void kernel_start(unsigned long addr, unsigned long magic){
     //struct multiboot_tag *tag;
     extern unsigned int _kernel_end;
     extern unsigned int _kernel_physical_end;
-    struct multiboot_tag *tag = (struct multiboot_tag*) (addr+8);
-    unsigned int log_enabled = qemu_init_debug();
+    qemu_init_debug();
     qemu_write_string("Hello qemu log\n");
     qemu_write_string("==============\n");
     init_idt();
     load_idt();
-    _printStringAndNumber("Kernel End: ", &_kernel_end);
-    _printStringAndNumber("Kernel physical end: ", &_kernel_physical_end);
+    _printStringAndNumber("Kernel End: ", (unsigned long)&_kernel_end);
+    _printStringAndNumber("Kernel physical end: ", (unsigned long)&_kernel_physical_end);
     _read_configuration_from_multiboot(addr);
     //test_image();
     qemu_write_string("---Ok\n");
@@ -148,6 +151,9 @@ void kernel_start(unsigned long addr, unsigned long magic){
     pmm_setup();
     pmm_reserve_area(0x10000, 10);
     _printNewLine();
+
+//    _printStringAndNumber("Page table value: ", p2_table[0]);
+//    _printStringAndNumber("Page table value: ", p2_table[1]);
     asm("hlt");
 }
 

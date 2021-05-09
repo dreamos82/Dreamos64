@@ -14,12 +14,18 @@ extern void *cur_framebuffer_pos;
 uint32_t FRAMEBUFFER_PITCH;
 void *FRAMEBUFFER_MEM;
 uint8_t FRAMEBUFFER_BPP = 0;
+uint32_t FRAMEBUFFER_MEMORY_SIZE = 0;
+uint32_t FRAMEBUFFER_WIDTH;
+uint32_t FRAMEBUFFER_HEIGHT;
 
 void set_fb_data(struct multiboot_tag_framebuffer *fbtag){
     //FRAMEBUFFER_MEM = (void*)(uint64_t)fbtag->common.framebuffer_addr;
     FRAMEBUFFER_MEM = (void*)(uint64_t)_FRAMEBUFFER_MEM_START;
     FRAMEBUFFER_PITCH = fbtag->common.framebuffer_pitch;
     FRAMEBUFFER_BPP = fbtag->common.framebuffer_bpp;
+    FRAMEBUFFER_MEMORY_SIZE = FRAMEBUFFER_PITCH * fbtag->common.framebuffer_height;
+    FRAMEBUFFER_WIDTH = fbtag->common.framebuffer_width;
+    FRAMEBUFFER_HEIGHT = fbtag->common.framebuffer_height;
 }
 
 void _fb_putchar(unsigned short int symbol, int cx, int cy, uint32_t fg, uint32_t bg){
