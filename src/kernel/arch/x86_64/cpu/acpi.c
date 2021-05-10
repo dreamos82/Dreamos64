@@ -7,7 +7,7 @@ void parse_RSDT(RSDPDescriptor *descriptor){
     _printStr("Parsing rsdt");
     RSDT_item *root = (RSDT_item *) descriptor->RsdtAddress;
     ACPISDTHeader header = root->header;
-    _printStr("SDT_Signature: ");
+    _printStr("RSDT_Signature: ");
     _printNewLine();
     //_printStr(header.Signature);
     _printStr("--- ");
