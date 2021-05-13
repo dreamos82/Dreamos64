@@ -14,6 +14,7 @@
 %endif
 section .multiboot.text
 global start
+global p2_table
 extern kernel_start
 
 [bits 32]
@@ -33,6 +34,10 @@ start:
     mov eax, p3_table_hh - KERNEL_VIRTUAL_ADDR
     or eax, PRESENT_BIT | WRITE_BIT
     mov dword [(p4_table - KERNEL_VIRTUAL_ADDR) + 511 * 8], eax
+
+    mov eax, p4_table - KERNEL_VIRTUAL_ADDR ; Mapping the PML4 into itself
+    or eax, PRESENT_BIT | WRITE_BIT
+    mov dword [(p4_table - KERNEL_VIRTUAL_ADDR) + 510 * 8], eax
 
     mov eax, p2_table - KERNEL_VIRTUAL_ADDR  ; Let's do it again, with p2_table
     or eax, PRESENT_BIT | WRITE_BIT       ; Set the writable and present bits
