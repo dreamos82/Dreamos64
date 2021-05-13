@@ -12,7 +12,7 @@ void interrupts_handler(cpu_status_t *status){
     switch(status->interrupt_number){
         case PAGE_FAULT:
             _printStr("---To be handled\n");
-            page_fault_handle(status->error_code);
+            page_fault_handler(status->error_code);
             break;
         default:
             _printStr("Actually i don't know what to do... Better going crazy... asdfasdasdsD");
