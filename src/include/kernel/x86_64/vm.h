@@ -3,6 +3,11 @@
 
 #include <stdint.h>
 
+#define PML4_ENTRY(address)((address>>39) & 0x1ff)
+#define PDPR_ENTRY(address)((address>>30) & 0x1ff)
+#define PD_ENTRY(address)((address>>21) & 0x1ff)
+#define PT_ENTRY(address)((address>>12) & 0x1ff)
+
 #if SMALL_PAGES == 0
 #define VM_OFFSET_MASK 0xFFFFFFFFFFE00000
 #define VM_AND_MASK 0x1FF
