@@ -27,9 +27,6 @@ extern char _binary_fonts_default_psf_size;
 extern char _binary_fonts_default_psf_start;
 extern char _binary_fonts_default_psf_end;
 extern uint32_t FRAMEBUFFER_MEMORY_SIZE;
-extern uint64_t p2_table[];
-extern uint64_t p4_table[];
-extern uint64_t p3_table[];
 
 void _read_configuration_from_multiboot(unsigned long addr){
     struct multiboot_tag* tag;
@@ -151,6 +148,13 @@ void kernel_start(unsigned long addr, unsigned long magic){
     init_apic();
     pmm_setup();
     pmm_reserve_area(0x10000, 10);
+    _printNewLine();
+    _printStringAndNumber("p4table address: ", p4_table);
+    _printStringAndNumber("p4table: ", p4_table[0]);
+    _printStringAndNumber("p3ble &address: ", p3_table);
+    _printStringAndNumber("p3ble: ", p3_table[0]);
+    _printStringAndNumber("p2ble &address: ", p2_table);
+    _printStringAndNumber("p2ble: ", p2_table[0]);
     //_printStringAndNumber("faulter: ", *((uint64_t *)0xffffffff71012342));
     asm("hlt");
 }
