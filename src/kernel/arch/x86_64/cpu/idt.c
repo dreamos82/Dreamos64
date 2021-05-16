@@ -14,8 +14,12 @@ void interrupts_handler(cpu_status_t *status){
             _printStr("---To be handled\n");
             page_fault_handler(status->error_code);
             break;
+        case GENERAL_PROTECTION:
+            _printStringAndNumber("Error code: ", status->error_code);
+            asm("hlt");
         default:
             _printStr("Actually i don't know what to do... Better going crazy... asdfasdasdsD");
+            asm("hlt");
             break;
     }
 }
