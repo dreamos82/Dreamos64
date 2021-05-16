@@ -148,13 +148,6 @@ void kernel_start(unsigned long addr, unsigned long magic){
     init_apic();
     pmm_setup();
     pmm_reserve_area(0x10000, 10);
-    _printNewLine();
-    _printStringAndNumber("p4table address: ", p4_table);
-    _printStringAndNumber("p4table: ", p4_table[0]);
-    _printStringAndNumber("p3ble &address: ", p3_table);
-    _printStringAndNumber("p3ble: ", p3_table[0]);
-    _printStringAndNumber("p2ble &address: ", p2_table);
-    _printStringAndNumber("p2ble: ", p2_table[0]);
     //_printStringAndNumber("faulter: ", *((uint64_t *)0xffffffff71012342));
     asm("hlt");
 }
