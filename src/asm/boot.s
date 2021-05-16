@@ -15,6 +15,8 @@
 section .multiboot.text
 global start
 global p2_table
+global p4_table
+global p3_table
 extern kernel_start
 
 [bits 32]

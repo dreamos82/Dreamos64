@@ -19,15 +19,17 @@
 #include <pmm.h>
 #include <mmap.h>
 
-struct multiboot_tag_framebuffer *tagfb;
-struct multiboot_tag_basic_meminfo *tagmem;
-struct multiboot_tag_old_acpi *tagold_acpi;
-struct multiboot_tag_mmap *tagmmap;
+struct multiboot_tag_framebuffer *tagfb = NULL;
+struct multiboot_tag_basic_meminfo *tagmem = NULL;
+struct multiboot_tag_old_acpi *tagold_acpi = NULL;
+struct multiboot_tag_mmap *tagmmap = NULL;
 extern char _binary_fonts_default_psf_size;
 extern char _binary_fonts_default_psf_start;
 extern char _binary_fonts_default_psf_end;
 extern uint32_t FRAMEBUFFER_MEMORY_SIZE;
-//extern uint64_t p2_table[];
+extern uint64_t p2_table[];
+extern uint64_t p4_table[];
+extern uint64_t p3_table[];
 
 void _read_configuration_from_multiboot(unsigned long addr){
     struct multiboot_tag* tag;
@@ -146,14 +148,10 @@ void kernel_start(unsigned long addr, unsigned long magic){
     uint32_t cpu_info = 0;
     cpu_info = _cpuid_feature_apic();
     _printStringAndNumber("Cpu info result: ", cpu_info);
-    //test_strcmp();
     init_apic();
     pmm_setup();
     pmm_reserve_area(0x10000, 10);
-    _printNewLine();
-
-//    _printStringAndNumber("Page table value: ", p2_table[0]);
-//    _printStringAndNumber("Page table value: ", p2_table[1]);
+    //_printStringAndNumber("faulter: ", *((uint64_t *)0xffffffff71012342));
     asm("hlt");
 }
 
