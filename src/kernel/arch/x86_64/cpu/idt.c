@@ -17,6 +17,7 @@ void interrupts_handler(cpu_status_t *status){
         case GENERAL_PROTECTION:
             _printStringAndNumber("Error code: ", status->error_code);
             asm("hlt");
+            break;
         default:
             _printStr("Actually i don't know what to do... Better going crazy... asdfasdasdsD");
             asm("hlt");

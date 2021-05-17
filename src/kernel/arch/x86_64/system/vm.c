@@ -12,12 +12,16 @@ void page_fault_handler(uint64_t error_code){
     _printStringAndNumber("--  Faulting address: ", cr2_content);
     cr2_content = cr2_content & VM_OFFSET_MASK;
     _printStringAndNumber("-- Address prepared for PD/PT extraction: ", cr2_content);
-    pd = (cr2_content>>21) & VM_ENTRY_MASK; 
-    pdpr = (cr2_content>>30) & VM_ENTRY_MASK;
-    pml4 = (cr2_content>>39) & VM_ENTRY_MASK; 
+    pd = PD_ENTRY(cr2_content); 
+    pdpr = PDPR_ENTRY(cr2_content);
+    pml4 = PML4_ENTRY(cr2_content);
+    _printStringAndNumber("pd: ", pd);
+    _printStringAndNumber("pdpr: ", pdpr);
+    _printStringAndNumber("pml4: ", pml4);
     asm("hlt");
 
 }
+
 
 
 void initialize_vm(){
