@@ -21,6 +21,7 @@ What i have implemented so far:
 * Basic framebuffer support (it can print strings on the screen, but only on the first half of the screen, the second half will cause a #PF for now) 
 * IDT Support
 * It can load the kernel using 4kb pages or 2Mb pages
+* Added support to accrss paging data structures with recursion tecnique. 
 
 
 ## Prerequisites: 
@@ -121,10 +122,16 @@ To run just execute:
 
 If you use instead:
 ```bash
-make debug
+   make debug
 ```
 
 It will output logging information on a logfile.
+
+Finally:
+```bash
+   make gdb
+```
+Will compile the OS with debug symbol, and launch qemu with remote debugging enabled (it will wait connection from gdb to start).
 
 There are couple of flags that you can set on the Makefile in order to configure some features: 
 
