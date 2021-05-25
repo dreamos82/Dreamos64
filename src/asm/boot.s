@@ -1,3 +1,4 @@
+%include "src/asm/multiboot_structs.inc"
 %define KERNEL_VIRTUAL_ADDR 0xFFFFFFFF80000000
 %define PAGE_DIR_ENTRY_FLAGS 0b11
 %define PRESENT_BIT 1
@@ -17,6 +18,7 @@ global start
 global p2_table
 global p4_table
 global p3_table
+global multiboot_data
 extern kernel_start
 
 [bits 32]
@@ -96,7 +98,11 @@ start:
     mov eax, 0xFD000000
     or eax, PAGE_TABLE_ENTRY
     mov dword [(p2_table - KERNEL_VIRTUAL_ADDR) + 8 * 488], eax
+    mov eax, 0xFD200000
+    or eax, PAGE_TABLE_ENTRY
+    mov dword [(p2_table - KERNEL_VIRTUAL_ADDR) + 8 * 489], eax
     %endif
+    
     ; All set... now we are nearly ready to enter into 64 bit
     ; Is possible to move into cr3 only from another register
     ; So let's move p4_table address into eax first
@@ -142,7 +148,24 @@ kernel_jumper:
     mov es, ax  ; extra segment register
     mov fs, ax  ; extra segment register
     mov gs, ax  ; extra segment register
-
+    
+    
+;    mov rcx, 0
+;    add dword [multiboot_data], 8
+read_multiboot:
+    cmp dword [rdi], 0x6E8
+    jne read_multiboot
+    mov rax, rdi
+    add rax, 8
+    cmp dword [rax + multiboot_tag.type], 0x15
+    jne read_multiboot
+    cmp dword [rax + multiboot_tag.size], 0xC
+    jne read_multiboot
+;    mov rax, [multiboot_data + rcx * 7]
+;    inc rcx
+;    cmp rax, 8    
+;    jne read_multiboot
+;
     mov rax, higher_half
     jmp rax
 
@@ -182,7 +205,8 @@ fdd_pt_tables:
 align 4096
 fbb_p2_table:
     resb 4096
-
+multiboot_data:
+    resb 8
 stack:
     resb 16384
     .top:
