@@ -18,7 +18,7 @@ global start
 global p2_table
 global p4_table
 global p3_table
-global multiboot_data
+global multiboot_framebuffer_data
 global read_multiboot
 extern kernel_start
 
@@ -153,24 +153,29 @@ kernel_jumper:
     
 ;    mov rcx, 0
 ;    add dword [multiboot_data], 8
-read_multiboot:
-    cmp dword [rdi], 0x6E8
-    jne read_multiboot
+    ;cmp dword [rdi], 0x6E8
+    ;jne read_multiboot
     mov rax, rdi
     add rax, 8
-    cmp dword [rax + multiboot_tag.type], MULTIBOOT_TAG_TYPE_LOAD_BASE_ADDR
-    jne read_multiboot
-    cmp dword [rax + multiboot_tag.size], 0xC
-    jne read_multiboot
+    ;cmp dword [rax + multiboot_tag.type], MULTIBOOT_TAG_TYPE_LOAD_BASE_ADDR
+read_multiboot:
+    ;jne read_multiboot
+
+    cmp dword [rax + multiboot_tag.type], MULTIBOOT_TAG_TYPE_FRAMEBUFFER
+    jne item_not_needed
+    mov [multiboot_framebuffer_data], rax
+item_not_needed:
+    ;jne read_multiboot
     mov ebx, dword [rax + multiboot_tag.size]
-    cmp rbx, 0xC
-    jne read_multiboot
+    ;cmp rbx, 0xC
+    ;jne read_multiboot
     add rax, rbx
     add rax, 7
     and rax, ~7
-    cmp dword [rax + multiboot_tag.type], 0x1
+    cmp dword [rax + multiboot_tag.type], MULTIBOOT_TAG_TYPE_END
     jne read_multiboot
-
+    cmp dword [rax + multiboot_tag.size], 8
+    jne read_multiboot
 ;    mov rax, [multiboot_data + rcx * 7]
 ;    inc rcx
 ;    cmp rax, 8    
@@ -215,7 +220,7 @@ fdd_pt_tables:
 align 4096
 fbb_p2_table:
     resb 4096
-multiboot_data:
+multiboot_framebuffer_data:
     resb 8
 stack:
     resb 16384
