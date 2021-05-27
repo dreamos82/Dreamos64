@@ -19,6 +19,7 @@ global p2_table
 global p4_table
 global p3_table
 global multiboot_data
+global read_multiboot
 extern kernel_start
 
 [bits 32]
@@ -161,6 +162,15 @@ read_multiboot:
     jne read_multiboot
     cmp dword [rax + multiboot_tag.size], 0xC
     jne read_multiboot
+    mov ebx, dword [rax + multiboot_tag.size]
+    cmp rbx, 0xC
+    jne read_multiboot
+    add rax, rbx
+    add rax, 7
+    and rax, ~7
+    cmp dword [rax + multiboot_tag.type], 0x1
+    je read_multiboot
+
 ;    mov rax, [multiboot_data + rcx * 7]
 ;    inc rcx
 ;    cmp rax, 8    
