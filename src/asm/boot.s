@@ -158,7 +158,7 @@ read_multiboot:
     jne read_multiboot
     mov rax, rdi
     add rax, 8
-    cmp dword [rax + multiboot_tag.type], 0x15
+    cmp dword [rax + multiboot_tag.type], MULTIBOOT_TAG_TYPE_LOAD_BASE_ADDR
     jne read_multiboot
     cmp dword [rax + multiboot_tag.size], 0xC
     jne read_multiboot
@@ -169,7 +169,7 @@ read_multiboot:
     add rax, 7
     and rax, ~7
     cmp dword [rax + multiboot_tag.type], 0x1
-    je read_multiboot
+    jne read_multiboot
 
 ;    mov rax, [multiboot_data + rcx * 7]
 ;    inc rcx
