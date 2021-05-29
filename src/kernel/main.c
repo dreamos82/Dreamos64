@@ -27,9 +27,16 @@ extern char _binary_fonts_default_psf_size;
 extern char _binary_fonts_default_psf_start;
 extern char _binary_fonts_default_psf_end;
 extern uint32_t FRAMEBUFFER_MEMORY_SIZE;
+extern uint64_t multiboot_framebuffer_data;
 
 void _read_configuration_from_multiboot(unsigned long addr){
     struct multiboot_tag* tag;
+    struct multiboot_tag* tmp_tag;
+    uint32_t tag1 = *((uint32_t*) (addr + _HIGHER_HALF_KERNEL_MEM_START)); 
+    tmp_tag = (struct multiboot_tag *) (addr + _HIGHER_HALF_KERNEL_MEM_START);
+    _printStringAndNumber("size of tags in total: ", tag1);
+    _printStringAndNumber("type of tag in total: ", tmp_tag->type);
+    //_printStringAndNumber("Total size: ", tag->size);
 	for (tag=(struct multiboot_tag *) (addr + _HIGHER_HALF_KERNEL_MEM_START + 8);
 		tag->type != MULTIBOOT_TAG_TYPE_END;
 		tag = (struct multiboot_tag *) ((multiboot_uint8_t *) tag 
@@ -82,6 +89,7 @@ void _read_configuration_from_multiboot(unsigned long addr){
                 break;
         }
     }
+    _printStringAndNumber("Size of end tag: ", tag->size);
     _printStr("End of read configuration\n");
 
 }
@@ -137,6 +145,9 @@ void kernel_start(unsigned long addr, unsigned long magic){
             qemu_write_string("PSF v2 found\n");
         }
         _printStringAndNumber("Size of psv1_font: ", sizeof(PSFv1_Font));
+        for(int i = 3; i<23; i++){
+            _fb_printStr("Test Line", 1, i, 0x000000, 0xFFFFFF);
+        }
     #endif
     char *cpuid_model = _cpuid_model();
     _printStr("Cpuid model: ");
@@ -148,6 +159,11 @@ void kernel_start(unsigned long addr, unsigned long magic){
     init_apic();
     pmm_setup();
     pmm_reserve_area(0x10000, 10);
+    struct multiboot_tag_framebuffer *mb_fb_value = (struct multiboot_tag_framebuffer *) (multiboot_framebuffer_data + _HIGHER_HALF_KERNEL_MEM_START);
+    _printStringAndNumber("Multiboot_fb_from_boot: ", multiboot_framebuffer_data);
+    _printStringAndNumber("Address: ", mb_fb_value->common.framebuffer_addr);
+    //struct multiboot_tag_framebuffer *multiboot_tag_fb = (struct multiboot_tag_framebuffer *) multiboot_data;
+    //_printStringAndNumber("Test: ", multiboot_tag_fb->common.framebuffer_addr);
     //_printStringAndNumber("faulter: ", *((uint64_t *)0xffffffff71012342));
     asm("hlt");
 }

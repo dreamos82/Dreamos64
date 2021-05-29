@@ -150,37 +150,33 @@ kernel_jumper:
     mov fs, ax  ; extra segment register
     mov gs, ax  ; extra segment register
     
-    
-;    mov rcx, 0
-;    add dword [multiboot_data], 8
-    ;cmp dword [rdi], 0x6E8
-    ;jne read_multiboot
     mov rax, rdi
     add rax, 8
-    ;cmp dword [rax + multiboot_tag.type], MULTIBOOT_TAG_TYPE_LOAD_BASE_ADDR
-read_multiboot:
-    ;jne read_multiboot
+    lea rax, [rdi+8]
 
+read_multiboot:
+    ;Check if the tag is needed by the kernel, if yes store its address
     cmp dword [rax + multiboot_tag.type], MULTIBOOT_TAG_TYPE_FRAMEBUFFER
-    jne item_not_needed
-    mov [multiboot_framebuffer_data], rax
+    je .parse_fb_data
+    jmp item_not_needed
+    .parse_fb_data:
+        mov [multiboot_framebuffer_data], rax
 item_not_needed:
-    ;jne read_multiboot
     mov ebx, dword [rax + multiboot_tag.size]
-    ;cmp rbx, 0xC
-    ;jne read_multiboot
+    ;Next tag is at current_tag_address + current_tag size
     add rax, rbx
+    ;Padded with 0 until the first byte aligned with 8bytes
     add rax, 7
     and rax, ~7
+    ;Check if the tag is the end tag 
+    ;Type: 0 Size: 8
+    ;multiboot_tag.type == 0?
     cmp dword [rax + multiboot_tag.type], MULTIBOOT_TAG_TYPE_END
     jne read_multiboot
+    ; && multiboot_tag.size == 8?
     cmp dword [rax + multiboot_tag.size], 8
     jne read_multiboot
-;    mov rax, [multiboot_data + rcx * 7]
-;    inc rcx
-;    cmp rax, 8    
-;    jne read_multiboot
-;
+
     mov rax, higher_half
     jmp rax
 
