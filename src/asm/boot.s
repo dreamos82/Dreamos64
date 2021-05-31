@@ -174,6 +174,7 @@ read_multiboot:
     .item_not_needed:
         mov ebx, dword [rax + multiboot_tag.size]
         ;Next tag is at current_tag_address + current_tag size
+        ;lea rax, [rax + rbx + 7]
         add rax, rbx
         ;Padded with 0 until the first byte aligned with 8bytes
         add rax, 7

@@ -19,31 +19,29 @@
 #include <pmm.h>
 #include <mmap.h>
 
-struct multiboot_tag_framebuffer *tagfb = NULL;
-struct multiboot_tag_basic_meminfo *tagmem = NULL;
-struct multiboot_tag_old_acpi *tagold_acpi = NULL;
-struct multiboot_tag_mmap *tagmmap = NULL;
 extern char _binary_fonts_default_psf_size;
 extern char _binary_fonts_default_psf_start;
 extern char _binary_fonts_default_psf_end;
 extern uint32_t FRAMEBUFFER_MEMORY_SIZE;
 extern uint64_t multiboot_framebuffer_data;
+extern uint64_t multiboot_mmap_data;
+extern uint64_t multiboot_basic_meminfo;
+struct multiboot_tag_framebuffer *tagfb = NULL;
+struct multiboot_tag_basic_meminfo *tagmem = NULL;
+struct multiboot_tag_old_acpi *tagold_acpi = NULL;
+struct multiboot_tag_mmap *tagmmap = NULL;
 
 void _read_configuration_from_multiboot(unsigned long addr){
     struct multiboot_tag* tag;
-    struct multiboot_tag* tmp_tag;
-    uint32_t tag1 = *((uint32_t*) (addr + _HIGHER_HALF_KERNEL_MEM_START)); 
-    tmp_tag = (struct multiboot_tag *) (addr + _HIGHER_HALF_KERNEL_MEM_START);
-    _printStringAndNumber("size of tags in total: ", tag1);
-    _printStringAndNumber("type of tag in total: ", tmp_tag->type);
-    //_printStringAndNumber("Total size: ", tag->size);
+    tagmem  = (struct multiboot_tag_basic_meminfo *)(multiboot_basic_meminfo + _HIGHER_HALF_KERNEL_MEM_START);
+    tagmmap = (struct multiboot_tag_mmap *) (multiboot_mmap_data + _HIGHER_HALF_KERNEL_MEM_START);
+    tagfb   = (struct multiboot_tag_framebuffer *) (multiboot_framebuffer_data + _HIGHER_HALF_KERNEL_MEM_START);
 	for (tag=(struct multiboot_tag *) (addr + _HIGHER_HALF_KERNEL_MEM_START + 8);
 		tag->type != MULTIBOOT_TAG_TYPE_END;
 		tag = (struct multiboot_tag *) ((multiboot_uint8_t *) tag 
 										+ ((tag->size + 7) & ~7))){
         switch(tag->type){
             case MULTIBOOT_TAG_TYPE_BASIC_MEMINFO:
-                tagmem = (struct multiboot_tag_basic_meminfo *) tag;
                 _printStringAndNumber("Found basic mem Mem info type: ", tagmem->type);
                 _printStringAndNumber("Memory lower (in kb): ", tagmem->mem_lower);
                 _printStringAndNumber("Memory upper (in kb): ", tagmem->mem_upper); 
@@ -60,7 +58,6 @@ void _read_configuration_from_multiboot(unsigned long addr){
                 break;
             case MULTIBOOT_TAG_TYPE_FRAMEBUFFER:
                 _printStringAndNumber("Found multiboot framebuffer: ", tag->type); 
-                tagfb = (struct multiboot_tag_framebuffer *) tag;
                 _printStringAndNumber("---framebuffer-type: ", tagfb->common.framebuffer_type);
                 _printStringAndNumber("---framebuffer-width: ", tagfb->common.framebuffer_width);
                 _printStringAndNumber("---framebuffer-height: ", tagfb->common.framebuffer_height);
@@ -71,7 +68,6 @@ void _read_configuration_from_multiboot(unsigned long addr){
                 _printStringAndNumber("---Total framebuffer size is:  ", FRAMEBUFFER_MEMORY_SIZE);
                 break;
             case MULTIBOOT_TAG_TYPE_MMAP:
-                tagmmap = (struct multiboot_tag_mmap*) tag;
                 _printStringAndNumber("Memory map entry: ", tagmmap->type);
                 _printStringAndNumber("---Size: ", tagmmap->size);
                 _printStringAndNumber("---Entrysize: ", tagmmap->entry_size);
@@ -91,7 +87,6 @@ void _read_configuration_from_multiboot(unsigned long addr){
     }
     _printStringAndNumber("Size of end tag: ", tag->size);
     _printStr("End of read configuration\n");
-
 }
 void kernel_start(unsigned long addr, unsigned long magic){
     //struct multiboot_tag *tag;
@@ -159,12 +154,6 @@ void kernel_start(unsigned long addr, unsigned long magic){
     init_apic();
     pmm_setup();
     pmm_reserve_area(0x10000, 10);
-    struct multiboot_tag_framebuffer *mb_fb_value = (struct multiboot_tag_framebuffer *) (multiboot_framebuffer_data + _HIGHER_HALF_KERNEL_MEM_START);
-    _printStringAndNumber("Multiboot_fb_from_boot: ", multiboot_framebuffer_data);
-    _printStringAndNumber("Address: ", mb_fb_value->common.framebuffer_addr);
-    //struct multiboot_tag_framebuffer *multiboot_tag_fb = (struct multiboot_tag_framebuffer *) multiboot_data;
-    //_printStringAndNumber("Test: ", multiboot_tag_fb->common.framebuffer_addr);
-    //_printStringAndNumber("faulter: ", *((uint64_t *)0xffffffff71012342));
     asm("hlt");
 }
 
