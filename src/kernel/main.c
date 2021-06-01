@@ -36,16 +36,33 @@ void _read_configuration_from_multiboot(unsigned long addr){
     tagmem  = (struct multiboot_tag_basic_meminfo *)(multiboot_basic_meminfo + _HIGHER_HALF_KERNEL_MEM_START);
     tagmmap = (struct multiboot_tag_mmap *) (multiboot_mmap_data + _HIGHER_HALF_KERNEL_MEM_START);
     tagfb   = (struct multiboot_tag_framebuffer *) (multiboot_framebuffer_data + _HIGHER_HALF_KERNEL_MEM_START);
+    //Print basic mem Info data
+    _printStringAndNumber("Found basic mem Mem info type: ", tagmem->type);
+    _printStringAndNumber("Memory lower (in kb): ", tagmem->mem_lower);
+    _printStringAndNumber("Memory upper (in kb): ", tagmem->mem_upper); 
+    //Print framebuffer info
+    _printStringAndNumber("Found multiboot framebuffer: ", tagmem->type); 
+    _printStringAndNumber("---framebuffer-type: ", tagfb->common.framebuffer_type);
+    _printStringAndNumber("---framebuffer-width: ", tagfb->common.framebuffer_width);
+    _printStringAndNumber("---framebuffer-height: ", tagfb->common.framebuffer_height);
+    _printStringAndNumber("---framebuffer-address: ", tagfb->common.framebuffer_addr);
+    _printStringAndNumber("---framebuffer-bpp: ", tagfb->common.framebuffer_bpp);
+    _printStringAndNumber("---framebuffer-pitch: ", tagfb->common.framebuffer_pitch);
+    set_fb_data(tagfb);
+    _printStringAndNumber("---Total framebuffer size is:  ", FRAMEBUFFER_MEMORY_SIZE);
+    //Print mmap_info
+    _printStringAndNumber("Memory map entry: ", tagmmap->type);
+    _printStringAndNumber("---Size: ", tagmmap->size);
+    _printStringAndNumber("---Entrysize: ", tagmmap->entry_size);
+    _printStringAndNumber("---EntryVersion: ", tagmmap->entry_version);
+    _printStringAndNumber("---Struct size: ", sizeof(struct multiboot_tag_mmap));
+    _mmap_parse(tagmmap);
+ 
 	for (tag=(struct multiboot_tag *) (addr + _HIGHER_HALF_KERNEL_MEM_START + 8);
 		tag->type != MULTIBOOT_TAG_TYPE_END;
 		tag = (struct multiboot_tag *) ((multiboot_uint8_t *) tag 
 										+ ((tag->size + 7) & ~7))){
         switch(tag->type){
-            case MULTIBOOT_TAG_TYPE_BASIC_MEMINFO:
-                _printStringAndNumber("Found basic mem Mem info type: ", tagmem->type);
-                _printStringAndNumber("Memory lower (in kb): ", tagmem->mem_lower);
-                _printStringAndNumber("Memory upper (in kb): ", tagmem->mem_upper); 
-               break;
             case MULTIBOOT_TAG_TYPE_ACPI_OLD:
                 tagold_acpi = (struct multiboot_tag_old_acpi *)tag;
                 _printStringAndNumber("Found acpi RSDP: ", tagold_acpi->type);
@@ -55,25 +72,6 @@ void _read_configuration_from_multiboot(unsigned long addr){
                 _printStringAndNumber("Descriptor revision: ", descriptor->Revision);
                 validate_RSDP(descriptor);
                 //parse_RSDT(descriptor);
-                break;
-            case MULTIBOOT_TAG_TYPE_FRAMEBUFFER:
-                _printStringAndNumber("Found multiboot framebuffer: ", tag->type); 
-                _printStringAndNumber("---framebuffer-type: ", tagfb->common.framebuffer_type);
-                _printStringAndNumber("---framebuffer-width: ", tagfb->common.framebuffer_width);
-                _printStringAndNumber("---framebuffer-height: ", tagfb->common.framebuffer_height);
-                _printStringAndNumber("---framebuffer-address: ", tagfb->common.framebuffer_addr);
-                _printStringAndNumber("---framebuffer-bpp: ", tagfb->common.framebuffer_bpp);
-                _printStringAndNumber("---framebuffer-pitch: ", tagfb->common.framebuffer_pitch);
-                set_fb_data(tagfb);
-                _printStringAndNumber("---Total framebuffer size is:  ", FRAMEBUFFER_MEMORY_SIZE);
-                break;
-            case MULTIBOOT_TAG_TYPE_MMAP:
-                _printStringAndNumber("Memory map entry: ", tagmmap->type);
-                _printStringAndNumber("---Size: ", tagmmap->size);
-                _printStringAndNumber("---Entrysize: ", tagmmap->entry_size);
-                _printStringAndNumber("---EntryVersion: ", tagmmap->entry_version);
-                _printStringAndNumber("---Struct size: ", sizeof(struct multiboot_tag_mmap));
-                _mmap_parse(tagmmap);
                 break;
             case MULTIBOOT_TAG_TYPE_ELF_SECTIONS:
                 _printStr("Found elf sections");
