@@ -21,7 +21,7 @@ global p3_table
 global multiboot_framebuffer_data
 global multiboot_mmap_data
 global multiboot_basic_meminfo
-global multiboot_acpi_old
+global multiboot_acpi_info
 global read_multiboot
 extern kernel_start
 
@@ -154,6 +154,9 @@ kernel_jumper:
     mov gs, ax  ; extra segment register
     
     lea rax, [rdi+8]
+    
+    ;.bss section should be already 0  at least on unix and windows systems
+    ;no need to initialize
 
 read_multiboot:
     ;Check if the tag is needed by the kernel, if yes store its address
@@ -164,7 +167,9 @@ read_multiboot:
     cmp dword [rax + multiboot_tag.type], MULTIBOOT_TAG_TYPE_BASIC_MEMINFO
     je .meminfo_tag_item
     cmp dword [rax + multiboot_tag.type], MULTIBOOT_TAG_TYPE_ACPI_OLD
-    je .acpi_old_item
+    je .acpi_item
+    cmp dword [rax + multiboot_tag.type], MULTIBOOT_TAG_TYPE_ACPI_NEW
+    je .acpi_item
     jmp .item_not_needed
     .parse_fb_data:
         mov [multiboot_framebuffer_data], rax
@@ -172,8 +177,8 @@ read_multiboot:
     .mmap_tag_item:
         mov [multiboot_mmap_data], rax
         jmp .item_not_needed
-    .acpi_old_item:
-        mov [multiboot_acpi_old], rax
+    .acpi_item:
+        mov [multiboot_acpi_info], rax
         jmp .item_not_needed
     .meminfo_tag_item:
         mov [multiboot_basic_meminfo], rax
@@ -239,7 +244,7 @@ multiboot_mmap_data:
     resb 8
 multiboot_basic_meminfo:
     resb 8
-multiboot_acpi_old:
+multiboot_acpi_info:
     resb 8
 stack:
     resb 16384

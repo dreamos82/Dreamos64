@@ -26,10 +26,12 @@ extern uint32_t FRAMEBUFFER_MEMORY_SIZE;
 extern uint64_t multiboot_framebuffer_data;
 extern uint64_t multiboot_mmap_data;
 extern uint64_t multiboot_basic_meminfo;
+extern uint64_t multiboot_acpi_info;
 struct multiboot_tag_framebuffer *tagfb = NULL;
 struct multiboot_tag_basic_meminfo *tagmem = NULL;
 struct multiboot_tag_old_acpi *tagold_acpi = NULL;
 struct multiboot_tag_mmap *tagmmap = NULL;
+struct multiboot_tag *tagacpi = NULL;
 
 void _read_configuration_from_multiboot(unsigned long addr){
     struct multiboot_tag* tag;
@@ -57,23 +59,24 @@ void _read_configuration_from_multiboot(unsigned long addr){
     _printStringAndNumber("---EntryVersion: ", tagmmap->entry_version);
     _printStringAndNumber("---Struct size: ", sizeof(struct multiboot_tag_mmap));
     _mmap_parse(tagmmap);
+
+    tagacpi = (struct multiboot_tag *) (multiboot_acpi_info + _HIGHER_HALF_KERNEL_MEM_START);
+    if(tagacpi->type == MULTIBOOT_TAG_TYPE_ACPI_OLD){
+        tagold_acpi = (struct multiboot_tag_old_acpi *)tagacpi;
+        _printStringAndNumber("Found acpi RSDP: ", tagold_acpi->type);
+        _printStringAndNumber("Found acpi RSDP address: ", (unsigned long) &tagold_acpi);
+        RSDPDescriptor *descriptor = (RSDPDescriptor *)(tagacpi+1);
+        _printStringAndNumber("Address: ", (unsigned long) &descriptor);
+        _printStringAndNumber("Descriptor revision: ", descriptor->Revision);
+        validate_RSDP(descriptor);
+    }
  
 	for (tag=(struct multiboot_tag *) (addr + _HIGHER_HALF_KERNEL_MEM_START + 8);
 		tag->type != MULTIBOOT_TAG_TYPE_END;
 		tag = (struct multiboot_tag *) ((multiboot_uint8_t *) tag 
 										+ ((tag->size + 7) & ~7))){
         switch(tag->type){
-            case MULTIBOOT_TAG_TYPE_ACPI_OLD:
-                tagold_acpi = (struct multiboot_tag_old_acpi *)tag;
-                _printStringAndNumber("Found acpi RSDP: ", tagold_acpi->type);
-                _printStringAndNumber("Found acpi RSDP address: ", (unsigned long) &tagold_acpi);
-                RSDPDescriptor *descriptor = (RSDPDescriptor *)(tag+1);
-                _printStringAndNumber("Address: ", (unsigned long) &descriptor);
-                _printStringAndNumber("Descriptor revision: ", descriptor->Revision);
-                validate_RSDP(descriptor);
-                //parse_RSDT(descriptor);
-                break;
-            case MULTIBOOT_TAG_TYPE_ELF_SECTIONS:
+           case MULTIBOOT_TAG_TYPE_ELF_SECTIONS:
                 _printStr("Found elf sections");
                 _printNewLine();
                 break;
@@ -152,6 +155,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
     init_apic();
     pmm_setup();
     pmm_reserve_area(0x10000, 10);
+    _printStringAndNumber("--ACPI_INFO: ", multiboot_acpi_info);
     asm("hlt");
 }
 
