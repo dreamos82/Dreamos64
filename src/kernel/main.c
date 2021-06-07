@@ -102,7 +102,6 @@ void kernel_start(unsigned long addr, unsigned long magic){
     _printStringAndNumber("Kernel physical end: ", (unsigned long)&_kernel_physical_end);
     _read_configuration_from_multiboot(addr);
     //test_image();
-    qemu_write_string("---Ok\n");
     unsigned size = *(unsigned*)addr;
     _printStringAndNumber("Size: ", size);
     unsigned int *val = (unsigned int *) 0x100000;
