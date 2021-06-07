@@ -1,3 +1,4 @@
+%include "src/asm/multiboot_structs.inc"
 %define KERNEL_VIRTUAL_ADDR 0xFFFFFFFF80000000
 %define PAGE_DIR_ENTRY_FLAGS 0b11
 %define PRESENT_BIT 1
@@ -17,6 +18,11 @@ global start
 global p2_table
 global p4_table
 global p3_table
+global multiboot_framebuffer_data
+global multiboot_mmap_data
+global multiboot_basic_meminfo
+global multiboot_acpi_info
+global read_multiboot
 extern kernel_start
 
 [bits 32]
@@ -96,7 +102,11 @@ start:
     mov eax, 0xFD000000
     or eax, PAGE_TABLE_ENTRY
     mov dword [(p2_table - KERNEL_VIRTUAL_ADDR) + 8 * 488], eax
+    mov eax, 0xFD200000
+    or eax, PAGE_TABLE_ENTRY
+    mov dword [(p2_table - KERNEL_VIRTUAL_ADDR) + 8 * 489], eax
     %endif
+    
     ; All set... now we are nearly ready to enter into 64 bit
     ; Is possible to move into cr3 only from another register
     ; So let's move p4_table address into eax first
@@ -142,6 +152,52 @@ kernel_jumper:
     mov es, ax  ; extra segment register
     mov fs, ax  ; extra segment register
     mov gs, ax  ; extra segment register
+    
+    lea rax, [rdi+8]
+    
+    ;.bss section should be already 0  at least on unix and windows systems
+    ;no need to initialize
+
+read_multiboot:
+    ;Check if the tag is needed by the kernel, if yes store its address
+    cmp dword [rax + multiboot_tag.type], MULTIBOOT_TAG_TYPE_FRAMEBUFFER
+    je .parse_fb_data
+    cmp dword [rax + multiboot_tag.type], MULTIBOOT_TAG_TYPE_MMAP
+    je .mmap_tag_item
+    cmp dword [rax + multiboot_tag.type], MULTIBOOT_TAG_TYPE_BASIC_MEMINFO
+    je .meminfo_tag_item
+    cmp dword [rax + multiboot_tag.type], MULTIBOOT_TAG_TYPE_ACPI_OLD
+    je .acpi_item
+    cmp dword [rax + multiboot_tag.type], MULTIBOOT_TAG_TYPE_ACPI_NEW
+    je .acpi_item
+    jmp .item_not_needed
+    .parse_fb_data:
+        mov [multiboot_framebuffer_data], rax
+        jmp .item_not_needed
+    .mmap_tag_item:
+        mov [multiboot_mmap_data], rax
+        jmp .item_not_needed
+    .acpi_item:
+        mov [multiboot_acpi_info], rax
+        jmp .item_not_needed
+    .meminfo_tag_item:
+        mov [multiboot_basic_meminfo], rax
+    .item_not_needed:
+        mov ebx, dword [rax + multiboot_tag.size]
+        ;Next tag is at current_tag_address + current_tag size
+        ;lea rax, [rax + rbx + 7]
+        add rax, rbx
+        ;Padded with 0 until the first byte aligned with 8bytes
+        add rax, 7
+        and rax, ~7
+        ;Check if the tag is the end tag 
+        ;Type: 0 Size: 8
+        ;multiboot_tag.type == 0?
+        cmp dword [rax + multiboot_tag.type], MULTIBOOT_TAG_TYPE_END
+        jne read_multiboot
+        ; && multiboot_tag.size == 8?
+        cmp dword [rax + multiboot_tag.size], 8
+        jne read_multiboot
 
     mov rax, higher_half
     jmp rax
@@ -182,7 +238,14 @@ fdd_pt_tables:
 align 4096
 fbb_p2_table:
     resb 4096
-
+multiboot_framebuffer_data:
+    resb 8
+multiboot_mmap_data:
+    resb 8
+multiboot_basic_meminfo:
+    resb 8
+multiboot_acpi_info:
+    resb 8
 stack:
     resb 16384
     .top:
