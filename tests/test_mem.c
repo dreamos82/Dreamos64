@@ -142,8 +142,18 @@ void test_mmap(){
     assert(mmap_number_of_entries == 6);
     printf("--Check that mmap_entries point to mmap_root->entries\n");
     assert(mmap_root->entries == mmap_entries);
-    printf("--Check that a reserved address is correctly set to 1\n");
+    printf("--Check that 0x%X address is correctly set to 1\n", mmap_entries[1].addr);
     uint32_t bitmap_entry = ADDRESS_TO_BITMAP_ENTRY(mmap_entries[1].addr);
     assert(_bitmap_test_bit(bitmap_entry) == true);
+    printf("--Check that 0x%X address is correctly set to 1\n", mmap_entries[2].addr);
+    bitmap_entry = ADDRESS_TO_BITMAP_ENTRY(mmap_entries[2].addr);
+    assert(_bitmap_test_bit(bitmap_entry) == true);
+    printf("--Check that 0x%X is correctly set to 1\n", mmap_entries[3].addr);
+    bitmap_entry = ADDRESS_TO_BITMAP_ENTRY(mmap_entries[3].addr);
+    assert(_bitmap_test_bit(bitmap_entry) == true);
+    printf("--Check that 11th bit of bitmap should be set as 0");
+    bitmap_entry = ADDRESS_TO_BITMAP_ENTRY((mmap_entries[3].addr + 0x1300000));
+    assert(_bitmap_test_bit(bitmap_entry) == false);
     printf("Finished");
 }
+
