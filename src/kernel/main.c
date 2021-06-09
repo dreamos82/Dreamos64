@@ -154,7 +154,6 @@ void kernel_start(unsigned long addr, unsigned long magic){
     init_apic();
     pmm_setup();
     pmm_reserve_area(0x10000, 10);
-    _printStringAndNumber("--ACPI_INFO: ", multiboot_acpi_info);
     asm("hlt");
 }
 
