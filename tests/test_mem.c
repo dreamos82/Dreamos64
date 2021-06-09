@@ -1,11 +1,12 @@
 #include <bitmap.h>
-#include <pmm.h>
 #include <mmap.h>
+#include <pmm.h>
 #include <multiboot.h>
 #include <stdlib.h>
 #include <assert.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <video.h>
 
 struct multiboot_tag_basic_meminfo *tagmem;
 struct multiboot_tag_mmap *mmap_root;
@@ -15,17 +16,22 @@ extern uint32_t number_of_entries;
 extern uint32_t bitmap_size;
 extern uint32_t used_frames;
 extern uint32_t mmap_number_of_entries;
-extern struct multiboot_mmap_entry* mmap_entries;
+extern multiboot_memory_map_t *mmap_entries;
 
 void test_pmm();
 
-void _printStringAndNumber(char *string, uint32_t number){
-    printf("%s0x%x\n", number);
+void _printStringAndNumber(char *string, unsigned long number){
+    printf("%s0x%X\n", string, number);
 }
 
 void _printStr(char *string){
     printf("%s", string);
 }
+
+void _printNewLine(){
+    printf("\n");
+}
+
 
 int main(){
     memory_map = (uint64_t *) malloc(20 * sizeof(uint64_t));
@@ -34,8 +40,10 @@ int main(){
     tagmem->mem_upper = 0xFFB80;
 
     _kernel_physical_end = 0x11505C;
-    struct multiboot_tag_mmap *mmap_root;
-    mmap_root = malloc(sizeof(struct multiboot_tag_mmap) + sizeof(struct multiboot_mmap_entry) * 6);
+    //struct multiboot_tag_mmap *mmap_root;
+    uint32_t mmap_size = sizeof(struct multiboot_tag_mmap) + 6*sizeof(struct multiboot_mmap_entry);
+    printf("Size: %d", mmap_size);
+    mmap_root = malloc(mmap_size);
     mmap_root->entries[0].addr = 0;
     mmap_root->entries[0].len = 0x9FC00;
     mmap_root->entries[0].type = 1;
@@ -64,9 +72,6 @@ int main(){
     mmap_root->entry_size = 0x18;
     mmap_root->entry_version = 0;
     _mmap_parse(mmap_root);
-    printf("Setup\n");
-    mmap_data.entries = mmap_root->entries;
-    printf("%x\n", mmap_data.entries[0]);
     pmm_setup();
     test_pmm();
     return 0;
@@ -125,8 +130,8 @@ void test_pmm(){
     assert(memory_map[0] == 0x3FF);
     assert(used_frames == 0x9);
     printf("used_frames == 0x9 %d\n", used_frames == 0x9);
-    printf("Mmmap data.number_of_entries should be 6 == %x\n", mmap_data.number_of_entries);
-    assert(mmap_data.number_of_entries == 6);
+    printf("Mmmap data.number_of_entries should be 6 == %x\n", mmap_number_of_entries);
+    assert(mmap_number_of_entries == 6);
     printf("Finished\n");
 
 }
