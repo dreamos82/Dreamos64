@@ -17,7 +17,7 @@
 #define FREE_TO_USE 0
 #define USED 1
 
-#define ADDRESS_TO_BITMAP_ENTRY(address)(address % PAGE_SIZE_IN_BYTES)
+#define ADDRESS_TO_BITMAP_ENTRY(address)(address / PAGE_SIZE_IN_BYTES)
 
 void _initialize_bitmap();
 

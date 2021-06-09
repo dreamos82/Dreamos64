@@ -144,6 +144,6 @@ void test_mmap(){
     assert(mmap_root->entries == mmap_entries);
     printf("--Check that a reserved address is correctly set to 1\n");
     uint32_t bitmap_entry = ADDRESS_TO_BITMAP_ENTRY(mmap_entries[1].addr);
-    assert(_bitmap_test_bit(bitmap_entry) == false);
+    assert(_bitmap_test_bit(bitmap_entry) == true);
     printf("Finished");
 }
