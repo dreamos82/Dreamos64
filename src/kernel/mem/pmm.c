@@ -9,7 +9,6 @@
 extern uint32_t used_frames;
 extern uint32_t number_of_entries;
 extern uint32_t bitmap_size;
-extern  mmap_wrapper mmap_data;
 
 void pmm_setup(){
     _initialize_bitmap();

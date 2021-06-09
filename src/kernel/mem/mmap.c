@@ -9,7 +9,6 @@
 
 extern uint32_t used_frames;
 extern struct multiboot_tag_basic_meminfo *tagmem;
-mmap_wrapper mmap_data;
 uint32_t mmap_number_of_entries;
 multiboot_memory_map_t *mmap_entries;
 
@@ -52,7 +51,7 @@ void _mmap_setup(){
             if(mmap_entries[counter].addr < mem_limit &&
                     mmap_entries[counter].type > 1){
                _printStringAndNumber("Found entry at addr: ", mmap_entries[counter].addr);
-               pmm_reserve_area(mmap_data.entries[counter].addr, mmap_entries[counter].len);
+               pmm_reserve_area(mmap_entries[counter].addr, mmap_entries[counter].len);
             }
             counter++;
         }
