@@ -73,11 +73,14 @@ int main(){
     mmap_root->entry_version = 0;
     _mmap_parse(mmap_root);
     pmm_setup();
+    printf("Testing physical memory manager\n");
     test_pmm();
+    test_mmap();
     return 0;
 }
 
 void test_pmm(){
+    printf("--- Bitmap ---");
     printf("Used frames: 0x%X\n", used_frames);
     printf("--Testing used_frames value\n");
     assert(used_frames==0x9);
@@ -130,8 +133,17 @@ void test_pmm(){
     assert(memory_map[0] == 0x3FF);
     assert(used_frames == 0x9);
     printf("used_frames == 0x9 %d\n", used_frames == 0x9);
-    printf("Mmmap data.number_of_entries should be 6 == %x\n", mmap_number_of_entries);
-    assert(mmap_number_of_entries == 6);
     printf("Finished\n");
+}
 
+void test_mmap(){
+    printf("--- Test mmap ---\n");
+    printf("--Mmmap data.number_of_entries should be 6 == %x\n", mmap_number_of_entries);
+    assert(mmap_number_of_entries == 6);
+    printf("--Check that mmap_entries point to mmap_root->entries\n");
+    assert(mmap_root->entries == mmap_entries);
+    printf("--Check that a reserved address is correctly set to 1\n");
+    uint32_t bitmap_entry = ADDRESS_TO_BITMAP_ENTRY(mmap_entries[1].addr);
+    assert(_bitmap_test_bit(bitmap_entry) == false);
+    printf("Finished");
 }
