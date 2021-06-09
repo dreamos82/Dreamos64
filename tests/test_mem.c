@@ -13,8 +13,9 @@ unsigned long _kernel_physical_end;
 extern uint64_t *memory_map;
 extern uint32_t number_of_entries;
 extern uint32_t bitmap_size;
-extern uint32_t used_frames; 
-extern  mmap_wrapper mmap_data;
+extern uint32_t used_frames;
+extern uint32_t mmap_number_of_entries;
+extern struct multiboot_mmap_entry* mmap_entries;
 
 void test_pmm();
 
