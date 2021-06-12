@@ -19,6 +19,7 @@ TESTFLAGS := -std=gnu99 \
 		-ffreestanding \
 		-I src/include \
 		-I src/include/kernel/mem \
+		-I src/include/kernel \
 		-DSMALL_PAGES=$(SMALL_PAGES) \
 		-D_TEST_=1
 
