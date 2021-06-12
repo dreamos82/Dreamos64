@@ -24,9 +24,10 @@ const char *mmap_types[] = {
 void _mmap_parse(struct multiboot_tag_mmap *mmap_root){
     int total_entries = 0;
     mmap_number_of_entries = (mmap_root->size - sizeof(*mmap_root))/mmap_root->entry_size;
-    mmap_entries = mmap_root->entries;
-#ifndef _TEST_
+    mmap_entries = (multiboot_memory_map_t *)mmap_root->entries;
     uint32_t i=0;
+
+#ifndef _TEST_
     while(i<mmap_number_of_entries){
         _printStringAndNumber("Address: ", (uint32_t)mmap_entries[i].addr);
         _printStringAndNumber("---Len: ", (uint32_t)mmap_entries[i].len);
