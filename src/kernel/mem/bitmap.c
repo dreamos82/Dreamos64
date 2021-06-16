@@ -17,8 +17,6 @@ uint32_t used_frames;
 
 void _initialize_bitmap(){
     //TODO
-    //1. get upper memory size
-    //2. make sure everything is zero
     //3. Compute number of entries needed to keep track of the physical ram
     //4. mark kernel area as reserved
     //5. Mark other addresses that are below UPPER_MEMORY size and are in the memory map as reserved.
@@ -29,8 +27,17 @@ void _initialize_bitmap(){
     for (uint32_t i=0; i<number_of_entries; i++){
         memory_map[i] = 0x0;
     }
-    memory_map[0] = 0x3ff; //I'm marking first 10 element in the bitmap as taken
-    used_frames = 0x09; // Is the number of currently used frames - 1 (since the count starts from 0)
+    uint32_t kernel_entries = _compute_kernel_entries();
+    uint32_t number_of_bitmap_rows = kernel_entries/64;
+    uint32_t j=0;
+    for (j=0; j < number_of_bitmap_rows; j++){
+        memory_map[j] = ~(0);
+    }
+    memory_map[j] = ~(~0u << (kernel_entries - (number_of_bitmap_rows*64)));
+    //memory_map[0] = 0x3ff; //I'm marking first 10 element in the bitmap as taken
+    //used_frames = kernel_entries;
+//    used_frames = 0x09; // Is the number of currently used frames - 1 (since the count starts from 0)
+    used_frames = kernel_entries;
 #ifndef _TEST_
     _printStringAndNumber("Page size: ", PAGE_SIZE_IN_BYTES);
     _printStringAndNumber("Actual size in bytes: ", memory_size_in_bytes);
@@ -40,6 +47,15 @@ void _initialize_bitmap(){
     //_bitmap_request_frame();
     //pmm_alloc_frame();
 }
+
+uint32_t _compute_kernel_entries(){
+    uint32_t kernel_entries = _kernel_physical_end / PAGE_SIZE_IN_BYTES;
+    if ( _kernel_physical_end % PAGE_SIZE_IN_BYTES != 0){
+        return kernel_entries + 2;
+    } 
+    return kernel_entries + 1;
+   
+};
 
 /**
  * This function is returning the bitmap location of the first available page-frame

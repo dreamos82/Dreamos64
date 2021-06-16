@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <video.h>
+#include <inttypes.h>
 
 struct multiboot_tag_basic_meminfo *tagmem;
 struct multiboot_tag_mmap *mmap_root;
@@ -19,7 +20,7 @@ extern uint32_t mmap_number_of_entries;
 extern multiboot_memory_map_t *mmap_entries;
 
 void test_pmm();
-
+void test_mmap();
 void _printStringAndNumber(char *string, unsigned long number){
     printf("%s0x%X\n", string, number);
 }
@@ -42,7 +43,7 @@ int main(){
     _kernel_physical_end = 0x11505C;
     //struct multiboot_tag_mmap *mmap_root;
     uint32_t mmap_size = sizeof(struct multiboot_tag_mmap) + 6*sizeof(struct multiboot_mmap_entry);
-    printf("Size: %d", mmap_size);
+    printf("Size: %d\n", mmap_size);
     mmap_root = malloc(mmap_size);
     mmap_root->entries[0].addr = 0;
     mmap_root->entries[0].len = 0x9FC00;
@@ -83,22 +84,24 @@ void test_pmm(){
     printf("--- Bitmap ---");
     printf("Used frames: 0x%X\n", used_frames);
     printf("--Testing used_frames value\n");
-    assert(used_frames==0x9);
+    assert(used_frames==0x2);
     printf("--Testing memory_map initial value\n");
-    assert(memory_map[0]==0x3ff);
+    printf("memory_map[0] = %x\n", memory_map[0]);
+    assert(memory_map[0]==0x3);
     printf("--Testing value of first call to _bitmap_request_frame()\n");
     uint64_t frame_value = _bitmap_request_frame();
-    assert(frame_value == 0xA);
-    assert((frame_value * PAGE_SIZE_IN_BYTES) == 0x1400000);
+    assert(frame_value == 0x2);
+    assert((frame_value * PAGE_SIZE_IN_BYTES) == 0x400000);
     printf("--Checking that pmm_check_availability is returning true\n");
     bool available_pages = pmm_check_frame_availability();
     assert(available_pages == true);
     printf("--Checking pmm_alloc_frame()\n");
     uint64_t* frame = pmm_alloc_frame();
-    assert(used_frames == 0xA);
+    printf("used_frames: %x\n", used_frames);
+    assert(used_frames == 0x3);
     printf("--Checking that returned address is: 0x%x\n", frame);
-    assert(frame == (void*)0x1400000);
-    assert(memory_map[0] == 0x7ff);
+    assert(frame == (void*)0x400000);
+    assert(memory_map[0] == 0x7);
     printf("--Test setting a frame at row 1 column 3\n");
     _bitmap_set_bit(67);
     assert(memory_map[1] == 0x8);
@@ -111,9 +114,9 @@ void test_pmm(){
     printf("--Trying allocating another frame\n");
     frame = pmm_alloc_frame();
     printf("--Checking that returned address is: 0x%x\n", frame);
-    assert(frame == (void*)0x1600000);
-    assert(used_frames == 0xB);
-    assert(memory_map[0] == 0xFFF);
+    assert(frame == (void*)0x600000);
+    assert(used_frames == 0x4);
+    assert(memory_map[0] == 0xF);
     printf("--Testing test_bit on frame 67 should be 0\n");
     bool bit_value = _bitmap_test_bit(67);
     assert(bit_value == false);
@@ -124,14 +127,13 @@ void test_pmm(){
     bit_value = _bitmap_test_bit(70);
     assert(bit_value == true);
     printf("--Trying to free a page\n");
-    pmm_free_frame((uint64_t*)0x1400000);
+    pmm_free_frame((uint64_t*)0x400000);
     printf("--Memory map value: 0x%X\n", memory_map[0]);
-    assert(memory_map[0] == 0xBFF);
-    assert(used_frames == 0xA);
+    assert(memory_map[0] == 0xB);
+    assert(used_frames == 0x3);
     printf("--Trying to free another frame\n");
     pmm_free_frame(frame);
-    assert(memory_map[0] == 0x3FF);
-    assert(used_frames == 0x9);
+    assert(used_frames == 0x2);
     printf("used_frames == 0x9 %d\n", used_frames == 0x9);
     printf("Finished\n");
 }
@@ -151,9 +153,24 @@ void test_mmap(){
     printf("--Check that 0x%X is correctly set to 1\n", mmap_entries[3].addr);
     bitmap_entry = ADDRESS_TO_BITMAP_ENTRY(mmap_entries[3].addr);
     assert(_bitmap_test_bit(bitmap_entry) == true);
-    printf("--Check that 11th bit of bitmap should be set as 0");
+    printf("--Check that 11th bit of bitmap should be set as 0\n");
     bitmap_entry = ADDRESS_TO_BITMAP_ENTRY((mmap_entries[3].addr + 0x1300000));
     assert(_bitmap_test_bit(bitmap_entry) == false);
+    uint64_t var = ~(0);
+    printf("Vale: %" PRIx64 "\n", var);
+    uint32_t kernel_entries = 128;
+    uint32_t number_of_bitmap_rows = kernel_entries / 64;
+/*    if(number_of_bitmap_rows % 64 != 0) {
+        number_of_bitmap_rows++;
+    }*/
+    for (uint32_t j=0; j < number_of_bitmap_rows - 1; j++){
+        memory_map[j] = ~(0);
+    }
+    //memory_map[j] = ~(~0u << (kernel_entries - (number_of_bitmap_rows*64)));
+    printf("Number of rows: %d\n", number_of_bitmap_rows);
+    printf("Number of entries on last row: %d\n", (kernel_entries - (number_of_bitmap_rows * 64)));
+    
+    printf("Vale: %x\n", ~(~0u << 10));
     printf("Finished");
 }
 
