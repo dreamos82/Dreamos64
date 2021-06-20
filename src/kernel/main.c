@@ -140,9 +140,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
             qemu_write_string("PSF v2 found\n");
         }
         _printStringAndNumber("Size of psv1_font: ", sizeof(PSFv1_Font));
-        for(int i = 3; i<23; i++){
-            _fb_printStr("Test Line", 1, i, 0x000000, 0xFFFFFF);
-        }
+        _fb_printStr(" -- Welcome --", 0, 2, 0xFFFFFF, 0x3333ff);
     #endif
     char *cpuid_model = _cpuid_model();
     _printStr("Cpuid model: ");

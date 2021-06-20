@@ -3,9 +3,7 @@
 #include <pmm.h>
 #include <stdint.h>
 #include <multiboot.h>
-#ifndef _TEST_
 #include <video.h>
-#endif
 
 extern uint32_t used_frames;
 extern struct multiboot_tag_basic_meminfo *tagmem;
