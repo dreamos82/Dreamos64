@@ -21,6 +21,7 @@ extern multiboot_memory_map_t *mmap_entries;
 
 void test_pmm();
 void test_mmap();
+
 void _printStringAndNumber(char *string, unsigned long number){
     printf("%s0x%X\n", string, number);
 }
@@ -156,21 +157,6 @@ void test_mmap(){
     printf("--Check that 11th bit of bitmap should be set as 0\n");
     bitmap_entry = ADDRESS_TO_BITMAP_ENTRY((mmap_entries[3].addr + 0x1300000));
     assert(_bitmap_test_bit(bitmap_entry) == false);
-    uint64_t var = ~(0);
-    printf("Vale: %" PRIx64 "\n", var);
-    uint32_t kernel_entries = 128;
-    uint32_t number_of_bitmap_rows = kernel_entries / 64;
-/*    if(number_of_bitmap_rows % 64 != 0) {
-        number_of_bitmap_rows++;
-    }*/
-    for (uint32_t j=0; j < number_of_bitmap_rows - 1; j++){
-        memory_map[j] = ~(0);
-    }
-    //memory_map[j] = ~(~0u << (kernel_entries - (number_of_bitmap_rows*64)));
-    printf("Number of rows: %d\n", number_of_bitmap_rows);
-    printf("Number of entries on last row: %d\n", (kernel_entries - (number_of_bitmap_rows * 64)));
-    
-    printf("Vale: %x\n", ~(~0u << 10));
-    printf("Finished");
+    printf("Finished\n");
 }
 
