@@ -8,6 +8,8 @@
 #include <stdbool.h>
 #include <video.h>
 #include <inttypes.h>
+#include <test_mem.h>
+#include <test_common.h>
 
 struct multiboot_tag_basic_meminfo *tagmem;
 struct multiboot_tag_mmap *mmap_root;
@@ -18,22 +20,6 @@ extern uint32_t bitmap_size;
 extern uint32_t used_frames;
 extern uint32_t mmap_number_of_entries;
 extern multiboot_memory_map_t *mmap_entries;
-
-void test_pmm();
-void test_mmap();
-
-void _printStringAndNumber(char *string, unsigned long number){
-    printf("%s0x%X\n", string, number);
-}
-
-void _printStr(char *string){
-    printf("%s", string);
-}
-
-void _printNewLine(){
-    printf("\n");
-}
-
 
 int main(){
     memory_map = (uint64_t *) malloc(20 * sizeof(uint64_t));

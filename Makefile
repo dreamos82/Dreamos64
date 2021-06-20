@@ -17,6 +17,7 @@ CFLAGS := -std=gnu99 \
 
 TESTFLAGS := -std=gnu99 \
 		-ffreestanding \
+		-I tests/include \
 		-I src/include \
 		-I src/include/kernel/mem \
 		-I src/include/kernel \
@@ -99,6 +100,6 @@ gdb: build/os.iso
 	qemu-system-x86_64 -cdrom build/DreamOs64.iso -serial file:dreamos64.log -m 1G -d int -no-reboot -s -S
 
 tests:
-	gcc ${TESTFLAGS} tests/test_mem.c src/kernel/mem/bitmap.c src/kernel/mem/pmm.c src/kernel/mem/mmap.c -o tests/test_mem.o
+	gcc ${TESTFLAGS} tests/test_mem.c tests/test_common.c src/kernel/mem/bitmap.c src/kernel/mem/pmm.c src/kernel/mem/mmap.c -o tests/test_mem.o
 	./tests/test_mem.o
 
