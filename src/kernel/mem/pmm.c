@@ -61,6 +61,7 @@ void pmm_reserve_area(uint64_t starting_address, size_t size){
 void pmm_free_area(uint64_t starting_address, size_t size){
     uint64_t location = starting_address / PAGE_SIZE_IN_BYTES;
     uint32_t number_of_frames = size / PAGE_SIZE_IN_BYTES;
+    //TODO Decide if the check should go to pmm_free_area instead of here 
     for(int i = 0; i < count_physical_reserved; i++){
         multiboot_uint64_t base_addr = mmap_entries[i].addr;
         multiboot_uint64_t len = mmap_entries[i].len;

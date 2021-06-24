@@ -151,8 +151,6 @@ void test_mmap(){
     pmm_free_area(mmap_entries[2].addr, mmap_entries[2].len);    
     bitmap_entry = ADDRESS_TO_BITMAP_ENTRY(mmap_entries[2].addr);
     assert(_bitmap_test_bit(bitmap_entry) == true);
-
-
     printf("Finished\n");
 }
 
