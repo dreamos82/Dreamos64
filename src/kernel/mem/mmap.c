@@ -9,6 +9,7 @@ extern uint32_t used_frames;
 extern struct multiboot_tag_basic_meminfo *tagmem;
 uint32_t mmap_number_of_entries;
 multiboot_memory_map_t *mmap_entries;
+uint8_t count_physical_reserved;
 
 const char *mmap_types[] = {
     "Invalid",
@@ -43,6 +44,7 @@ void _mmap_parse(struct multiboot_tag_mmap *mmap_root){
 }
 
 void _mmap_setup(){
+    count_physical_reserved=0;
     if(used_frames > 0){
         uint32_t counter = 0;
         uint64_t mem_limit = (tagmem->mem_upper + 1024) * 1024;
@@ -51,6 +53,7 @@ void _mmap_setup(){
                     mmap_entries[counter].type > 1){
                _printStringAndNumber("Found entry at addr: ", mmap_entries[counter].addr);
                pmm_reserve_area(mmap_entries[counter].addr, mmap_entries[counter].len);
+               count_physical_reserved++;
             }
             counter++;
         }

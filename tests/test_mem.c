@@ -121,7 +121,7 @@ void test_pmm(){
     printf("--Trying to free another frame\n");
     pmm_free_frame(frame);
     assert(used_frames == 0x2);
-    printf("used_frames == 0x9 %d\n", used_frames == 0x9);
+    printf("used_frames == 0x2 %d\n", used_frames == 0x2);
     printf("Finished\n");
 }
 
@@ -143,6 +143,14 @@ void test_mmap(){
     printf("--Check that 11th bit of bitmap should be set as 0\n");
     bitmap_entry = ADDRESS_TO_BITMAP_ENTRY((mmap_entries[3].addr + 0x1300000));
     assert(_bitmap_test_bit(bitmap_entry) == false);
+    printf("--Try to free a reserved area, should not happen\n");
+    pmm_free_area(mmap_entries[1].addr, mmap_entries[1].len);    
+    bitmap_entry = ADDRESS_TO_BITMAP_ENTRY(mmap_entries[1].addr);
+    assert(_bitmap_test_bit(bitmap_entry) == true);
+    printf("--Try to free another reserved area, should not happen\n");
+    pmm_free_area(mmap_entries[2].addr, mmap_entries[2].len);    
+    bitmap_entry = ADDRESS_TO_BITMAP_ENTRY(mmap_entries[2].addr);
+    assert(_bitmap_test_bit(bitmap_entry) == true);
     printf("Finished\n");
 }
 
