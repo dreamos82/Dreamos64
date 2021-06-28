@@ -1,5 +1,8 @@
 #include <vm.h>
 #include <video.h>
+#include <framebuffer.h>
+
+extern uint32_t FRAMEBUFFER_MEMORY_SIZE;
 
 void page_fault_handler(uint64_t error_code){
     _printStr("Welcome to #PF world - Not ready yet... \n");
@@ -12,6 +15,9 @@ void page_fault_handler(uint64_t error_code){
     _printStringAndNumber("--  Faulting address: ", cr2_content);
     cr2_content = cr2_content & VM_OFFSET_MASK;
     _printStringAndNumber("-- Address prepared for PD/PT extraction: ", cr2_content);
+    if(cr2_content >= _FRAMEBUFFER_MEM_START && cr2_content < _FRAMEBUFFER_MEM_START + FRAMEBUFFER_MEMORY_SIZE){
+        _printStr("To be mapped\n");            
+    }
     pd = PD_ENTRY(cr2_content); 
     pdpr = PDPR_ENTRY(cr2_content);
     pml4 = PML4_ENTRY(cr2_content);
@@ -19,7 +25,6 @@ void page_fault_handler(uint64_t error_code){
     _printStringAndNumber("pdpr: ", pdpr);
     _printStringAndNumber("pml4: ", pml4);
     asm("hlt");
-
 }
 
 
