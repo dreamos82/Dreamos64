@@ -2,6 +2,7 @@
 #include <kernel/framebuffer.h>
 #include <kernel/video.h>
 #include <kernel/psf.h>
+#include <kernel/mem/bitmap.h>
 //#ifdef DEBUG - This will be uncommented when the framebuffer library will be completed
 #include <qemu.h>
 //#endif
@@ -17,6 +18,16 @@ uint8_t FRAMEBUFFER_BPP = 0;
 uint32_t FRAMEBUFFER_MEMORY_SIZE = 0;
 uint32_t FRAMEBUFFER_WIDTH;
 uint32_t FRAMEBUFFER_HEIGHT;
+
+
+void map_framebuffer(struct multiboot_tag_framebuffer *tagfb){
+    //TODO: implement function
+    uint32_t fb_entries = FRAMEBUFFER_MEMORY_SIZE / PAGE_SIZE_IN_BYTES;
+    uint32_t fb_entries_mod = FRAMEBUFFER_MEMORY_SIZE % PAGE_SIZE_IN_BYTES;
+    _printStringAndNumber("FB: Entries: ", fb_entries);
+    _printStringAndNumber("FB: Mod Entries: ", fb_entries_mod);
+    _printStringAndNumber("FB: size: ", FRAMEBUFFER_MEMORY_SIZE);
+}
 
 void set_fb_data(struct multiboot_tag_framebuffer *fbtag){
     //FRAMEBUFFER_MEM = (void*)(uint64_t)fbtag->common.framebuffer_addr;

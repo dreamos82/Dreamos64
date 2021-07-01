@@ -51,6 +51,7 @@ void _read_configuration_from_multiboot(unsigned long addr){
     _printStringAndNumber("---framebuffer-bpp: ", tagfb->common.framebuffer_bpp);
     _printStringAndNumber("---framebuffer-pitch: ", tagfb->common.framebuffer_pitch);
     set_fb_data(tagfb);
+    map_framebuffer(tagfb);
     _printStringAndNumber("---Total framebuffer size is:  ", FRAMEBUFFER_MEMORY_SIZE);
     //Print mmap_info
     _printStringAndNumber("Memory map entry: ", tagmmap->type);
@@ -96,11 +97,11 @@ void kernel_start(unsigned long addr, unsigned long magic){
     qemu_init_debug();
     qemu_write_string("Hello qemu log\n");
     qemu_write_string("==============\n");
+    _read_configuration_from_multiboot(addr);
     init_idt();
     load_idt();
     _printStringAndNumber("Kernel End: ", (unsigned long)&_kernel_end);
     _printStringAndNumber("Kernel physical end: ", (unsigned long)&_kernel_physical_end);
-    _read_configuration_from_multiboot(addr);
     //test_image();
     unsigned size = *(unsigned*)addr;
     _printStringAndNumber("Size: ", size);
