@@ -3,6 +3,7 @@
 #include <kernel/video.h>
 #include <kernel/psf.h>
 #include <kernel/mem/bitmap.h>
+#include <vm.h>
 //#ifdef DEBUG - This will be uncommented when the framebuffer library will be completed
 #include <qemu.h>
 //#endif
@@ -24,9 +25,37 @@ void map_framebuffer(struct multiboot_tag_framebuffer *tagfb){
     //TODO: implement function
     uint32_t fb_entries = FRAMEBUFFER_MEMORY_SIZE / PAGE_SIZE_IN_BYTES;
     uint32_t fb_entries_mod = FRAMEBUFFER_MEMORY_SIZE % PAGE_SIZE_IN_BYTES;
+    uint32_t fb_pd_entries = fb_entries / 512;
+    
     _printStringAndNumber("FB: Entries: ", fb_entries);
     _printStringAndNumber("FB: Mod Entries: ", fb_entries_mod);
+    _printStringAndNumber("FB PD: Entries: ", fb_pd_entries);
     _printStringAndNumber("FB: size: ", FRAMEBUFFER_MEMORY_SIZE);
+    uint64_t current_address = (void *) (uint64_t) tagfb->common.framebuffer_addr;
+
+    uint32_t pd = PD_ENTRY(_FRAMEBUFFER_MEM_START); 
+    uint32_t pdpr = PDPR_ENTRY(_FRAMEBUFFER_MEM_START);
+    uint32_t pml4 = PML4_ENTRY(_FRAMEBUFFER_MEM_START);
+    _printStringAndNumber("pd: ", pd);
+    _printStringAndNumber("pdpr: ", pdpr);
+    _printStringAndNumber("pml4: ", pml4);
+    
+    uint32_t entries_left = fb_entries_mod;
+    uint32_t counter = 0;
+    for(int i = 0; i <= fb_pd_entries; i++){
+        /*if(i == fb_pd_entries){
+            fb_entries = fb_entries - (i * 512);
+            _printStringAndNumber("fb_entries last cycle: ", fb_entries);
+        }*/
+
+        for(int j=0; j <= 512 && fb_entries > 0; j++){
+            counter++;
+            fb_entries--;
+        }
+
+    }
+    _printStringAndNumber("Counter value: ", counter);
+    
 }
 
 void set_fb_data(struct multiboot_tag_framebuffer *fbtag){
