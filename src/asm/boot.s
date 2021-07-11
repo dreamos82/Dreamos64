@@ -8,6 +8,7 @@
 %define PAGE_SIZE 0x1000
 %define PAGE_TABLE_ENTRY WRITE_BIT | PRESENT_BIT
 %define LOOP_LIMIT 1024
+%define PD_LOOP_LIMIT 2
 %elif SMALL_PAGES == 0
 %define PAGE_SIZE 0x200000
 %define PAGE_TABLE_ENTRY HUGEPAGE_BIT | WRITE_BIT | PRESENT_BIT
@@ -62,7 +63,7 @@ start:
         mov dword[(p2_table - KERNEL_VIRTUAL_ADDR) + ebx * 8], eax
         add eax, 0x1000
         inc ebx
-        cmp ebx, 2
+        cmp ebx, PD_LOOP_LIMIT
         jne .map_pd_table
     %endif
     ; Now let's prepare a loop...
@@ -82,9 +83,12 @@ start:
         %endif
 
         inc ecx             ; Let's increase ecx
-        cmp ecx, LOOP_LIMIT        ; have we reached 512 ?
+        cmp ecx, LOOP_LIMIT        ; have we reached 512 ? (1024 for small pages)
                             ; each table is 4k size. Each entry is 8bytes
                             ; that is 512 entries in a table
+                            ; when small pages enabled: two tables are ajacent in memory
+                            ; they are mapped in the pdir during the map_pd_table cycle
+                            ; this is why the loop is up to 1024
         
         jne .map_p2_table   ; if ecx < 512 then loop
 
