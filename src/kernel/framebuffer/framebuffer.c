@@ -12,6 +12,8 @@ extern char _binary_fonts_default_psf_size;
 extern char _binary_fonts_default_psf_start;
 extern char _binary_fonts_default_psf_end;
 extern void *cur_framebuffer_pos;
+extern uint64_t p2_table[];
+extern uint64_t pt_tables[];
 
 uint32_t FRAMEBUFFER_PITCH;
 void *FRAMEBUFFER_MEM;
@@ -31,7 +33,7 @@ void map_framebuffer(struct multiboot_tag_framebuffer *tagfb){
     _printStringAndNumber("FB: Mod Entries: ", fb_entries_mod);
     _printStringAndNumber("FB PD: Entries: ", fb_pd_entries);
     _printStringAndNumber("FB: size: ", FRAMEBUFFER_MEMORY_SIZE);
-    uint64_t current_address = (void *) (uint64_t) tagfb->common.framebuffer_addr;
+    uint64_t phys_address = (void *) (uint64_t) tagfb->common.framebuffer_addr;
 
     uint32_t pd = PD_ENTRY(_FRAMEBUFFER_MEM_START); 
     uint32_t pdpr = PDPR_ENTRY(_FRAMEBUFFER_MEM_START);
@@ -39,21 +41,40 @@ void map_framebuffer(struct multiboot_tag_framebuffer *tagfb){
     _printStringAndNumber("pd: ", pd);
     _printStringAndNumber("pdpr: ", pdpr);
     _printStringAndNumber("pml4: ", pml4);
+#if SMALL_PAGES == 1
+    uint32_t pt = PT_ENTRY(_FRAMEBUFFER_MEM_START);
+    _printStringAndNumber("pt: ", pt);
+#endif
     
     uint32_t entries_left = fb_entries_mod;
     uint32_t counter = 0;
+
+#if SMALL_PAGES == 1
     for(int i = 0; i <= fb_pd_entries; i++){
         /*if(i == fb_pd_entries){
             fb_entries = fb_entries - (i * 512);
             _printStringAndNumber("fb_entries last cycle: ", fb_entries);
         }*/
-
-        for(int j=0; j <= 512 && fb_entries > 0; j++){
+        //TODO: add entry to PD
+        //p2_table[i] = 
+        for(int j=0; j <= VM_PAGES_PER_TABLE && fb_entries > 0; j++){
             counter++;
             fb_entries--;
+            //TODO: Compute number of page tables * pt_size (4k)
+            //add entry to PT
         }
 
     }
+#else
+    for(int j=0; j <= VM_PAGES_PER_TABLE && fb_entries > 0; j++){
+        counter++;
+        fb_entries--;
+        
+        //TODO: add entries to pd
+    }
+
+
+#endif
     _printStringAndNumber("Counter value: ", counter);
     
 }
