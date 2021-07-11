@@ -3,8 +3,7 @@
 #include <kernel/io.h>
 
 unsigned int qemu_init_debug(){
-    init_serial(QEMU_LOG_SERIAL_PORT);
-    return 1;
+    return init_serial(QEMU_LOG_SERIAL_PORT);
 }
 
 void qemu_write_char(char ch){
