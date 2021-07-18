@@ -17,7 +17,7 @@ uint32_t used_frames;
 
 void _initialize_bitmap(){
     //TODO
-    //3. Compute number of entries needed to keep track of the physical ram
+    //2. Compute number of entries needed to keep track of the physical ram
     //4. mark kernel area as reserved
     //5. Mark other addresses that are below UPPER_MEMORY size and are in the memory map as reserved.
     uint32_t memory_size_in_bytes = (tagmem->mem_upper + 1024) * 1024;
@@ -49,7 +49,8 @@ void _initialize_bitmap(){
 }
 
 uint32_t _compute_kernel_entries(){
-    uint32_t kernel_entries = _kernel_physical_end / PAGE_SIZE_IN_BYTES;
+    uint32_t kernel_entries = ((uint64_t)&_kernel_physical_end) / PAGE_SIZE_IN_BYTES;
+    _printStringAndNumber("Kernel entries: ", kernel_entries);
     if ( _kernel_physical_end % PAGE_SIZE_IN_BYTES != 0){
         return kernel_entries + 2;
     } 
