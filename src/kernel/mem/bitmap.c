@@ -50,7 +50,6 @@ void _initialize_bitmap(){
 
 uint32_t _compute_kernel_entries(){
     uint32_t kernel_entries = ((uint64_t)&_kernel_physical_end) / PAGE_SIZE_IN_BYTES;
-    _printStringAndNumber("Kernel entries: ", kernel_entries);
     if ( _kernel_physical_end % PAGE_SIZE_IN_BYTES != 0){
         return kernel_entries + 2;
     } 
