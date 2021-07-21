@@ -33,7 +33,7 @@ struct multiboot_tag_old_acpi *tagold_acpi = NULL;
 struct multiboot_tag_mmap *tagmmap = NULL;
 struct multiboot_tag *tagacpi = NULL;
 
-void _read_configuration_from_multiboot(unsigned long addr){
+void _init_basic_system(unsigned long addr){
     struct multiboot_tag* tag;
     tagmem  = (struct multiboot_tag_basic_meminfo *)(multiboot_basic_meminfo + _HIGHER_HALF_KERNEL_MEM_START);
     tagmmap = (struct multiboot_tag_mmap *) (multiboot_mmap_data + _HIGHER_HALF_KERNEL_MEM_START);
@@ -42,6 +42,15 @@ void _read_configuration_from_multiboot(unsigned long addr){
     _printStringAndNumber("Found basic mem Mem info type: ", tagmem->type);
     _printStringAndNumber("Memory lower (in kb): ", tagmem->mem_lower);
     _printStringAndNumber("Memory upper (in kb): ", tagmem->mem_upper); 
+    //Print mmap_info
+    _printStringAndNumber("Memory map entry: ", tagmmap->type);
+    _printStringAndNumber("---Size: ", tagmmap->size);
+    _printStringAndNumber("---Entrysize: ", tagmmap->entry_size);
+    _printStringAndNumber("---EntryVersion: ", tagmmap->entry_version);
+    _printStringAndNumber("---Struct size: ", sizeof(struct multiboot_tag_mmap));
+    _mmap_parse(tagmmap);
+    pmm_setup();
+
     //Print framebuffer info
     _printStringAndNumber("Found multiboot framebuffer: ", tagmem->type); 
     _printStringAndNumber("---framebuffer-type: ", tagfb->common.framebuffer_type);
@@ -53,14 +62,7 @@ void _read_configuration_from_multiboot(unsigned long addr){
     set_fb_data(tagfb);
     map_framebuffer(tagfb);
     _printStringAndNumber("---Total framebuffer size is:  ", FRAMEBUFFER_MEMORY_SIZE);
-    //Print mmap_info
-    _printStringAndNumber("Memory map entry: ", tagmmap->type);
-    _printStringAndNumber("---Size: ", tagmmap->size);
-    _printStringAndNumber("---Entrysize: ", tagmmap->entry_size);
-    _printStringAndNumber("---EntryVersion: ", tagmmap->entry_version);
-    _printStringAndNumber("---Struct size: ", sizeof(struct multiboot_tag_mmap));
-    _mmap_parse(tagmmap);
-
+    
     tagacpi = (struct multiboot_tag *) (multiboot_acpi_info + _HIGHER_HALF_KERNEL_MEM_START);
     if(tagacpi->type == MULTIBOOT_TAG_TYPE_ACPI_OLD){
         tagold_acpi = (struct multiboot_tag_old_acpi *)tagacpi;
@@ -97,7 +99,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
     qemu_init_debug();
     qemu_write_string("Hello qemu log\n");
     qemu_write_string("==============\n");
-    _read_configuration_from_multiboot(addr);
+    _init_basic_system(addr);
     init_idt();
     load_idt();
     _printStringAndNumber("Kernel End: ", (unsigned long)&_kernel_end);
@@ -151,7 +153,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
     cpu_info = _cpuid_feature_apic();
     _printStringAndNumber("Cpu info result: ", cpu_info);
     init_apic();
-    pmm_setup();
+    _mmap_setup();
     pmm_reserve_area(0x10000, 10);
     asm("hlt");
 }

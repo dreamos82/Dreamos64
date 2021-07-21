@@ -12,6 +12,8 @@ extern char _binary_fonts_default_psf_size;
 extern char _binary_fonts_default_psf_start;
 extern char _binary_fonts_default_psf_end;
 extern void *cur_framebuffer_pos;
+extern uint64_t p4_table[];
+extern uint64_t p3_table_hh[];
 extern uint64_t p2_table[];
 extern uint64_t pt_tables[];
 
@@ -49,6 +51,10 @@ void map_framebuffer(struct multiboot_tag_framebuffer *tagfb){
     uint32_t entries_left = fb_entries_mod;
     uint32_t counter = 0;
 
+    if(p4_table[pml4] == 0x00l || p3_table_hh[pdpr] == 0x00l){
+        _printStr("PANIC - PML4 or PDPR Empty\n");
+    }
+
 #if SMALL_PAGES == 1
     for(int i = 0; i <= fb_pd_entries; i++){
         /*if(i == fb_pd_entries){
@@ -56,20 +62,27 @@ void map_framebuffer(struct multiboot_tag_framebuffer *tagfb){
             _printStringAndNumber("fb_entries last cycle: ", fb_entries);
         }*/
         //TODO: add entry to PD
-        //p2_table[i] = 
-        for(int j=0; j <= VM_PAGES_PER_TABLE && fb_entries > 0; j++){
-            counter++;
-            fb_entries--;
-            //TODO: Compute number of page tables * pt_size (4k)
-            //add entry to PT
+        if(p2_table[pd] == 0x00){
+            uint64_t *new_table = pmm_alloc_frame();
+            _printStringAndNumber("new_table: ", new_table);
+            //p2_table[pd] = (uint64_t)new_table | 0b11;            
         }
+        for(int j=0; j < VM_PAGES_PER_TABLE && fb_entries > 0; j++){
+            if(pt_tables[j] !=0){                
+                counter++;
+            }
+            fb_entries--;            
+           //TODO: Compute number of page tables * pt_size (4k)
+        }
+        _printStr("Cycle completed\n");
+        _printStringAndNumber("Counter: ", counter);
+        pd++;
 
     }
 #else
     for(int j=0; j <= VM_PAGES_PER_TABLE && fb_entries > 0; j++){
         counter++;
         fb_entries--;
-        
         //TODO: add entries to pd
     }
 

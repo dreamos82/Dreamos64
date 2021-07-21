@@ -14,10 +14,9 @@ extern uint8_t count_physical_reserved;
 
 void pmm_setup(){
     _initialize_bitmap();
-    _mmap_setup();
+    //_mmap_setup();
 }
 void *pmm_alloc_frame(){
-    //_printStringAndNumber("number of elements used: ", used_frames);
     if( ! pmm_check_frame_availability() ) {
         return 0; // No more frames to allocate
     }
