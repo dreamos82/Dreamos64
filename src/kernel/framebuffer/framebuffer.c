@@ -52,30 +52,28 @@ void map_framebuffer(struct multiboot_tag_framebuffer *tagfb){
     uint32_t counter = 0;
 
     if(p4_table[pml4] == 0x00l || p3_table_hh[pdpr] == 0x00l){
-        _printStr("PANIC - PML4 or PDPR Empty\n");
+        _printStr("PANIC - PML4 or PDPR Empty - not supported for now\n");
     }
 
 #if SMALL_PAGES == 1
     for(int i = 0; i <= fb_pd_entries; i++){
-        /*if(i == fb_pd_entries){
-            fb_entries = fb_entries - (i * 512);
-            _printStringAndNumber("fb_entries last cycle: ", fb_entries);
-        }*/
         //TODO: add entry to PD
         if(p2_table[pd] == 0x00){
             uint64_t *new_table = pmm_alloc_frame();
             _printStringAndNumber("new_table: ", new_table);
-            //p2_table[pd] = (uint64_t)new_table | 0b11;            
+            p2_table[pd] = (uint64_t)new_table | (PRESENT_BIT | WRITE_BIT);            
         }
         for(int j=0; j < VM_PAGES_PER_TABLE && fb_entries > 0; j++){
             if(pt_tables[j] !=0){                
                 counter++;
+            } else {                
+                pt_tables[j] = (phys_address) + (((512 * i) + j) * PAGE_SIZE_IN_BYTES);
             }
             fb_entries--;            
            //TODO: Compute number of page tables * pt_size (4k)
         }
         _printStr("Cycle completed\n");
-        _printStringAndNumber("Counter: ", counter);
+        _printStringAndNumber("Counter of non-empty pages: ", counter);
         pd++;
 
     }
