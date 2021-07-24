@@ -56,18 +56,21 @@ void map_framebuffer(struct multiboot_tag_framebuffer *tagfb){
     }
 
 #if SMALL_PAGES == 1
+    uint64_t *current_page_table = pt_tables;
     for(int i = 0; i <= fb_pd_entries; i++){
         //TODO: add entry to PD
+        _printStringAndNumber("- Pd counter: ", i);
         if(p2_table[pd] == 0x00){
             uint64_t *new_table = pmm_alloc_frame();
             _printStringAndNumber("new_table: ", new_table);
-            p2_table[pd] = (uint64_t)new_table | (PRESENT_BIT | WRITE_BIT);            
+            p2_table[pd] = (uint64_t)new_table | (PRESENT_BIT | WRITE_BIT);
+            current_page_table = new_table;
         }
         for(int j=0; j < VM_PAGES_PER_TABLE && fb_entries > 0; j++){
-            if(pt_tables[j] !=0){                
+            if(current_page_table[j] !=0){                
                 counter++;
             } else {                
-                pt_tables[j] = (phys_address) + (((512 * i) + j) * PAGE_SIZE_IN_BYTES);
+                current_page_table[j] = (phys_address) + (((512 * i) + j) * PAGE_SIZE_IN_BYTES);
             }
             fb_entries--;            
            //TODO: Compute number of page tables * pt_size (4k)
