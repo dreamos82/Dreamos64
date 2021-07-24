@@ -60,21 +60,25 @@ void map_framebuffer(struct multiboot_tag_framebuffer *tagfb){
     for(int i = 0; i <= fb_pd_entries; i++){
         //TODO: add entry to PD
         _printStringAndNumber("- Pd counter: ", i);
+        _printStringAndNumber("- Pd entry", pd);
+        bool newly_allocated = false;
         if(p2_table[pd] == 0x00){
             uint64_t *new_table = pmm_alloc_frame();
             _printStringAndNumber("new_table: ", new_table);
             p2_table[pd] = (uint64_t)new_table | (PRESENT_BIT | WRITE_BIT);
             current_page_table = new_table;
+            newly_allocated = true;
         }
         for(int j=0; j < VM_PAGES_PER_TABLE && fb_entries > 0; j++){
-            if(current_page_table[j] !=0){                
+            if(newly_allocated == false){                
                 counter++;
             } else {                
-                current_page_table[j] = (phys_address) + (((512 * i) + j) * PAGE_SIZE_IN_BYTES);
+                current_page_table[j] = (phys_address) + (((512 * i) + j) * PAGE_SIZE_IN_BYTES) | PRESENT_BIT | WRITE_BIT;
             }
             fb_entries--;            
            //TODO: Compute number of page tables * pt_size (4k)
         }
+        newly_allocated = false;
         _printStr("Cycle completed\n");
         _printStringAndNumber("Counter of non-empty pages: ", counter);
         pd++;
