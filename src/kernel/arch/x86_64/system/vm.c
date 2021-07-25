@@ -15,9 +15,6 @@ void page_fault_handler(uint64_t error_code){
     _printStringAndNumber("--  Faulting address: ", cr2_content);
     cr2_content = cr2_content & VM_OFFSET_MASK;
     _printStringAndNumber("-- Address prepared for PD/PT extraction: ", cr2_content);
-    if(cr2_content >= _FRAMEBUFFER_MEM_START && cr2_content < _FRAMEBUFFER_MEM_START + FRAMEBUFFER_MEMORY_SIZE){
-        _printStr("To be mapped\n");            
-    }
     pd = PD_ENTRY(cr2_content); 
     pdpr = PDPR_ENTRY(cr2_content);
     pml4 = PML4_ENTRY(cr2_content);
