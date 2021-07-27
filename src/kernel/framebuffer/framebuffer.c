@@ -76,7 +76,6 @@ void map_framebuffer(struct multiboot_tag_framebuffer *tagfb){
             fb_entries--;            
         }
         newly_allocated = false;
-        _printStr("Cycle completed\n");
         pd++;
 
     }
