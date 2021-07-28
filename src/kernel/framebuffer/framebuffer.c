@@ -26,26 +26,27 @@ uint32_t FRAMEBUFFER_HEIGHT;
 
 
 void map_framebuffer(struct multiboot_tag_framebuffer *tagfb){
-    //TODO: implement function
     uint32_t fb_entries = FRAMEBUFFER_MEMORY_SIZE / PAGE_SIZE_IN_BYTES;
     uint32_t fb_entries_mod = FRAMEBUFFER_MEMORY_SIZE % PAGE_SIZE_IN_BYTES;
     
+    /*
     _printStringAndNumber("FB: Entries: ", fb_entries);
     _printStringAndNumber("FB: Mod Entries: ", fb_entries_mod);
     _printStringAndNumber("FB: size: ", FRAMEBUFFER_MEMORY_SIZE);
+    */
     uint64_t phys_address = (uint64_t) tagfb->common.framebuffer_addr;
 
     uint32_t pd = PD_ENTRY(_FRAMEBUFFER_MEM_START); 
     uint32_t pdpr = PDPR_ENTRY(_FRAMEBUFFER_MEM_START);
     uint32_t pml4 = PML4_ENTRY(_FRAMEBUFFER_MEM_START);
+    /*
     _printStringAndNumber("pd: ", pd);
     _printStringAndNumber("pdpr: ", pdpr);
     _printStringAndNumber("pml4: ", pml4);
+    */
 #if SMALL_PAGES == 1
-    uint32_t fb_pd_entries = fb_entries / 512;
-    _printStringAndNumber("FB PD: Entries: ", fb_pd_entries);
+    uint32_t fb_pd_entries = fb_entries / VM_PAGES_PER_TABLE;
     uint32_t pt = PT_ENTRY(_FRAMEBUFFER_MEM_START);
-    _printStringAndNumber("pt: ", pt);
 #endif
     
     uint32_t counter = 0;
@@ -58,7 +59,6 @@ void map_framebuffer(struct multiboot_tag_framebuffer *tagfb){
 #if SMALL_PAGES == 1
     uint64_t *current_page_table = pt_tables;
     for(uint32_t i = 0; i <= fb_pd_entries; i++){
-        _printStringAndNumber("- Pd entry", pd);
         bool newly_allocated = false;
         if(p2_table[pd] == 0x00){
             uint64_t *new_table = pmm_alloc_frame();
@@ -71,7 +71,7 @@ void map_framebuffer(struct multiboot_tag_framebuffer *tagfb){
             if(newly_allocated == false){                
                 counter++;
             } else {                
-                current_page_table[j] = phys_address + (((512 * i) + j) * PAGE_SIZE_IN_BYTES) | PAGE_ENTRY_FLAGS;
+                current_page_table[j] = phys_address + (((VM_PAGES_PER_TABLE * i) + j) * PAGE_SIZE_IN_BYTES) | PAGE_ENTRY_FLAGS;
             }
             fb_entries--;            
         }
