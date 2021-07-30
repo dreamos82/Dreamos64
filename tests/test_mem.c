@@ -58,16 +58,13 @@ int main(){
     mmap_root->entries[5].addr = 0xFFFC0000;
     mmap_root->entries[5].len = 0x40000;
     mmap_root->entries[5].type = 2; 
-    printf("Allocated\n");
     mmap_root->size = 0xA0;
     mmap_root->entry_size = 0x18;
     mmap_root->entry_version = 0;
     _mmap_parse(mmap_root);
-    printf("Parsed\n");
     pmm_setup();
 
     _mmap_setup();
-    printf("Parsed\n");
     printf("Testing physical memory manager\n");
     test_pmm();
     test_mmap();
