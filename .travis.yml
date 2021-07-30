@@ -1,0 +1,3 @@
+compiler: gcc
+
+script: make tests
