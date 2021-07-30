@@ -13,7 +13,8 @@
 
 struct multiboot_tag_basic_meminfo *tagmem;
 struct multiboot_tag_mmap *mmap_root;
-unsigned long _kernel_physical_end;
+//unsigned long _kernel_physical_end __attribute__((section(".mySection"))) = 0x9ABCDEF0;
+unsigned long _kernel_physical_end = 0x1190AC;
 extern uint64_t *memory_map;
 extern uint32_t number_of_entries;
 extern uint32_t bitmap_size;
@@ -22,7 +23,8 @@ extern uint32_t mmap_number_of_entries;
 extern multiboot_memory_map_t *mmap_entries;
 
 int main(){
-    memory_map = (uint64_t *) malloc(20 * sizeof(uint64_t));
+    uint32_t bitmap_entries = _compute_kernel_entries();
+    memory_map = (uint64_t *) malloc(20 * sizeof(uint64_t)); 
     tagmem = (struct multiboot_tag_basic_meminfo *) malloc(sizeof(struct multiboot_tag_basic_meminfo));
     tagmem->mem_lower = 0x27F;
     tagmem->mem_upper = 0xFFB80;
@@ -61,6 +63,8 @@ int main(){
     mmap_root->entry_version = 0;
     _mmap_parse(mmap_root);
     pmm_setup();
+
+    _mmap_setup();
     printf("Testing physical memory manager\n");
     test_pmm();
     test_mmap();
@@ -73,7 +77,7 @@ void test_pmm(){
     printf("--Testing used_frames value\n");
     assert(used_frames==0x2);
     printf("--Testing memory_map initial value\n");
-    printf("memory_map[0] = %x\n", memory_map[0]);
+    printf("memory_map[0] = %X\n", memory_map[0]);
     assert(memory_map[0]==0x3);
     printf("--Testing value of first call to _bitmap_request_frame()\n");
     uint64_t frame_value = _bitmap_request_frame();
