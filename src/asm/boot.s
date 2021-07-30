@@ -19,6 +19,10 @@ global start
 global p2_table
 global p4_table
 global p3_table
+global p3_table_hh
+%if SMALL_PAGES == 1 
+global pt_tables
+%endif
 global multiboot_framebuffer_data
 global multiboot_mmap_data
 global multiboot_basic_meminfo
@@ -103,12 +107,9 @@ start:
     ;or eax, 0b10000011
     ;mov dword [(fbb_p2_table - KERNEL_VIRTUAL_ADDR) + 8 * 488], eax
     %if SMALL_PAGES == 0
-    mov eax, 0xFD000000
-    or eax, PAGE_TABLE_ENTRY
-    mov dword [(p2_table - KERNEL_VIRTUAL_ADDR) + 8 * 488], eax
-    mov eax, 0xFD200000
-    or eax, PAGE_TABLE_ENTRY
-    mov dword [(p2_table - KERNEL_VIRTUAL_ADDR) + 8 * 489], eax
+    ;mov eax, 0xFD000000
+    ;or eax, PAGE_TABLE_ENTRY
+    ;mov dword [(p2_table - KERNEL_VIRTUAL_ADDR) + 8 * 488], eax
     %endif
     
     ; All set... now we are nearly ready to enter into 64 bit
@@ -177,6 +178,28 @@ read_multiboot:
     jmp .item_not_needed
     .parse_fb_data:
         mov [multiboot_framebuffer_data], rax
+    %if SMALL_PAGES == 0
+        mov rbx, [(rax + multiboot_tag_framebuffer.framebuffer_addr)]
+        or rbx, PAGE_TABLE_ENTRY
+        mov qword [(p2_table - KERNEL_VIRTUAL_ADDR) + 8 * 488], rbx
+        add rbx, PAGE_SIZE
+        or rbx, PAGE_TABLE_ENTRY
+        mov qword [(p2_table - KERNEL_VIRTUAL_ADDR) + 8 * 489], rbx
+    %else
+        mov rcx, 0
+        mov rbx, fbb_pt_tables - KERNEL_VIRTUAL_ADDR
+        or rbx, PRESENT_BIT | WRITE_BIT
+        mov qword [(p2_table) + 8 * 488], rbx
+        mov rbx, [rax + multiboot_tag_framebuffer.framebuffer_addr]
+        .map_fb:
+            or  rbx, PAGE_TABLE_ENTRY
+            mov qword [(fbb_pt_tables) + 8 * rcx], rbx
+            add rbx, PAGE_SIZE
+            inc rcx
+            cmp rcx, 512
+            jne .map_fb
+        ;mov qword [p2_table + 8 * 488], 
+    %endif
         jmp .item_not_needed
     .mmap_tag_item:
         mov [multiboot_mmap_data], rax
@@ -235,7 +258,7 @@ p2_table: ;PDP
 ; For now the first 8mb will be mapped for the kernel.
 pt_tables:
     resb 8192
-fdd_pt_tables:
+fbb_pt_tables:
     resb 8192
 %endif
 ; This section is temporary to test the framebuffer

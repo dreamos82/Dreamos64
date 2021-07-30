@@ -2,6 +2,8 @@
 #include <kernel/framebuffer.h>
 #include <kernel/video.h>
 #include <kernel/psf.h>
+#include <kernel/mem/bitmap.h>
+#include <vm.h>
 //#ifdef DEBUG - This will be uncommented when the framebuffer library will be completed
 #include <qemu.h>
 //#endif
@@ -10,6 +12,10 @@ extern char _binary_fonts_default_psf_size;
 extern char _binary_fonts_default_psf_start;
 extern char _binary_fonts_default_psf_end;
 extern void *cur_framebuffer_pos;
+extern uint64_t p4_table[];
+extern uint64_t p3_table_hh[];
+extern uint64_t p2_table[];
+extern uint64_t pt_tables[];
 
 uint32_t FRAMEBUFFER_PITCH;
 void *FRAMEBUFFER_MEM;
@@ -17,6 +23,85 @@ uint8_t FRAMEBUFFER_BPP = 0;
 uint32_t FRAMEBUFFER_MEMORY_SIZE = 0;
 uint32_t FRAMEBUFFER_WIDTH;
 uint32_t FRAMEBUFFER_HEIGHT;
+
+
+void map_framebuffer(struct multiboot_tag_framebuffer *tagfb){
+    uint32_t fb_entries = FRAMEBUFFER_MEMORY_SIZE / PAGE_SIZE_IN_BYTES;
+    uint32_t fb_entries_mod = FRAMEBUFFER_MEMORY_SIZE % PAGE_SIZE_IN_BYTES;
+    
+    /*
+    _printStringAndNumber("FB: Entries: ", fb_entries);
+    _printStringAndNumber("FB: Mod Entries: ", fb_entries_mod);
+    _printStringAndNumber("FB: size: ", FRAMEBUFFER_MEMORY_SIZE);
+    */
+    uint64_t phys_address = (uint64_t) tagfb->common.framebuffer_addr;
+
+    uint32_t pd = PD_ENTRY(_FRAMEBUFFER_MEM_START); 
+    uint32_t pdpr = PDPR_ENTRY(_FRAMEBUFFER_MEM_START);
+    uint32_t pml4 = PML4_ENTRY(_FRAMEBUFFER_MEM_START);
+    /*
+    _printStringAndNumber("pd: ", pd);
+    _printStringAndNumber("pdpr: ", pdpr);
+    _printStringAndNumber("pml4: ", pml4);
+    */
+#if SMALL_PAGES == 1
+    uint32_t fb_pd_entries = fb_entries / VM_PAGES_PER_TABLE;
+    uint32_t pt = PT_ENTRY(_FRAMEBUFFER_MEM_START);
+#endif
+    
+    uint32_t counter = 0;
+
+    if(p4_table[pml4] == 0x00l || p3_table_hh[pdpr] == 0x00l){
+        _printStr("PANIC - PML4 or PDPR Empty - not supported for now\n");
+        asm("hlt");
+    }
+
+#if SMALL_PAGES == 1
+    uint64_t *current_page_table = pt_tables;
+    for(uint32_t i = 0; i <= fb_pd_entries; i++){
+        bool newly_allocated = false;
+        if(p2_table[pd] == 0x00){
+            uint64_t *new_table = pmm_alloc_frame();
+            p2_table[pd] = (uint64_t)new_table | (PRESENT_BIT | WRITE_BIT);
+            current_page_table = new_table;
+            clean_new_table((uint64_t *)new_table);
+            newly_allocated = true;
+        }
+        for(int j=0; j < VM_PAGES_PER_TABLE && fb_entries > 0; j++){
+            if(newly_allocated == false){                
+                counter++;
+            } else {                
+                current_page_table[j] = phys_address + (((VM_PAGES_PER_TABLE * i) + j) * PAGE_SIZE_IN_BYTES) | PAGE_ENTRY_FLAGS;
+            }
+            fb_entries--;            
+        }
+        newly_allocated = false;
+        pd++;
+
+    }
+#elif SMALL_PAGES == 0
+    if(fb_entries_mod != 0){
+        fb_entries++;
+    }
+    for(int j=0; fb_entries > 0; j++){
+        counter++;
+        fb_entries--;
+        if((p2_table[pd+j] < phys_address 
+                    || p2_table[pd+j] > (phys_address + FRAMEBUFFER_MEMORY_SIZE)) 
+                || p2_table[pd+j] == 0x00l){
+            p2_table[pd+j] = (phys_address + (j * PAGE_SIZE_IN_BYTES)) | PAGE_ENTRY_FLAGS;
+        }
+    }
+
+
+#endif
+}
+
+void clean_new_table(uint64_t *table_to_clean){
+    for(int i = 0; i < VM_PAGES_PER_TABLE; i++){
+        table_to_clean[i] = 0x00l;
+    }
+}
 
 void set_fb_data(struct multiboot_tag_framebuffer *fbtag){
     //FRAMEBUFFER_MEM = (void*)(uint64_t)fbtag->common.framebuffer_addr;

@@ -1,5 +1,8 @@
 #include <vm.h>
 #include <video.h>
+#include <framebuffer.h>
+
+extern uint32_t FRAMEBUFFER_MEMORY_SIZE;
 
 void page_fault_handler(uint64_t error_code){
     _printStr("Welcome to #PF world - Not ready yet... \n");
@@ -19,7 +22,6 @@ void page_fault_handler(uint64_t error_code){
     _printStringAndNumber("pdpr: ", pdpr);
     _printStringAndNumber("pml4: ", pml4);
     asm("hlt");
-
 }
 
 
