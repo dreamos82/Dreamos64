@@ -7,9 +7,10 @@
 #include <main.h>
 #endif
 extern struct multiboot_tag_basic_meminfo *tagmem;
-extern unsigned long _kernel_physical_end;
+extern uint64_t _kernel_physical_end;
+extern uint64_t _kernel_end;
 
-uint64_t *memory_map;
+uint64_t *memory_map = (uint64_t *) &_kernel_end;
 uint32_t number_of_entries = 0;
 uint32_t bitmap_size = 0;
 uint32_t used_frames; 
