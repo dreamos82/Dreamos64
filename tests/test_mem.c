@@ -15,6 +15,8 @@ struct multiboot_tag_basic_meminfo *tagmem;
 struct multiboot_tag_mmap *mmap_root;
 //unsigned long _kernel_physical_end __attribute__((section(".mySection"))) = 0x9ABCDEF0;
 unsigned long _kernel_physical_end = 0x1190AC;
+uint64_t _kernel_end = 0x1190AC;
+
 extern uint64_t *memory_map;
 extern uint32_t number_of_entries;
 extern uint32_t bitmap_size;

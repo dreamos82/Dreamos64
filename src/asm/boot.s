@@ -88,30 +88,15 @@ start:
 
         inc ecx             ; Let's increase ecx
         cmp ecx, LOOP_LIMIT        ; have we reached 512 ? (1024 for small pages)
+                            ; When small pages is enabled:
                             ; each table is 4k size. Each entry is 8bytes
                             ; that is 512 entries in a table
-                            ; when small pages enabled: two tables are ajacent in memory
+                            ; when small pages enabled: two tables are adjacent in memory
                             ; they are mapped in the pdir during the map_pd_table cycle
                             ; this is why the loop is up to 1024
         
         jne .map_p2_table   ; if ecx < 512 then loop
 
-    ; This section is temporary, is here only to test the framebuffer features!
-    ; Will be removed once the the memory management will be implemented
-    ;mov eax, fbb_p2_table - KERNEL_VIRTUAL_ADDR
-    ;or eax, PRESENT_BIT | WRITE_BIT
-    ;mov dword [(p3_table - KERNEL_VIRTUAL_ADDR)+ 8 * 3], eax
-
-    ;This section will be removed
-    ;mov eax, 0xFD000000
-    ;or eax, 0b10000011
-    ;mov dword [(fbb_p2_table - KERNEL_VIRTUAL_ADDR) + 8 * 488], eax
-    %if SMALL_PAGES == 0
-    ;mov eax, 0xFD000000
-    ;or eax, PAGE_TABLE_ENTRY
-    ;mov dword [(p2_table - KERNEL_VIRTUAL_ADDR) + 8 * 488], eax
-    %endif
-    
     ; All set... now we are nearly ready to enter into 64 bit
     ; Is possible to move into cr3 only from another register
     ; So let's move p4_table address into eax first
