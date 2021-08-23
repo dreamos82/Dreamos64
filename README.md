@@ -24,7 +24,8 @@ What i have implemented so far:
 * Basic framebuffer support (it can print strings on the screen, but only on the first half of the screen, the second half will cause a #PF for now) 
 * IDT Support
 * It can load the kernel using 4kb pages or 2Mb pages
-* Added support to accrss paging data structures with recursion tecnique. 
+* Added support to access paging data structures with recursion tecnique. 
+* Implemented basic physical memory manager
 
 
 ## Prerequisites: 
