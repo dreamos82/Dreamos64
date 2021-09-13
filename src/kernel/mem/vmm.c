@@ -15,3 +15,8 @@ void free_virtual_page(void *address){
 }
 
 
+void map_vaddress(void *address, size_t size, int flags){
+
+}
+
+
