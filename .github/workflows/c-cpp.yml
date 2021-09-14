@@ -16,7 +16,7 @@ jobs:
     - name: alias x86_64-elf-gcc
       run: alias x86_64-elf-gcc=gcc
     - name: install nasm
-      run: apt-get install -y nasm
+      run: sudo apt-get install -y nasm
     - name: make
       run: make
     - name: make tests
