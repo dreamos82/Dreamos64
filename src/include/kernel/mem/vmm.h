@@ -13,5 +13,6 @@ void* request_virtual_page(size_t);
 void free_virtual_page();
 
 void map_vaddress(void *, size_t, int);
+void unmap_vaddress(void *);
 
 #endif
