@@ -13,5 +13,9 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - name: alias x86_64-elf-gcc
+      run: alias x86_64-elf-gcc=gcc
+    - name: make
+      run: make
     - name: make tests
       run: make tests
