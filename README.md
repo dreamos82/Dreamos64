@@ -26,6 +26,7 @@ What i have implemented so far:
 * It can load the kernel using 4kb pages or 2Mb pages
 * Added support to access paging data structures with recursion tecnique. 
 * Implemented basic physical memory manager
+* Enabled paging
 
 
 ## Prerequisites: 
