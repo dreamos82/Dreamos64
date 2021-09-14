@@ -13,12 +13,5 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: install nasm
-      run: sudo apt-get install -y nasm
-    - name: make
-      run:  |
-        alias x86_64-elf-gcc=gcc
-        shopt -s expand_aliases
-        make
     - name: make tests
       run: make tests
