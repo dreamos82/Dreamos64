@@ -37,6 +37,7 @@ These are the packages you need to build and run it:
 * qemu and qemu-kvm
 * grub-mkrescue
 * xorriso
+* mtools
 * Gcc cross compiler - Instructions coming soon
 
 ## Build
