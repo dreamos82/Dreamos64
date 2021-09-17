@@ -36,6 +36,7 @@ These are the packages you need to build and run it:
 * nasm
 * qemu and qemu-kvm
 * grub-mkrescue
+* grub-pc-bin
 * xorriso
 * mtools
 * Gcc cross compiler - Instructions coming soon
@@ -43,6 +44,7 @@ These are the packages you need to build and run it:
 ## Build
 ### Building the cross compiler
 
+These instructions needs to be completed only the first time (if you already have a x86_64 cross-compiler already configured you probably can skip them, but you need to update the Makefile with your cross-compiler prefix)
 To build the cross compiler you need the following packages:
 
 * build-essential (on debian derivatives)
@@ -66,6 +68,7 @@ export TARGET=x86_64-elf
 export PATH="$PREFIX/bin:$PATH"
 ```
 
+The three exports above should be copied in your ~/.bashrc file as convenience (otherwise you need always to invoke them using their full path)
 Now create a new folder and enter into it: 
 
 ```bash
@@ -109,7 +112,9 @@ make install-target-libgcc
 
 Now if you want you can make permanent the $PATH update:
 
-### Build the OS 
+### Build the OS
+ 
+Before building the os you need to copy a PsfV2 font in the fonts folder, called default.ps (even if building with framebuffer off)
 To build just run: 
 
 ```bash
@@ -153,6 +158,18 @@ make tests
 
 ### Known issues
 
-Currently the framebuffer output is not working when 4k pages are used (SMALL_PAGES flag set to 1) 
+* If at boot with qemu you get the following error message: 
 
+```
+	Booting from DVD/CD...
+	Boot failed: Could not read from CDROM (code 0009)
+```
+This means you are missing the grub-pc-bin package, and you need to install it. 
 
+* If the linking steps fail with several errors message like: 
+
+```
+src/kernel/framebuffer/framebuffer.c:122: undefined reference to `_binary_fonts_default_psf_start'
+```
+
+This means that the fonts folder is missing (you need a psfv2 font file in the fonts folder, the file has to be called default.psf)
