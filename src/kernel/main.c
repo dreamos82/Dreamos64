@@ -18,6 +18,7 @@
 #include <bitmap.h>
 #include <pmm.h>
 #include <mmap.h>
+#include <vmm.h>
 
 extern char _binary_fonts_default_psf_size;
 extern char _binary_fonts_default_psf_start;
@@ -155,6 +156,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
     init_apic();
     _mmap_setup();
     pmm_reserve_area(0x10000, 10);
+    map_vaddress(0x1234567800, 2, 0);
     asm("hlt");
 }
 
