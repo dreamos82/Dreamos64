@@ -24,11 +24,16 @@ void page_fault_handler(uint64_t error_code){
     asm("hlt");
 }
 
-
-
 void initialize_vm(){
     //This function will map essential part of the memory (FB, ACPI stuff)
 #ifdef USE_FRAMEBUFFER
 
 #endif
 }
+
+void clean_new_table(uint64_t *table_to_clean){
+    for(int i = 0; i < VM_PAGES_PER_TABLE; i++){
+        table_to_clean[i] = 0x00l;
+    }
+}
+

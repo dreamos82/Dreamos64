@@ -16,6 +16,7 @@ void pmm_setup(){
     _initialize_bitmap();
     //_mmap_setup();
 }
+
 void *pmm_alloc_frame(){
     if( ! pmm_check_frame_availability() ) {
         return 0; // No more frames to allocate
