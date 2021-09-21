@@ -25,12 +25,11 @@ void free_virtual_page(void *address){
 void *map_vaddress(void *address, size_t size, int flags){
     uint64_t entry_value;
     uint16_t pml4_e = PML4_ENTRY((uint64_t) address);
-    uint16_t pt_e;
     _printStringAndNumber("Mapping address: ", address);
     _printStringAndNumber("PML4 Value: ", pml4_e);
 	uint64_t *pml4_table = SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l,510l,510l,510l);
 	if(pml4_table[pml4_e] == 0){
-		_printStr("PML4 Entry is 0, need to create a new one");
+		_printStr("PML4 Entry is 0, need to create a new one\n");
 		uint64_t *new_table = pmm_alloc_frame();
 		pml4_table[pml4_e] = (uint64_t) new_table | WRITE_BIT | PRESENT_BIT;
 		clean_new_table(new_table);
@@ -43,24 +42,38 @@ void *map_vaddress(void *address, size_t size, int flags){
 	uint64_t *pdpr_table = SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l,510l,510l,pml4_e);
 	_printStr(" -----");
     _printStringAndNumber("PDPR Value: ", pdpr_e);
-    _printStringAndNumber("PDPR Table Value: ", pdpr_table[0]);
     _printStringAndNumber("PDPR Table[pdpr_e]: ", pdpr_table[pdpr_e]);
 	_printStr(" -----");
 	if(pdpr_table[pdpr_e] == 0){
-		_printStr("PDPR - Entry is 0, need to create a new one");
+		_printStr("PDPR - Entry is 0, need to create a new one\n");
 		uint64_t *new_table = pmm_alloc_frame();
 		pdpr_table[pdpr_e] = (uint64_t) new_table | WRITE_BIT | PRESENT_BIT;
 		clean_new_table(new_table);
 	}
-
+	uint64_t *pd_table = SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l,510l,pml4_e, pdpr_e);
     uint16_t pd_e = PD_ENTRY((uint64_t) address);
-    _printStringAndNumber("p3_table_hh[510]: ", p2_table[0]);
+	if(pd_table[pd_e] == 0){
+		_printStr("PD Table entry is 0. Need to create a new one\n");
+		uint64_t *new_table = pmm_alloc_frame();
+		#if SMALL_PAGES == 1
+		pd_table[pd_e] = (uint64_t) new_table | WRITE_BIT | PRESENT_BIT;
+		#elif SMALL_PAGES == 0
+		pd_table[pd_e] = (uint64_t) new_table | WRITE_BIT | PRESENT_BIT;
+		clean_new_table(new_table);
+		#endif
+	}
+
     //uint64_t *entry_address = (uint64_t *) (SIGN_EXTENSION |  ENTRIES_TO_ADDRESS(510l, 510l, pml4, pdpr));
-    uint64_t *computed_address = SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l, 510l, 511l, 510l);
-    _printStringAndNumber("Computed_address: ", computed_address[0]);
+    //uint64_t *computed_address = SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l, 510l, 511l, 510l);
+    //_printStringAndNumber("Computed_address: ", computed_address[0]);
     #if SMALL_PAGES == 1
-    pt_e = PT_ENTRY(address);
+	uint64_t *pt_table = SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l, pml4_e, pdpr_e, pd_e);
+    uint16_t pt_e = PT_Entry((uint64_t) address);
     _printStringAndNumber("PT_Entry value: ", pt_e);
+	if(pt_table[pt_e] == 0) {
+		_printStr("PT_Entry is 0, need just to set it present!!");
+	} 
+
     #elif SMALL_PAGE == 0 
     //Later
     #endif
