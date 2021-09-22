@@ -8,22 +8,43 @@ extern uint64_t p3_table_hh[];
 extern uint64_t p2_table[];
 extern uint64_t pt_tables[];
 
-void _initialize_vmm(){
-    _printStr("Coming soon\n");
-}
+int unmap_vaddress(void *address){
+	uint16_t pml4_e = PML4_ENTRY((uint64_t) address);
+	uint64_t *pml4_table = SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l,510l,510l,510l);
+	if(!(pml4_table[pml4_e] &0b1)){
+		_printStr("Missing pml4\n");
+		return -1;
+	}
+    uint16_t pdpr_e = PDPR_ENTRY((uint64_t) address);
+	uint64_t *pdpr_table = SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l,510l,510l,pml4_e);
+	if(!(pdpr_table[pdpr_e] & 0b1)){
+		_printStr("Missing pdpr\n");
+		return -1;
+	}
+	uint64_t *pd_table = SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l,510l,pml4_e, pdpr_e);
+    uint16_t pd_e = PD_ENTRY((uint64_t) address);
+	if(!(pd_table[pd_e] & 0b01)){
+		_printStr("Missing PD Entry\n");
+		return -1;
+	}
+	
+	#if SMALL_PAGES == 0
+	pd_table[pd_e] = 0x0l;
+	#elif SMALL_PAGES == 1
+	uint64_t *pt_table = SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l, pml4_e, pdpr_e, pd_e);
+    uint16_t pt_e = PT_ENTRY((uint64_t) address);
 
-void* request_virtual_page(size_t size){
-    return NULL;
-}
-
-
-void free_virtual_page(void *address){
+	if(!(pt_table[pt_e] & 0b1)) {
+		_printStr("Missing PT_ENTRY\n");
+		return -1;
+	} 
+	pt_table[pt_e] = 0;
+	#endif
 
 }
 
 
 void *map_vaddress(void *address, unsigned int flags){
-    uint64_t entry_value;
     uint16_t pml4_e = PML4_ENTRY((uint64_t) address);
     _printStringAndNumber("Mapping address: ", address);
     _printStringAndNumber("PML4 Value: ", pml4_e);
