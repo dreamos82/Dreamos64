@@ -36,8 +36,8 @@ int unmap_vaddress(void *address){
 	if(!(pt_table[pt_e] & 0b1)) {
 		return -1;
 	} 
-	pt_table[pt_e] = 0;
-	invalidate_page_table(pt_table);
+	pt_table[pt_e] = 0x0l;
+	invalidate_page_table(address);
 	#endif
 
 	return 0;
