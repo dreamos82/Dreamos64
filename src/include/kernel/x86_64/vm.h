@@ -29,4 +29,6 @@ void page_fault_handler(uint64_t);
 void initialize_vm();
 
 void clean_new_table(uint64_t *);
+
+void invalidate_page_table(uint64_t *);
 #endif

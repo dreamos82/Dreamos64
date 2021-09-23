@@ -37,3 +37,9 @@ void clean_new_table(uint64_t *table_to_clean){
     }
 }
 
+void invalidate_page_table(uint64_t *table_address){
+	asm volatile("invlpg (%0)"
+    	:
+    	: "r"((uint64_t)table_address)
+    	: "memory");
+}

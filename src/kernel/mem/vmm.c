@@ -29,7 +29,9 @@ int unmap_vaddress(void *address){
 	}
 	
 	#if SMALL_PAGES == 0
+	_printStr("Freeing page\n");
 	pd_table[pd_e] = 0x0l;
+	invalidate_page_table(pd_table);
 	#elif SMALL_PAGES == 1
 	uint64_t *pt_table = SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l, pml4_e, pdpr_e, pd_e);
     uint16_t pt_e = PT_ENTRY((uint64_t) address);
@@ -39,8 +41,10 @@ int unmap_vaddress(void *address){
 		return -1;
 	} 
 	pt_table[pt_e] = 0;
+	invalidate_page_table(pt_table);
 	#endif
 
+	return 0;
 }
 
 

@@ -161,6 +161,10 @@ void kernel_start(unsigned long addr, unsigned long magic){
 	_printStringAndNumber("Mapping addr: ", (uint64_t)test_addr);
 	*test_addr = 42l;
 	_printStringAndNumber("Tesitng value of  new mapped addr should be 42: ", *test_addr);
+	_printStr("Try to unmap\n");
+	unmap_vaddress(test_addr);
+	_printStr("A pf should explode now...\n");
+	*test_addr = 12l;
     asm("hlt");
 }
 
