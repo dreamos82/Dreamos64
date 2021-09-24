@@ -81,9 +81,6 @@ void *map_vaddress(void *address, unsigned int flags){
 		#endif
 	}
 
-    //uint64_t *entry_address = (uint64_t *) (SIGN_EXTENSION |  ENTRIES_TO_ADDRESS(510l, 510l, pml4, pdpr));
-    //uint64_t *computed_address = SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l, 510l, 511l, 510l);
-    //_printStringAndNumber("Computed_address: ", computed_address[0]);
     #if SMALL_PAGES == 1
 	uint64_t *pt_table = SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l, pml4_e, pdpr_e, pd_e);
     uint16_t pt_e = PT_ENTRY((uint64_t) address);
