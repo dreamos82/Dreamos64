@@ -36,6 +36,7 @@ BUILD := build
 PRJ_FOLDERS := src
 FONT_FOLDERS := fonts
 DEBUG := 0
+VERBOSE_OUTPUT :=0
 
 SRC_C_FILES := $(shell find $(PRJ_FOLDERS) -type f -name "*.c")
 SRC_H_FILES := $(shell find $(PRJ_FOLDERS) -type f -name "*.h")

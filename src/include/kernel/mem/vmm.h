@@ -9,10 +9,7 @@
 
 void _initialize_vmm();
 
-void* request_virtual_page(size_t);
-void free_virtual_page();
-
-void map_vaddress(void *, size_t, int);
-void unmap_vaddress(void *);
+void *map_vaddress(void *, unsigned int);
+int unmap_vaddress(void *);
 
 #endif

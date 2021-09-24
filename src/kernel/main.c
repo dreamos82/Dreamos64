@@ -18,6 +18,7 @@
 #include <bitmap.h>
 #include <pmm.h>
 #include <mmap.h>
+#include <vmm.h>
 
 extern char _binary_fonts_default_psf_size;
 extern char _binary_fonts_default_psf_start;
@@ -155,6 +156,17 @@ void kernel_start(unsigned long addr, unsigned long magic){
     init_apic();
     _mmap_setup();
     pmm_reserve_area(0x10000, 10);
+    uint64_t *test_addr = map_vaddress(0x1234567800, 0);
+    //uint64_t *test_addr = (uint64_t *)0x1234567800;
+	_printStringAndNumber("Mapping addr: ", (uint64_t)test_addr);
+	*test_addr = 42l;
+    _printStringAndNumber("Tesitng value of  new mapped addr should be 42: ", *test_addr);
+    _printStr("Try to unmap\n");
+    int unmap_result = unmap_vaddress(test_addr);
+    _printStringAndNumber("Output from unmap: ", unmap_result);
+    _printStr("A pf should explode now...\n");
+    *test_addr = 12l;
+    _printStringAndNumber("Should not print ", *test_addr);
     asm("hlt");
 }
 

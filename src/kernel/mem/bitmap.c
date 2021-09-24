@@ -35,12 +35,10 @@ void _initialize_bitmap(){
     //used_frames = kernel_entries;
     //used_frames = 0x09; // Is the number of currently used frames - 1 (since the count starts from 0)
     used_frames = kernel_entries;
-#ifndef _TEST_
     _printStringAndNumber("Page size: ", PAGE_SIZE_IN_BYTES);
     _printStringAndNumber("Actual size in bytes: ", memory_size_in_bytes);
     _printStringAndNumber("Number of bit entries: ", bitmap_size);
-    _printStringAndNumber("Number items: ", number_of_entries);
-#endif
+    _printStringAndNumber("Number of items: ", number_of_entries);
     //_bitmap_request_frame();
     //pmm_alloc_frame();
 }
@@ -70,11 +68,11 @@ int64_t _bitmap_request_frame(){
                 uint64_t bit = 1 << column;
                 if((memory_map[row] & bit) == 0){
                     //Found a location
-#ifndef _TEST_
+/*#if !defined(_TEST_) && defined(DEBUG)
                     _printStringAndNumber("Found something at row: ", row);
                     _printStringAndNumber("---column: ", column);
                     _printStringAndNumber("---Address: ", (row * 64 + column) * PAGE_SIZE_IN_BYTES); 
-#endif
+#endif*/
                     return row * BITMAP_ROW_BITS + column;
                 }
             }
