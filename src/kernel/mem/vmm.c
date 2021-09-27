@@ -10,16 +10,16 @@ extern uint64_t pt_tables[];
 
 int unmap_vaddress(void *address){
 	uint16_t pml4_e = PML4_ENTRY((uint64_t) address);
-	uint64_t *pml4_table = SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l,510l,510l,510l);
+	uint64_t *pml4_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l,510l,510l,510l));
 	if(!(pml4_table[pml4_e] &0b1)){
 		return -1;
 	}
     uint16_t pdpr_e = PDPR_ENTRY((uint64_t) address);
-	uint64_t *pdpr_table = SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l,510l,510l,pml4_e);
+	uint64_t *pdpr_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l,510l,510l,pml4_e));
 	if(!(pdpr_table[pdpr_e] & 0b1)){
 		return -1;
 	}
-	uint64_t *pd_table = SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l,510l,pml4_e, pdpr_e);
+	uint64_t *pd_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l,510l,pml4_e, pdpr_e));
     uint16_t pd_e = PD_ENTRY((uint64_t) address);
 	if(!(pd_table[pd_e] & 0b01)){
 		return -1;
@@ -48,7 +48,7 @@ void *map_vaddress(void *address, unsigned int flags){
     uint16_t pml4_e = PML4_ENTRY((uint64_t) address);
     _printStringAndNumber("Mapping address: ", address);
     _printStringAndNumber("PML4 Value: ", pml4_e);
-	uint64_t *pml4_table = SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l,510l,510l,510l);
+	uint64_t *pml4_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l,510l,510l,510l));
 	if(!(pml4_table[pml4_e] & 0b1)){
 		uint64_t *new_table = pmm_alloc_frame();
 		pml4_table[pml4_e] = (uint64_t) new_table | WRITE_BIT | PRESENT_BIT;
@@ -59,7 +59,7 @@ void *map_vaddress(void *address, unsigned int flags){
     _printStringAndNumber("PML4 Value: ", pml4_table[pml4_e]);
 #endif
     uint16_t pdpr_e = PDPR_ENTRY((uint64_t) address);
-	uint64_t *pdpr_table = SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l,510l,510l,pml4_e);
+	uint64_t *pdpr_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l,510l,510l,pml4_e));
 #if VERBOSE_OUTPUT == 1
     _printStringAndNumber("PDPR Value: ", pdpr_e);
     _printStringAndNumber("PDPR Table[pdpr_e]: ", pdpr_table[pdpr_e]);
@@ -69,7 +69,7 @@ void *map_vaddress(void *address, unsigned int flags){
 		pdpr_table[pdpr_e] = (uint64_t) new_table | WRITE_BIT | PRESENT_BIT;
 		clean_new_table(new_table);
 	}
-	uint64_t *pd_table = SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l,510l,pml4_e, pdpr_e);
+	uint64_t *pd_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l,510l,pml4_e, pdpr_e));
     uint16_t pd_e = PD_ENTRY((uint64_t) address);
 	if(!(pd_table[pd_e] & 0b01)){
 		uint64_t *new_table = pmm_alloc_frame();
@@ -82,7 +82,7 @@ void *map_vaddress(void *address, unsigned int flags){
 	}
 
     #if SMALL_PAGES == 1
-	uint64_t *pt_table = SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l, pml4_e, pdpr_e, pd_e);
+	uint64_t *pt_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l, pml4_e, pdpr_e, pd_e));
     uint16_t pt_e = PT_ENTRY((uint64_t) address);
 	if(!(pt_table[pt_e] & 0b1)) {
 		uint64_t *new_table = pmm_alloc_frame();
