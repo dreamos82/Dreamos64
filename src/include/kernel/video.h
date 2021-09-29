@@ -35,6 +35,5 @@ void _clearScreen();
 void _printStringAndNumber(char *, unsigned long);
 void _scrollUp();
 
-int _getHexString(char*, unsigned long);
 int _getLineNumber();
 #endif
