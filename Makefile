@@ -6,6 +6,7 @@ CFLAGS := -std=gnu99 \
 		-Wall \
 		-Wextra \
 		-I src/include \
+        -I src/include/base \
 		-I src/include/kernel \
 		-I src/include/kernel/mem \
 		-I src/include/kernel/x86_64 \
@@ -19,6 +20,7 @@ TESTFLAGS := -std=gnu99 \
 		-ffreestanding \
 		-I tests/include \
 		-I src/include \
+        -I src/include/base \
 		-I src/include/kernel/mem \
 		-I src/include/kernel \
 		-DSMALL_PAGES=$(SMALL_PAGES) \
@@ -102,5 +104,6 @@ gdb: build/os.iso
 
 tests:
 	gcc ${TESTFLAGS} tests/test_mem.c tests/test_common.c src/kernel/mem/bitmap.c src/kernel/mem/pmm.c src/kernel/mem/mmap.c -o tests/test_mem.o
-	./tests/test_mem.o
+	gcc ${TESTFLAGS} tests/test_number_conversion.c tests/test_common.c src//base/numbers.c -o tests/test_number_conversion.o
+	./tests/test_mem.o && ./tests/test_number_conversion.o
 

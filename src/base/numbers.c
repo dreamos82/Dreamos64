@@ -34,7 +34,7 @@ int _getHexString(char *buffer, unsigned long hexnumber){
         tmpnumber >>= 4;
         shift++;
     }
-    size = shift;
+    size = shift + 1;
     /* Now i can print the digits masking every single digit with 0xF 
      * Each hex digit is 4 bytes long. So if i mask number&0xF
      * I obtain exactly the number identified by the digit

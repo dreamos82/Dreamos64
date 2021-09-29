@@ -23,8 +23,9 @@ int vsprintf(char *buffer, const char *fmt, va_list args){
         fmt++;
         switch(*fmt){
             case 'd':
-                //int number = va_arg(args, int);
-
+                int number = va_arg(args, int);
+                int string_size = _getDecString(str, number);
+                str+= string_size;
                 break;
             case 'x':{
                 int number = va_arg(args, int);

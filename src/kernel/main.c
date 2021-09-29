@@ -93,6 +93,7 @@ void _init_basic_system(unsigned long addr){
     _printStringAndNumber("Size of end tag: ", tag->size);
     _printStr("End of read configuration\n");
 }
+
 void kernel_start(unsigned long addr, unsigned long magic){
     //struct multiboot_tag *tag;
     extern unsigned int _kernel_end;
@@ -156,6 +157,12 @@ void kernel_start(unsigned long addr, unsigned long magic){
     init_apic();
     _mmap_setup();
     pmm_reserve_area(0x10000, 10);
+    char test_buffer[5];
+    int test_size = _getDecString(test_buffer, 250);
+    _printStringAndNumber("Size: ", test_size);
+    _printStr(test_buffer);
+    printf("Testing printf: %d TER\n", 25);
+    printf("Testing printf: %x TER\n", 25);
     uint64_t *test_addr = map_vaddress((void *)0x1234567800, 0);
     //uint64_t *test_addr = (uint64_t *)0x1234567800;
 	_printStringAndNumber("Mapping addr: ", (uint64_t)test_addr);
