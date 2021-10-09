@@ -11,8 +11,7 @@
     #define KERNEL_PAGE_SIZE 0x1000
 #endif
 
-typedef struct {
-    void *address;
+typedef struct KHeapMemoryNode {
     uint64_t size;
     bool is_free;
     struct KHeapMemoryNode *next;
