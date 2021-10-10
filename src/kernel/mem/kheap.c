@@ -1,6 +1,5 @@
 #include <kheap.h>
 #include <stdio.h>
-#include <stddef.h>
 
 
 KHeapMemoryNode *kernel_heap_start;
@@ -31,7 +30,8 @@ void *kmalloc(size_t size){
     if(((size + header_size) - current_node->size) > 1){
         current_node->is_free = false;
         current_node->next = NULL;
-        KHeapMemoryNode *new_node = (KHeapMemoryNode *) (current_node + sizeof(KHeapMemoryNode) + size);
+        KHeapMemoryNode *new_node = createKHeapNode(current_node, size);
+        //KHeapMemoryNode *new_node = (KHeapMemoryNode *) (current_node + sizeof(KHeapMemoryNode) + size);
         new_node->is_free = true;
         new_node->size = current_node->size - (size + header_size);
         kernel_heap_tail = new_node;
@@ -66,12 +66,13 @@ void *kmalloc(size_t size){
 void kfree(void *ptr){
 }
 
-KHeapMemoryNode* createKheapNode(KHeapMemoryNode *current_node, size_t size){
+KHeapMemoryNode* createKHeapNode(KHeapMemoryNode *current_node, size_t size){
     uint64_t header_size = sizeof(KHeapMemoryNode);
     KHeapMemoryNode* new_node = (KHeapMemoryNode *) (current_node + sizeof(KHeapMemoryNode) + size);
     new_node->is_free = true;
     new_node->size = current_node->size - (size + header_size);
     new_node->prev = NULL;
+    new_node->next = NULL;
     return new_node;
 
 }

@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stddef.h>
 
 #define KERNEL_MEMORY_PADDING 0x1000
 #if SMALL_PAGES == 0
@@ -18,8 +19,11 @@ typedef struct KHeapMemoryNode {
     struct KHeapMemoryNode *prev;
 } KHeapMemoryNode;
 
+//Service functions
 void initialize_kheap();
+KHeapMemoryNode* createKHeapNode(KHeapMemoryNode *, size_t);
 
+//Allocation functions
 void *kmalloc(size_t);
 void kfree(void *);
 
