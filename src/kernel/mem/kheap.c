@@ -51,6 +51,7 @@ void *kmalloc(size_t size){
             //Here i will search for a free node in the list (and split it in case)
             if(current_node->is_free){
                 current_node->is_free = false;
+                current_node->next = NULL;
                 KHeapMemoryNode *new_node = (KHeapMemoryNode *) (current_node + sizeof(KHeapMemoryNode) + size);
                 current_node->next = new_node;
                 return (void *) current_node + sizeof(KHeapMemoryNode);
@@ -63,4 +64,14 @@ void *kmalloc(size_t size){
 }
 
 void kfree(void *ptr){
+}
+
+KHeapMemoryNode* createKheapNode(KHeapMemoryNode *current_node, size_t size){
+    uint64_t header_size = sizeof(KHeapMemoryNode);
+    KHeapMemoryNode* new_node = (KHeapMemoryNode *) (current_node + sizeof(KHeapMemoryNode) + size);
+    new_node->is_free = true;
+    new_node->size = current_node->size - (size + header_size);
+    new_node->prev = NULL;
+    return new_node;
+
 }
