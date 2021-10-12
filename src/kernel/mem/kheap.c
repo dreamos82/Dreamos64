@@ -26,12 +26,22 @@ void *kmalloc(size_t size){
     if(size == 0){
         return NULL;
     }
+    //We try to allocate from the list tail first.
+    if(kernel_heap_tail == NULL){
+        //I should allocate more space for the heap
+    }
     uint64_t header_size = sizeof(KHeapMemoryNode);
-    if(((size + header_size) - current_node->size) > 1){
+    size_t computed_size = (size + header_size) - current_node->size;
+    if(computed_size == 0) { 
+        current_node->is_free = false;
+        if(current_node->prev != NULL){
+            kernel_heap_tail = current_node->prev;
+        }
+    }
+    if(((size + header_size) - current_node->size) >= 0){
         current_node->is_free = false;
         current_node->next = NULL;
         KHeapMemoryNode *new_node = createKHeapNode(current_node, size);
-        //KHeapMemoryNode *new_node = (KHeapMemoryNode *) (current_node + sizeof(KHeapMemoryNode) + size);
         new_node->is_free = true;
         new_node->size = current_node->size - (size + header_size);
         kernel_heap_tail = new_node;
@@ -49,10 +59,11 @@ void *kmalloc(size_t size){
         while(current_node->next != NULL){
             current_node = current_node->next;
             //Here i will search for a free node in the list (and split it in case)
-            if(current_node->is_free){
+            if(current_node->is_free && current_node->size > size){
                 current_node->is_free = false;
                 current_node->next = NULL;
-                KHeapMemoryNode *new_node = (KHeapMemoryNode *) (current_node + sizeof(KHeapMemoryNode) + size);
+                //KHeapMemoryNode *new_node = (KHeapMemoryNode *) (current_node + sizeof(KHeapMemoryNode) + size);
+                KHeapMemoryNode *new_node = createKHeapNode(current_node, size);
                 current_node->next = new_node;
                 return (void *) current_node + sizeof(KHeapMemoryNode);
             }
