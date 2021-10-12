@@ -32,32 +32,31 @@ void *kmalloc(size_t size){
     }
     uint64_t header_size = sizeof(KHeapMemoryNode);
     size_t computed_size = (size + header_size) - current_node->size;
-    if(computed_size == 0) { 
-        current_node->is_free = false;
-        if(current_node->prev != NULL){
-            kernel_heap_tail = current_node->prev;
-        }
-    }
-    if(((size + header_size) - current_node->size) >= 0){
+    if(current_node->size >= size){
         current_node->is_free = false;
         current_node->next = NULL;
-        KHeapMemoryNode *new_node = createKHeapNode(current_node, size);
-        new_node->is_free = true;
-        new_node->size = current_node->size - (size + header_size);
-        kernel_heap_tail = new_node;
-        if(current_node->prev != NULL){
-            KHeapMemoryNode *prev_node = current_node->prev;
+        if(current_node->size <= (size+header_size) ){
+            current_node->is_free = false;
+            if(current_node->prev != NULL){
+                kernel_heap_tail = current_node->prev;
+            } else {
+                //this should be null
+                kernel_heap_tail = NULL;
+            }
+        } else {
+            KHeapMemoryNode *new_node = createKHeapNode(current_node, size);
+            new_node->is_free = true;
+            new_node->size = current_node->size - (size + header_size);
+            kernel_heap_tail = new_node;
+            if(current_node->prev != NULL){
+                KHeapMemoryNode *prev_node = current_node->prev;
+            }
         }
         return (void *) (current_node + sizeof(KHeapMemoryNode));
     }
     if(kernel_heap_start != kernel_heap_tail){
-        if(kernel_heap_start->size > size + sizeof(KHeapMemoryNode)){
-            kernel_heap_start->is_free = false;
-            kernel_heap_start = kernel_heap_start->next;
-        }
-        current_node = kernel_heap_start->next;
+        current_node = kernel_heap_start;
         while(current_node->next != NULL){
-            current_node = current_node->next;
             //Here i will search for a free node in the list (and split it in case)
             if(current_node->is_free && current_node->size > size){
                 current_node->is_free = false;
@@ -67,9 +66,7 @@ void *kmalloc(size_t size){
                 current_node->next = new_node;
                 return (void *) current_node + sizeof(KHeapMemoryNode);
             }
-    }
-
-
+        }
     }
     return NULL;
 }
