@@ -37,14 +37,15 @@ void test_kmalloc(){
     printf("Testing kmalloc with size 0\n");
     char *test_ptr = (char *) kmalloc(0);
     assert(test_ptr == NULL);
-    printf("kheap size before kamlloc: 0x%X\n", kernel_heap_start->size);
+    printf("kheap size before kmalloc: 0x%X\n", kernel_heap_start->size);
+    printf("Addres of heap start and heap end should be equals");
+    assert(kernel_heap_start == kernel_heap_tail);
     test_ptr = (char *) kmalloc(10);
     printf("Address of new location: 0x%X\n", test_ptr);
     printf("Address of new location: 0x%X\n", (kernel_heap_tail + sizeof(KHeapMemoryNode)));
     assert(test_ptr == (kernel_heap_start + sizeof(KHeapMemoryNode)));
     printf("kheap size after kamlloc: 0x%X\n", kernel_heap_tail->size);
     assert(kernel_heap_tail->size == (kheap_size - (10 + sizeof(KHeapMemoryNode))));
-    
     //test_ptr = (char *) kmalloc(10);
     //assert(test_ptr == (kernel_heap_start + sizeof(KHeapMemoryNode)));
 }

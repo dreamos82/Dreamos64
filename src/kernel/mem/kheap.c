@@ -45,8 +45,6 @@ void *kmalloc(size_t size){
             }
         } else {
             KHeapMemoryNode *new_node = createKHeapNode(current_node, size);
-            new_node->is_free = true;
-            new_node->size = current_node->size - (size + header_size);
             kernel_heap_tail = new_node;
             if(current_node->prev != NULL){
                 KHeapMemoryNode *prev_node = current_node->prev;
