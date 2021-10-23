@@ -16,10 +16,11 @@ int main(){
     kernel_heap_current_pos = NULL;
     kernel_heap_tail = NULL;
     printf("To be implemented\n");
-    //void *kheap_start = malloc(800);
-    kernel_heap_start = (KHeapMemoryNode *)malloc(sizeof(KHeapMemoryNode));
+    //void *kheap_start = malloc(8 * PAGE_SIZE);
+    kernel_heap_start = malloc(8 * PAGE_SIZE);
     kernel_heap_start->is_free = true;
     printf("After malloc\n");
+    printf("Size allocated: %d\n", (8*PAGE_SIZE));
     kernel_heap_start->size = 8 * PAGE_SIZE;
     kernel_heap_start->next = NULL;
     kernel_heap_start->prev = NULL;
@@ -27,6 +28,7 @@ int main(){
     printf("Address of kheap: 0x%X\n", kernel_heap_start);
     kernel_heap_tail = kernel_heap_start;
     printf("Initializing sizeof heap structure: ... %d\n", sizeof(KHeapMemoryNode));
+    printf("Address of kheap: 0x%X\n", kernel_heap_tail);
     test_kmalloc();
     free(kernel_heap_start);
     return 0;
@@ -34,16 +36,19 @@ int main(){
 
 
 void test_kmalloc(){
+    KHeapMemoryNode *initial_tail = kernel_heap_tail;
     printf("Testing kmalloc with size 0\n");
     char *test_ptr = (char *) kmalloc(0);
     assert(test_ptr == NULL);
     printf("kheap size before kmalloc: 0x%X\n", kernel_heap_start->size);
-    printf("Addres of heap start and heap end should be equals");
+    printf("Addres of heap start and heap end should be equals\n");
     assert(kernel_heap_start == kernel_heap_tail);
     test_ptr = (char *) kmalloc(10);
-    printf("Address of new location: 0x%X\n", test_ptr);
-    printf("Address of new location: 0x%X\n", (kernel_heap_tail + sizeof(KHeapMemoryNode)));
-    assert(test_ptr == (kernel_heap_start + sizeof(KHeapMemoryNode)));
+    printf("kernel_heap_tail Address of new location: 0x%X\n", kernel_heap_tail);
+    printf("test_ptr - sizeof(node_header) : Address of new location: 0x%X\n", test_ptr - sizeof(KHeapMemoryNode));
+    printf("size of header: 0x%X\n", sizeof(KHeapMemoryNode));  
+    printf("kernel_heap_tail + sizeof(node_header) : Address of new location: 0x%X\n", (kernel_heap_tail));
+    assert(kernel_heap_tail == (test_ptr - sizeof(KHeapMemoryNode)));
     printf("kheap size after kamlloc: 0x%X\n", kernel_heap_tail->size);
     assert(kernel_heap_tail->size == (kheap_size - (10 + sizeof(KHeapMemoryNode))));
     //test_ptr = (char *) kmalloc(10);
