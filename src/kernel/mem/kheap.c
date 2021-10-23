@@ -57,30 +57,6 @@ void *kmalloc(size_t size){
     }
     return NULL;
 
-    /*if(current_node->size >= size){
-        current_node->is_free = false;
-        current_node->next = NULL;
-        if(current_node->size <= (size+header_size) ){
-            current_node->is_free = false;
-            if(current_node->prev != NULL){
-                kernel_heap_tail = current_node->prev;
-            } else {
-                //this should be null
-                kernel_heap_tail = NULL;
-            }
-        } else {
-            KHeapMemoryNode *new_node = createKHeapNode(current_node, size);
-            kernel_heap_tail = new_node;
-            if(current_node->prev != NULL){
-                KHeapMemoryNode *prev_node = current_node->prev;
-            }
-        }
-        return (void *) (current_node + sizeof(KHeapMemoryNode));
-    }
-    if(kernel_heap_start != kernel_heap_tail){
-        current_node = kernel_heap_start;
-    }
-    return NULL;*/
 }
 
 void kfree(void *ptr){
