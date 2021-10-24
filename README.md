@@ -145,7 +145,7 @@ Will compile the OS with debug symbol, and launch qemu with remote debugging ena
 
 There are couple of flags that you can set on the Makefile in order to configure some features: 
 
-* USE_FRAMEBUFFER if set to 1 it will enable framebuffer support (still experimental and probably will not work everywhere since is in very early stage of development), in addition you need a PSF v2 font fle in the folder fonts called deafult.psf, if set to 0 (default) it will use the legacy VGA driver
+* USE_FRAMEBUFFER if set to 1 it will enable framebuffer support (still experimental and probably will not work everywhere since is in very early stage of development), in addition you need a PSF v2 font file in the location `fonts/default.psf`, if set to 0 (default) it will use the legacy VGA driver.
 * SMALL_PAGES if set to 1 it will use 4kb pages (this feature is new, and there are still some problems/unmapped parts that will cause #PF to be generated), if 0 (default) will use 2MB pages. 
 
 ### Unit tests
