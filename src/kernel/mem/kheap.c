@@ -1,5 +1,6 @@
 #include <kheap.h>
 #include <stdio.h>
+#include <bitmap.h>
 
 
 KHeapMemoryNode *kernel_heap_start;
@@ -57,6 +58,18 @@ void *kmalloc(size_t size){
         }
         current_node = current_node->next;
     }
+
+    if (size > KERNEL_PAGE_SIZE) { 
+        uint32_t number_of_pages = (size / KERNEL_PAGE_SIZE) + 1;
+        printf("KMALLOC SIZE > PAGE_SIZE, Unsupported for now\n");
+        return  NULL;
+    } else {
+        uint64_t *new_address = ((void *)current_node) + current_node->size + sizeof(KHeapMemoryNode);
+        map_vaddress(new_address, 0);
+    }
+
+    // TODO: allocate more physical space
+    // Cases: size < page_size, size > page_size  
     return NULL;
 
     /*if(current_node->size >= size){
