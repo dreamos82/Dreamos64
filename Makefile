@@ -104,6 +104,6 @@ gdb: build/os.iso
 tests:
 	gcc ${TESTFLAGS} tests/test_mem.c tests/test_common.c src/kernel/mem/bitmap.c src/kernel/mem/pmm.c src/kernel/mem/mmap.c -o tests/test_mem.o
 	gcc ${TESTFLAGS} tests/test_number_conversion.c tests/test_common.c src//base/numbers.c -o tests/test_number_conversion.o
-	gcc ${TESTFLAGS} tests/test_kheap.c src/kernel/mem/kheap.c -o tests/test_kheap.o
+	gcc ${TESTFLAGS} tests/test_kheap.c src/kernel/mem/kheap.c tests/test_common.c -o tests/test_kheap.o
 	./tests/test_mem.o && ./tests/test_kheap.o
 

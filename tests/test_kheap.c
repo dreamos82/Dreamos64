@@ -1,4 +1,5 @@
 #include <test_kheap.h>
+#include <test_common.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <kheap.h>
@@ -52,5 +53,9 @@ void test_kmalloc(){
     assert(test_ptr == (((uint64_t)initial_tail)  + sizeof(KHeapMemoryNode)));
     printf("kheap size after kamlloc: 0x%X\n", kernel_heap_tail->size);
     assert(kernel_heap_tail->size == (kheap_size - (10 + sizeof(KHeapMemoryNode))));
+    char *test_ptr_2 = (char *) kmalloc(20);
+    printf("kmalloc new address should be heap_start + sizeof(KHeapMemoryNode) + 10\n");
+    printf("1: 0x%x - 2: 0x%x\n", test_ptr, test_ptr_2);
+    assert(((uint64_t) test_ptr_2 - (uint64_t) test_ptr) == 0x2A);
     //test_ptr = (char *) kmalloc(10);
 }

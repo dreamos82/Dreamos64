@@ -26,3 +26,7 @@ uint32_t _compute_kernel_entries(){
    
 }
 
+void *map_vaddress(void *address, unsigned int flags){
+    return NULL;
+}
+
