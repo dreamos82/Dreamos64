@@ -54,7 +54,6 @@ void *kmalloc(size_t size){
                     kernel_heap_tail = new_node;
                 }
             }
-            printf("Returning\n");
             return (void *) current_node + sizeof(KHeapMemoryNode);
         }
         current_node = current_node->next;
