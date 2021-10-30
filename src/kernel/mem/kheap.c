@@ -61,7 +61,7 @@ void *kmalloc(size_t size){
 
     if (size > KERNEL_PAGE_SIZE) { 
         uint32_t number_of_pages = (size / KERNEL_PAGE_SIZE) + 1;
-        printf("KMALLOC SIZE > PAGE_SIZE, Unsupported for now\n");
+        printf("KMALLOC SIZE > PAGE_SIZE, partially unsupported for now\n");
         return  NULL;
     } else {
         uint64_t *new_address = ((void *)current_node) + current_node->size + sizeof(KHeapMemoryNode);

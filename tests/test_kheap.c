@@ -54,6 +54,4 @@ void test_kmalloc(){
     printf(" - kmalloc new address should be heap_start + sizeof(KHeapMemoryNode) + 9\n");
     printf("  1: 0x%x - 2: 0x%x\n", test_ptr, test_ptr_2);
     assert(((uint64_t) test_ptr_2 - (uint64_t) test_ptr) == 0x2A);
-    printf(" - KMalloc(5000) should return NULL\n");
-    //test_ptr = (char *) kmalloc(10);
 }
