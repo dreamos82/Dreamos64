@@ -7,8 +7,6 @@
 #define WRITE_ENABLE 2
 #define USER_LEVEL 4
 
-void _initialize_vmm();
-
 void *map_vaddress(void *, unsigned int);
 int unmap_vaddress(void *);
 
