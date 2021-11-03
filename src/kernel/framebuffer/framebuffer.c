@@ -143,11 +143,13 @@ void _fb_printStr(char *string, int cx, int cy, uint32_t fg, uint32_t bg){
     while (*string != '\0'){
         if (*string == '\n'){
             qemu_write_string("_fb_printStr: newline support not added yet");
+            cx=0;
+            cy++;
         } else {
             _fb_putchar(*string, cx, cy, fg, bg);
+            cx++;
         }
         string++;
-        cx++;
     }
 }
 
