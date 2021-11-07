@@ -32,6 +32,7 @@ extern uint64_t multiboot_acpi_info;
 struct multiboot_tag_framebuffer *tagfb = NULL;
 struct multiboot_tag_basic_meminfo *tagmem = NULL;
 struct multiboot_tag_old_acpi *tagold_acpi = NULL;
+struct multiboot_tag_new_acpi *tagnew_acpi = NULL;
 struct multiboot_tag_mmap *tagmmap = NULL;
 struct multiboot_tag *tagacpi = NULL;
 
@@ -74,6 +75,11 @@ void _init_basic_system(unsigned long addr){
         _printStringAndNumber("Address: ", (unsigned long) &descriptor);
         _printStringAndNumber("Descriptor revision: ", descriptor->Revision);
         validate_RSDP(descriptor);
+    } else if(tagacpi->type == MULTIBOOT_TAG_TYPE_ACPI_OLD){
+        tagnew_acpi = (struct multiboot_tag_new_acpi *)tagacpi;
+        _printStringAndNumber("Found acpi RSDP: ", tagnew_acpi->type);
+        _printStringAndNumber("Found acpi RSDP address: ", (unsigned long) &tagnew_acpi);
+        _printStringAndNumber("To be implemented");
     }
  
 	for (tag=(struct multiboot_tag *) (addr + _HIGHER_HALF_KERNEL_MEM_START + 8);
@@ -140,6 +146,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
         _fb_putchar('o', 4, 1, 0x000000, 0xFFFFFF);
         _fb_putchar('!', 5, 1, 0x000000, 0xFFFFFF);
         _fb_printStr("Dreamos64", 0, 0, 0xFFFFFF, 0x3333ff);
+        _fb_printStr("Thanks\nfor\n using it", 0, 6, 0xFFFFFF, 0x3333ff);
         if(get_PSF_version(&_binary_fonts_default_psf_start) == 1){
             qemu_write_string("PSF v1 found\n");
         }  else {
