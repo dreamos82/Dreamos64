@@ -36,14 +36,14 @@ int vsprintf(char *buffer, const char *fmt, va_list args){
             }
             case 'c':
                 break;
-/*            case 's':{
+            case 's':{
                 char *arg_string = va_arg(args, char*);
 //                qemu_write_string(arg_string[0]);
                 while(*arg_string != 0){
                     *str++ = *arg_string++;
                 }
                 break;
-            }*/
+            }
         }
     }
 
