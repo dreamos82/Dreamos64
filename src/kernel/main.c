@@ -79,7 +79,7 @@ void _init_basic_system(unsigned long addr){
         _printStr(descriptor->Signature);
         _printNewLine();
 //        printf("Descriptor signature: %s\n", descriptor->Signature);
-        //validate_RSDP(descriptor);
+        validate_RSDP(descriptor);
         parse_RSDT(descriptor);
     } else if(tagacpi->type == MULTIBOOT_TAG_TYPE_ACPI_OLD){
         tagnew_acpi = (struct multiboot_tag_new_acpi *)tagacpi;
@@ -112,11 +112,9 @@ void kernel_start(unsigned long addr, unsigned long magic){
     extern unsigned int _kernel_end;
     extern unsigned int _kernel_physical_end;
     qemu_init_debug();
-    qemu_write_string("Hello qemu log\n");
-    qemu_write_string("==============\n");
-    _init_basic_system(addr);
     init_idt();
     load_idt();
+    _init_basic_system(addr);
     _printStringAndNumber("Kernel End: ", (unsigned long)&_kernel_end);
     _printStringAndNumber("Kernel physical end: ", (unsigned long)&_kernel_physical_end);
     //test_image();
