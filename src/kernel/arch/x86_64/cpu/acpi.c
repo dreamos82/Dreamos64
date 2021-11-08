@@ -2,9 +2,10 @@
 #include <acpi.h>
 #include <video.h>
 #include <framebuffer.h>
+#include <stdio.h>
 
 void parse_RSDT(RSDPDescriptor *descriptor){
-    _printf("Pstdinh RSDP Descriptor\n");
+    printf("Parse RSDP Descriptor\n");
     RSDT_item *root = (RSDT_item *) descriptor->RsdtAddress;
     printf("descriptor Address: 0x%x\n", descriptor->RsdtAddress);
     ACPISDTHeader header = root->header;
@@ -12,12 +13,14 @@ void parse_RSDT(RSDPDescriptor *descriptor){
     _printNewLine();
 //    _printStr(header.Signature);
     _printStr("--- ");
+//    _fb_putchar(header.Signature[0], 1, 3, 0x000000, 0xFFFFFF);
+
 //    printf("RSDT Address: 0x%x", root->header);
     //#if USE_FRAMEBUFFER == 1*/
-/*    _fb_putchar(header.Signature[0], 1, 3, 0x000000, 0xFFFFFF);
+    _fb_putchar(header.Signature[0], 1, 3, 0x000000, 0xFFFFFF);
     _fb_putchar(header.Signature[1], 2, 3, 0x000000, 0xFFFFFF);
     _fb_putchar(header.Signature[2], 3, 3, 0x000000, 0xFFFFFF);
-    _fb_putchar(header.Signature[3], 4, 3, 0x000000, 0xFFFFFF);*/
+    _fb_putchar(header.Signature[3], 4, 3, 0x000000, 0xFFFFFF);
 /*    _fb_printStr(header.Signature, 0, 3, 0x000000, 0xFFFFFF);
     #endif
     _printCh(header.Signature[0], WHITE);
