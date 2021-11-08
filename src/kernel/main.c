@@ -38,6 +38,7 @@ struct multiboot_tag *tagacpi = NULL;
 
 void _init_basic_system(unsigned long addr){
     struct multiboot_tag* tag;
+    //These data structure are initialized durinig the boot process.
     tagmem  = (struct multiboot_tag_basic_meminfo *)(multiboot_basic_meminfo + _HIGHER_HALF_KERNEL_MEM_START);
     tagmmap = (struct multiboot_tag_mmap *) (multiboot_mmap_data + _HIGHER_HALF_KERNEL_MEM_START);
     tagfb   = (struct multiboot_tag_framebuffer *) (multiboot_framebuffer_data + _HIGHER_HALF_KERNEL_MEM_START);
@@ -78,7 +79,7 @@ void _init_basic_system(unsigned long addr){
         _printStr(descriptor->Signature);
         _printNewLine();
 //        printf("Descriptor signature: %s\n", descriptor->Signature);
-        validate_RSDP(descriptor);
+        //validate_RSDP(descriptor);
         parse_RSDT(descriptor);
     } else if(tagacpi->type == MULTIBOOT_TAG_TYPE_ACPI_OLD){
         tagnew_acpi = (struct multiboot_tag_new_acpi *)tagacpi;
