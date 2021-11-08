@@ -74,12 +74,17 @@ void _init_basic_system(unsigned long addr){
         RSDPDescriptor *descriptor = (RSDPDescriptor *)(tagacpi+1);
         _printStringAndNumber("Address: ", (unsigned long) &descriptor);
         _printStringAndNumber("Descriptor revision: ", descriptor->Revision);
+        _printStr("Descriptor revision: ");
+        _printStr(descriptor->Signature);
+        _printNewLine();
+//        printf("Descriptor signature: %s\n", descriptor->Signature);
         validate_RSDP(descriptor);
+        parse_RSDT(descriptor);
     } else if(tagacpi->type == MULTIBOOT_TAG_TYPE_ACPI_OLD){
         tagnew_acpi = (struct multiboot_tag_new_acpi *)tagacpi;
         _printStringAndNumber("Found acpi RSDP: ", tagnew_acpi->type);
         _printStringAndNumber("Found acpi RSDP address: ", (unsigned long) &tagnew_acpi);
-        _printStringAndNumber("To be implemented");
+        _printStr("To be implemented");
     }
  
 	for (tag=(struct multiboot_tag *) (addr + _HIGHER_HALF_KERNEL_MEM_START + 8);

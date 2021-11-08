@@ -4,24 +4,27 @@
 #include <framebuffer.h>
 
 void parse_RSDT(RSDPDescriptor *descriptor){
-    _printStr("Parsing rsdt");
+    _printf("Pstdinh RSDP Descriptor\n");
     RSDT_item *root = (RSDT_item *) descriptor->RsdtAddress;
+    printf("descriptor Address: 0x%x\n", descriptor->RsdtAddress);
     ACPISDTHeader header = root->header;
     _printStr("RSDT_Signature: ");
     _printNewLine();
-    //_printStr(header.Signature);
+//    _printStr(header.Signature);
     _printStr("--- ");
-    #if USE_FRAMEBUFFER == 1
-    _fb_putchar(header.Signature[0], 1, 3, 0x000000, 0xFFFFFF);
+//    printf("RSDT Address: 0x%x", root->header);
+    //#if USE_FRAMEBUFFER == 1*/
+/*    _fb_putchar(header.Signature[0], 1, 3, 0x000000, 0xFFFFFF);
     _fb_putchar(header.Signature[1], 2, 3, 0x000000, 0xFFFFFF);
     _fb_putchar(header.Signature[2], 3, 3, 0x000000, 0xFFFFFF);
-    _fb_putchar(header.Signature[3], 4, 3, 0x000000, 0xFFFFFF);
+    _fb_putchar(header.Signature[3], 4, 3, 0x000000, 0xFFFFFF);*/
+/*    _fb_printStr(header.Signature, 0, 3, 0x000000, 0xFFFFFF);
     #endif
     _printCh(header.Signature[0], WHITE);
     _printCh(header.Signature[1], WHITE);
     _printCh(header.Signature[2], WHITE);
     _printCh(header.Signature[3], WHITE);
-    _printNewLine();
+   _printNewLine();*/
     
 }
 
