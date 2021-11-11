@@ -10,4 +10,5 @@ void init_apic(){
     }
     uint64_t msr_output = rdmsr(IA32_APIC_BASE);
     printf("APIC MSR Return value: 0x%x\n", msr_output);
+    printf("APIC MSR Return value: 0x%x\n", (msr_output&APIC_BASE_ADDRESS_MASK));
 }
