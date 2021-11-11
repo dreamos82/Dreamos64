@@ -11,8 +11,5 @@ uint64_t rdmsr(uint32_t address){
         : "g" (address)
     );
 
-    printf("RDMSR value: 0x%x %x\n", high, low);
-    printf("RDMSR value: 0x%x\n", ((high<<32)|low));
-    
-    return NULL;
+    return (uint64_t) low | (high << 32);
 }
