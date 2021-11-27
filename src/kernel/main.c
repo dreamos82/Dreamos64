@@ -38,13 +38,12 @@ struct multiboot_tag *tagacpi = NULL;
 
 void _init_basic_system(unsigned long addr){
     struct multiboot_tag* tag;
+    uint32_t mbi_size = *(uint32_t *) addr;
     //These data structure are initialized durinig the boot process.
     tagmem  = (struct multiboot_tag_basic_meminfo *)(multiboot_basic_meminfo + _HIGHER_HALF_KERNEL_MEM_START);
     tagmmap = (struct multiboot_tag_mmap *) (multiboot_mmap_data + _HIGHER_HALF_KERNEL_MEM_START);
     tagfb   = (struct multiboot_tag_framebuffer *) (multiboot_framebuffer_data + _HIGHER_HALF_KERNEL_MEM_START);
     //Print basic mem Info data
-    _printStringAndNumber("MB2 ADDRESS: 0x", addr + _HIGHER_HALF_KERNEL_MEM_START + 8);
-    _printStringAndNumber("---framebuffer-address: 0x", tagfb->common.framebuffer_addr);
     _printStringAndNumber("Found basic mem Mem info type: ", tagmem->type);
     _printStringAndNumber("Memory lower (in kb): ", tagmem->mem_lower);
     _printStringAndNumber("Memory upper (in kb): ", tagmem->mem_upper); 
@@ -57,7 +56,7 @@ void _init_basic_system(unsigned long addr){
     _printStringAndNumber("---framebuffer-type: ", tagfb->common.framebuffer_type);
     _mmap_parse(tagmmap);
     _printStringAndNumber("---framebuffer-address: ", tagfb->common.framebuffer_addr);
-    pmm_setup(addr);
+    pmm_setup(addr, mbi_size);
 
     //Print framebuffer info
     _printStringAndNumber("Found multiboot framebuffer: ", tagmem->type); 
@@ -79,7 +78,7 @@ void _init_basic_system(unsigned long addr){
         _printStringAndNumber("Found acpi RSDP address: ", (unsigned long) &tagold_acpi);
         RSDPDescriptor *descriptor = (RSDPDescriptor *)(tagacpi+1);
         _printStringAndNumber("Address: ", (unsigned long) &descriptor);
-        _printStringAndNumber("Descriptor revision: ", descriptor->Revision);
+//        _printStringAndNumber("Descriptor revision: ", descriptor->Revision);
         _printStr("Descriptor revision: ");
         _printStr(descriptor->Signature);
         _printNewLine();

@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-void pmm_setup(unsigned long);
+void pmm_setup(unsigned long, uint32_t);
 void *pmm_alloc_frame();
 void pmm_free_frame(void*);
 bool pmm_check_frame_availability();

@@ -35,6 +35,7 @@ void _mmap_parse(struct multiboot_tag_mmap *mmap_root){
         _printStr((char *) mmap_types[mmap_entries[i].type]);
         _printNewLine();
         _printStringAndNumber("---zero:: ", mmap_entries[i].zero);
+        _printStr("END OF MMAP ITEM\n");
         total_entries++;
         i++;
     }

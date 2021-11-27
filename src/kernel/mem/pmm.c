@@ -12,8 +12,8 @@ extern uint32_t bitmap_size;
 extern multiboot_memory_map_t *mmap_entries;
 extern uint8_t count_physical_reserved;
 
-void pmm_setup(unsigned long addr){
-    _initialize_bitmap(addr);
+void pmm_setup(unsigned long addr, uint32_t size){
+    _initialize_bitmap(addr, size);
     //_mmap_setup();
 }
 
