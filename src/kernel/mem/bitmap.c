@@ -16,10 +16,15 @@ uint32_t bitmap_size = 0;
 uint32_t used_frames; 
 
 
-void _initialize_bitmap(){
+void _initialize_bitmap(unsigned long addr){
+    uint32_t mbi_size = *(uint32_t *) addr;
+    _printStringAndNumber("Size of mbi struct: ", mbi_size);
+
     uint32_t memory_size_in_bytes = (tagmem->mem_upper + 1024) * 1024;
     bitmap_size = memory_size_in_bytes / PAGE_SIZE_IN_BYTES;
     used_frames = 0;
+    _printStringAndNumber("KERNEL_END: 0x", &_kernel_end);
+    _printStringAndNumber("KERNEL_END: 0x", &_kernel_physical_end);
     number_of_entries = bitmap_size / 64;
     for (uint32_t i=0; i<number_of_entries; i++){
         memory_map[i] = 0x0;

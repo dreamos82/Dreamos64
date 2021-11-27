@@ -43,6 +43,8 @@ void _init_basic_system(unsigned long addr){
     tagmmap = (struct multiboot_tag_mmap *) (multiboot_mmap_data + _HIGHER_HALF_KERNEL_MEM_START);
     tagfb   = (struct multiboot_tag_framebuffer *) (multiboot_framebuffer_data + _HIGHER_HALF_KERNEL_MEM_START);
     //Print basic mem Info data
+    _printStringAndNumber("MB2 ADDRESS: 0x", addr + _HIGHER_HALF_KERNEL_MEM_START + 8);
+    _printStringAndNumber("---framebuffer-address: 0x", tagfb->common.framebuffer_addr);
     _printStringAndNumber("Found basic mem Mem info type: ", tagmem->type);
     _printStringAndNumber("Memory lower (in kb): ", tagmem->mem_lower);
     _printStringAndNumber("Memory upper (in kb): ", tagmem->mem_upper); 
@@ -52,8 +54,10 @@ void _init_basic_system(unsigned long addr){
     _printStringAndNumber("---Entrysize: ", tagmmap->entry_size);
     _printStringAndNumber("---EntryVersion: ", tagmmap->entry_version);
     _printStringAndNumber("---Struct size: ", sizeof(struct multiboot_tag_mmap));
+    _printStringAndNumber("---framebuffer-type: ", tagfb->common.framebuffer_type);
     _mmap_parse(tagmmap);
-    pmm_setup();
+    _printStringAndNumber("---framebuffer-address: ", tagfb->common.framebuffer_addr);
+    pmm_setup(addr);
 
     //Print framebuffer info
     _printStringAndNumber("Found multiboot framebuffer: ", tagmem->type); 
@@ -63,6 +67,7 @@ void _init_basic_system(unsigned long addr){
     _printStringAndNumber("---framebuffer-address: ", tagfb->common.framebuffer_addr);
     _printStringAndNumber("---framebuffer-bpp: ", tagfb->common.framebuffer_bpp);
     _printStringAndNumber("---framebuffer-pitch: ", tagfb->common.framebuffer_pitch);
+    _printStringAndNumber("---Address: 0x", tagfb + _HIGHER_HALF_KERNEL_MEM_START);
     set_fb_data(tagfb);
     map_framebuffer(tagfb);
     _printStringAndNumber("---Total framebuffer size is:  ", FRAMEBUFFER_MEMORY_SIZE);
@@ -95,6 +100,7 @@ void _init_basic_system(unsigned long addr){
         switch(tag->type){
            case MULTIBOOT_TAG_TYPE_ELF_SECTIONS:
                 _printStr("Found elf sections");
+                _printStringAndNumber("--Size: 0x", tag->size);
                 _printNewLine();
                 break;
             default:
@@ -187,6 +193,8 @@ void kernel_start(unsigned long addr, unsigned long magic){
     *test_addr = 12l;
     _printStringAndNumber("Should not print ", *test_addr);*/
     initialize_kheap();
+    char test_str[8] = "hello";
+    printf("test_str: %s", test_str);
     asm("hlt");
 }
 
