@@ -38,6 +38,7 @@ struct multiboot_tag *tagacpi = NULL;
 
 void _init_basic_system(unsigned long addr){
     struct multiboot_tag* tag;
+    uint32_t mbi_size = *(uint32_t *) addr;
     //These data structure are initialized durinig the boot process.
     tagmem  = (struct multiboot_tag_basic_meminfo *)(multiboot_basic_meminfo + _HIGHER_HALF_KERNEL_MEM_START);
     tagmmap = (struct multiboot_tag_mmap *) (multiboot_mmap_data + _HIGHER_HALF_KERNEL_MEM_START);
@@ -52,8 +53,10 @@ void _init_basic_system(unsigned long addr){
     _printStringAndNumber("---Entrysize: ", tagmmap->entry_size);
     _printStringAndNumber("---EntryVersion: ", tagmmap->entry_version);
     _printStringAndNumber("---Struct size: ", sizeof(struct multiboot_tag_mmap));
+    _printStringAndNumber("---framebuffer-type: ", tagfb->common.framebuffer_type);
     _mmap_parse(tagmmap);
-    pmm_setup();
+    _printStringAndNumber("---framebuffer-address: ", tagfb->common.framebuffer_addr);
+    pmm_setup(addr, mbi_size);
 
     //Print framebuffer info
     _printStringAndNumber("Found multiboot framebuffer: ", tagmem->type); 
@@ -63,6 +66,7 @@ void _init_basic_system(unsigned long addr){
     _printStringAndNumber("---framebuffer-address: ", tagfb->common.framebuffer_addr);
     _printStringAndNumber("---framebuffer-bpp: ", tagfb->common.framebuffer_bpp);
     _printStringAndNumber("---framebuffer-pitch: ", tagfb->common.framebuffer_pitch);
+    _printStringAndNumber("---Address: 0x", tagfb + _HIGHER_HALF_KERNEL_MEM_START);
     set_fb_data(tagfb);
     map_framebuffer(tagfb);
     _printStringAndNumber("---Total framebuffer size is:  ", FRAMEBUFFER_MEMORY_SIZE);
@@ -74,7 +78,7 @@ void _init_basic_system(unsigned long addr){
         _printStringAndNumber("Found acpi RSDP address: ", (unsigned long) &tagold_acpi);
         RSDPDescriptor *descriptor = (RSDPDescriptor *)(tagacpi+1);
         _printStringAndNumber("Address: ", (unsigned long) &descriptor);
-        _printStringAndNumber("Descriptor revision: ", descriptor->Revision);
+//        _printStringAndNumber("Descriptor revision: ", descriptor->Revision);
         _printStr("Descriptor revision: ");
         _printStr(descriptor->Signature);
         _printNewLine();
@@ -95,6 +99,7 @@ void _init_basic_system(unsigned long addr){
         switch(tag->type){
            case MULTIBOOT_TAG_TYPE_ELF_SECTIONS:
                 _printStr("Found elf sections");
+                _printStringAndNumber("--Size: 0x", tag->size);
                 _printNewLine();
                 break;
             default:
@@ -187,6 +192,8 @@ void kernel_start(unsigned long addr, unsigned long magic){
     *test_addr = 12l;
     _printStringAndNumber("Should not print ", *test_addr);*/
     initialize_kheap();
+    char test_str[8] = "hello";
+    printf("test_str: %s", test_str);
     asm("hlt");
 }
 

@@ -25,7 +25,7 @@ extern uint32_t mmap_number_of_entries;
 extern multiboot_memory_map_t *mmap_entries;
 
 int main(){
-    uint32_t bitmap_entries = _compute_kernel_entries();
+    uint32_t bitmap_entries = _compute_kernel_entries(_kernel_end);
     memory_map = (uint64_t *) malloc(20 * sizeof(uint64_t)); 
     tagmem = (struct multiboot_tag_basic_meminfo *) malloc(sizeof(struct multiboot_tag_basic_meminfo));
     tagmem->mem_lower = 0x27F;
@@ -64,7 +64,7 @@ int main(){
     mmap_root->entry_size = 0x18;
     mmap_root->entry_version = 0;
     _mmap_parse(mmap_root);
-    pmm_setup();
+    pmm_setup((unsigned long) memory_map, 20 * sizeof(uint64_t));
 
     _mmap_setup();
     printf("Testing physical memory manager\n");
@@ -77,6 +77,7 @@ void test_pmm(){
     printf("--- Bitmap ---");
     printf("Used frames: 0x%X\n", used_frames);
     printf("--Testing used_frames value\n");
+    printf("Used frames: %x\n", used_frames);
     assert(used_frames==0x2);
     printf("--Testing memory_map initial value\n");
     printf("memory_map[0] = %X\n", memory_map[0]);

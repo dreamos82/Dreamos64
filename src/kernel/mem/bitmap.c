@@ -16,7 +16,10 @@ uint32_t bitmap_size = 0;
 uint32_t used_frames; 
 
 
-void _initialize_bitmap(){
+void _initialize_bitmap(unsigned long addr, uint32_t size){
+    memory_map = (uint64_t*) (addr + size);
+    _printStringAndNumber("Size of mbi struct: ", size);
+    _printStringAndNumber("End of reserved area: ", addr+size);
     uint32_t memory_size_in_bytes = (tagmem->mem_upper + 1024) * 1024;
     bitmap_size = memory_size_in_bytes / PAGE_SIZE_IN_BYTES;
     used_frames = 0;
@@ -24,8 +27,9 @@ void _initialize_bitmap(){
     for (uint32_t i=0; i<number_of_entries; i++){
         memory_map[i] = 0x0;
     }
+    printf("Here\n");
     
-    uint32_t kernel_entries = _compute_kernel_entries();
+    uint32_t kernel_entries = _compute_kernel_entries(addr + size);
     uint32_t number_of_bitmap_rows = kernel_entries/64;
     uint32_t j=0;
     for (j=0; j < number_of_bitmap_rows; j++){
@@ -44,9 +48,10 @@ void _initialize_bitmap(){
 }
 
 #ifndef _TEST_
-uint32_t _compute_kernel_entries(){
-    uint32_t kernel_entries = ((uint64_t)&_kernel_physical_end) / PAGE_SIZE_IN_BYTES;
-    uint32_t kernel_mod_entries = ((uint32_t)(&_kernel_physical_end)) % PAGE_SIZE_IN_BYTES;
+uint32_t _compute_kernel_entries(uint64_t end_of_kernel_area){
+    uint32_t kernel_entries = ((uint64_t)end_of_kernel_area) / PAGE_SIZE_IN_BYTES;
+    uint32_t kernel_mod_entries = ((uint32_t)(end_of_kernel_area)) % PAGE_SIZE_IN_BYTES;
+    _printStringAndNumber("number of entries: ", kernel_entries);
     if (  kernel_mod_entries != 0){
         return kernel_entries + 2;
     } 

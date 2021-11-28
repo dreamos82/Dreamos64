@@ -14,7 +14,7 @@ void _printNewLine(){
     printf("\n");
 }
 
-uint32_t _compute_kernel_entries(){
+uint32_t _compute_kernel_entries(uint64_t end_of_kernel_area){
     uint32_t kernel_entries = 0x1190AC / PAGE_SIZE_IN_BYTES;
     uint32_t kernel_mod_entries = 0x1190AC % PAGE_SIZE_IN_BYTES;
     printf("kernel_entries: 0x%X\n", kernel_entries);
