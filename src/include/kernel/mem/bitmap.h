@@ -19,7 +19,7 @@
 
 #define ADDRESS_TO_BITMAP_ENTRY(address)(address / PAGE_SIZE_IN_BYTES)
 
-void _initialize_bitmap(unsigned long addr, uint32_t size);
+void _initialize_bitmap(unsigned long);
 
 int64_t _bitmap_request_frame();
 void _bitmap_set_bit(uint64_t);

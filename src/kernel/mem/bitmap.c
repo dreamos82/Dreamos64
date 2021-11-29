@@ -2,6 +2,7 @@
 #include <pmm.h>
 #include <multiboot.h>
 #include <stddef.h>
+#include <mmap.h>
 #ifndef _TEST_
 #include <video.h>
 #include <main.h>
@@ -16,20 +17,18 @@ uint32_t bitmap_size = 0;
 uint32_t used_frames; 
 
 
-void _initialize_bitmap(unsigned long addr, uint32_t size){
-    memory_map = (uint64_t*) (addr + size);
-    _printStringAndNumber("Size of mbi struct: ", size);
-    _printStringAndNumber("End of reserved area: ", addr+size);
+void _initialize_bitmap(unsigned long end_of_reserved_area){
     uint32_t memory_size_in_bytes = (tagmem->mem_upper + 1024) * 1024;
     bitmap_size = memory_size_in_bytes / PAGE_SIZE_IN_BYTES;
     used_frames = 0;
     number_of_entries = bitmap_size / 64;
+    memory_map = _mmap_determine_bitmap_region(0, bitmap_size);
     for (uint32_t i=0; i<number_of_entries; i++){
         memory_map[i] = 0x0;
     }
     printf("Here\n");
     
-    uint32_t kernel_entries = _compute_kernel_entries(addr + size);
+    uint32_t kernel_entries = _compute_kernel_entries(end_of_reserved_area);
     uint32_t number_of_bitmap_rows = kernel_entries/64;
     uint32_t j=0;
     for (j=0; j < number_of_bitmap_rows; j++){
