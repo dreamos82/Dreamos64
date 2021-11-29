@@ -23,9 +23,9 @@ void _initialize_bitmap(unsigned long end_of_reserved_area){
     used_frames = 0;
     number_of_entries = bitmap_size / 64;
 #ifdef _TEST_
-    memory_map = malloc(bitmap_size);
+    memory_map = malloc(bitmap_size / 8 + 1);
 #else
-    memory_map = _mmap_determine_bitmap_region(0, bitmap_size);
+    memory_map = _mmap_determine_bitmap_region(0, bitmap_size / 8 + 1);
 #endif
     for (uint32_t i=0; i<number_of_entries; i++){
         memory_map[i] = 0x0;
@@ -48,6 +48,12 @@ void _initialize_bitmap(unsigned long end_of_reserved_area){
     _printStringAndNumber("Number of items: ", number_of_entries);
     //_bitmap_request_frame();
     //pmm_alloc_frame();
+}
+
+void _bitmap_get_region(uint64_t* base_address, size_t* length_in_bytes)
+{
+    *base_address = (uint64_t)memory_map;
+    *length_in_bytes = bitmap_size / 8;
 }
 
 #ifndef _TEST_

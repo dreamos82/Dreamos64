@@ -14,6 +14,15 @@ extern uint8_t count_physical_reserved;
 
 void pmm_setup(unsigned long addr, uint32_t size){
     _initialize_bitmap(addr + size);
+    uint64_t bitmap_start_addr;
+    size_t bitmap_size;
+    _bitmap_get_region(&bitmap_start_addr, &bitmap_size);
+#ifndef _TEST_
+    //we cant reserve the bitmap in testing scenarios, as malloc() can return any address, usually leading to a super high index when we try to reserve it.
+    //this usually results in a seg fault as we try to access entries in the bitmap waaaay too large.
+    //we could probably get around this hack by asking the host os to map the bitmap as it's expected address via it's vmm.
+    pmm_reserve_area(bitmap_start_addr, bitmap_size);
+#endif
     //_mmap_setup();
 }
 
