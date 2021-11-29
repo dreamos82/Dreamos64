@@ -38,10 +38,10 @@ int main(){
     mmap_root = malloc(mmap_size);
     mmap_root->entries[0].addr = 0;
     mmap_root->entries[0].len = 0x9FC00;
-    mmap_root->entries[0].type = 1;
+    mmap_root->entries[0].type = _MMAP_AVAILABLE;
     mmap_root->entries[1].addr = 0x9FC00;
     mmap_root->entries[1].len = 0x400;
-    mmap_root->entries[1].type = 2;
+    mmap_root->entries[1].type = _MMAP_RESERVED;
 
 //    mmap_data.number_of_entries = 2;
 //    mmap_data.entries = mmap_root->entries;
@@ -50,16 +50,16 @@ int main(){
     printf("1");*/
     mmap_root->entries[2].addr = 0xF000;
     mmap_root->entries[2].len = 0x1000;
-    mmap_root->entries[2].type = 2;
+    mmap_root->entries[2].type = _MMAP_RESERVED;
     mmap_root->entries[3].addr = 0x100000;
     mmap_root->entries[3].len = 0x3FEE0000;
-    mmap_root->entries[3].type = 1;
+    mmap_root->entries[3].type = _MMAP_AVAILABLE;
     mmap_root->entries[4].addr = 0x3FFE0000;
     mmap_root->entries[4].len = 0x20000;
-    mmap_root->entries[4].type = 2;
+    mmap_root->entries[4].type = _MMAP_RESERVED;
     mmap_root->entries[5].addr = 0xFFFC0000;
     mmap_root->entries[5].len = 0x40000;
-    mmap_root->entries[5].type = 2; 
+    mmap_root->entries[5].type = _MMAP_RESERVED; 
     mmap_root->size = 0xA0;
     mmap_root->entry_size = 0x18;
     mmap_root->entry_version = 0;
@@ -158,6 +158,16 @@ void test_mmap(){
     pmm_free_area(mmap_entries[2].addr, mmap_entries[2].len);    
     bitmap_entry = ADDRESS_TO_BITMAP_ENTRY(mmap_entries[2].addr);
     assert(_bitmap_test_bit(bitmap_entry) == true);
+    printf("--- Testing _is_address_reserved_in_mmap ---\n");
+    printf("--Testing that with address 0xF000 should return true\n");
+    assert(_is_address_reserved_in_mmap(0xF000) == false);
+    printf("--Testing that with address 0x9F000 should return false\n");
+    assert(_is_address_reserved_in_mmap(0x9F000) == false);
+    printf("--Testing that with address 0x110000 should return false\n");
+    assert(_is_address_reserved_in_mmap(0x110000) == false);
+    printf("--Testing that with address 0x3FFE0000 should return false\n");
+    assert(_is_address_reserved_in_mmap(0x3FFE0000) == false);
+
     printf("Finished\n");
 }
 

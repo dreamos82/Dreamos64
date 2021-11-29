@@ -60,3 +60,19 @@ void _mmap_setup(){
         }
     }
 }
+
+bool _is_address_reserved_in_mmap(uint64_t address){
+    int i = 0;
+    if(mmap_number_of_entries == 0){
+        return false;
+    }
+    while (i < mmap_number_of_entries){
+        if(address > mmap_entries[i].addr && address < mmap_entries[i].addr + mmap_entries[i].len){
+            if(mmap_entries[i].type != _MMAP_AVAILABLE)
+                return true;
+        }
+        i++;
+    }
+    return false;
+}
+
