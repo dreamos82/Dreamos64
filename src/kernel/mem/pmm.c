@@ -2,6 +2,7 @@
 #include <bitmap.h>
 #include <stdbool.h>
 #include <mmap.h>
+#include <vmm.h>
 #ifndef _TEST_
 #include <video.h>
 #endif
@@ -23,7 +24,33 @@ void pmm_setup(unsigned long addr, uint32_t size){
     //we could probably get around this hack by asking the host os to map the bitmap as it's expected address via it's vmm.
     pmm_reserve_area(bitmap_start_addr, bitmap_size);
 #endif
-    //_mmap_setup();
+
+    _map_pmm();
+}
+
+void _map_pmm()
+{
+    //late init after vmm has been initialized, we can do all sorts of wizardry now.
+#ifdef _TEST_
+    #pragma message "map_pmm() does nothing in testing scenarios, see notes about hack in pmm.c::pmm_setup()"
+    return;
+#endif
+
+    uint64_t bitmap_start;
+    size_t bitmap_size_bytes;
+    _bitmap_get_region(&bitmap_start, &bitmap_size_bytes);
+
+    //now we have the real addresses, we need to round the start down, and the size up to the nearest page
+    bitmap_start = (bitmap_start / PAGE_SIZE_IN_BYTES) * PAGE_SIZE_IN_BYTES;
+    const size_t pages_required = bitmap_size_bytes / PAGE_SIZE_IN_BYTES + 1;
+
+    _printStringAndNumber("Identity mapping PMM bitmap, addr(virt & phys)= 0x", bitmap_start);
+    _printStringAndNumber("    \\- Pages required=", pages_required);
+
+    for (size_t i = 0; i < pages_required; i++)
+        map_vaddress((void*)(bitmap_start + i * PAGE_SIZE_IN_BYTES), 0); //0 as no extra flags required
+
+    _printStr("PMM bitmap successfully mapped.");
 }
 
 void *pmm_alloc_frame(){

@@ -25,7 +25,7 @@ void _initialize_bitmap(unsigned long end_of_reserved_area){
 #ifdef _TEST_
     memory_map = malloc(bitmap_size / 8 + 1);
 #else
-    memory_map = _mmap_determine_bitmap_region(0x1000, bitmap_size / 8 + 1);
+    memory_map = _mmap_determine_bitmap_region(end_of_reserved_area, bitmap_size / 8 + 1);
 #endif
     for (uint32_t i=0; i<number_of_entries; i++){
         memory_map[i] = 0x0;
