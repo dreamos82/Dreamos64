@@ -6,6 +6,7 @@
 #include <stddef.h>
 
 void pmm_setup(unsigned long, uint32_t);
+void _map_pmm();
 void *pmm_alloc_frame();
 void pmm_free_frame(void*);
 bool pmm_check_frame_availability();

@@ -61,7 +61,7 @@ void _mmap_setup(){
     }
 }
 
-void* _mmap_determine_bitmap_region(uint64_t lower_limit, size_t size){
+void* _mmap_determine_bitmap_region(uint64_t lower_limit, size_t bytes_needed){
     //NOTE: lower_limit can be used to place the bitmap after the kernel, or after anything if need be. 
 
     for (size_t i = 0; i < mmap_number_of_entries; i++){
@@ -69,16 +69,24 @@ void* _mmap_determine_bitmap_region(uint64_t lower_limit, size_t size){
 
         if (current_entry->type != _MMAP_AVAILABLE)
             continue;
-        if (current_entry->addr < lower_limit)
-            continue;
+        if (current_entry->addr + current_entry->len < lower_limit)
+            continue; //mmap area is too low to be relevant, ignore it
 
-        if (current_entry->len >= size){
-            _printStringAndNumber("Found space for bitmap at address: ", current_entry->addr);
-            return (void*)current_entry->addr;
+        //there's at some overlap, now check if there is enough pages within the region
+        const size_t pages_needed = bytes_needed / PAGE_SIZE_IN_BYTES + 1; //potential for a lot of wasted space, depending on page size.
+        size_t actual_available_space = current_entry->len;
+        const size_t entry_offset = lower_limit > current_entry->addr ? lower_limit - current_entry->addr : 0;
+
+        actual_available_space -= entry_offset; //lower limit might force us to be midway through a region
+        
+        if (actual_available_space >= bytes_needed)
+        {
+            _printStringAndNumber("Found space for bitnmap at address:", current_entry->addr + entry_offset);
+            return (void*)(current_entry->addr + entry_offset);
         }
     }
 
     //BOOM! D:
-    _printStr("Could not find a space big enough to hold the pmm bitmap!");
+    _printStr("Could not find a space big enough to hold the pmm bitmap! This should not happen.");
     return NULL;
 }
