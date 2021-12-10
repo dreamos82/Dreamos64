@@ -27,5 +27,5 @@
 void init_apic();
 void init_local_vector_table();
 
-void start_apic_timer(uint16_t);
+void start_apic_timer(uint16_t, bool);
 #endif

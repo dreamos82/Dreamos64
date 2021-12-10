@@ -41,6 +41,6 @@ void init_local_vector_table(){
 }
 
 
-void start_apic_timer(uint16_t){
+void start_apic_timer(uint16_t flags, bool periodic){
 
 }
