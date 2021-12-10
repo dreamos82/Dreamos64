@@ -35,6 +35,7 @@ struct multiboot_tag_old_acpi *tagold_acpi = NULL;
 struct multiboot_tag_new_acpi *tagnew_acpi = NULL;
 struct multiboot_tag_mmap *tagmmap = NULL;
 struct multiboot_tag *tagacpi = NULL;
+uint32_t memory_size_in_bytes;
 
 void _init_basic_system(unsigned long addr){
     struct multiboot_tag* tag;
@@ -47,6 +48,7 @@ void _init_basic_system(unsigned long addr){
     _printStringAndNumber("Found basic mem Mem info type: ", tagmem->type);
     _printStringAndNumber("Memory lower (in kb): ", tagmem->mem_lower);
     _printStringAndNumber("Memory upper (in kb): ", tagmem->mem_upper); 
+    memory_size_in_bytes = (tagmem->mem_upper + 1024) * 1024;
     //Print mmap_info
     _printStringAndNumber("Memory map entry: ", tagmmap->type);
     _printStringAndNumber("---Size: ", tagmmap->size);
