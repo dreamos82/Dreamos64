@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <vm.h>
 
-static IDT_descriptor idt_table[IDT_SIZE];
+IDT_descriptor idt_table[IDT_SIZE];
 
 void interrupts_handler(cpu_status_t *status){
     qemu_write_string((char *) exception_names[status->interrupt_number]);

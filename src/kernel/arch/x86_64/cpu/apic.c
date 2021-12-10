@@ -5,6 +5,7 @@
 #include <bitmap.h>
 
 extern uint32_t memory_size_in_bytes;
+extern IDT_descriptor idt_table[IDT_SIZE];
 uint32_t apic_base_address;
 
 void init_apic(){
@@ -34,4 +35,12 @@ void init_apic(){
     map_vaddress(apic_base_address, 0);
     uint32_t timer_value = (*(uint32_t*) (apic_base_address + APIC_TIMER_OFFSET));
     printf("Timer value: 0x%x\n", timer_value);
+}
+
+void init_local_vector_table(){
+}
+
+
+void start_apic_timer(uint16_t){
+
 }

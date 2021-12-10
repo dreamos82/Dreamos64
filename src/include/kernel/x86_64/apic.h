@@ -9,6 +9,23 @@
 
 #define APIC_TIMER_OFFSET 0x00000320
 
-void init_apic();
+#define APIC_TIMER_IDT_ENTRY 0x20
+#define APIC_TIMER_CONFIGURATION_OFFSET 0x3E0
+#define APIC_TIMER_INITIAL_COUNT_REGISTER_OFFSET 0x380
+#define APIC_TIMER_CURRENT_COUNT_REGISTER_OFFEST 0x390
 
+#define APIC_TIMER_DIVIDER_1 0x7
+#define APIC_TIMER_DIVIDER_2 0x0
+#define APIC_TIMER_DIVIDER_4 0x1
+#define APIC_TIMER_DIVIDER_8 0x2
+#define APIC_TIMER_DIVIDER_16 0x3
+#define APIC_TIMER_DIVIDER_32 0x4
+#define APIC_TIMER_DIVIDER_64 0x5
+#define APIC_TIMER_DIVIDER_128 0x6
+
+
+void init_apic();
+void init_local_vector_table();
+
+void start_apic_timer(uint16_t);
 #endif
