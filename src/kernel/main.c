@@ -195,7 +195,8 @@ void kernel_start(unsigned long addr, unsigned long magic){
     _printStringAndNumber("Should not print ", *test_addr);*/
     initialize_kheap();
     char test_str[8] = "hello";
-    printf("test_str: %s", test_str);
+    printf("test_str: %s\n", test_str);
+    start_apic_timer(0, 0);
     asm("hlt");
 }
 

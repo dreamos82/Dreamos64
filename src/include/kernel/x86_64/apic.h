@@ -2,12 +2,15 @@
 #define _APIC_H
 
 #include <stdint.h>
+#include <stdbool.h>
 
 #define APIC_BSP_BIT 8
 #define APIC_GLOBAL_ENABLE_BIT 11
 #define APIC_BASE_ADDRESS_MASK 0xFFFFF000
 
 #define APIC_TIMER_OFFSET 0x00000320
+
+#define APIC_TABLE_LENGTH 0x6
 
 #define APIC_TIMER_IDT_ENTRY 0x20
 #define APIC_TIMER_CONFIGURATION_OFFSET 0x3E0
@@ -22,6 +25,9 @@
 #define APIC_TIMER_DIVIDER_32 0x4
 #define APIC_TIMER_DIVIDER_64 0x5
 #define APIC_TIMER_DIVIDER_128 0x6
+
+#define APIC_MODE_ONE_SHOT 0x0
+#define APIC_MODE_PERIODIC 0x20000
 
 
 void init_apic();

@@ -91,6 +91,8 @@ void interrupts_handler(cpu_status_t*);
 
 void default_isr();
 
+//Extern declarations
+extern IDT_descriptor idt_table[IDT_SIZE];
 //extern void interrupt_service_routine_error_code_14();
 // extern void interrupt_service_routine_7();
 extern void interrupt_service_routine_0();

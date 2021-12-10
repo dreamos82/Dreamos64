@@ -3,9 +3,9 @@
 #include <video.h>
 #include <msr.h>
 #include <bitmap.h>
+#include <idt.h>
 
 extern uint32_t memory_size_in_bytes;
-extern IDT_descriptor idt_table[IDT_SIZE];
 uint32_t apic_base_address;
 
 void init_apic(){
@@ -42,5 +42,15 @@ void init_local_vector_table(){
 
 
 void start_apic_timer(uint16_t flags, bool periodic){
+
+    if(apic_base_address == NULL){
+        //Something wrong
+        printf("Apic_base_address not found, or apic not initialized\n");
+    }
+
+
+    uint32_t *timer_address = (uint32_t*) (apic_base_address + APIC_TIMER_OFFSET);
+    printf("Value;  0x%x\n", *timer_address);
+    printf("Flags: 0x%x\n", flags);
 
 }
