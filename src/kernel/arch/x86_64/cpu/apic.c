@@ -38,10 +38,13 @@ void init_apic(){
 }
 
 void init_local_vector_table(){
+//    uint32_t *table_register = (
 }
 
 
 void start_apic_timer(uint16_t flags, bool periodic){
+
+    printf("Apic base address: 0x%x\n", apic_base_address);
 
     if(apic_base_address == NULL){
         //Something wrong
@@ -50,7 +53,12 @@ void start_apic_timer(uint16_t flags, bool periodic){
 
 
     uint32_t *timer_address = (uint32_t*) (apic_base_address + APIC_TIMER_OFFSET);
-    printf("Value;  0x%x\n", *timer_address);
+    printf("Value;  0x%x\n", timer_address);
+    if(*timer_address != 0){
+        printf("Is not 0...\n");
+    }
+    //*timer_address = APIC_TIMER_IDT_ENTRY;
+    printf("Apic base address: 0x%x\n", *timer_address);
     printf("Flags: 0x%x\n", flags);
 
 }
