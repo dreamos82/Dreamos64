@@ -32,9 +32,11 @@ void init_apic(){
         printf("Apic base address in physical memory area");
         _bitmap_set_bit(ADDRESS_TO_BITMAP_ENTRY(apic_base_address));
     }
-    map_vaddress(apic_base_address, 0);
-    uint32_t timer_value = (*(uint32_t*) (apic_base_address + APIC_TIMER_OFFSET));
+    map_phys_to_virt_addr(apic_base_address, apic_base_address, 0);
+    uint32_t timer_value = *((uint32_t*) (apic_base_address + APIC_TIMER_OFFSET));
     printf("Timer value: 0x%x\n", timer_value);
+    uint32_t version_register = *(uint32_t *) (apic_base_address + APIC_VERSION_REGISTER_OFFSET);
+    printf("Version register value: 0x%x\n", version_register);
 }
 
 void init_local_vector_table(){
@@ -58,7 +60,7 @@ void start_apic_timer(uint16_t flags, bool periodic){
         printf("Is not 0...\n");
     }
     //*timer_address = APIC_TIMER_IDT_ENTRY;
-    printf("Apic base address: 0x%x\n", *timer_address);
+    printf("LVT Timer value:  0x%x\n", *timer_address);
     printf("Flags: 0x%x\n", flags);
 
 }

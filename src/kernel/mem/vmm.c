@@ -44,7 +44,7 @@ int unmap_vaddress(void *address){
 }
 
 
-void *map_vaddress(void *address, unsigned int flags){
+void *map_phys_to_virt_addr(void* physical_address, void* address, unsigned int flags){
     uint16_t pml4_e = PML4_ENTRY((uint64_t) address);
     _printStringAndNumber("Mapping address: ", address);
     _printStringAndNumber("PML4 Value: ", pml4_e);
@@ -76,7 +76,7 @@ void *map_vaddress(void *address, unsigned int flags){
 		#if SMALL_PAGES == 1
 		pd_table[pd_e] = (uint64_t) new_table | flags | WRITE_BIT | PRESENT_BIT;
 		#elif SMALL_PAGES == 0
-		pd_table[pd_e] = (uint64_t) new_table | flags | WRITE_BIT | PRESENT_BIT | HUGEPAGE_BIT;
+		pd_table[pd_e] = (uint64_t) physical_address | flags | WRITE_BIT | PRESENT_BIT | HUGEPAGE_BIT;
 		clean_new_table(new_table);
 		#endif
 	}
@@ -86,12 +86,17 @@ void *map_vaddress(void *address, unsigned int flags){
     uint16_t pt_e = PT_ENTRY((uint64_t) address);
 	if(!(pt_table[pt_e] & 0b1)) {
 		uint64_t *new_table = pmm_alloc_frame();
-		pt_table[pt_e] = (uint64_t) new_table | WRITE_BIT | PRESENT_BIT;
+		pt_table[pt_e] = (uint64_t) physical_address | WRITE_BIT | PRESENT_BIT;
 	}
 	#endif
 
 
 	return address;
+}
+
+void *map_vaddress(void *virtual_address, unsigned int flags){
+    void *new_addr = pmm_alloc_frame();
+    map_phys_to_virt_addr(new_addr, virtual_address, flags);
 }
 
 

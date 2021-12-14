@@ -10,4 +10,5 @@
 void *map_vaddress(void *, unsigned int);
 int unmap_vaddress(void *);
 
+void *map_phys_to_virt_addr(void *, void *, unsigned int);
 #endif
