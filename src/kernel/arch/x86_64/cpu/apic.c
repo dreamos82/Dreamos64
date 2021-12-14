@@ -37,6 +37,8 @@ void init_apic(){
     printf("Timer value: 0x%x\n", timer_value);
     uint32_t version_register = *(uint32_t *) (apic_base_address + APIC_VERSION_REGISTER_OFFSET);
     printf("Version register value: 0x%x\n", version_register);
+    uint32_t *spurious_interrupt_register = (uint64_t *) (apic_base_address + APIC_SPURIOUS_VECTOR_REGISTER_OFFSET);
+    printf("Spurious vector value: 0x%x\n", *spurious_interrupt_register);
 }
 
 void init_local_vector_table(){
@@ -56,9 +58,6 @@ void start_apic_timer(uint16_t flags, bool periodic){
 
     uint32_t *timer_address = (uint32_t*) (apic_base_address + APIC_TIMER_OFFSET);
     printf("Value;  0x%x\n", timer_address);
-    if(*timer_address != 0){
-        printf("Is not 0...\n");
-    }
     //*timer_address = APIC_TIMER_IDT_ENTRY;
     printf("LVT Timer value:  0x%x\n", *timer_address);
     printf("Flags: 0x%x\n", flags);
