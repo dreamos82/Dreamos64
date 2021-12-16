@@ -114,5 +114,6 @@ extern void interrupt_service_routine_15();
 extern void interrupt_service_routine_16();
 extern void interrupt_service_routine_error_code_17();
 extern void interrupt_service_routine_18();
+extern void interrupt_service_routine_32();
 
 #endif

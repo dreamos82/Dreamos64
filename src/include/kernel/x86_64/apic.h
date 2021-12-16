@@ -8,7 +8,7 @@
 #define APIC_GLOBAL_ENABLE_BIT 11
 #define APIC_BASE_ADDRESS_MASK 0xFFFFF000
 
-#define APIC_TIMER_OFFSET 0x00000320
+#define APIC_TIMER_LVT_OFFSET 0x00000320
 
 #define APIC_TABLE_LENGTH 0x6
 
@@ -32,10 +32,14 @@
 #define APIC_VERSION_REGISTER_OFFSET 0x30
 
 #define APIC_SPURIOUS_VECTOR_REGISTER_OFFSET 0xF0
+#define APIC_SOFTWARE_ENABLE_BIT 0x8
 
 
 void init_apic();
 void init_local_vector_table();
 
 void start_apic_timer(uint16_t, bool);
+void write_apic_register(uint32_t, uint32_t);
+
+uint32_t read_apic_register(uint32_t);
 #endif

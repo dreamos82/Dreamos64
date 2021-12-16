@@ -11,38 +11,39 @@ uint32_t apic_base_address;
 void init_apic(){
     uint32_t apic_supported = _cpuid_feature_apic();
     if (apic_supported == 0x100){
-        _printStr("Apic supported\n");
+        printf("Apic supported\n");
     }
     uint64_t msr_output = rdmsr(IA32_APIC_BASE);
     printf("APIC MSR Return value: 0x%x\n", msr_output);
     printf("APIC MSR Base Address: 0x%x\n", (msr_output&APIC_BASE_ADDRESS_MASK));
     apic_base_address = (msr_output&APIC_BASE_ADDRESS_MASK);
+    if(apic_base_address == NULL){
+        printf("ERROR: cannot determine apic base address\n");
+    }
+    map_phys_to_virt_addr(apic_base_address, apic_base_address, 0);
+    uint32_t *spurious_interrupt_register = (uint64_t *) (apic_base_address + APIC_SPURIOUS_VECTOR_REGISTER_OFFSET);
     printf("Apic enabled: %x\n", 1&(msr_output >> APIC_GLOBAL_ENABLE_BIT));
     printf("Apic BSP: %x\n", 1&(msr_output >> APIC_BSP_BIT));
     
     if(!(1&(msr_output >> APIC_GLOBAL_ENABLE_BIT))){
-        printf("Apic not enabled!");
+        printf("Apic disabled globally");
         return;
     }
-
-    printf("Check memory_size_in bytes: 0x%x\n", memory_size_in_bytes);
+    
+    if(!(1&(*spurious_interrupt_register >> APIC_SOFTWARE_ENABLE_BIT))){
+        printf("Apic disable via software...\nEnabling it\n");
+        //TODO enable apic software bit
+        return;
+    }
     if(apic_base_address < memory_size_in_bytes){
         //I think that ideally it should be relocated above the physical memory (that should be possible)
         //but for now i'll mark that location as used
         printf("Apic base address in physical memory area");
         _bitmap_set_bit(ADDRESS_TO_BITMAP_ENTRY(apic_base_address));
     }
-    map_phys_to_virt_addr(apic_base_address, apic_base_address, 0);
-    uint32_t timer_value = *((uint32_t*) (apic_base_address + APIC_TIMER_OFFSET));
-    printf("Timer value: 0x%x\n", timer_value);
     uint32_t version_register = *(uint32_t *) (apic_base_address + APIC_VERSION_REGISTER_OFFSET);
     printf("Version register value: 0x%x\n", version_register);
-    uint32_t *spurious_interrupt_register = (uint64_t *) (apic_base_address + APIC_SPURIOUS_VECTOR_REGISTER_OFFSET);
     printf("Spurious vector value: 0x%x\n", *spurious_interrupt_register);
-}
-
-void init_local_vector_table(){
-//    uint32_t *table_register = (
 }
 
 
@@ -56,10 +57,30 @@ void start_apic_timer(uint16_t flags, bool periodic){
     }
 
 
-    uint32_t *timer_address = (uint32_t*) (apic_base_address + APIC_TIMER_OFFSET);
-    printf("Value;  0x%x\n", timer_address);
-    //*timer_address = APIC_TIMER_IDT_ENTRY;
+    uint32_t *timer_address = (uint32_t*) (apic_base_address + APIC_TIMER_LVT_OFFSET);
+    printf("Time Address Value;  0x%x\n", timer_address);
     printf("LVT Timer value:  0x%x\n", *timer_address);
+    printf("Read apic_registe: 0x%x\n", read_apic_register(APIC_TIMER_LVT_OFFSET));
     printf("Flags: 0x%x\n", flags);
 
+    uint32_t *apic_timer_configuration_register = (uint32_t *) (apic_timer_configuration_register + APIC_TIMER_CONFIGURATION_OFFSET);
+    printf("Timer configuration register value: 0x%x\n", *apic_timer_configuration_register);
+    write_apic_register(APIC_TIMER_INITIAL_COUNT_REGISTER_OFFSET, 0x1000);
+    write_apic_register(APIC_TIMER_CONFIGURATION_OFFSET, APIC_TIMER_DIVIDER_1);
+    write_apic_register(APIC_TIMER_LVT_OFFSET, APIC_TIMER_IDT_ENTRY);
+    
+    printf("Read apic_register: 0x%x\n", read_apic_register(APIC_TIMER_LVT_OFFSET));
+    //Better write a set/read register function?   
 }
+
+uint32_t read_apic_register(uint32_t register_offset){
+    uint32_t *reg_address = (uint32_t *) (apic_base_address + register_offset);
+    return *reg_address;
+}
+
+void write_apic_register(uint32_t register_offset, uint32_t value){
+    uint32_t *reg_address = (uint32_t *) (apic_base_address + register_offset);
+    *reg_address = value;
+}
+
+
