@@ -44,6 +44,12 @@ void init_apic(){
     uint32_t version_register = *(uint32_t *) (apic_base_address + APIC_VERSION_REGISTER_OFFSET);
     printf("Version register value: 0x%x\n", version_register);
     printf("Spurious vector value: 0x%x\n", *spurious_interrupt_register);
+    disable_pic();
+}
+
+void disable_pic(){
+    outportb(MASTER_PIC_DATA_PORT, 0xFF);
+    outportb(SLAVE_PIC_DATA_PORT, 0xFF);
 }
 
 
@@ -67,8 +73,6 @@ void start_apic_timer(uint16_t flags, bool periodic){
     write_apic_register(APIC_TIMER_CONFIGURATION_OFFSET, APIC_TIMER_DIVIDER_1);
     write_apic_register(APIC_TIMER_LVT_OFFSET, APIC_TIMER_IDT_ENTRY);
     
-    printf("Read apic_register: 0x%x\n", read_apic_register(APIC_TIMER_LVT_OFFSET));
-    printf("Read apic_register timer divider: 0x%x\n", read_apic_register(APIC_TIMER_CONFIGURATION_OFFSET));
     asm("sti");
 }
 

@@ -3,12 +3,12 @@
 #include <kernel/qemu.h>
 #include <stdint.h>
 #include <vm.h>
+#include <apic.h>
 
 IDT_descriptor idt_table[IDT_SIZE];
 
 void interrupts_handler(cpu_status_t *status){
     qemu_write_string((char *) exception_names[status->interrupt_number]);
-    printf("\nInterrupt number: 0x%x\n", status->interrupt_number); 
     qemu_write_string("\n");
     switch(status->interrupt_number){
         case PAGE_FAULT:
@@ -19,8 +19,12 @@ void interrupts_handler(cpu_status_t *status){
             _printStringAndNumber("Error code: ", status->error_code);
             asm("hlt");
             break;
+        case APIC_TIMER_INTERRUPT:
+            printf("Received timer_interrupt\n");
+            write_apic_register(APIC_EOI_REGISTER_OFFSET, 0x0);
+            break;
         default:
-            _printStr("Actually i don't know what to do... Better going crazy... asdfasdasdsD");
+            _printStringAndNumber("Actually i don't know what to do... Better going crazy... asdfasdasdsD - Interrupt number ", status->interrupt_number);
             asm("hlt");
             break;
     }

@@ -30,10 +30,13 @@
 #define APIC_TIMER_MODE_ONE_SHOT 0x0
 #define APIC_TIMER_MODE_PERIODIC 0x20000
 #define APIC_VERSION_REGISTER_OFFSET 0x30
+#define APIC_EOI_REGISTER_OFFSET 0xB0
 
 #define APIC_SPURIOUS_VECTOR_REGISTER_OFFSET 0xF0
 #define APIC_SOFTWARE_ENABLE_BIT 0x8
 
+#define MASTER_PIC_DATA_PORT 0x21
+#define SLAVE_PIC_DATA_PORT 0xA1
 
 void init_apic();
 void init_local_vector_table();
@@ -42,4 +45,6 @@ void start_apic_timer(uint16_t, bool);
 void write_apic_register(uint32_t, uint32_t);
 
 uint32_t read_apic_register(uint32_t);
+
+void disable_pic();
 #endif

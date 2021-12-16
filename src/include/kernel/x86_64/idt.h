@@ -32,6 +32,8 @@
 #define MACHINE_CHECK 18
 #define SIMD_FP_EXC 19
 
+#define APIC_TIMER_INTERRUPT 32
+
 static const char *exception_names[] = {
   "Divide by Zero Error",
   "Debug",

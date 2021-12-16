@@ -173,6 +173,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
     uint32_t cpu_info = 0;
     cpu_info = _cpuid_feature_apic();
     _printStringAndNumber("Cpu info result: ", cpu_info);
+    printf("Init apic part\n");
     init_apic();
     _mmap_setup();
     pmm_reserve_area(0x10000, 10);
