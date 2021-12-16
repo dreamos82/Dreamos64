@@ -49,8 +49,6 @@ void init_apic(){
 
 void start_apic_timer(uint16_t flags, bool periodic){
 
-    printf("Apic base address: 0x%x\n", apic_base_address);
-
     if(apic_base_address == NULL){
         //Something wrong
         printf("Apic_base_address not found, or apic not initialized\n");
@@ -66,13 +64,12 @@ void start_apic_timer(uint16_t flags, bool periodic){
     uint32_t *apic_timer_configuration_register = (uint32_t *) (apic_timer_configuration_register + APIC_TIMER_CONFIGURATION_OFFSET);
     printf("Timer configuration register value: 0x%x\n", *apic_timer_configuration_register);
     write_apic_register(APIC_TIMER_INITIAL_COUNT_REGISTER_OFFSET, 0x1000);
-    write_apic_register(APIC_TIMER_CURRENT_COUNT_REGISTER_OFFSET, 0x1000);
     write_apic_register(APIC_TIMER_CONFIGURATION_OFFSET, APIC_TIMER_DIVIDER_1);
     write_apic_register(APIC_TIMER_LVT_OFFSET, APIC_TIMER_IDT_ENTRY);
     
     printf("Read apic_register: 0x%x\n", read_apic_register(APIC_TIMER_LVT_OFFSET));
     printf("Read apic_register timer divider: 0x%x\n", read_apic_register(APIC_TIMER_CONFIGURATION_OFFSET));
-    //Better write a set/read register function?   
+    asm("sti");
 }
 
 uint32_t read_apic_register(uint32_t register_offset){
