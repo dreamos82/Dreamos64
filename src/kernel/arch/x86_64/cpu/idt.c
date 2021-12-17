@@ -8,15 +8,13 @@
 IDT_descriptor idt_table[IDT_SIZE];
 
 void interrupts_handler(cpu_status_t *status){
-    qemu_write_string((char *) exception_names[status->interrupt_number]);
-    qemu_write_string("\n");
     switch(status->interrupt_number){
         case PAGE_FAULT:
-            _printStr("---To be handled\n");
+            _printStr("---To be handled Page fault\n");
             page_fault_handler(status->error_code);
             break;
         case GENERAL_PROTECTION:
-            _printStringAndNumber("Error code: ", status->error_code);
+            _printStringAndNumber("#GP Error code: ", status->error_code);
             asm("hlt");
             break;
         case APIC_TIMER_INTERRUPT:
@@ -24,6 +22,8 @@ void interrupts_handler(cpu_status_t *status){
             write_apic_register(APIC_EOI_REGISTER_OFFSET, 0x0);
             break;
         default:
+            qemu_write_string((char *) exception_names[status->interrupt_number]);
+            qemu_write_string("\n");
             _printStringAndNumber("Actually i don't know what to do... Better going crazy... asdfasdasdsD - Interrupt number ", status->interrupt_number);
             asm("hlt");
             break;
