@@ -21,6 +21,9 @@ void interrupts_handler(cpu_status_t *status){
             printf("Received timer_interrupt\n");
             write_apic_register(APIC_EOI_REGISTER_OFFSET, 0x0);
             break;
+        case APIC_SPURIOUS_INTERRUPT:
+            printf("Spurious interrupt received\n");
+            break;
         default:
             qemu_write_string((char *) exception_names[status->interrupt_number]);
             qemu_write_string("\n");
