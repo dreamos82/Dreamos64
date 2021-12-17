@@ -4,6 +4,7 @@
 #include <msr.h>
 #include <bitmap.h>
 #include <idt.h>
+#include <pic8259.h>
 
 extern uint32_t memory_size_in_bytes;
 uint32_t apic_base_address;
@@ -48,8 +49,16 @@ void init_apic(){
 }
 
 void disable_pic(){
-    outportb(MASTER_PIC_DATA_PORT, 0xFF);
-    outportb(SLAVE_PIC_DATA_PORT, 0xFF);
+    outportb(PIC_COMMAND_MASTER, ICW_1);
+    outportb(PIC_COMMAND_SLAVE, ICW_1);
+    outportb(PIC_DATA_MASTER, ICW_2_M);
+    outportb(PIC_DATA_SLAVE, ICW_2_S);
+    outportb(PIC_DATA_MASTER, ICW_3_M);
+    outportb(PIC_DATA_SLAVE, ICW_3_S);
+    outportb(PIC_DATA_MASTER, ICW_4);
+    outportb(PIC_DATA_SLAVE, ICW_4);
+    outportb(PIC_DATA_MASTER, 0xFF);
+    outportb(PIC_DATA_SLAVE, 0xFF);
 }
 
 
