@@ -23,8 +23,7 @@ void init_apic(){
     }
     map_phys_to_virt_addr(apic_base_address, apic_base_address, 0);
     uint32_t *spurious_interrupt_register = (uint64_t *) (apic_base_address + APIC_SPURIOUS_VECTOR_REGISTER_OFFSET);
-    printf("Apic enabled: %x\n", 1&(msr_output >> APIC_GLOBAL_ENABLE_BIT));
-    printf("Apic BSP: %x\n", 1&(msr_output >> APIC_BSP_BIT));
+    printf("Apic enabled: %x - Apic BSP bit: %x\n", 1&(msr_output >> APIC_GLOBAL_ENABLE_BIT), 1&(msr_output >> APIC_BSP_BIT));
     
     if(!(1&(msr_output >> APIC_GLOBAL_ENABLE_BIT))){
         printf("Apic disabled globally");
@@ -32,8 +31,9 @@ void init_apic(){
     }
     
     if(!(1&(*spurious_interrupt_register >> APIC_SOFTWARE_ENABLE_BIT))){
-        printf("Apic disable via software...\nEnabling it\n");
+        printf("Apic disabled via software...\nEnabling it\n");
         //TODO enable apic software bit
+        write_apic_register(APIC_SPURIOUS_VECTOR_REGISTER_OFFSET, APIC_SOFTWARE_ENABLE_BIT | APIC_SPURIOUS_INTERRUPT);
         return;
     }
     if(apic_base_address < memory_size_in_bytes){
@@ -69,15 +69,9 @@ void start_apic_timer(uint16_t flags, bool periodic){
         printf("Apic_base_address not found, or apic not initialized\n");
     }
 
-
-    uint32_t *timer_address = (uint32_t*) (apic_base_address + APIC_TIMER_LVT_OFFSET);
-    printf("Time Address Value;  0x%x\n", timer_address);
-    printf("LVT Timer value:  0x%x\n", *timer_address);
     printf("Read apic_registe: 0x%x\n", read_apic_register(APIC_TIMER_LVT_OFFSET));
-    printf("Flags: 0x%x\n", flags);
 
     uint32_t *apic_timer_configuration_register = (uint32_t *) (apic_timer_configuration_register + APIC_TIMER_CONFIGURATION_OFFSET);
-    printf("Timer configuration register value: 0x%x\n", *apic_timer_configuration_register);
     write_apic_register(APIC_TIMER_INITIAL_COUNT_REGISTER_OFFSET, 0x100000);
     write_apic_register(APIC_TIMER_CONFIGURATION_OFFSET, APIC_TIMER_DIVIDER_1);
     write_apic_register(APIC_TIMER_LVT_OFFSET, APIC_TIMER_IDT_ENTRY);
