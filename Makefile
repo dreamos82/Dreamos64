@@ -1,30 +1,30 @@
 USE_FRAMEBUFFER := 1
 SMALL_PAGES := 0
 CFLAGS := -std=gnu99 \
-		-ffreestanding \
-		-O2 \
-		-Wall \
-		-Wextra \
-		-I src/include \
+        -ffreestanding \
+        -O2 \
+        -Wall \
+        -Wextra \
+        -I src/include \
         -I src/include/base \
-		-I src/include/kernel \
-		-I src/include/kernel/mem \
-		-I src/include/kernel/x86_64 \
-		-I src/include/kernel/hardware \
-		-I src/include/libc \
-		-mno-red-zone \
-		-mcmodel=large \
-		-DUSE_FRAMEBUFFER=$(USE_FRAMEBUFFER) \
-		-DSMALL_PAGES=$(SMALL_PAGES)
+        -I src/include/kernel \
+        -I src/include/kernel/mem \
+        -I src/include/kernel/x86_64 \
+        -I src/include/kernel/hardware \
+        -I src/include/libc \
+        -mno-red-zone \
+        -mcmodel=large \
+        -DUSE_FRAMEBUFFER=$(USE_FRAMEBUFFER) \
+        -DSMALL_PAGES=$(SMALL_PAGES)
 
 TESTFLAGS := -std=gnu99 \
-		-I tests/include \
-		-I src/include \
+        -I tests/include \
+        -I src/include \
         -I src/include/base \
-		-I src/include/kernel/mem \
-		-I src/include/kernel \
-		-DSMALL_PAGES=$(SMALL_PAGES) \
-		-D_TEST_=1
+        -I src/include/kernel/mem \
+        -I src/include/kernel \
+        -DSMALL_PAGES=$(SMALL_PAGES) \
+        -D_TEST_=1
 
 TEST_FOLDER := tests
 C_DEBUG_FLAGS := -g \
