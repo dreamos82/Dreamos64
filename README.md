@@ -27,6 +27,8 @@ What i have implemented so far:
 * Added support to access paging data structures with recursion tecnique. 
 * Implemented basic physical memory manager
 * Enabled paging
+* Added basic kmalloc
+* Local Apic basic support
 
 
 ## Prerequisites: 
