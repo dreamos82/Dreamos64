@@ -30,12 +30,9 @@ void init_apic(){
         return;
     }
     
-    if(!(1&(*spurious_interrupt_register >> APIC_SOFTWARE_ENABLE_BIT))){
-        printf("Apic disabled via software...\nEnabling it\n");
-        //TODO enable apic software bit
-        write_apic_register(APIC_SPURIOUS_VECTOR_REGISTER_OFFSET, APIC_SOFTWARE_ENABLE_BIT | APIC_SPURIOUS_INTERRUPT);
-        return;
-    }
+    //Enabling apic
+    write_apic_register(APIC_SPURIOUS_VECTOR_REGISTER_OFFSET, APIC_SOFTWARE_ENABLE | APIC_SPURIOUS_INTERRUPT);
+    
     if(apic_base_address < memory_size_in_bytes){
         //I think that ideally it should be relocated above the physical memory (that should be possible)
         //but for now i'll mark that location as used
