@@ -78,7 +78,7 @@ void start_apic_timer(uint16_t flags, bool periodic){
 
     uint32_t *apic_timer_configuration_register = (uint32_t *) (apic_timer_configuration_register + APIC_TIMER_CONFIGURATION_OFFSET);
     printf("Timer configuration register value: 0x%x\n", *apic_timer_configuration_register);
-    write_apic_register(APIC_TIMER_INITIAL_COUNT_REGISTER_OFFSET, 0x1000);
+    write_apic_register(APIC_TIMER_INITIAL_COUNT_REGISTER_OFFSET, 0x100000);
     write_apic_register(APIC_TIMER_CONFIGURATION_OFFSET, APIC_TIMER_DIVIDER_1);
     write_apic_register(APIC_TIMER_LVT_OFFSET, APIC_TIMER_IDT_ENTRY);
     

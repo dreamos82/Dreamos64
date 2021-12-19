@@ -197,7 +197,10 @@ void kernel_start(unsigned long addr, unsigned long magic){
     initialize_kheap();
     char test_str[8] = "hello";
     printf("test_str: %s\n", test_str);
+    asm("int $32");
     start_apic_timer(0, 0);
-    asm("hlt");
+    //printf("Asd \n");
+    //printf("I'm 2+2 0x%x\n", 2+2);
+    while(1);
 }
 

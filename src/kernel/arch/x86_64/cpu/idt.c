@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <vm.h>
 #include <apic.h>
+#include <stdio.h>
 
 IDT_descriptor idt_table[IDT_SIZE];
 
@@ -19,10 +20,12 @@ void interrupts_handler(cpu_status_t *status){
             break;
         case APIC_TIMER_INTERRUPT:
             printf("Received timer_interrupt\n");
-            write_apic_register(APIC_EOI_REGISTER_OFFSET, 0x0);
+            write_apic_register(APIC_EOI_REGISTER_OFFSET, 0x0l);
             break;
         case APIC_SPURIOUS_INTERRUPT:
             printf("Spurious interrupt received\n");
+            //should i send an eoi on a spurious interrupt?
+            write_apic_register(APIC_EOI_REGISTER_OFFSET, 0x00l);
             break;
         default:
             qemu_write_string((char *) exception_names[status->interrupt_number]);
