@@ -199,8 +199,6 @@ void kernel_start(unsigned long addr, unsigned long magic){
     printf("test_str: %s\n", test_str);
     start_apic_timer(0, 0);
     printf("Init end!! Starting infinite loop\n");
-    //printf("Asd \n");
-    //printf("I'm 2+2 0x%x\n", 2+2);
     while(1);
 }
 
