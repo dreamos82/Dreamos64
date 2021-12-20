@@ -3,23 +3,34 @@
 #include <kernel/qemu.h>
 #include <stdint.h>
 #include <vm.h>
+#include <apic.h>
+#include <stdio.h>
 
-static IDT_descriptor idt_table[IDT_SIZE];
+IDT_descriptor idt_table[IDT_SIZE];
 
 void interrupts_handler(cpu_status_t *status){
-    qemu_write_string((char *) exception_names[status->interrupt_number]);
-    qemu_write_string("\n");
     switch(status->interrupt_number){
         case PAGE_FAULT:
-            _printStr("---To be handled\n");
+            _printStr("---To be handled Page fault\n");
             page_fault_handler(status->error_code);
             break;
         case GENERAL_PROTECTION:
-            _printStringAndNumber("Error code: ", status->error_code);
+            _printStringAndNumber("#GP Error code: ", status->error_code);
             asm("hlt");
             break;
+        case APIC_TIMER_INTERRUPT:
+            printf("Received timer_interrupt\n");
+            write_apic_register(APIC_EOI_REGISTER_OFFSET, 0x0l);
+            break;
+        case APIC_SPURIOUS_INTERRUPT:
+            printf("Spurious interrupt received\n");
+            //should i send an eoi on a spurious interrupt?
+            write_apic_register(APIC_EOI_REGISTER_OFFSET, 0x00l);
+            break;
         default:
-            _printStr("Actually i don't know what to do... Better going crazy... asdfasdasdsD");
+            qemu_write_string((char *) exception_names[status->interrupt_number]);
+            qemu_write_string("\n");
+            _printStringAndNumber("Actually i don't know what to do... Better going crazy... asdfasdasdsD - Interrupt number ", status->interrupt_number);
             asm("hlt");
             break;
     }
@@ -56,6 +67,8 @@ void init_idt(){
     set_idt_entry(0x10, IDT_PRESENT_FLAG | IDT_INTERRUPT_TYPE_FLAG, 0x08, 0, interrupt_service_routine_16);
     set_idt_entry(0x11, IDT_PRESENT_FLAG | IDT_INTERRUPT_TYPE_FLAG, 0x08, 0, interrupt_service_routine_error_code_17);
     set_idt_entry(0x12, IDT_PRESENT_FLAG | IDT_INTERRUPT_TYPE_FLAG, 0x08, 0, interrupt_service_routine_18);
+    set_idt_entry(0x20, IDT_PRESENT_FLAG | IDT_INTERRUPT_TYPE_FLAG, 0x08, 0, interrupt_service_routine_32);
+    set_idt_entry(0x255, IDT_PRESENT_FLAG | IDT_INTERRUPT_TYPE_FLAG, 0x08, 0, interrupt_service_routine_255);
 }
 
 void set_idt_entry(uint16_t idx, uint8_t flags, uint16_t selector, uint8_t ist, void (*handler)() ){

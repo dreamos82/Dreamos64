@@ -89,3 +89,5 @@ interrupt_service_routine 15
 interrupt_service_routine 16
 interrupt_service_routine_error_code 17
 interrupt_service_routine 18
+interrupt_service_routine 32
+interrupt_service_routine 255

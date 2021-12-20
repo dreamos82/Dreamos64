@@ -35,6 +35,7 @@ struct multiboot_tag_old_acpi *tagold_acpi = NULL;
 struct multiboot_tag_new_acpi *tagnew_acpi = NULL;
 struct multiboot_tag_mmap *tagmmap = NULL;
 struct multiboot_tag *tagacpi = NULL;
+uint32_t memory_size_in_bytes;
 
 void _init_basic_system(unsigned long addr){
     struct multiboot_tag* tag;
@@ -47,6 +48,7 @@ void _init_basic_system(unsigned long addr){
     _printStringAndNumber("Found basic mem Mem info type: ", tagmem->type);
     _printStringAndNumber("Memory lower (in kb): ", tagmem->mem_lower);
     _printStringAndNumber("Memory upper (in kb): ", tagmem->mem_upper); 
+    memory_size_in_bytes = (tagmem->mem_upper + 1024) * 1024;
     //Print mmap_info
     _printStringAndNumber("Memory map entry: ", tagmmap->type);
     _printStringAndNumber("---Size: ", tagmmap->size);
@@ -171,6 +173,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
     uint32_t cpu_info = 0;
     cpu_info = _cpuid_feature_apic();
     _printStringAndNumber("Cpu info result: ", cpu_info);
+    printf("Init apic part\n");
     init_apic();
     _mmap_setup();
     pmm_reserve_area(0x10000, 10);
@@ -193,7 +196,9 @@ void kernel_start(unsigned long addr, unsigned long magic){
     _printStringAndNumber("Should not print ", *test_addr);*/
     initialize_kheap();
     char test_str[8] = "hello";
-    printf("test_str: %s", test_str);
-    asm("hlt");
+    printf("test_str: %s\n", test_str);
+    start_apic_timer(0, 0);
+    printf("Init end!! Starting infinite loop\n");
+    while(1);
 }
 

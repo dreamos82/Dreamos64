@@ -32,6 +32,8 @@
 #define MACHINE_CHECK 18
 #define SIMD_FP_EXC 19
 
+#define APIC_TIMER_INTERRUPT 32
+#define APIC_SPURIOUS_INTERRUPT 255
 static const char *exception_names[] = {
   "Divide by Zero Error",
   "Debug",
@@ -91,6 +93,8 @@ void interrupts_handler(cpu_status_t*);
 
 void default_isr();
 
+//Extern declarations
+extern IDT_descriptor idt_table[IDT_SIZE];
 //extern void interrupt_service_routine_error_code_14();
 // extern void interrupt_service_routine_7();
 extern void interrupt_service_routine_0();
@@ -112,5 +116,7 @@ extern void interrupt_service_routine_15();
 extern void interrupt_service_routine_16();
 extern void interrupt_service_routine_error_code_17();
 extern void interrupt_service_routine_18();
+extern void interrupt_service_routine_32();
+extern void interrupt_service_routine_255();
 
 #endif
