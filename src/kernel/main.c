@@ -80,11 +80,8 @@ void _init_basic_system(unsigned long addr){
         _printStringAndNumber("Found acpi RSDP address: ", (unsigned long) &tagold_acpi);
         RSDPDescriptor *descriptor = (RSDPDescriptor *)(tagacpi+1);
         _printStringAndNumber("Address: ", (unsigned long) &descriptor);
-//        _printStringAndNumber("Descriptor revision: ", descriptor->Revision);
-        _printStr("Descriptor revision: ");
-        _printStr(descriptor->Signature);
-        _printNewLine();
-//        printf("Descriptor signature: %s\n", descriptor->Signature);
+        printf("Signature: %.8s\n", descriptor->Signature);
+        printf("OEMID: %.6s\n", descriptor->OEMID);
         validate_RSDP(descriptor);
         parse_RSDT(descriptor);
     } else if(tagacpi->type == MULTIBOOT_TAG_TYPE_ACPI_OLD){
