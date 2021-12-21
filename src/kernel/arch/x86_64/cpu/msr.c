@@ -10,5 +10,13 @@ uint64_t rdmsr(uint32_t address){
         : "g" (address)
     );
 
-    return (uint64_t) low | (high << 32);
+    return (uint64_t) low | ((uint64_t)high << 32);
+}
+
+void wrmsr(uint32_t address, uint64_t value)
+{
+    asm("wrmsr"
+    :
+    : "a" ((uint32_t)value), "d"(value >> 32), "c"(address)
+    );
 }
