@@ -13,6 +13,7 @@ CFLAGS := -std=gnu99 \
         -I src/include/kernel/hardware \
         -I src/include/libc \
         -mno-red-zone \
+        -mno-sse \
         -mcmodel=large \
         -DUSE_FRAMEBUFFER=$(USE_FRAMEBUFFER) \
         -DSMALL_PAGES=$(SMALL_PAGES)
