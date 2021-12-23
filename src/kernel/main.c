@@ -84,7 +84,7 @@ void _init_basic_system(unsigned long addr){
         printf("OEMID: %.6s\n", descriptor->OEMID);
         validate_RSDP(descriptor);
         parse_RSDT(descriptor);
-    } else if(tagacpi->type == MULTIBOOT_TAG_TYPE_ACPI_OLD){
+    } else if(tagacpi->type == MULTIBOOT_TAG_TYPE_ACPI_NEW){
         tagnew_acpi = (struct multiboot_tag_new_acpi *)tagacpi;
         _printStringAndNumber("Found acpi RSDP: ", tagnew_acpi->type);
         _printStringAndNumber("Found acpi RSDP address: ", (unsigned long) &tagnew_acpi);
