@@ -9,8 +9,7 @@ void parse_RSDT(RSDPDescriptor *descriptor){
     RSDT_item *root = (RSDT_item *) descriptor->RsdtAddress;
     printf("descriptor Address: 0x%x\n", descriptor->RsdtAddress);
     ACPISDTHeader header = root->header;
-    _printStr("RSDT_Signature: ");
-    _printNewLine();
+    printf("RSDT_Signature: %.4s\n", header.Signature);
 //    _printStr(header.Signature);
     _printStr("--- ");
 //    _fb_putchar(header.Signature[0], 1, 3, 0x000000, 0xFFFFFF);
@@ -29,6 +28,10 @@ void parse_RSDT(RSDPDescriptor *descriptor){
     _printCh(header.Signature[3], WHITE);
    _printNewLine();*/
     
+}
+
+void parse_RSDTv2(RSDPDescriptor20 *descriptor){
+    printf("Parse RSDP v2 Descriptor");
 }
 
 int validate_RSDP(RSDPDescriptor *descriptor){

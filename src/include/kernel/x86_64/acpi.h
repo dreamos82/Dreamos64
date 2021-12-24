@@ -22,5 +22,6 @@ typedef struct {
 } RSDT_item;
 
 void parse_RSDT(RSDPDescriptor *);
+void parse_RSDTv2(RSDPDescriptor20 *);
 int validate_RSDP(RSDPDescriptor *);
 #endif
