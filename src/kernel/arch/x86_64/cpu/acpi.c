@@ -3,15 +3,29 @@
 #include <video.h>
 #include <framebuffer.h>
 #include <stdio.h>
+#include <rsdt.h>
+#include <stddef.h>
+
+
+RSDT* rsdt_root = NULL;
+unsigned int rsdtTablesTotal = 0;
 
 void parse_RSDT(RSDPDescriptor *descriptor){
     printf("Parse RSDP Descriptor\n");
-    RSDT_item *root = (RSDT_item *) descriptor->RsdtAddress;
+    RSDT *rsdt_root = (RSDT *) descriptor->RsdtAddress;
     printf("descriptor Address: 0x%x\n", descriptor->RsdtAddress);
-    ACPISDTHeader header = root->header;
+    ACPISDTHeader header = rsdt_root->header;
+    
     printf("RSDT_Signature: %.4s\n", header.Signature);
+    printf("RSDT_Lenght: %d\n", header.Length);
+    rsdtTablesTotal = (header.Length - sizeof(ACPISDTHeader)) / sizeof(uint32_t);
+    printf("Total rsdt Tables: %d\n", rsdtTablesTotal);
+    
+    for(int i=0; i < rsdtTablesTotal; i++){
+        ACPISDTHeader *tableHeader = (ACPISDTHeader *) rsdt_root->tables[i];
+        printf("\tTable header %d: Signature: %.4s\n", i, tableHeader->Signature);
+    }
 //    _printStr(header.Signature);
-    _printStr("--- ");
 //    _fb_putchar(header.Signature[0], 1, 3, 0x000000, 0xFFFFFF);
 
 //    printf("RSDT Address: 0x%x", root->header);
@@ -22,10 +36,6 @@ void parse_RSDT(RSDPDescriptor *descriptor){
 //    _fb_putchar(header.Signature[3], 4, 3, 0x000000, 0xFFFFFF);
 /*    _fb_printStr(header.Signature, 0, 3, 0x000000, 0xFFFFFF);
     #endif
-    _printCh(header.Signature[0], WHITE);
-    _printCh(header.Signature[1], WHITE);
-    _printCh(header.Signature[2], WHITE);
-    _printCh(header.Signature[3], WHITE);
    _printNewLine();*/
     
 }
