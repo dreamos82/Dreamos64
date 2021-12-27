@@ -6,6 +6,10 @@ int _getDecString(char *buffer, unsigned long number){
     int size = 0;
     pointer = buffer;
     pointerbase = buffer;
+    if(number == 0) {
+        *pointer = '0';
+        return 1;
+    }
     while (number > 0) {
         mod = number % 10;
         *pointer++ = mod + '0';

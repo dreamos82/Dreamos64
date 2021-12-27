@@ -56,9 +56,8 @@ void _printStringAndNumber(char *string, unsigned long number){
 
 void _printNumber(char *buffer, unsigned long number, int base){
     switch(base){
-        case 10: {
-                       break;
-        }
+        case 10: 
+            break;        
         case 16:
             _getHexString(buffer, number);
             break;

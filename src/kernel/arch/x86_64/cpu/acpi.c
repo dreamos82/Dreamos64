@@ -48,8 +48,8 @@ ACPISDTHeader* get_RSDT_Item(char* table_name) {
     }    
     for(int i=0; i < rsdtTablesTotal; i++){
         ACPISDTHeader *tableItem = (ACPISDTHeader *) rsdt_root->tables[i];
-        printf(" - %.4s:%s:%d -", tableItem->Signature,table_name);
-        if(strncmp(table_name, tableItem->Signature, 4) == 0) {
+        int return_value = strncmp(table_name, tableItem->Signature, 4);
+        if(return_value == 0) {
             printf("Item Found...\n");
             return tableItem;
         }
