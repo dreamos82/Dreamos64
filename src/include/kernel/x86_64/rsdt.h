@@ -18,10 +18,6 @@ typedef struct MADT {
     uint32_t flags;
 } MADT;
 
-typedef struct MADT_Item {
-    uint8_t type;
-    uint8_t length;
-} MADT_Item;
 
 
 extern uint32_t rsdtTablesTotal;
