@@ -4,7 +4,7 @@
 #include <acpi.h> 
 #include <stdint.h>
 
-#define MADT "APIC"
+#define MADT_ID "APIC"
 
 typedef struct RSDT {
     ACPISDTHeader header;
@@ -14,9 +14,14 @@ typedef struct RSDT {
 
 typedef struct MADT {
     ACPISDTHeader header;
-    uint32_t local_apic_base;
+    uint32_t io_apic_base;
     uint32_t flags;
 } MADT;
+
+typedef struct MADT_Item {
+    uint8_t type;
+    uint8_t length;
+} MADT_Item;
 
 
 extern uint32_t rsdtTablesTotal;

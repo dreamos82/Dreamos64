@@ -26,7 +26,8 @@ void parse_RSDT(RSDPDescriptor *descriptor){
         ACPISDTHeader *tableHeader = (ACPISDTHeader *) rsdt_root->tables[i];
         printf("\tTable header %d: Signature: %.4s\n", i, tableHeader->Signature);
     }
-    get_RSDT_Item("APIC");
+    MADT* madt_table = (MADT*) get_RSDT_Item(MADT_ID);
+    printf("Madt SIGNATURE: %.4s\n", madt_table->header.Signature);
 //    _printStr(header.Signature);
 //    _fb_putchar(header.Signature[0], 1, 3, 0x000000, 0xFFFFFF);
 
