@@ -53,7 +53,7 @@ int vsprintf(char *buffer, const char *fmt, va_list args){
                 break;
             }
             case 'x':{
-                int number = va_arg(args, int);
+                long int number = va_arg(args, long int);
                 int string_size = _getHexString(str, number);
                 str+= string_size; 
                 break;

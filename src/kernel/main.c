@@ -160,7 +160,6 @@ void kernel_start(unsigned long addr, unsigned long magic){
         }  else {
             qemu_write_string("PSF v2 found\n");
         }
-        _printStringAndNumber("Size of psv1_font: ", sizeof(PSFv1_Font));
         _fb_printStr(" -- Welcome --", 0, 2, 0xFFFFFF, 0x3333ff);
     #endif
     char *cpuid_model = _cpuid_model();
@@ -198,6 +197,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
     printf("Madt SIGNATURE: %.4s\n", madt_table->header.Signature);
     printf("Madt Length: %d\n", madt_table->header.Length);
     printf("MADT local apic base: %x\n", madt_table->local_apic_base);
+    get_MADT_item(madt_table, MADT_IO_APIC);
 
     start_apic_timer(0, 0);
     printf("Init end!! Starting infinite loop\n");
