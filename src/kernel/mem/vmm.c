@@ -46,7 +46,7 @@ int unmap_vaddress(void *address){
 
 void *map_phys_to_virt_addr(void* physical_address, void* address, unsigned int flags){
     uint16_t pml4_e = PML4_ENTRY((uint64_t) address);
-    _printStringAndNumber("Mapping address: ", address);
+    _printStringAndNumber("Mapping address: ", (unsigned long int) address);
     _printStringAndNumber("PML4 Value: ", pml4_e);
 	uint64_t *pml4_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l,510l,510l,510l));
 	if(!(pml4_table[pml4_e] & 0b1)){
@@ -96,7 +96,7 @@ void *map_phys_to_virt_addr(void* physical_address, void* address, unsigned int 
 
 void *map_vaddress(void *virtual_address, unsigned int flags){
     void *new_addr = pmm_alloc_frame();
-    map_phys_to_virt_addr(new_addr, virtual_address, flags);
+    return map_phys_to_virt_addr(new_addr, virtual_address, flags);
 }
 
 

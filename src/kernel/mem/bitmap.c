@@ -3,6 +3,7 @@
 #include <multiboot.h>
 #include <stddef.h>
 #include <mmap.h>
+#include <stdio.h>
 #ifndef _TEST_
 #include <video.h>
 #include <main.h>
@@ -38,7 +39,7 @@ void _initialize_bitmap(unsigned long end_of_reserved_area){
     for (j=0; j < number_of_bitmap_rows; j++){
         memory_map[j] = ~(0);
     }
-    memory_map[j] = ~(~(0l) << (kernel_entries - (number_of_bitmap_rows*64)));
+    memory_map[j] = ~(~(0ul) << (kernel_entries - (number_of_bitmap_rows*64)));
     //used_frames = kernel_entries;
     //used_frames = 0x09; // Is the number of currently used frames - 1 (since the count starts from 0)
     used_frames = kernel_entries;

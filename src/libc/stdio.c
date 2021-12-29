@@ -3,7 +3,7 @@
 #include <video.h>
 #include <qemu.h>
 #include <vsprintf.h>
-
+#include <numbers.h>
 #define is_digit(c)  ((c) >= '0' && (c) <= '9')
 
 static size_t strnlen(const char *s, size_t count){

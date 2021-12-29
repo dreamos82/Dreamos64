@@ -20,6 +20,10 @@
 #include <mmap.h>
 #include <vmm.h>
 #include <kheap.h>
+#include <rsdt.h>
+#include <madt.h>
+#include <stdio.h>
+#include <numbers.h>
 
 extern char _binary_fonts_default_psf_size;
 extern char _binary_fonts_default_psf_start;
@@ -148,11 +152,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
     _printStringAndNumber("Width: ", font->width);
     _printStringAndNumber("Height: ", font->height);
     #if USE_FRAMEBUFFER == 1 
-        _fb_putchar('C', 1, 1, 0x000000, 0xFFFFFF);
-        _fb_putchar('i', 2, 1, 0x000000, 0xFFFFFF);
-        _fb_putchar('a', 3, 1, 0x000000, 0xFFFFFF);
-        _fb_putchar('o', 4, 1, 0x000000, 0xFFFFFF);
-        _fb_putchar('!', 5, 1, 0x000000, 0xFFFFFF);
+        _fb_printStr("Ciao!", 1,1, 0x000000, 0xFFFFFF);
         _fb_printStr("Dreamos64", 0, 0, 0xFFFFFF, 0x3333ff);
         _fb_printStr("Thanks\nfor\n using it", 0, 6, 0xFFFFFF, 0x3333ff);
         if(get_PSF_version(&_binary_fonts_default_psf_start) == 1){
@@ -194,6 +194,11 @@ void kernel_start(unsigned long addr, unsigned long magic){
     initialize_kheap();
     char test_str[8] = "hello";
     printf("test_str: %s\n", test_str);
+    MADT* madt_table = (MADT*) get_RSDT_Item(MADT_ID);
+    printf("Madt SIGNATURE: %.4s\n", madt_table->header.Signature);
+    printf("Madt Length: %d\n", madt_table->header.Length);
+    printf("MADT local apic base: %x\n", madt_table->local_apic_base);
+
     start_apic_timer(0, 0);
     printf("Init end!! Starting infinite loop\n");
     test_strcmp();

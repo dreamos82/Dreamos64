@@ -14,7 +14,7 @@ typedef struct RSDT {
 
 typedef struct MADT {
     ACPISDTHeader header;
-    uint32_t io_apic_base;
+    uint32_t local_apic_base;
     uint32_t flags;
 } MADT;
 

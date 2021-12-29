@@ -5,6 +5,7 @@
 #include <bitmap.h>
 #include <idt.h>
 #include <pic8259.h>
+#include <stdio.h>
 
 extern uint32_t memory_size_in_bytes;
 uint32_t apic_base_address;
