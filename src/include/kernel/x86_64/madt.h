@@ -15,7 +15,13 @@
 typedef struct MADT_Item {
     uint8_t type;
     uint8_t length;
-} MADT_Item;
+} __attribute__((packed)) MADT_Item;
 
-MADT_Item* get_MADT_item(MADT*, uint8_t);
+typedef struct IO_APIC {
+    uint8_t ioapic_id;
+    uint8_t reserved;
+    uint32_t address;
+    uint32_t global_system_interrupt_base;
+} __attribute__((packed)) IO_APIC_Item;
+MADT_Item* get_MADT_item(MADT*, uint8_t, uint8_t);
 #endif

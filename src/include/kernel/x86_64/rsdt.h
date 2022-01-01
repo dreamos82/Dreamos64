@@ -9,14 +9,14 @@
 typedef struct RSDT {
     ACPISDTHeader header;
     uint32_t tables[];
-} RSDT;
+} __attribute__((packed)) RSDT;
 
 
 typedef struct MADT {
     ACPISDTHeader header;
     uint32_t local_apic_base;
     uint32_t flags;
-} MADT;
+} __attribute__((packed)) MADT;
 
 
 

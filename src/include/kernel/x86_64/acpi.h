@@ -14,12 +14,12 @@ typedef struct {
   uint32_t OEMRevision;
   uint32_t CreatorID;
   uint32_t CreatorRevision;
-} ACPISDTHeader;
+} __attribute__((packed)) ACPISDTHeader;
 
 typedef struct {
     ACPISDTHeader header;
     uint32_t nextSDT_item[1];
-} RSDT_item;
+} __attribute__((packed)) RSDT_item;
 
 void parse_RSDT(RSDPDescriptor *);
 void parse_RSDTv2(RSDPDescriptor20 *);
