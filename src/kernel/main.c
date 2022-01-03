@@ -83,9 +83,6 @@ void _init_basic_system(unsigned long addr){
         _printStringAndNumber("Found acpi RSDP: ", tagold_acpi->type);
         _printStringAndNumber("Found acpi RSDP address: ", (unsigned long) &tagold_acpi);
         RSDPDescriptor *descriptor = (RSDPDescriptor *)(tagacpi+1);
-        _printStringAndNumber("Address: ", (unsigned long) &descriptor);
-        printf("Signature: %.8s\n", descriptor->Signature);
-        printf("OEMID: %.6s\n", descriptor->OEMID);
         validate_RSDP(descriptor);
         parse_RSDT(descriptor);
     } else if(tagacpi->type == MULTIBOOT_TAG_TYPE_ACPI_NEW){
@@ -111,12 +108,10 @@ void _init_basic_system(unsigned long addr){
                 break;
         }
     }
-    _printStringAndNumber("Size of end tag: ", tag->size);
     _printStr("End of read configuration\n");
 }
 
 void kernel_start(unsigned long addr, unsigned long magic){
-    //struct multiboot_tag *tag;
     extern unsigned int _kernel_end;
     extern unsigned int _kernel_physical_end;
     qemu_init_debug();
@@ -140,8 +135,6 @@ void kernel_start(unsigned long addr, unsigned long magic){
 	} else {
 		_printStr("Failed to verify magic number. Something wrong");
 	}
-    _printNewLine();
-
     PSF_font *font = (PSF_font*)&_binary_fonts_default_psf_start;
     _printStringAndNumber("Magic: ", font->magic);
     _printStringAndNumber("Number of glyphs: ", font->numglyph);
@@ -177,10 +170,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
     int test_size = _getDecString(test_buffer, 250);
     _printStringAndNumber("Size: ", test_size);
     _printStr(test_buffer);
-    printf("Testing printf: %d TER\n", 25);
-    printf("Testing printf: %x TER\n", 25);
     uint64_t *test_addr = map_vaddress((void *)0x1234567800, 0);
-    //uint64_t *test_addr = (uint64_t *)0x1234567800;
 	_printStringAndNumber("Mapping addr: ", (uint64_t)test_addr);
 	*test_addr = 42l;
     _printStringAndNumber("Tesitng value of  new mapped addr should be 42: ", *test_addr);
