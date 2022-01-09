@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <madt.h>
 
 #define APIC_BSP_BIT 8
 #define APIC_GLOBAL_ENABLE_BIT 11
@@ -35,6 +36,8 @@
 #define APIC_SPURIOUS_INTERRUPT_IDT_ENTRY 0xFF
 #define APIC_SOFTWARE_ENABLE (1 << 8)
 
+#define IO_APIC_ID_OFFSET   0x0
+
 #define MASTER_PIC_DATA_PORT 0x21
 #define SLAVE_PIC_DATA_PORT 0xA1
 
@@ -46,5 +49,7 @@ void write_apic_register(uint32_t, uint32_t);
 
 uint32_t read_apic_register(uint32_t);
 
+void init_ioapic(MADT*);
+uint32_t read_io_apic_register(uint8_t);
 void disable_pic();
 #endif

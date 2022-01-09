@@ -28,18 +28,7 @@ void parse_RSDT(RSDPDescriptor *descriptor){
         printf("\tTable header %d: Signature: %.4s\n", i, tableHeader->Signature);
     }
 //    _printStr(header.Signature);
-//    _fb_putchar(header.Signature[0], 1, 3, 0x000000, 0xFFFFFF);
-
 //    printf("RSDT Address: 0x%x", root->header);
-    //#if USE_FRAMEBUFFER == 1*/
-    //_fb_putchar(header.Signature[0], 1, 3, 0x000000, 0xFFFFFF);
-//    _fb_putchar(header.Signature[1], 2, 3, 0x000000, 0xFFFFFF);
-//    _fb_putchar(header.Signature[2], 3, 3, 0x000000, 0xFFFFFF);
-//    _fb_putchar(header.Signature[3], 4, 3, 0x000000, 0xFFFFFF);
-/*    _fb_printStr(header.Signature, 0, 3, 0x000000, 0xFFFFFF);
-    #endif
-   _printNewLine();*/
-    
 }
 
 ACPISDTHeader* get_RSDT_Item(char* table_name) {

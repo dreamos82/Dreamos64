@@ -23,5 +23,6 @@ typedef struct IO_APIC {
     uint32_t address;
     uint32_t global_system_interrupt_base;
 } __attribute__((packed)) IO_APIC_Item;
+
 MADT_Item* get_MADT_item(MADT*, uint8_t, uint8_t);
 #endif

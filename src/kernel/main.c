@@ -187,13 +187,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
     printf("Madt SIGNATURE: %.4s\n", madt_table->header.Signature);
     printf("Madt Length: %d\n", madt_table->header.Length);
     printf("MADT local apic base: %x\n", madt_table->local_apic_base);
-    MADT_Item* item = get_MADT_item(madt_table, MADT_IO_APIC, 0);
-    if(item != NULL) {
-        printf("Item found: type: %d - Requested: %d\n", item->type, MADT_IO_APIC);
-        IO_APIC_Item *ioapic_item = (IO_APIC_Item *) ((uint32_t) item + sizeof(MADT_Item));
-        printf("IOAPIC_ID: 0x%x\n", ioapic_item->ioapic_id); 
-        printf("IOAPIC_ID address: 0x%x\n", ioapic_item->address); 
-    }
+    init_ioapic(madt_table);
     start_apic_timer(0, 0);
     printf("Init end!! Starting infinite loop\n");
     test_strcmp();

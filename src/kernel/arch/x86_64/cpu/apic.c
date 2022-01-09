@@ -9,6 +9,7 @@
 
 extern uint32_t memory_size_in_bytes;
 uint32_t apic_base_address;
+uint32_t io_apic_base_address;
 
 void init_apic(){
     uint32_t apic_supported = _cpuid_feature_apic();
@@ -57,6 +58,30 @@ void disable_pic(){
     outportb(PIC_DATA_SLAVE, ICW_4);
     outportb(PIC_DATA_MASTER, 0xFF);
     outportb(PIC_DATA_SLAVE, 0xFF);
+}
+
+void init_ioapic(MADT *madt_table){
+    MADT_Item* item = get_MADT_item(madt_table, MADT_IO_APIC, 0);
+    if(item != NULL) {
+        printf("Item found: type: %d - Requested: %d\n", item->type, MADT_IO_APIC);
+        IO_APIC_Item *ioapic_item = (IO_APIC_Item *) ((uint32_t) item + sizeof(MADT_Item));
+        printf("IOAPIC_ID: 0x%x\n", ioapic_item->ioapic_id); 
+        printf("IOAPIC_ID address: 0x%x\n", ioapic_item->address);
+        printf("IOApic_Global_System_Interrupt_Base: 0x%x\n", ioapic_item->global_system_interrupt_base);
+        io_apic_base_address = ioapic_item->address;
+        map_phys_to_virt_addr(io_apic_base_address, io_apic_base_address, 0);
+        _bitmap_set_bit(ADDRESS_TO_BITMAP_ENTRY(io_apic_base_address));
+        uint32_t ioapic_id = read_apic_register(0x01);
+        printf("IOAPIC ID: 0x%x\n", ioapic_id);
+    }
+}
+
+uint32_t read_io_apic_register(uint8_t offset){
+    if (io_apic_base_address != NULL) {
+        return NULL;
+    }
+    *(volatile uint32_t*) io_apic_base_address = offset;
+    return *(volatile uint32_t*) (io_apic_base_address + 0x10);
 }
 
 

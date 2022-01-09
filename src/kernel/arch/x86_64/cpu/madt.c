@@ -8,6 +8,8 @@ MADT_Item* get_MADT_item(MADT* table, uint8_t type, uint8_t offset) {
     printf("Searching for item type: %d\n", type);
     if(strncmp(table->header.Signature, MADT_ID, 4) == 0) {
         printf("Table is MADT\n");
+    } else {
+        return NULL;
     }
     MADT_Item* item = (MADT_Item *) ((uint32_t)table + sizeof(MADT));
     printf("Address of MADT: %x\n", (uint64_t) table);
