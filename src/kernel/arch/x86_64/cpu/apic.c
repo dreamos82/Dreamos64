@@ -73,6 +73,10 @@ void init_ioapic(MADT *madt_table){
         _bitmap_set_bit(ADDRESS_TO_BITMAP_ENTRY(io_apic_base_address));
         uint32_t ioapic_version = read_io_apic_register(IO_APIC_VER_OFFSET);
         printf("IOAPIC Version: 0x%x\n", ioapic_version);
+        IOREDTBL_Entry redtbl_entry;
+        redtbl_entry.raw = 0xFFFFFFFFFF;
+        printf("Value: redtbl_entry.vector: 0x%x\n", redtbl_entry.delivery_mode);
+ 
     }
 }
 
@@ -112,5 +116,13 @@ uint32_t read_io_apic_register(uint8_t offset){
 }
 
 IOREDTBL_Entry read_io_apic_ioredtbl(uint8_t index){
+    uint32_t lower_part;
+    uint32_t upper_part;
+    lower_part = read_io_apic_register(index);
+    upper_part = read_io_apic_register(index+1);
+    uint64_t raw_value = ((uint64_t) upper_part << 32) | ((uint64_t) lower_part);
+    IOREDTBL_Entry redtbl_entry;
+    redtbl_entry.raw = raw_value;
+    return redtbl_entry;
 }
 

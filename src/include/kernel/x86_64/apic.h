@@ -45,7 +45,9 @@
 #define MASTER_PIC_DATA_PORT 0x21
 #define SLAVE_PIC_DATA_PORT 0xA1
 
-typedef struct IOREDTBL_Entry {
+typedef union IOREDTBL_Entry {
+    struct
+    {
     uint64_t    vector  :8;
     uint64_t    delivery_mode   :3;
     uint64_t    destination_mode    :1;
@@ -56,7 +58,10 @@ typedef struct IOREDTBL_Entry {
     uint64_t    interrupt_mask  :1;
     uint64_t    reserved    :39;
     uint64_t    destination_field   :8;
+    };
+    uint64_t raw;
 } IOREDTBL_Entry;
+
 
 void init_apic();
 void init_local_vector_table();
