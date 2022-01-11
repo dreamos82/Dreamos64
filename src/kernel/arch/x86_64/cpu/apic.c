@@ -111,3 +111,6 @@ uint32_t read_io_apic_register(uint8_t offset){
     return *(volatile uint32_t*) (io_apic_base_address + 0x10);
 }
 
+IOREDTBL_Entry read_io_apic_ioredtbl(uint8_t index){
+}
+

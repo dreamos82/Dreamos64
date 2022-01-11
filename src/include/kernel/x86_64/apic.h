@@ -68,6 +68,9 @@ uint32_t read_apic_register(uint32_t);
 
 void init_ioapic(MADT*);
 uint32_t read_io_apic_register(uint8_t);
+
+IOREDTBL_Entry read_io_apic_ioredtbl(uint8_t);
+
 void disable_pic();
 
 #endif
