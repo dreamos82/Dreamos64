@@ -37,9 +37,26 @@
 #define APIC_SOFTWARE_ENABLE (1 << 8)
 
 #define IO_APIC_ID_OFFSET   0x0
+#define IO_APIC_VER_OFFSET  0x1
+#define IO_APIC_ARB_OFFSET  0x2
+#define IO_APIC_REDTBL_START_OFFSET 0x10
+
 
 #define MASTER_PIC_DATA_PORT 0x21
 #define SLAVE_PIC_DATA_PORT 0xA1
+
+typedef struct IOREDTBL_Entry {
+    uint64_t    vector  :8;
+    uint64_t    delivery_mode   :3;
+    uint64_t    destination_mode    :1;
+    uint64_t    delivery_status :1;
+    uint64_t    pin_polarity    :1;
+    uint64_t    remote_irr  :1;
+    uint64_t    trigger_mode    :1;
+    uint64_t    interrupt_mask  :1;
+    uint64_t    reserved    :39;
+    uint64_t    destination_field   :8;
+} IOREDTBL_Entry;
 
 void init_apic();
 void init_local_vector_table();
@@ -52,4 +69,5 @@ uint32_t read_apic_register(uint32_t);
 void init_ioapic(MADT*);
 uint32_t read_io_apic_register(uint8_t);
 void disable_pic();
+
 #endif

@@ -71,30 +71,18 @@ void init_ioapic(MADT *madt_table){
         io_apic_base_address = ioapic_item->address;
         map_phys_to_virt_addr(io_apic_base_address, io_apic_base_address, 0);
         _bitmap_set_bit(ADDRESS_TO_BITMAP_ENTRY(io_apic_base_address));
-        uint32_t ioapic_id = read_io_apic_register(1);
-        printf("\n---IOAPIC ID: 0x%x\n", ioapic_id);
+        uint32_t ioapic_version = read_io_apic_register(IO_APIC_VER_OFFSET);
+        printf("IOAPIC Version: 0x%x\n", ioapic_version);
     }
 }
-
-uint32_t read_io_apic_register(uint8_t offset){
-    if (io_apic_base_address == NULL) {
-        printf("It's null");
-        return NULL;
-    }
-    *(volatile uint32_t*) io_apic_base_address = offset;
-    uint32_t value = *(volatile uint32_t*) (io_apic_base_address + 0x10);
-    return *(volatile uint32_t*) (io_apic_base_address + 0x10);
-}
-
 
 void start_apic_timer(uint16_t flags, bool periodic){
 
     if(apic_base_address == NULL){
-        //Something wrong
         printf("Apic_base_address not found, or apic not initialized\n");
     }
 
-    printf("Read apic_registe: 0x%x\n", read_apic_register(APIC_TIMER_LVT_OFFSET));
+    printf("Read apic_register: 0x%x\n", read_apic_register(APIC_TIMER_LVT_OFFSET));
 
     uint32_t *apic_timer_configuration_register = (uint32_t *) (apic_timer_configuration_register + APIC_TIMER_CONFIGURATION_OFFSET);
     write_apic_register(APIC_TIMER_INITIAL_COUNT_REGISTER_OFFSET, 0x100000);
@@ -114,4 +102,12 @@ void write_apic_register(uint32_t register_offset, uint32_t value){
     *reg_address = value;
 }
 
+uint32_t read_io_apic_register(uint8_t offset){
+    if (io_apic_base_address == NULL) {
+        printf("It's null");
+        return NULL;
+    }
+    *(volatile uint32_t*) io_apic_base_address = offset;
+    return *(volatile uint32_t*) (io_apic_base_address + 0x10);
+}
 
