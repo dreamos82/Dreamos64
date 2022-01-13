@@ -27,8 +27,6 @@ void parse_RSDT(RSDPDescriptor *descriptor){
         ACPISDTHeader *tableHeader = (ACPISDTHeader *) rsdt_root->tables[i];
         printf("\tTable header %d: Signature: %.4s\n", i, tableHeader->Signature);
     }
-//    _printStr(header.Signature);
-//    printf("RSDT Address: 0x%x", root->header);
 }
 
 ACPISDTHeader* get_RSDT_Item(char* table_name) {
@@ -57,12 +55,12 @@ int validate_RSDP(RSDPDescriptor *descriptor){
 
     for (uint32_t i=0; i < sizeof(RSDPDescriptor); i++){
         sum += ((char*) descriptor)[i];
-        _getHexString(number, sum);
+        _getHexString(number, sum, false);
         _printStr(number);
         _printStr(" ");
     }
     _printNewLine();
-    _getHexString(number, sum);
+    _getHexString(number, sum, false);
     _printStr("Checksum of RSDP is: ");
     _printStr(number);
     _printNewLine();
