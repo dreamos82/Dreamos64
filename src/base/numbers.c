@@ -29,7 +29,7 @@ int _getDecString(char *buffer, unsigned long number){
     return size;
 }
 
-int _getHexString(char *buffer, unsigned long hexnumber){
+int _getHexString(char *buffer, unsigned long hexnumber, bool use_capital){
     unsigned long tmpnumber = hexnumber;
     int shift = 0;
     int size = 0;
@@ -43,7 +43,11 @@ int _getHexString(char *buffer, unsigned long hexnumber){
      * Each hex digit is 4 bytes long. So if i mask number&0xF
      * I obtain exactly the number identified by the digit
      * i.e. number is 0xA3 0XA3&0xF=3  
-     **/    
+     **/
+    char hex_base = 'a';
+    if(use_capital == true) {
+        hex_base = 'A';
+    }
     for(; shift >=0; shift--){
         tmpnumber = hexnumber;
         tmpnumber>>=(4*shift);
@@ -52,7 +56,7 @@ int _getHexString(char *buffer, unsigned long hexnumber){
         if(tmpnumber < 10){
             *hexstring++ = '0' + tmpnumber; //Same as decimal number
         } else {
-            *hexstring++ = 'A' + tmpnumber-10; //11-15 Are letters
+            *hexstring++ = hex_base + tmpnumber-10; //11-15 Are letters
         }
         *hexstring = '\0';
     }

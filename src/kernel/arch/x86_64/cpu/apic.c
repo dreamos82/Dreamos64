@@ -17,8 +17,8 @@ void init_apic(){
         printf("Apic supported\n");
     }
     uint64_t msr_output = rdmsr(IA32_APIC_BASE);
-    printf("APIC MSR Return value: 0x%x\n", msr_output);
-    printf("APIC MSR Base Address: 0x%x\n", (msr_output&APIC_BASE_ADDRESS_MASK));
+    printf("APIC MSR Return value: 0x%X\n", msr_output);
+    printf("APIC MSR Base Address: 0x%X\n", (msr_output&APIC_BASE_ADDRESS_MASK));
     apic_base_address = (msr_output&APIC_BASE_ADDRESS_MASK);
     if(apic_base_address == NULL){
         printf("ERROR: cannot determine apic base address\n");
@@ -74,8 +74,13 @@ void init_ioapic(MADT *madt_table){
         uint32_t ioapic_version = read_io_apic_register(IO_APIC_VER_OFFSET);
         printf("IOAPIC Version: 0x%x\n", ioapic_version);
         IOREDTBL_Entry redtbl_entry;
-        redtbl_entry.raw = 0xFFFFFFFFFF;
-        printf("Value: redtbl_entry.vector: 0x%x\n", redtbl_entry.delivery_mode);
+        int return_value = read_io_apic_ioredtbl(0x10, &redtbl_entry);
+        
+        if(return_value == 0) {
+            printf("Well... for now s ok");
+        }
+        printf("Value: redtbl_entry.vector: 0x%x\n", redtbl_entry.vector);
+        printf("Value: redtbl_entry.vector: 0x%x\n", redtbl_entry.raw);
  
     }
 }
@@ -92,7 +97,6 @@ void start_apic_timer(uint16_t flags, bool periodic){
     write_apic_register(APIC_TIMER_INITIAL_COUNT_REGISTER_OFFSET, 0x100000);
     write_apic_register(APIC_TIMER_CONFIGURATION_OFFSET, APIC_TIMER_DIVIDER_1);
     write_apic_register(APIC_TIMER_LVT_OFFSET, APIC_TIMER_IDT_ENTRY);
-    
     asm("sti");
 }
 
@@ -115,14 +119,18 @@ uint32_t read_io_apic_register(uint8_t offset){
     return *(volatile uint32_t*) (io_apic_base_address + 0x10);
 }
 
-IOREDTBL_Entry read_io_apic_ioredtbl(uint8_t index){
+int read_io_apic_ioredtbl(uint8_t index, IOREDTBL_Entry *redtbl_entry){
     uint32_t lower_part;
     uint32_t upper_part;
     lower_part = read_io_apic_register(index);
     upper_part = read_io_apic_register(index+1);
     uint64_t raw_value = ((uint64_t) upper_part << 32) | ((uint64_t) lower_part);
-    IOREDTBL_Entry redtbl_entry;
-    redtbl_entry.raw = raw_value;
-    return redtbl_entry;
+    redtbl_entry->raw = raw_value;
+    return 0;
+}
+
+void write_io_apic_register(uint8_t offset, uint32_t value) {
+    *(volatile uint32_t*) io_apic_base_address = offset;
+    *(volatile uint32_t*) (io_apic_base_address + 0x10) = value;
 }
 
