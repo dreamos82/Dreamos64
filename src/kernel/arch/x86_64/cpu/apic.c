@@ -79,7 +79,7 @@ void init_ioapic(MADT *madt_table){
         if(return_value == 0) {
             printf("Well... for now s ok");
         }
-        printf("Value: redtbl_entry.vector: 0x%x\n", redtbl_entry.vector);
+        printf("Value: redtbl_entry.vector: 0x%x\n", redtbl_entry.interrupt_mask);
         printf("Value: redtbl_entry.vector: 0x%x\n", redtbl_entry.raw);
  
     }
@@ -120,6 +120,12 @@ uint32_t read_io_apic_register(uint8_t offset){
 }
 
 int read_io_apic_ioredtbl(uint8_t index, IOREDTBL_Entry *redtbl_entry){
+    if (index < 0x10 && index > 0x3F) {
+        return -1;
+    }
+    if ((index%2) != 0) {
+        return -1;
+    }
     uint32_t lower_part;
     uint32_t upper_part;
     lower_part = read_io_apic_register(index);
@@ -127,6 +133,22 @@ int read_io_apic_ioredtbl(uint8_t index, IOREDTBL_Entry *redtbl_entry){
     uint64_t raw_value = ((uint64_t) upper_part << 32) | ((uint64_t) lower_part);
     redtbl_entry->raw = raw_value;
     return 0;
+}
+
+int write_io_apic_ioredtbl(uint8_t index, IOREDTBL_Entry redtbl_entry) {
+    if (index < 0x10 && index > 0x3F) {
+        return -1;
+    }
+    if ((index%2) != 0) {
+        return -1;
+    }
+    return 0;
+    uint32_t upper_part = (uint32_t) redtbl_entry.raw >> 32;
+    uint32_t lower_part = (uint32_t) redtbl_entry.raw;
+
+    //TO BE COMPLETED
+    write_io_apic_register(index, lower_part);
+    write_io_apic_register(index+1, upper_part);
 }
 
 void write_io_apic_register(uint8_t offset, uint32_t value) {
