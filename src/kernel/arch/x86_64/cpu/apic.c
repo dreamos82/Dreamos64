@@ -10,6 +10,7 @@
 extern uint32_t memory_size_in_bytes;
 uint32_t apic_base_address;
 uint32_t io_apic_base_address;
+uint8_t io_apic_max_redirections = 0;
 
 void init_apic(){
     uint32_t apic_supported = _cpuid_feature_apic();
@@ -75,13 +76,8 @@ void init_ioapic(MADT *madt_table){
         printf("IOAPIC Version: 0x%x\n", ioapic_version);
         IOREDTBL_Entry redtbl_entry;
         int return_value = read_io_apic_ioredtbl(0x10, &redtbl_entry);
-        
-        if(return_value == 0) {
-            printf("Well... for now s ok");
-        }
-        printf("Value: redtbl_entry.vector: 0x%x\n", redtbl_entry.interrupt_mask);
-        printf("Value: redtbl_entry.vector: 0x%x\n", redtbl_entry.raw);
- 
+        io_apic_max_redirections = (uint8_t) (ioapic_version >> 16);
+        printf("Max redirection entries value: 0x%x\n ", io_apic_max_redirections);
     }
 }
 
@@ -142,13 +138,12 @@ int write_io_apic_ioredtbl(uint8_t index, IOREDTBL_Entry redtbl_entry) {
     if ((index%2) != 0) {
         return -1;
     }
-    return 0;
     uint32_t upper_part = (uint32_t) redtbl_entry.raw >> 32;
     uint32_t lower_part = (uint32_t) redtbl_entry.raw;
 
-    //TO BE COMPLETED
     write_io_apic_register(index, lower_part);
     write_io_apic_register(index+1, upper_part);
+    return 0;
 }
 
 void write_io_apic_register(uint8_t offset, uint32_t value) {
