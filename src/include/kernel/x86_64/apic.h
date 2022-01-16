@@ -45,7 +45,7 @@
 #define MASTER_PIC_DATA_PORT 0x21
 #define SLAVE_PIC_DATA_PORT 0xA1
 
-typedef union IOREDTBL_Entry {
+typedef union io_apic_redirect_entry_t {
     struct
     {
     uint64_t    vector  :8;
@@ -60,7 +60,7 @@ typedef union IOREDTBL_Entry {
     uint64_t    destination_field   :8;
     };
     uint64_t raw;
-} IOREDTBL_Entry;
+} __attribute__((packed)) io_apic_redirect_entry_t;
 
 
 void init_apic();
@@ -74,8 +74,8 @@ uint32_t read_apic_register(uint32_t);
 void init_ioapic(MADT*);
 uint32_t read_io_apic_register(uint8_t);
 void write_io_apic_register(uint8_t, uint32_t);
-int read_io_apic_ioredtbl(uint8_t, IOREDTBL_Entry*);
-int write_io_apic_ioredtbl(uint8_t, IOREDTBL_Entry);
+int read_io_apic_redirect(uint8_t,  io_apic_redirect_entry_t*);
+int write_io_apic_redirect(uint8_t, io_apic_redirect_entry_t);
 void disable_pic();
 
 #endif

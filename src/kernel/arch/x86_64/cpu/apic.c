@@ -74,8 +74,8 @@ void init_ioapic(MADT *madt_table){
         _bitmap_set_bit(ADDRESS_TO_BITMAP_ENTRY(io_apic_base_address));
         uint32_t ioapic_version = read_io_apic_register(IO_APIC_VER_OFFSET);
         printf("IOAPIC Version: 0x%x\n", ioapic_version);
-        IOREDTBL_Entry redtbl_entry;
-        int return_value = read_io_apic_ioredtbl(0x10, &redtbl_entry);
+        io_apic_redirect_entry_t redtbl_entry;
+        int return_value = read_io_apic_redirect(0x10, &redtbl_entry);
         io_apic_max_redirections = (uint8_t) (ioapic_version >> 16);
         printf("Max redirection entries value: 0x%x\n ", io_apic_max_redirections);
     }
@@ -115,7 +115,7 @@ uint32_t read_io_apic_register(uint8_t offset){
     return *(volatile uint32_t*) (io_apic_base_address + 0x10);
 }
 
-int read_io_apic_ioredtbl(uint8_t index, IOREDTBL_Entry *redtbl_entry){
+int read_io_apic_redirect(uint8_t index, io_apic_redirect_entry_t *redtbl_entry){
     if (index < 0x10 && index > 0x3F) {
         return -1;
     }
@@ -131,7 +131,7 @@ int read_io_apic_ioredtbl(uint8_t index, IOREDTBL_Entry *redtbl_entry){
     return 0;
 }
 
-int write_io_apic_ioredtbl(uint8_t index, IOREDTBL_Entry redtbl_entry) {
+int write_io_apic_redirect(uint8_t index, io_apic_redirect_entry_t redtbl_entry) {
     if (index < 0x10 && index > 0x3F) {
         return -1;
     }
