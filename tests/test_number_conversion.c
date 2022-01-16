@@ -17,11 +17,11 @@ int main(){
     assert(test_size == 4);
     assert(strcmp(test_buffer, "1530") == 0);
     printf("--- Testing GetHexString ---\n");
-    test_size = _getHexString(test_buffer, 0x9AB);
+    test_size = _getHexString(test_buffer, 0x9AB, false);
     printf("--Buffer should contain 9AB and size should be 2: %s - %d\n", test_buffer, test_size);
     assert(test_size == 3);
     assert(strcmp(test_buffer, "9AB") == 0);
-    test_size = _getHexString(test_buffer, 0x2A);
+    test_size = _getHexString(test_buffer, 0x2A, false);
     printf("--Buffer should contain 2A and size should be 1: %s - %d\n", test_buffer, test_size);
     assert(test_size == 2);
     assert(strcmp(test_buffer, "2A") == 0);
