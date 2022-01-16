@@ -59,7 +59,7 @@ void _printNumber(char *buffer, unsigned long number, int base){
         case 10: 
             break;        
         case 16:
-            _getHexString(buffer, number);
+            _getHexString(buffer, number, false);
             break;
     }
     _printStr(buffer);
@@ -68,7 +68,7 @@ void _printNumber(char *buffer, unsigned long number, int base){
 
 void _printHex(char *buffer, unsigned long hexnumber){
     /* First count how many digit is*/
-    _getHexString(buffer, hexnumber);
+    _getHexString(buffer, hexnumber, true);
     _printStr(buffer);
 
 }
