@@ -39,10 +39,11 @@ void _printStr(char *string){
             _printNewLine();
         } else {
             _printCh(*string, WHITE);
-        }
         #ifdef DEBUG
 			qemu_write_char(*string);
 		#endif
+
+        }
         string++;
     }
 }
