@@ -183,10 +183,11 @@ void kernel_start(unsigned long addr, unsigned long magic){
     initialize_kheap();
     char test_str[8] = "hello";
     printf("test_str: %s\n", test_str);
-    MADT* madt_table = (MADT*) get_RSDT_Item(MADT_ID);
+    MADT* madt_table = (MADT*) get_RSDT_Item(MADT_ID);    
     printf("Madt SIGNATURE: %.4s\n", madt_table->header.Signature);
     printf("Madt Length: %d\n", madt_table->header.Length);
     printf("MADT local apic base: %x\n", madt_table->local_apic_base);
+    print_madt_table(madt_table);
     init_ioapic(madt_table);
     start_apic_timer(0, 0);
     printf("Init end!! Starting infinite loop\n");
