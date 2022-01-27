@@ -11,6 +11,8 @@ extern uint32_t memory_size_in_bytes;
 uint32_t apic_base_address;
 uint32_t io_apic_base_address;
 uint8_t io_apic_max_redirections = 0;
+IO_APIC_source_override_item_t io_apic_source_overrides[IO_APIC_SOURCE_OVERRIDE_MAX_ITEMS];
+uint8_t io_apic_source_override_array_size;
 
 void init_apic(){
     uint32_t apic_supported = _cpuid_feature_apic();
@@ -63,11 +65,10 @@ void disable_pic(){
 
 void init_ioapic(MADT *madt_table){
     MADT_Item* item = get_MADT_item(madt_table, MADT_IO_APIC, 0);
+    io_apic_source_override_array_size = 0;
     if(item != NULL) {
-        printf("Item found: type: %d - Requested: %d\n", item->type, MADT_IO_APIC);
         IO_APIC_Item *ioapic_item = (IO_APIC_Item *) ((uint32_t) item + sizeof(MADT_Item));
-        printf("IOAPIC_ID: 0x%x\n", ioapic_item->ioapic_id); 
-        printf("IOAPIC_ID address: 0x%x\n", ioapic_item->address);
+        printf("IOAPIC_ID: 0x%x, Address: 0x%x\n", ioapic_item->ioapic_id, ioapic_item->address ); 
         printf("IOApic_Global_System_Interrupt_Base: 0x%x\n", ioapic_item->global_system_interrupt_base);
         io_apic_base_address = ioapic_item->address;
         map_phys_to_virt_addr(io_apic_base_address, io_apic_base_address, 0);
@@ -78,7 +79,32 @@ void init_ioapic(MADT *madt_table){
         int return_value = read_io_apic_redirect(0x10, &redtbl_entry);
         io_apic_max_redirections = (uint8_t) (ioapic_version >> 16);
         printf("Max redirection entries value: 0x%x\n ", io_apic_max_redirections);
+        io_apic_source_override_array_size = parse_io_apic_interrupt_source_overrides(madt_table);
+        printf("Found %x source override entries\n", io_apic_source_override_array_size);
+        printf("---- SO Item: bus_source: %x - irq_source: %x - GSI: %x\n", io_apic_source_overrides[1].bus_source, io_apic_source_overrides[1].irq_source, io_apic_source_overrides[1].global_system_interrupt);
     }
+}
+
+int parse_io_apic_interrupt_source_overrides(MADT* table) {
+    printf("Work in progress\n");
+    int total_length = sizeof(MADT);
+    int source_override_counter = 0;
+    MADT_Item* item = (MADT_Item *) ((uint32_t)table + sizeof(MADT));
+    while(total_length < table->header.Length && source_override_counter < IO_APIC_SOURCE_OVERRIDE_MAX_ITEMS) {
+        total_length = total_length + item->length;
+        if(item->type == MADT_IO_APIC_INTTERUPT_SOURCE_OVERRIDE){
+            IO_APIC_source_override_item_t *so_item = (IO_APIC_source_override_item_t *) (item + 1);
+            io_apic_source_overrides[source_override_counter].bus_source = so_item->bus_source;
+            io_apic_source_overrides[source_override_counter].irq_source = so_item->irq_source;
+            io_apic_source_overrides[source_override_counter].global_system_interrupt = so_item->global_system_interrupt;
+            io_apic_source_overrides[source_override_counter].flags = so_item->flags;
+            printf("%d: Item type %d Found...\n", source_override_counter, item->type);
+            printf("---- SO Item: bus_source: %x - irq_source: %x - GSI: %x - Flags: %x\n", so_item->bus_source, so_item->irq_source, so_item->global_system_interrupt, so_item->flags);
+            source_override_counter++;
+        }
+        item = (MADT_Item *)((uint32_t)table + total_length);
+    }
+    return source_override_counter;
 }
 
 void start_apic_timer(uint16_t flags, bool periodic){

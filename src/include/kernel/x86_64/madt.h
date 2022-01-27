@@ -24,5 +24,13 @@ typedef struct IO_APIC {
     uint32_t global_system_interrupt_base;
 } __attribute__((packed)) IO_APIC_Item;
 
+typedef struct IO_APIC_source_override_item_t {
+    uint8_t bus_source;
+    uint8_t irq_source;
+    uint32_t    global_system_interrupt;
+    uint16_t    flags;
+} __attribute__((packed)) IO_APIC_source_override_item_t;
+
 MADT_Item* get_MADT_item(MADT*, uint8_t, uint8_t);
+void print_madt_table(MADT*);
 #endif
