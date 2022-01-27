@@ -80,7 +80,8 @@ void init_ioapic(MADT *madt_table){
         io_apic_max_redirections = (uint8_t) (ioapic_version >> 16);
         printf("Max redirection entries value: 0x%x\n ", io_apic_max_redirections);
         io_apic_source_override_array_size = parse_io_apic_interrupt_source_overrides(madt_table);
-        
+        printf("Found %x source override entries\n", io_apic_source_override_array_size);
+        printf("---- SO Item: bus_source: %x - irq_source: %x - GSI: %x\n", io_apic_source_overrides[1].bus_source, io_apic_source_overrides[1].irq_source, io_apic_source_overrides[1].global_system_interrupt);
     }
 }
 
@@ -92,7 +93,7 @@ int parse_io_apic_interrupt_source_overrides(MADT* table) {
     while(total_length < table->header.Length && source_override_counter < IO_APIC_SOURCE_OVERRIDE_MAX_ITEMS) {
         total_length = total_length + item->length;
         if(item->type == MADT_IO_APIC_INTTERUPT_SOURCE_OVERRIDE){
-            IO_APIC_source_override_item_t *so_item = (IO_APIC_source_override_item_t *) (item + sizeof(MADT_Item));
+            IO_APIC_source_override_item_t *so_item = (IO_APIC_source_override_item_t *) (item + 1);
             io_apic_source_overrides[source_override_counter].bus_source = so_item->bus_source;
             io_apic_source_overrides[source_override_counter].irq_source = so_item->irq_source;
             io_apic_source_overrides[source_override_counter].global_system_interrupt = so_item->global_system_interrupt;
