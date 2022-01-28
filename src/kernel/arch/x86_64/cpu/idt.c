@@ -3,7 +3,7 @@
 #include <kernel/qemu.h>
 #include <stdint.h>
 #include <vm.h>
-#include <apic.h>
+#include <lapic.h>
 #include <stdio.h>
 
 IDT_descriptor idt_table[IDT_SIZE];
