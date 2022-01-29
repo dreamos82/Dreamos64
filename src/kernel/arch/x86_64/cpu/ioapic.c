@@ -88,7 +88,7 @@ int write_io_apic_redirect(uint8_t index, io_apic_redirect_entry_t redtbl_entry)
     printf("Setting redirect entry: %x\n", index);
     uint32_t upper_part = (uint32_t) redtbl_entry.raw >> 32;
     uint32_t lower_part = (uint32_t) redtbl_entry.raw;
-
+    printf(": Lower part: %x, : upper part: %x\n", lower_part, upper_part);
     write_io_apic_register(index, lower_part);
     write_io_apic_register(index+1, upper_part);
     return 0;
@@ -129,6 +129,9 @@ void set_irq(uint8_t irq_type, uint8_t redirect_table_pos, uint8_t idt_entry, ui
     entry.interrupt_mask = 0;
     printf("Setting IRQ number: %x, to idt_entry: %x at REDTBL pos: %x - Final value: %x\n", irq_type, idt_entry, redirect_table_pos, entry.raw);
     write_io_apic_redirect(redirect_table_pos, entry);
+    io_apic_redirect_entry_t read_entry; 
+    int ret_val = read_io_apic_redirect(IOREDTBL1, &read_entry);
+    printf("ret_val: %d - entry raw: %x mask: %d\n", ret_val, read_entry.vector, read_entry.interrupt_mask);
     // If the irq_type has an entry in the source_override table then use the gsi field as IOREDTBL entry number
     //uint64_t raw_entry = flags | interrupt_vector_entry;
     //io_apic_redirect_entry_t redirect_entry;

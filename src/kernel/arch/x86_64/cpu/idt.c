@@ -27,7 +27,7 @@ void interrupts_handler(cpu_status_t *status){
             //should i send an eoi on a spurious interrupt?
             write_apic_register(APIC_EOI_REGISTER_OFFSET, 0x00l);
             break;
-        case KEYBOARD_IRQ:
+        case KEYBOARD_INTERRUPT:
             printf("A key was pressed hooray...\n");
             write_apic_register(APIC_EOI_REGISTER_OFFSET, 0x00l);
             break;

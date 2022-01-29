@@ -35,7 +35,7 @@
 #define APIC_TIMER_INTERRUPT 32
 #define APIC_SPURIOUS_INTERRUPT 255
 
-#define KEYBOARD_IRQ 33
+#define KEYBOARD_INTERRUPT 33
 static const char *exception_names[] = {
   "Divide by Zero Error",
   "Debug",
