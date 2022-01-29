@@ -27,6 +27,10 @@ void interrupts_handler(cpu_status_t *status){
             //should i send an eoi on a spurious interrupt?
             write_apic_register(APIC_EOI_REGISTER_OFFSET, 0x00l);
             break;
+        case KEYBOARD_IRQ:
+            printf("A key was pressed hooray...\n");
+            write_apic_register(APIC_EOI_REGISTER_OFFSET, 0x00l);
+            break;
         default:
             qemu_write_string((char *) exception_names[status->interrupt_number]);
             qemu_write_string("\n");
@@ -68,6 +72,7 @@ void init_idt(){
     set_idt_entry(0x11, IDT_PRESENT_FLAG | IDT_INTERRUPT_TYPE_FLAG, 0x08, 0, interrupt_service_routine_error_code_17);
     set_idt_entry(0x12, IDT_PRESENT_FLAG | IDT_INTERRUPT_TYPE_FLAG, 0x08, 0, interrupt_service_routine_18);
     set_idt_entry(0x20, IDT_PRESENT_FLAG | IDT_INTERRUPT_TYPE_FLAG, 0x08, 0, interrupt_service_routine_32);
+    set_idt_entry(0x21, IDT_PRESENT_FLAG | IDT_INTERRUPT_TYPE_FLAG, 0x08, 0, interrupt_service_routine_33);
     set_idt_entry(0x255, IDT_PRESENT_FLAG | IDT_INTERRUPT_TYPE_FLAG, 0x08, 0, interrupt_service_routine_255);
 }
 

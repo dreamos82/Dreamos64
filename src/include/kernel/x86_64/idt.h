@@ -34,6 +34,8 @@
 
 #define APIC_TIMER_INTERRUPT 32
 #define APIC_SPURIOUS_INTERRUPT 255
+
+#define KEYBOARD_IRQ 33
 static const char *exception_names[] = {
   "Divide by Zero Error",
   "Debug",
@@ -117,6 +119,7 @@ extern void interrupt_service_routine_16();
 extern void interrupt_service_routine_error_code_17();
 extern void interrupt_service_routine_18();
 extern void interrupt_service_routine_32();
+extern void interrupt_service_routine_33();
 extern void interrupt_service_routine_255();
 
 #endif

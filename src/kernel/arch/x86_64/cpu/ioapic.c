@@ -85,6 +85,7 @@ int write_io_apic_redirect(uint8_t index, io_apic_redirect_entry_t redtbl_entry)
     if ((index%2) != 0) {
         return -1;
     }
+    printf("Setting redirect entry: %x\n", index);
     uint32_t upper_part = (uint32_t) redtbl_entry.raw >> 32;
     uint32_t lower_part = (uint32_t) redtbl_entry.raw;
 
@@ -98,18 +99,18 @@ void write_io_apic_register(uint8_t offset, uint32_t value) {
     *(volatile uint32_t*) (io_apic_base_address + 0x10) = value;
 }
 
-void set_irq(uint8_t irq_type, uint8_t idt_entry, uint8_t destination_field, uint32_t flags) {
+void set_irq(uint8_t irq_type, uint8_t redirect_table_pos, uint8_t idt_entry, uint8_t destination_field, uint32_t flags) {
 
     // 1. Check if irq_type is in the Source overrides
     uint8_t counter = 0;
     uint8_t selected_pin = irq_type;
     uint32_t computed_flags = 0;
     io_apic_redirect_entry_t entry; 
-    entry.raw = flags | (irq_type & 0xFF);
+    entry.raw = flags | (idt_entry & 0xFF);
     while(counter < io_apic_source_override_array_size) {
         if(io_apic_source_overrides[counter].irq_source == irq_type) {
             selected_pin = io_apic_source_overrides[counter].global_system_interrupt;
-            printf("---Source Override found for type: %x using apic pin: %x\n", irq_type, selected_pin);
+            printf("---Source Override found for type: %x using apic pin: %x ", irq_type, selected_pin);
             if((io_apic_source_overrides[counter].flags & 0b11) == 2) {
                 entry.pin_polarity = 0b1;
             } else  {
@@ -124,7 +125,10 @@ void set_irq(uint8_t irq_type, uint8_t idt_entry, uint8_t destination_field, uin
         }
         counter++;
     }
-    //write_io_apic_redirect(irq_type, entry);
+    entry.destination_field = destination_field;
+    entry.interrupt_mask = 0;
+    printf("Setting IRQ number: %x, to idt_entry: %x at REDTBL pos: %x - Final value: %x\n", irq_type, idt_entry, redirect_table_pos, entry.raw);
+    write_io_apic_redirect(redirect_table_pos, entry);
     // If the irq_type has an entry in the source_override table then use the gsi field as IOREDTBL entry number
     //uint64_t raw_entry = flags | interrupt_vector_entry;
     //io_apic_redirect_entry_t redirect_entry;
