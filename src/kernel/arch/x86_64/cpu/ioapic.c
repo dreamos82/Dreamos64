@@ -98,19 +98,33 @@ void write_io_apic_register(uint8_t offset, uint32_t value) {
     *(volatile uint32_t*) (io_apic_base_address + 0x10) = value;
 }
 
-void enable_irq(uint8_t irq_type, uint8_t idt_entry, uint8_t destination_field, uint32_t flags) {
+void set_irq(uint8_t irq_type, uint8_t idt_entry, uint8_t destination_field, uint32_t flags) {
 
     // 1. Check if irq_type is in the Source overrides
     uint8_t counter = 0;
     uint8_t selected_pin = irq_type;
+    uint32_t computed_flags = 0;
+    io_apic_redirect_entry_t entry; 
+    entry.raw = flags | (irq_type & 0xFF);
     while(counter < io_apic_source_override_array_size) {
         if(io_apic_source_overrides[counter].irq_source == irq_type) {
             selected_pin = io_apic_source_overrides[counter].global_system_interrupt;
             printf("---Source Override found for type: %x using apic pin: %x\n", irq_type, selected_pin);
+            if((io_apic_source_overrides[counter].flags & 0b11) == 2) {
+                entry.pin_polarity = 0b1;
+            } else  {
+                entry.pin_polarity = 0b0;
+            }
+            if(((io_apic_source_overrides[counter].flags >>2) & 0b11) == 2) {
+                entry.pin_polarity = 0b1;
+            } else  {
+                entry.pin_polarity = 0b0;
+            }
+            break;
         }
         counter++;
     }
-
+    //write_io_apic_redirect(irq_type, entry);
     // If the irq_type has an entry in the source_override table then use the gsi field as IOREDTBL entry number
     //uint64_t raw_entry = flags | interrupt_vector_entry;
     //io_apic_redirect_entry_t redirect_entry;
