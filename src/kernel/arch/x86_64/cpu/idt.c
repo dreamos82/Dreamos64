@@ -5,6 +5,7 @@
 #include <vm.h>
 #include <lapic.h>
 #include <stdio.h>
+#include <keyboard.h>
 
 IDT_descriptor idt_table[IDT_SIZE];
 
@@ -28,7 +29,7 @@ void interrupts_handler(cpu_status_t *status){
             write_apic_register(APIC_EOI_REGISTER_OFFSET, 0x00l);
             break;
         case KEYBOARD_INTERRUPT:
-            printf("A key was pressed hooray...\n");
+            handle_keyboard_interrupt();
             write_apic_register(APIC_EOI_REGISTER_OFFSET, 0x00l);
             break;
         default:
