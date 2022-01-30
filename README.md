@@ -28,7 +28,8 @@ What i have implemented so far:
 * Implemented basic physical memory manager
 * Enabled paging
 * Added basic kmalloc
-* Local Apic basic support
+* Local Apic support
+* IO-Apic support (Keyboard IRQ enable)
 
 
 ## Prerequisites: 

@@ -153,3 +153,17 @@ void _fb_printStr(char *string, int cx, int cy, uint32_t fg, uint32_t bg){
     }
 }
 
+void _fb_printStrAndNumber(char *string, uint64_t number, int cx, int cy, uint32_t fg, uint32_t bg){
+    char *buffer[30];
+    
+    _getHexString(buffer, number, true);
+    _fb_printStr(string, cx, cy, fg, bg);
+    int counter = 0;
+    while(*string != '\0') {
+        counter++;
+        string++;
+    }
+    string[counter] = ' ';
+    _fb_printStr(buffer, cx + counter, cy, fg, bg);
+}
+
