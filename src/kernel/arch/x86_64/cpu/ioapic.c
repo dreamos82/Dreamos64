@@ -2,6 +2,7 @@
 #include <bitmap.h>
 #include <stdio.h>
 #include <stddef.h>
+#include <vmm.h>
 
 uint32_t io_apic_base_address;
 uint8_t io_apic_max_redirections = 0;
@@ -22,6 +23,9 @@ void init_ioapic(MADT *madt_table){
         printf("IOAPIC Version: 0x%x\n", ioapic_version);
         io_apic_redirect_entry_t redtbl_entry;
         int return_value = read_io_apic_redirect(0x10, &redtbl_entry);
+        if (return_value != 0) {
+            printf("PANIC!!\n");
+        }
         io_apic_max_redirections = (uint8_t) (ioapic_version >> 16);
         printf("Max redirection entries value: 0x%x\n ", io_apic_max_redirections);
         io_apic_source_override_array_size = parse_io_apic_interrupt_source_overrides(madt_table);
@@ -54,9 +58,9 @@ int parse_io_apic_interrupt_source_overrides(MADT* table) {
 
 
 uint32_t read_io_apic_register(uint8_t offset){
-    if (io_apic_base_address == NULL) {
+    if (io_apic_base_address == 0) {
         printf("It's null");
-        return NULL;
+        return 0;
     }
     *(volatile uint32_t*) io_apic_base_address = offset;
     return *(volatile uint32_t*) (io_apic_base_address + 0x10);
@@ -104,7 +108,6 @@ void set_irq(uint8_t irq_type, uint8_t redirect_table_pos, uint8_t idt_entry, ui
     // 1. Check if irq_type is in the Source overrides
     uint8_t counter = 0;
     uint8_t selected_pin = irq_type;
-    uint32_t computed_flags = 0;
     io_apic_redirect_entry_t entry; 
     entry.raw = flags | (idt_entry & 0xFF);
     while(counter < io_apic_source_override_array_size) {
@@ -132,9 +135,5 @@ void set_irq(uint8_t irq_type, uint8_t redirect_table_pos, uint8_t idt_entry, ui
     io_apic_redirect_entry_t read_entry; 
     int ret_val = read_io_apic_redirect(IOREDTBL1, &read_entry);
     printf("ret_val: %d - entry raw: %x mask: %d\n", ret_val, read_entry.vector, read_entry.interrupt_mask);
-    // If the irq_type has an entry in the source_override table then use the gsi field as IOREDTBL entry number
-    //uint64_t raw_entry = flags | interrupt_vector_entry;
-    //io_apic_redirect_entry_t redirect_entry;
-    //redirect_entry.vector = interrupt_vector_entry;
 }
 

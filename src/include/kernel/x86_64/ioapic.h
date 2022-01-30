@@ -70,4 +70,5 @@ int write_io_apic_redirect(uint8_t, io_apic_redirect_entry_t);
 
 void set_irq(uint8_t, uint8_t, uint8_t, uint8_t, uint32_t);
 
+int parse_io_apic_interrupt_source_overrides(MADT*);
 #endif

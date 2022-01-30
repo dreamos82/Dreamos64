@@ -1,4 +1,5 @@
 #include <keyboard.h>
+#include <stdio.h>
 #include <io.h>
 
 void handle_keyboard_interrupt() {
