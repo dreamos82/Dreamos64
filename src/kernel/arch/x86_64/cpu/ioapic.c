@@ -47,7 +47,6 @@ int parse_io_apic_interrupt_source_overrides(MADT* table) {
             io_apic_source_overrides[source_override_counter].irq_source = so_item->irq_source;
             io_apic_source_overrides[source_override_counter].global_system_interrupt = so_item->global_system_interrupt;
             io_apic_source_overrides[source_override_counter].flags = so_item->flags;
-            printf("%d: Item type %d Found...\n", source_override_counter, item->type);
             printf("---- SO Item: bus_source: %x - irq_source: %x - GSI: %x - Flags: %x\n", so_item->bus_source, so_item->irq_source, so_item->global_system_interrupt, so_item->flags);
             source_override_counter++;
         }

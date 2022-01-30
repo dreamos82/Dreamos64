@@ -6,6 +6,8 @@
 #include <numbers.h>
 #define is_digit(c)  ((c) >= '0' && (c) <= '9')
 
+static int skip_atoi(const char **);
+
 static size_t strnlen(const char *s, size_t count){
   const char *sc;
   for (sc = s; *sc != '\0' && count--; ++sc);
