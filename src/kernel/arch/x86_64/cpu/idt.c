@@ -3,8 +3,9 @@
 #include <kernel/qemu.h>
 #include <stdint.h>
 #include <vm.h>
-#include <apic.h>
+#include <lapic.h>
 #include <stdio.h>
+#include <keyboard.h>
 
 IDT_descriptor idt_table[IDT_SIZE];
 
@@ -25,6 +26,10 @@ void interrupts_handler(cpu_status_t *status){
         case APIC_SPURIOUS_INTERRUPT:
             printf("Spurious interrupt received\n");
             //should i send an eoi on a spurious interrupt?
+            write_apic_register(APIC_EOI_REGISTER_OFFSET, 0x00l);
+            break;
+        case KEYBOARD_INTERRUPT:
+            handle_keyboard_interrupt();
             write_apic_register(APIC_EOI_REGISTER_OFFSET, 0x00l);
             break;
         default:
@@ -68,6 +73,7 @@ void init_idt(){
     set_idt_entry(0x11, IDT_PRESENT_FLAG | IDT_INTERRUPT_TYPE_FLAG, 0x08, 0, interrupt_service_routine_error_code_17);
     set_idt_entry(0x12, IDT_PRESENT_FLAG | IDT_INTERRUPT_TYPE_FLAG, 0x08, 0, interrupt_service_routine_18);
     set_idt_entry(0x20, IDT_PRESENT_FLAG | IDT_INTERRUPT_TYPE_FLAG, 0x08, 0, interrupt_service_routine_32);
+    set_idt_entry(0x21, IDT_PRESENT_FLAG | IDT_INTERRUPT_TYPE_FLAG, 0x08, 0, interrupt_service_routine_33);
     set_idt_entry(0x255, IDT_PRESENT_FLAG | IDT_INTERRUPT_TYPE_FLAG, 0x08, 0, interrupt_service_routine_255);
 }
 

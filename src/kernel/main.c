@@ -12,7 +12,7 @@
 #include <kernel/framebuffer.h>
 #include <kernel/psf.h>
 #include <cpu.h>
-#include <apic.h>
+#include <lapic.h>
 #include <acpi.h>
 #include <string.h>
 #include <bitmap.h>
@@ -24,6 +24,7 @@
 #include <madt.h>
 #include <stdio.h>
 #include <numbers.h>
+#include <ioapic.h>
 
 extern char _binary_fonts_default_psf_size;
 extern char _binary_fonts_default_psf_start;
@@ -189,6 +190,9 @@ void kernel_start(unsigned long addr, unsigned long magic){
     printf("MADT local apic base: %x\n", madt_table->local_apic_base);
     print_madt_table(madt_table);
     init_ioapic(madt_table);
+    set_irq(KEYBOARD_IRQ, IOREDTBL1, 0x21, 0, 0);
+    //set_irq(0, 0x22, 0, 0 ,0);
+    //set_irq(0);
     start_apic_timer(0, 0);
     printf("Init end!! Starting infinite loop\n");
     test_strcmp();

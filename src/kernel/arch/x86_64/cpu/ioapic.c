@@ -1,67 +1,12 @@
-#include <apic.h>
-#include <cpu.h>
-#include <video.h>
-#include <msr.h>
+#include <ioapic.h>
 #include <bitmap.h>
-#include <idt.h>
-#include <pic8259.h>
 #include <stdio.h>
+#include <stddef.h>
 
-extern uint32_t memory_size_in_bytes;
-uint32_t apic_base_address;
 uint32_t io_apic_base_address;
 uint8_t io_apic_max_redirections = 0;
 IO_APIC_source_override_item_t io_apic_source_overrides[IO_APIC_SOURCE_OVERRIDE_MAX_ITEMS];
 uint8_t io_apic_source_override_array_size;
-
-void init_apic(){
-    uint32_t apic_supported = _cpuid_feature_apic();
-    if (apic_supported == 0x100){
-        printf("Apic supported\n");
-    }
-    uint64_t msr_output = rdmsr(IA32_APIC_BASE);
-    printf("APIC MSR Return value: 0x%X\n", msr_output);
-    printf("APIC MSR Base Address: 0x%X\n", (msr_output&APIC_BASE_ADDRESS_MASK));
-    apic_base_address = (msr_output&APIC_BASE_ADDRESS_MASK);
-    if(apic_base_address == NULL){
-        printf("ERROR: cannot determine apic base address\n");
-    }
-    map_phys_to_virt_addr(apic_base_address, apic_base_address, 0);
-    uint32_t *spurious_interrupt_register = (uint64_t *) (apic_base_address + APIC_SPURIOUS_VECTOR_REGISTER_OFFSET);
-    printf("Apic enabled: %x - Apic BSP bit: %x\n", 1&(msr_output >> APIC_GLOBAL_ENABLE_BIT), 1&(msr_output >> APIC_BSP_BIT));
-    
-    if(!(1&(msr_output >> APIC_GLOBAL_ENABLE_BIT))){
-        printf("Apic disabled globally");
-        return;
-    }
-    
-    //Enabling apic
-    write_apic_register(APIC_SPURIOUS_VECTOR_REGISTER_OFFSET, APIC_SOFTWARE_ENABLE | APIC_SPURIOUS_INTERRUPT);
-    
-    if(apic_base_address < memory_size_in_bytes){
-        //I think that ideally it should be relocated above the physical memory (that should be possible)
-        //but for now i'll mark that location as used
-        printf("Apic base address in physical memory area");
-        _bitmap_set_bit(ADDRESS_TO_BITMAP_ENTRY(apic_base_address));
-    }
-    uint32_t version_register = *(uint32_t *) (apic_base_address + APIC_VERSION_REGISTER_OFFSET);
-    printf("Version register value: 0x%x\n", version_register);
-    printf("Spurious vector value: 0x%x\n", *spurious_interrupt_register);
-    disable_pic();
-}
-
-void disable_pic(){
-    outportb(PIC_COMMAND_MASTER, ICW_1);
-    outportb(PIC_COMMAND_SLAVE, ICW_1);
-    outportb(PIC_DATA_MASTER, ICW_2_M);
-    outportb(PIC_DATA_SLAVE, ICW_2_S);
-    outportb(PIC_DATA_MASTER, ICW_3_M);
-    outportb(PIC_DATA_SLAVE, ICW_3_S);
-    outportb(PIC_DATA_MASTER, ICW_4);
-    outportb(PIC_DATA_SLAVE, ICW_4);
-    outportb(PIC_DATA_MASTER, 0xFF);
-    outportb(PIC_DATA_SLAVE, 0xFF);
-}
 
 void init_ioapic(MADT *madt_table){
     MADT_Item* item = get_MADT_item(madt_table, MADT_IO_APIC, 0);
@@ -107,30 +52,6 @@ int parse_io_apic_interrupt_source_overrides(MADT* table) {
     return source_override_counter;
 }
 
-void start_apic_timer(uint16_t flags, bool periodic){
-
-    if(apic_base_address == NULL){
-        printf("Apic_base_address not found, or apic not initialized\n");
-    }
-
-    printf("Read apic_register: 0x%x\n", read_apic_register(APIC_TIMER_LVT_OFFSET));
-
-    uint32_t *apic_timer_configuration_register = (uint32_t *) (apic_timer_configuration_register + APIC_TIMER_CONFIGURATION_OFFSET);
-    write_apic_register(APIC_TIMER_INITIAL_COUNT_REGISTER_OFFSET, 0x100000);
-    write_apic_register(APIC_TIMER_CONFIGURATION_OFFSET, APIC_TIMER_DIVIDER_1);
-    write_apic_register(APIC_TIMER_LVT_OFFSET, APIC_TIMER_IDT_ENTRY);
-    asm("sti");
-}
-
-uint32_t read_apic_register(uint32_t register_offset){
-    uint32_t *reg_address = (uint32_t *) (apic_base_address + register_offset);
-    return *reg_address;
-}
-
-void write_apic_register(uint32_t register_offset, uint32_t value){
-    uint32_t *reg_address = (uint32_t *) (apic_base_address + register_offset);
-    *reg_address = value;
-}
 
 uint32_t read_io_apic_register(uint8_t offset){
     if (io_apic_base_address == NULL) {
@@ -164,9 +85,10 @@ int write_io_apic_redirect(uint8_t index, io_apic_redirect_entry_t redtbl_entry)
     if ((index%2) != 0) {
         return -1;
     }
+    printf("Setting redirect entry: %x\n", index);
     uint32_t upper_part = (uint32_t) redtbl_entry.raw >> 32;
     uint32_t lower_part = (uint32_t) redtbl_entry.raw;
-
+    printf(": Lower part: %x, : upper part: %x\n", lower_part, upper_part);
     write_io_apic_register(index, lower_part);
     write_io_apic_register(index+1, upper_part);
     return 0;
@@ -175,5 +97,44 @@ int write_io_apic_redirect(uint8_t index, io_apic_redirect_entry_t redtbl_entry)
 void write_io_apic_register(uint8_t offset, uint32_t value) {
     *(volatile uint32_t*) io_apic_base_address = offset;
     *(volatile uint32_t*) (io_apic_base_address + 0x10) = value;
+}
+
+void set_irq(uint8_t irq_type, uint8_t redirect_table_pos, uint8_t idt_entry, uint8_t destination_field, uint32_t flags) {
+
+    // 1. Check if irq_type is in the Source overrides
+    uint8_t counter = 0;
+    uint8_t selected_pin = irq_type;
+    uint32_t computed_flags = 0;
+    io_apic_redirect_entry_t entry; 
+    entry.raw = flags | (idt_entry & 0xFF);
+    while(counter < io_apic_source_override_array_size) {
+        if(io_apic_source_overrides[counter].irq_source == irq_type) {
+            selected_pin = io_apic_source_overrides[counter].global_system_interrupt;
+            printf("---Source Override found for type: %x using apic pin: %x ", irq_type, selected_pin);
+            if((io_apic_source_overrides[counter].flags & 0b11) == 2) {
+                entry.pin_polarity = 0b1;
+            } else  {
+                entry.pin_polarity = 0b0;
+            }
+            if(((io_apic_source_overrides[counter].flags >>2) & 0b11) == 2) {
+                entry.pin_polarity = 0b1;
+            } else  {
+                entry.pin_polarity = 0b0;
+            }
+            break;
+        }
+        counter++;
+    }
+    entry.destination_field = destination_field;
+    entry.interrupt_mask = 0;
+    printf("Setting IRQ number: %x, to idt_entry: %x at REDTBL pos: %x - Final value: %x\n", irq_type, idt_entry, redirect_table_pos, entry.raw);
+    write_io_apic_redirect(redirect_table_pos, entry);
+    io_apic_redirect_entry_t read_entry; 
+    int ret_val = read_io_apic_redirect(IOREDTBL1, &read_entry);
+    printf("ret_val: %d - entry raw: %x mask: %d\n", ret_val, read_entry.vector, read_entry.interrupt_mask);
+    // If the irq_type has an entry in the source_override table then use the gsi field as IOREDTBL entry number
+    //uint64_t raw_entry = flags | interrupt_vector_entry;
+    //io_apic_redirect_entry_t redirect_entry;
+    //redirect_entry.vector = interrupt_vector_entry;
 }
 
