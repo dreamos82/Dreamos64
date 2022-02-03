@@ -23,8 +23,8 @@ void calibrate_apic() {
     outportb(PIT_CHANNEL_0_DATA_PORT, (PIT_COUNTER_VALUE >> 8));
     //First let's make sure that the APIC timer is stopped, this is achieved by writing 0 to the initial count register.
     write_apic_register(APIC_TIMER_INITIAL_COUNT_REGISTER_OFFSET, 0);
-    //Let's reset the counter to 0
-    write_apic_register(APIC_TIMER_CURRENT_COUNT_REGISTER_OFFSET, 0);
+    //Let's set the timer divider to 2
+    write_apic_register(APIC_TIMER_CONFIGURATION_OFFSET, APIC_TIMER_DIVIDER_2);
     //It's time to get the timers start... followed immediately by the apic..
     set_irq_mask(IOREDTBL2, false);
     //Let's set the APIC Timer initial value to the maximum available
