@@ -67,6 +67,11 @@ void interrupts_handler(cpu_status_t *status){
             handle_keyboard_interrupt();
             write_apic_register(APIC_EOI_REGISTER_OFFSET, 0x00l);
             break;
+        case PIT_INTERRUPT:
+            //printf("PIT IRQ receivedi\n");
+            pit_irq_handler();
+            write_apic_register(APIC_EOI_REGISTER_OFFSET, 0x00l);
+            break;
         default:
             qemu_write_string((char *) exception_names[status->interrupt_number]);
             qemu_write_string("\n");
@@ -109,6 +114,7 @@ void init_idt(){
     set_idt_entry(0x12, IDT_PRESENT_FLAG | IDT_INTERRUPT_TYPE_FLAG, 0x08, 0, interrupt_service_routine_18);
     set_idt_entry(0x20, IDT_PRESENT_FLAG | IDT_INTERRUPT_TYPE_FLAG, 0x08, 0, interrupt_service_routine_32);
     set_idt_entry(0x21, IDT_PRESENT_FLAG | IDT_INTERRUPT_TYPE_FLAG, 0x08, 0, interrupt_service_routine_33);
+    set_idt_entry(0x22, IDT_PRESENT_FLAG | IDT_INTERRUPT_TYPE_FLAG, 0x08, 0, interrupt_service_routine_34);
     set_idt_entry(0xFF, IDT_PRESENT_FLAG | IDT_INTERRUPT_TYPE_FLAG, 0x08, 0, interrupt_service_routine_255);
 }
 

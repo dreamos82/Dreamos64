@@ -102,14 +102,16 @@ void write_io_apic_register(uint8_t offset, uint32_t value) {
     *(volatile uint32_t*) (io_apic_base_address + 0x10) = value;
 }
 
-void set_irq(uint8_t irq_type, uint8_t redirect_table_pos, uint8_t idt_entry, uint8_t destination_field, uint32_t flags) {
+void set_irq(uint8_t irq_type, uint8_t redirect_table_pos, uint8_t idt_entry, uint8_t destination_field, uint32_t flags, bool masked) {
 
+    // masked: if true the redirection table entry is set, but the IRQ is not enabled.
     // 1. Check if irq_type is in the Source overrides
     uint8_t counter = 0;
     uint8_t selected_pin = irq_type;
     io_apic_redirect_entry_t entry; 
     entry.raw = flags | (idt_entry & 0xFF);
     while(counter < io_apic_source_override_array_size) {
+        // 2. If yes we need to use the gsi in the source override entry
         if(io_apic_source_overrides[counter].irq_source == irq_type) {
             selected_pin = io_apic_source_overrides[counter].global_system_interrupt;
             printf("---Source Override found for type: %x using apic pin: %x ", irq_type, selected_pin);
@@ -127,12 +129,27 @@ void set_irq(uint8_t irq_type, uint8_t redirect_table_pos, uint8_t idt_entry, ui
         }
         counter++;
     }
+    // Set the destination api
     entry.destination_field = destination_field;
-    entry.interrupt_mask = 0;
+    entry.interrupt_mask = masked;
     printf("Setting IRQ number: %x, to idt_entry: %x at REDTBL pos: %x - Final value: %x\n", irq_type, idt_entry, redirect_table_pos, entry.raw);
     write_io_apic_redirect(redirect_table_pos, entry);
     io_apic_redirect_entry_t read_entry; 
     int ret_val = read_io_apic_redirect(IOREDTBL1, &read_entry);
     printf("ret_val: %d - entry raw: %x mask: %d\n", ret_val, read_entry.vector, read_entry.interrupt_mask);
+}
+
+int set_irq_mask(uint8_t redirect_table_pos, bool masked_status) {
+    // Masked status: true = masked false = enabled
+    io_apic_redirect_entry_t read_entry;
+    int ret_val = read_io_apic_redirect(redirect_table_pos, &read_entry);
+    if(ret_val == 0) {
+        read_entry.interrupt_mask = masked_status;
+        write_io_apic_redirect(redirect_table_pos, read_entry);
+    } else  {
+        printf("Invalid redirection table position\n");
+        return -1;
+    }
+    return 0;
 }
 

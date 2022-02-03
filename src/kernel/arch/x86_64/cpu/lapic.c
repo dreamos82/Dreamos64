@@ -59,22 +59,6 @@ void disable_pic(){
     outportb(PIC_DATA_SLAVE, 0xFF);
 }
 
-
-
-void start_apic_timer(uint16_t flags, bool periodic){
-
-    if(apic_base_address == NULL){
-        printf("Apic_base_address not found, or apic not initialized\n");
-    }
-
-    printf("Read apic_register: 0x%x\n", read_apic_register(APIC_TIMER_LVT_OFFSET));
-
-    write_apic_register(APIC_TIMER_INITIAL_COUNT_REGISTER_OFFSET, 0x100000);
-    write_apic_register(APIC_TIMER_CONFIGURATION_OFFSET, APIC_TIMER_DIVIDER_1);
-    write_apic_register(APIC_TIMER_LVT_OFFSET, APIC_TIMER_IDT_ENTRY);
-    asm("sti");
-}
-
 uint32_t read_apic_register(uint32_t register_offset){
     uint32_t *reg_address = (uint32_t *) (apic_base_address + register_offset);
     return *reg_address;
