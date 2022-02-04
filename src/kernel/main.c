@@ -25,6 +25,7 @@
 #include <stdio.h>
 #include <numbers.h>
 #include <ioapic.h>
+#include <keyboard.h>
 
 extern char _binary_fonts_default_psf_size;
 extern char _binary_fonts_default_psf_start;
@@ -186,12 +187,15 @@ void kernel_start(unsigned long addr, unsigned long magic){
     print_madt_table(madt_table);
     init_ioapic(madt_table);
     set_irq(KEYBOARD_IRQ, IOREDTBL1, 0x21, 0, 0, false);
+    init_keyboard();
     set_irq(PIT_IRQ, IOREDTBL2, 0x22, 0, 0, true);
-    calibrate_apic();
+    asm("sti");
+    uint32_t apic_ticks = calibrate_apic();
+    printf("Calibrated apic value: %u\n", apic_ticks); 
     //set_irq(0, 0x22, 0, 0 ,0);
     //set_irq(0);
     //start_apic_timer(0, 0);
-    asm("sti");
+    //asm("sti");
     printf("Init end!! Starting infinite loop\n");
     //test_strcmp();
     while(1);

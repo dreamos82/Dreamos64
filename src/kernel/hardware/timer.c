@@ -10,10 +10,9 @@ volatile uint32_t pitTicks = 0;
 extern uint32_t apic_base_address;
 uint32_t apic_calibrated_ticks;
 
-void calibrate_apic() {
+uint32_t calibrate_apic() {
     //Configuration byte value is: 0b00'11'010'0 where: bits 6-7 are the channel (0), 4-5 the access mode (read/load lsb first then msb)
     // 1-3 mode of operation (we are using mode 2 rate generator), 0: BCD/Binary mode (0 we are using 16bit binary mode) 
-    asm("cli");
     pitTicks = 0;
     outportb(PIT_MODE_COMMAND_REGISTER, 0b00110100);
 
@@ -30,13 +29,11 @@ void calibrate_apic() {
     //Let's set the APIC Timer initial value to the maximum available
     write_apic_register(APIC_TIMER_INITIAL_COUNT_REGISTER_OFFSET, (uint32_t)-1);
     //Now it's time to enable interrupts...
-    asm("sti");
     //Now we need to decide how many milliseconds  we want the pit irq to be fired...
     while(pitTicks < CALIBRATION_MS_TO_WAIT);   
     // We waited enough... let's read the apic counter...
     uint32_t current_apic_count = read_apic_register(APIC_TIMER_CURRENT_COUNT_REGISTER_OFFSET);
     // Disable the irqs first
-    asm("cli");
     // Writing 0 to the inital counter register actually disable the timer IRQ
     write_apic_register(APIC_TIMER_INITIAL_COUNT_REGISTER_OFFSET, 0);
     set_irq_mask(IOREDTBL2, true);
@@ -47,7 +44,7 @@ void calibrate_apic() {
     // now we want to know how many apic ticks are in 1ms so we divide per CALIBRATION_MS_TO_WAIT 
     apic_calibrated_ticks = time_elapsed / CALIBRATION_MS_TO_WAIT;
     // et voila... calibration done, now we can use this value as a base for the initial count register
-    asm("sti");
+    return apic_calibrated_ticks;
 }
 
 void start_apic_timer(uint16_t flags, bool periodic){

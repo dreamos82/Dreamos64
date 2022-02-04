@@ -15,7 +15,7 @@
 
 #define CALIBRATION_MS_TO_WAIT  30
 
-void calibrate_apic();
+uint32_t calibrate_apic();
 void pit_irq_handler();
 
 void start_apic_timer(uint16_t, bool);

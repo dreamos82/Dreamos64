@@ -2,6 +2,11 @@
 #include <stdio.h>
 #include <io.h>
 
+void init_keyboard(){
+   //Let's do a keyboard read just to make sure it's empty
+    inportb(KEYBOARD_ENCODER_PORT); 
+}
+
 void handle_keyboard_interrupt() {
     
     int scancode = inportb(KEYBOARD_ENCODER_PORT);
