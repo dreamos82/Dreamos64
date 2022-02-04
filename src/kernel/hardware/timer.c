@@ -41,11 +41,13 @@ void calibrate_apic() {
     write_apic_register(APIC_TIMER_INITIAL_COUNT_REGISTER_OFFSET, 0);
     set_irq_mask(IOREDTBL2, true);
     // Let´s do some math...
+    // First: we need to know how many ticks were done in the apic
+    // the current count register is a countdown, so we need basically to do: INITIAL_COUNT - CURRENT_COUNT
     uint32_t time_elapsed = ((uint32_t)-1) - current_apic_count;
+    // now we want to know how many apic ticks are in 1ms so we divide per CALIBRATION_MS_TO_WAIT 
     apic_calibrated_ticks = time_elapsed / CALIBRATION_MS_TO_WAIT;
-    printf("APIC Timer calibrated with: %u\n", apic_calibrated_ticks);
-    printf("APIC current count value: %u\n", current_apic_count);
-    printf("APIC initial count max value: %u\n", ((uint32_t)-1));
+    // et voila... calibration done, now we can use this value as a base for the initial count register
+    asm("sti");
 }
 
 void start_apic_timer(uint16_t flags, bool periodic){
@@ -66,7 +68,6 @@ void start_apic_timer(uint16_t flags, bool periodic){
 
 void pit_irq_handler() {
     pitTicks++;
-    printf("pitTicks: %d\n", pitTicks);
 #if USE_FRAMEBUFFER == 1
     if(pit_timer_counter == 0) {
         pit_timer_counter = 1;
