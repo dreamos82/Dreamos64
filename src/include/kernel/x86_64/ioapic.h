@@ -2,6 +2,7 @@
 #define __IO_APIC_H
 
 #include <madt.h> 
+#include <stdbool.h>
 
 #define IO_APIC_ID_OFFSET   0x0
 #define IO_APIC_VER_OFFSET  0x1
@@ -19,6 +20,7 @@
 #define IO_APIC_TRIGGER_MODE_BIT_MASK 0x8000
 #define TIMER_IRQ 0x00
 #define KEYBOARD_IRQ 0x01
+#define PIT_IRQ 0x02
 
 #define IOREDTBL0   0x10
 #define IOREDTBL1   0x12
@@ -68,7 +70,7 @@ void write_io_apic_register(uint8_t, uint32_t);
 int read_io_apic_redirect(uint8_t,  io_apic_redirect_entry_t*);
 int write_io_apic_redirect(uint8_t, io_apic_redirect_entry_t);
 
-void set_irq(uint8_t, uint8_t, uint8_t, uint8_t, uint32_t);
-
+void set_irq(uint8_t, uint8_t, uint8_t, uint8_t, uint32_t, bool);
+int set_irq_mask(uint8_t, bool);
 int parse_io_apic_interrupt_source_overrides(MADT*);
 #endif

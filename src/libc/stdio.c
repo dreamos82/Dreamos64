@@ -54,6 +54,12 @@ int vsprintf(char *buffer, const char *fmt, va_list args){
                 str+= string_size;
                 break;
             }
+            case 'u':{
+                unsigned int number = va_arg(args, unsigned int);
+                int string_size = _getDecString(str, number);
+                str+= string_size;
+                break;
+            }
             case 'x':{
                 long int number = va_arg(args, long int);
                 int string_size = _getHexString(str, number, false);

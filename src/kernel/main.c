@@ -25,6 +25,7 @@
 #include <stdio.h>
 #include <numbers.h>
 #include <ioapic.h>
+#include <keyboard.h>
 
 extern char _binary_fonts_default_psf_size;
 extern char _binary_fonts_default_psf_start;
@@ -88,7 +89,7 @@ void _init_basic_system(unsigned long addr){
         parse_RSDT(descriptor);
     } else if(tagacpi->type == MULTIBOOT_TAG_TYPE_ACPI_NEW){
         tagnew_acpi = (struct multiboot_tag_new_acpi *)tagacpi;
-        _printStringAndNumber("Found acpi RSDP: ", tagnew_acpi->type);
+        _printStringAndNumber("Found acpi RSDPv2: ", tagnew_acpi->type);
         _printStringAndNumber("Found acpi RSDP address: ", (unsigned long) &tagnew_acpi);
         _printStr("To be implemented");
     }
@@ -124,11 +125,6 @@ void kernel_start(unsigned long addr, unsigned long magic){
     //test_image();
     unsigned size = *(unsigned*)addr;
     _printStringAndNumber("Size: ", size);
-    unsigned int *val = (unsigned int *) 0x100000;
-    _printStringAndNumber("Magic: ", *val++);
-    _printStringAndNumber("Flags: ", *val++);
-    _printStringAndNumber("Header Length: ", *val++);
-    _printStringAndNumber("Checksum: ", *val);
 	_printStringAndNumber("Magic: ", magic);
     _printNewLine();
 	if(magic == 0x36d76289){
@@ -190,12 +186,18 @@ void kernel_start(unsigned long addr, unsigned long magic){
     printf("MADT local apic base: %x\n", madt_table->local_apic_base);
     print_madt_table(madt_table);
     init_ioapic(madt_table);
-    set_irq(KEYBOARD_IRQ, IOREDTBL1, 0x21, 0, 0);
+    set_irq(KEYBOARD_IRQ, IOREDTBL1, 0x21, 0, 0, false);
+    init_keyboard();
+    set_irq(PIT_IRQ, IOREDTBL2, 0x22, 0, 0, true);
+    asm("sti");
+    uint32_t apic_ticks = calibrate_apic();
+    printf("Calibrated apic value: %u\n", apic_ticks); 
     //set_irq(0, 0x22, 0, 0 ,0);
     //set_irq(0);
-    start_apic_timer(0, 0);
+    //start_apic_timer(0, 0);
+    //asm("sti");
     printf("Init end!! Starting infinite loop\n");
-    test_strcmp();
+    //test_strcmp();
     while(1);
 }
 

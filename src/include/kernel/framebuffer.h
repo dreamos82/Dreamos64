@@ -14,5 +14,5 @@ void _fb_putPixel(uint32_t color, int x, int y);
 
 void map_framebuffer(struct multiboot_tag_framebuffer *);
 void set_fb_data(struct multiboot_tag_framebuffer *);
-void _fb_printStrAndNumber(char, uint64_t, int, int, uint32_t, uint32_t);
+void _fb_printStrAndNumber(char*, uint64_t, int, int, uint32_t, uint32_t);
 #endif

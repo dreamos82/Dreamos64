@@ -136,10 +136,6 @@ void _fb_putchar(unsigned short int symbol, int cx, int cy, uint32_t fg, uint32_
 }
 
 void _fb_printStr(char *string, int cx, int cy, uint32_t fg, uint32_t bg){
-    #ifdef DEBUG
-		qemu_write_string(string);
-        qemu_write_string("\n");
-    #endif
     while (*string != '\0'){
         if (*string == '\n'){
             qemu_write_string("_fb_printStr: newline support not added yet");

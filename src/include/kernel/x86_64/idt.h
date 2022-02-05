@@ -10,6 +10,8 @@
 #define IDT_INTERRUPT_TYPE_FLAG 0x0E
 #define IDT_SEGMENT_SELECTOR 0x08
 
+#define KERNEL_CS   0x8
+
 // Define Interrupts labels 
 #define DIVIDE_ERROR 0
 #define DEBUG_EXC 1
@@ -36,7 +38,7 @@
 #define APIC_SPURIOUS_INTERRUPT 255
 
 #define KEYBOARD_INTERRUPT 33
-
+#define PIT_INTERRUPT 34
 
 typedef struct IDT_desc {
    uint16_t offset_low;
@@ -86,6 +88,7 @@ extern void interrupt_service_routine_error_code_17();
 extern void interrupt_service_routine_18();
 extern void interrupt_service_routine_32();
 extern void interrupt_service_routine_33();
+extern void interrupt_service_routine_34();
 extern void interrupt_service_routine_255();
 
 #endif
