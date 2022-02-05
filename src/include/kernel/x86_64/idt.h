@@ -10,6 +10,8 @@
 #define IDT_INTERRUPT_TYPE_FLAG 0x0E
 #define IDT_SEGMENT_SELECTOR 0x08
 
+#define KERNEL_CS   0x8
+
 // Define Interrupts labels 
 #define DIVIDE_ERROR 0
 #define DEBUG_EXC 1
