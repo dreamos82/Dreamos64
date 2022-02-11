@@ -196,6 +196,11 @@ void kernel_start(unsigned long addr, unsigned long magic){
     //set_irq(0);
     //start_apic_timer(0, 0);
     //asm("sti");
+    
+    printf("negative number test: %d\n", -5);
+    printf("positive number test: %d\n", 5 );
+    printf("negative number test: %d\n", -54321);
+    printf("negative number test: %d\n", -2147483648 );
     printf("Init end!! Starting infinite loop\n");
     //test_strcmp();
     while(1);

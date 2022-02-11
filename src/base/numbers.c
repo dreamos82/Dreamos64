@@ -1,6 +1,18 @@
 #include <numbers.h>
 
-int _getDecString(char *buffer, unsigned long number){
+int _getDecString(char *buffer, long number) {
+    int size = 0;  
+    if(number < 0) {
+        *buffer++ = '-';
+        size = 1 + _getUnsignedDecString(buffer, ((unsigned long) number * -1));
+        
+    } else {
+        size = _getUnsignedDecString(buffer, number);
+    }
+    return size;
+}
+
+int _getUnsignedDecString(char *buffer, unsigned long number) {
     char *pointer, *pointerbase;
     int mod;
     int size = 0;
@@ -29,7 +41,7 @@ int _getDecString(char *buffer, unsigned long number){
     return size;
 }
 
-int _getHexString(char *buffer, unsigned long hexnumber, bool use_capital){
+int _getHexString(char *buffer, unsigned long hexnumber, bool use_capital) {
     unsigned long tmpnumber = hexnumber;
     int shift = 0;
     int size = 0;
