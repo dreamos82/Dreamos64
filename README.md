@@ -176,3 +176,10 @@ src/kernel/framebuffer/framebuffer.c:122: undefined reference to `_binary_fonts_
 ```
 
 This means that the fonts folder is missing (you need a psfv2 font file in the fonts folder, the file has to be called default.psf)
+
+### And now show time! :) 
+
+![dreamosirq](https://user-images.githubusercontent.com/59960116/153755583-4b4ffebe-c35b-4975-ab0e-bd83789a4b7c.gif)
+
+
+
