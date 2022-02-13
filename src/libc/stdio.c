@@ -48,25 +48,25 @@ int vsprintf(char *buffer, const char *fmt, va_list args){
             }            
         }
         switch(*fmt){
-            case 'd':{
+            case 'd': {
                 int number = va_arg(args, int);
                 int string_size = _getDecString(str, number);
                 str+= string_size;
                 break;
             }
-            case 'u':{
+            case 'u': {
                 unsigned int number = va_arg(args, unsigned int);
-                int string_size = _getDecString(str, number);
+                int string_size = _getUnsignedDecString(str, number);
                 str+= string_size;
                 break;
             }
-            case 'x':{
+            case 'x': {
                 long int number = va_arg(args, long int);
                 int string_size = _getHexString(str, number, false);
                 str+= string_size; 
                 break;
             }
-            case 'X':{
+            case 'X': {
                 long int number = va_arg(args, long int);
                 int string_size = _getHexString(str, number, true);
                 str+= string_size; 
@@ -74,7 +74,7 @@ int vsprintf(char *buffer, const char *fmt, va_list args){
             }
             case 'c':
                 break;
-            case 's':{
+            case 's': {
                 char *arg_string = va_arg(args, char*);
                 int str_len = strnlen(arg_string, precision);
                 for(int i=0; i < str_len; ++i) {

@@ -4,6 +4,6 @@
 #include <stdbool.h>
 
 int _getHexString(char*, unsigned long, bool);
-int _getDecString(char*, unsigned long);
-
+int _getDecString(char*, long);
+int _getUnsignedDecString(char *, unsigned long);
 #endif
