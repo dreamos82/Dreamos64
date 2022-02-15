@@ -37,8 +37,11 @@ void *kmalloc(size_t size){
         //probably worth adding some padding?
         if(current_node->is_free && current_node->size > size){
             if(current_node->size <= (size+header_size) ){
+                //This case means we can't split the node more so it has to be removed from the list.
                 //Need to remove the current node
                 current_node->is_free = false;
+                //Let's update the size too (it will make the free easier)
+                current_node->size = size + sizeof(KHeapMemoryNode);
                 if(prev_node == NULL) {
                     //There is no prev node, so we are still on the top.
                     kernel_heap_tail = current_node->next;
@@ -54,6 +57,8 @@ void *kmalloc(size_t size){
                     kernel_heap_tail = new_node;
                 }
             }
+            printf("Found address at: 0x%x, size: 0x%x\n", current_node, current_node->size);
+            current_node->size = size + sizeof(KHeapMemoryNode);
             return (void *) current_node + sizeof(KHeapMemoryNode);
         }
         current_node = current_node->next;
@@ -74,7 +79,28 @@ void *kmalloc(size_t size){
 
 }
 
-void kfree(void *ptr){
+void kfree(void *ptr) {
+    if((uint64_t) ptr == NULL) {
+        return;
+    }
+    KHeapMemoryNode *ptr_header = (KHeapMemoryNode *) (ptr - sizeof(KHeapMemoryNode));
+    printf("Size of KheapMemoryNode: 0x%x\n", sizeof(KHeapMemoryNode));
+    printf("ptr_header size: 0x%x\n", ptr_header->size);
+    KHeapMemoryNode *current_node = kernel_heap_tail;
+    while(current_node != NULL) {
+        // If the current_node address is > than ptr then 
+        // the node containing ptr should be added before it
+        // But we need to ensure that the list is kept sorted
+        if((uint64_t) current_node > (uint64_t) ptr_header) {
+            printf("It will go here\n");
+            //I should add the ptr_header node; as prev of current_node.
+            //This means i should add the current_node->prev as prev of ptr_header
+        }
+        printf("Current_node->size: 0x%x - is_free: 0x%d\n", current_node->size, current_node->is_free);
+        current_node = current_node->next;
+    }
+    /*if( *ptr!= NULL ) {
+    }*/
 }
 
 KHeapMemoryNode* createKHeapNode(KHeapMemoryNode *current_node, size_t size){

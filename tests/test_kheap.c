@@ -31,6 +31,7 @@ int main(){
     printf("Initializing sizeof heap structure: ... %d\n", sizeof(KHeapMemoryNode));
     printf("Address of kheap: 0x%X\n", kernel_heap_tail);
     test_kmalloc();
+    test_kfree();
     free(kernel_heap_start);
     return 0;
 }
@@ -38,7 +39,7 @@ int main(){
 
 void test_kmalloc(){
     void *initial_tail = (void *) kernel_heap_tail;
-    printf("--- Tests ---\n"); 
+    printf("--- Testing kmalloc ---\n"); 
     printf("Testing kmalloc with size 0\n");
     char *test_ptr = (char *) kmalloc(0);
     printf(" - kmalloc(0)  should return NULL\n");
@@ -54,4 +55,10 @@ void test_kmalloc(){
     printf(" - kmalloc new address should be heap_start + sizeof(KHeapMemoryNode) + 9\n");
     printf("  1: 0x%x - 2: 0x%x\n", test_ptr, test_ptr_2);
     assert(((uint64_t) test_ptr_2 - (uint64_t) test_ptr) == 0x2A);
+}
+
+void test_kfree(){
+    printf("--- Testing kfree ---\n");
+    char *test_ptr = (char *) kmalloc(10);
+    kfree(test_ptr);
 }
