@@ -61,4 +61,7 @@ void test_kfree(){
     printf("--- Testing kfree ---\n");
     char *test_ptr = (char *) kmalloc(10);
     kfree(test_ptr);
+    printf("the head should be now test_ptr - sizeof(KHeapMemoryNode) 0x%x\n", kernel_heap_tail);
+    printf("value of test_ptr: 0x%x\n", test_ptr);
+    assert(kernel_heap_tail == (test_ptr - sizeof(KHeapMemoryNode)));
 }

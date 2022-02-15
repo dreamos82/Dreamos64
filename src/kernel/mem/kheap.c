@@ -95,6 +95,18 @@ void kfree(void *ptr) {
             printf("It will go here\n");
             //I should add the ptr_header node; as prev of current_node.
             //This means i should add the current_node->prev as prev of ptr_header
+            ptr_header->next = current_node;
+            if(current_node->prev == NULL) {
+                printf("Adding a new pointer on top of everything\n");
+                //If current_node is the first node, than the new tail will be ptr_header
+                kernel_heap_tail = ptr_header;
+                //But also make sure that ptr_header->prev is NULL
+                //This header is always present when memory is allocated
+                ptr_header->prev = NULL;
+            } else {
+                ptr_header->prev = current_node->prev;
+            }
+            current_node->prev = ptr_header;
         }
         printf("Current_node->size: 0x%x - is_free: 0x%d\n", current_node->size, current_node->is_free);
         current_node = current_node->next;
