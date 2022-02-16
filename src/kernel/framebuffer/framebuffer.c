@@ -163,3 +163,16 @@ void _fb_printStrAndNumber(char *string, uint64_t number, int cx, int cy, uint32
     _fb_printStr(buffer, cx + counter, cy, fg, bg);
 }
 
+void get_framebuffer_mode(uint32_t* pixels_w, uint32_t* pixels_h, uint32_t* chars_w, uint32_t* chars_h)
+{
+    if (pixels_w != NULL)
+        *pixels_w = FRAMEBUFFER_WIDTH;
+    if (pixels_h != NULL)
+        *pixels_h = FRAMEBUFFER_HEIGHT;
+
+    PSF_font *default_font = (PSF_font*)&_binary_fonts_default_psf_start;
+    if (chars_w != NULL)
+        *chars_w = FRAMEBUFFER_WIDTH / default_font->width;
+    if (chars_h != NULL)
+        *chars_h = FRAMEBUFFER_HEIGHT / default_font->height;
+}
