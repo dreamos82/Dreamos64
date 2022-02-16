@@ -14,13 +14,13 @@ extern uint32_t memory_size_in_bytes;
 uint32_t apic_base_address;
 bool apicInX2Mode;
 
-void init_apic(){
+void init_apic() {
 
     uint64_t msr_output = rdmsr(IA32_APIC_BASE);
     printf("APIC MSR Return value: 0x%X\n", msr_output);
     printf("APIC MSR Base Address: 0x%X\n", (msr_output&APIC_BASE_ADDRESS_MASK));
     apic_base_address = (msr_output&APIC_BASE_ADDRESS_MASK);
-    if(apic_base_address == NULL){
+    if(apic_base_address == NULL) {
         printf("ERROR: cannot determine apic base address\n");
     }
 
@@ -56,7 +56,7 @@ void init_apic(){
     uint32_t spurious_interrupt_register = read_apic_register(APIC_SPURIOUS_VECTOR_REGISTER_OFFSET);
     printf("Apic enabled: %x - Apic BSP bit: %x\n", 1&(msr_output >> APIC_GLOBAL_ENABLE_BIT), 1&(msr_output >> APIC_BSP_BIT));
     
-    if(!(1&(msr_output >> APIC_GLOBAL_ENABLE_BIT))){
+    if(!(1&(msr_output >> APIC_GLOBAL_ENABLE_BIT))) {
         printf("Apic disabled globally");
         return;
     }
@@ -64,7 +64,7 @@ void init_apic(){
     //Enabling apic
     write_apic_register(APIC_SPURIOUS_VECTOR_REGISTER_OFFSET, APIC_SOFTWARE_ENABLE | APIC_SPURIOUS_INTERRUPT);
     
-    if(apic_base_address < memory_size_in_bytes){
+    if(apic_base_address < memory_size_in_bytes) {
         //I think that ideally it should be relocated above the physical memory (that should be possible)
         //but for now i'll mark that location as used
         printf("Apic base address in physical memory area");
@@ -76,7 +76,7 @@ void init_apic(){
     disable_pic();
 }
 
-void disable_pic(){
+void disable_pic() {
     outportb(PIC_COMMAND_MASTER, ICW_1);
     outportb(PIC_COMMAND_SLAVE, ICW_1);
     outportb(PIC_DATA_MASTER, ICW_2_M);
@@ -89,14 +89,14 @@ void disable_pic(){
     outportb(PIC_DATA_SLAVE, 0xFF);
 }
 
-uint32_t read_apic_register(uint32_t register_offset){
+uint32_t read_apic_register(uint32_t register_offset) {
     if (apicInX2Mode)
         return (uint32_t)rdmsr((register_offset >> 4) + 0x800);
     else
         return READMEM32(apic_base_address + register_offset);
 }
 
-void write_apic_register(uint32_t register_offset, uint32_t value){
+void write_apic_register(uint32_t register_offset, uint32_t value) {
     if (apicInX2Mode)
         wrmsr((register_offset >> 4) + 0x800, value);
     else
