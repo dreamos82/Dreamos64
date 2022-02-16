@@ -55,7 +55,11 @@ void logln(log_level_t level, char* msg){
                 break;
 
             case LOG_OUTPUT_FRAMEBUFFER:
-                
+                _fb_printStr(logLevelStrings[level], 0, fbCurrentLine, 0xFFFFFFFF, 0);
+                _fb_printStr(msg, logLevelStrLen, fbCurrentLine, 0xFFFFFFFF, 0);
+                fbCurrentLine++;
+                if (fbCurrentLine > fbMaxLine)
+                    fbCurrentLine = 0;
                 break;
         
             default:
