@@ -46,6 +46,7 @@ void *kmalloc(size_t size){
                     //There is no prev node, so we are still on the top.
                     kernel_heap_tail = current_node->next;
                 } else {
+                    //Here we are no longer on the top, so we need to update the previous node next-item
                     prev_node->next = current_node->next;
                 }
                 
@@ -59,6 +60,7 @@ void *kmalloc(size_t size){
             }
             printf("Found address at: 0x%x, size: 0x%x\n", current_node, current_node->size);
             current_node->size = size + sizeof(KHeapMemoryNode);
+            current_node->is_free = false;
             return (void *) current_node + sizeof(KHeapMemoryNode);
         }
         current_node = current_node->next;
@@ -85,14 +87,14 @@ void kfree(void *ptr) {
     }
     KHeapMemoryNode *ptr_header = (KHeapMemoryNode *) (ptr - sizeof(KHeapMemoryNode));
     printf("Size of KheapMemoryNode: 0x%x\n", sizeof(KHeapMemoryNode));
-    printf("ptr_header size: 0x%x\n", ptr_header->size);
+    printf("ptr_header size: 0x%x - is_free = 0x%x\n", ptr_header->size, ptr_header->is_free);
     KHeapMemoryNode *current_node = kernel_heap_tail;
+    KHeapMemoryNode *prev_node = NULL;
     while(current_node != NULL) {
         // If the current_node address is > than ptr then 
         // the node containing ptr should be added before it
         // But we need to ensure that the list is kept sorted
         if((uint64_t) current_node > (uint64_t) ptr_header) {
-            printf("It will go here\n");
             //I should add the ptr_header node; as prev of current_node.
             //This means i should add the current_node->prev as prev of ptr_header
             ptr_header->next = current_node;
@@ -107,10 +109,18 @@ void kfree(void *ptr) {
                 ptr_header->prev = current_node->prev;
             }
             current_node->prev = ptr_header;
+            //We can stop here no need to continue...
+            return;
         }
         printf("Current_node->size: 0x%x - is_free: 0x%d\n", current_node->size, current_node->is_free);
+        prev_node = current_node;
         current_node = current_node->next;
     }
+    //If we are here it means that all all items in the free nodes list are before ptr_header
+    //So we can place our ptr_header as the last item
+    prev_node->next = ptr_header;
+    ptr_header->prev = prev_node;
+    ptr_header->is_free = true;
     /*if( *ptr!= NULL ) {
     }*/
 }
