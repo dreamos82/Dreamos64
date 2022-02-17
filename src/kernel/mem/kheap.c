@@ -85,9 +85,10 @@ void kfree(void *ptr) {
     if((uint64_t) ptr == NULL) {
         return;
     }
+    if(ptr < kernel_heap_start) {
+        return;
+    }
     KHeapMemoryNode *ptr_header = (KHeapMemoryNode *) (ptr - sizeof(KHeapMemoryNode));
-    printf("Size of KheapMemoryNode: 0x%x\n", sizeof(KHeapMemoryNode));
-    printf("ptr_header size: 0x%x - is_free = 0x%x\n", ptr_header->size, ptr_header->is_free);
     KHeapMemoryNode *current_node = kernel_heap_tail;
     KHeapMemoryNode *prev_node = NULL;
     while(current_node != NULL) {
@@ -99,9 +100,10 @@ void kfree(void *ptr) {
             //This means i should add the current_node->prev as prev of ptr_header
             ptr_header->next = current_node;
             if(current_node->prev == NULL) {
-                printf("Adding a new pointer on top of everything\n");
                 //If current_node is the first node, than the new tail will be ptr_header
                 kernel_heap_tail = ptr_header;
+                //And we should make the current node point to ptr_header
+                current_node->prev = ptr_header;
                 //But also make sure that ptr_header->prev is NULL
                 //This header is always present when memory is allocated
                 ptr_header->prev = NULL;
@@ -112,7 +114,6 @@ void kfree(void *ptr) {
             //We can stop here no need to continue...
             return;
         }
-        printf("Current_node->size: 0x%x - is_free: 0x%d\n", current_node->size, current_node->is_free);
         prev_node = current_node;
         current_node = current_node->next;
     }
@@ -121,8 +122,10 @@ void kfree(void *ptr) {
     prev_node->next = ptr_header;
     ptr_header->prev = prev_node;
     ptr_header->is_free = true;
-    /*if( *ptr!= NULL ) {
-    }*/
+}
+
+void merge_memory_nodes(KHeapMemoryNode *left_node, KHeapMemoryNode *right_node) {
+    printf("TBD\n");
 }
 
 KHeapMemoryNode* createKHeapNode(KHeapMemoryNode *current_node, size_t size){
