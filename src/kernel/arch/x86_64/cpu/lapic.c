@@ -32,7 +32,7 @@ void init_apic() {
     (void)ignored;
     
     if (x2ApicLeaf & (1 << 21)) {
-        printf("X2APIC available!");
+        printf("X2APIC available!\n");
         apicInX2Mode = true;
 
         //no need to map mmio registers as we'll be accessing apic via MSRs
@@ -41,14 +41,14 @@ void init_apic() {
         wrmsr(IA32_APIC_BASE, msr_output);
     }
     else if (xApicLeaf & (1 << 9)) {
-        printf("APIC available!");
+        printf("APIC available!\n");
         apicInX2Mode = false;
 
         //registers are accessed via mmio, make sure they're identity mapped
         map_phys_to_virt_addr(apic_base_address, apic_base_address, 0);
     }
     else {
-        printf("ERROR: No local APIC is supported by this cpu!");
+        printf("ERROR: No local APIC is supported by this cpu!\n");
         return; //not good.
     }
 
@@ -57,7 +57,7 @@ void init_apic() {
     printf("Apic enabled: %x - Apic BSP bit: %x\n", 1&(msr_output >> APIC_GLOBAL_ENABLE_BIT), 1&(msr_output >> APIC_BSP_BIT));
     
     if(!(1&(msr_output >> APIC_GLOBAL_ENABLE_BIT))) {
-        printf("Apic disabled globally");
+        printf("Apic disabled globally\n");
         return;
     }
     
@@ -67,7 +67,7 @@ void init_apic() {
     if(apic_base_address < memory_size_in_bytes) {
         //I think that ideally it should be relocated above the physical memory (that should be possible)
         //but for now i'll mark that location as used
-        printf("Apic base address in physical memory area");
+        printf("Apic base address in physical memory area\n");
         _bitmap_set_bit(ADDRESS_TO_BITMAP_ENTRY(apic_base_address));
     }
     uint32_t version_register = read_apic_register(APIC_VERSION_REGISTER_OFFSET);

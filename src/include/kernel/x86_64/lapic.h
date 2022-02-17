@@ -49,7 +49,6 @@ void init_local_vector_table();
 
 void start_apic_timer(uint16_t, bool);
 void write_apic_register(uint32_t, uint32_t);
-void write_apic_icr_register(uint64_t);
 
 uint32_t read_apic_register(uint32_t);
 
