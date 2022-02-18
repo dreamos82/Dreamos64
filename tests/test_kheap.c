@@ -68,5 +68,13 @@ void test_kfree(){
     kfree(test_ptr);
     printf("- Testing kernel_heap_tail:0x%x==(test_ptr-sizeof(KHeamMemoryNode)):0x%x\n", kernel_heap_tail, (test_ptr - sizeof(KHeapMemoryNode)));
     assert(kernel_heap_tail == (test_ptr - sizeof(KHeapMemoryNode)));
-    printf("Finished");
+    printf("- Testing two consecutive mallocs\n");
+    char *test_ptr2 = (char *) kmalloc(10);
+    printf("test_ptr2: 0x%x\n", test_ptr2);
+    char *test_ptr3 = (char *) kmalloc(20);
+    printf("test_ptr3: 0x%x\n", test_ptr3);
+    kfree(test_ptr2);
+    kfree(test_ptr3);
+
+    printf("Finished\n");
 }

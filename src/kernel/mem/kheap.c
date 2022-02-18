@@ -29,12 +29,14 @@ void *kmalloc(size_t size){
         return NULL;
     }
     //We try to allocate from the list tail first.
+    //Reminder: the size field contains also the header_size.
     uint64_t header_size = sizeof(KHeapMemoryNode);
     size_t computed_size = (size + header_size) - current_node->size;
     while(current_node != NULL){
         KHeapMemoryNode *prev_node = current_node->prev;
         //Here i will search for a free node in the list (and split it in case)
         //probably worth adding some padding?
+        printf("fouind something\n");
         if(current_node->is_free && current_node->size > size){
             if(current_node->size <= (size+header_size) ){
                 //This case means we can't split the node more so it has to be removed from the list.
@@ -63,6 +65,7 @@ void *kmalloc(size_t size){
             current_node->is_free = false;
             return (void *) current_node + sizeof(KHeapMemoryNode);
         }
+        printf("next\n ");
         current_node = current_node->next;
     }
 
@@ -83,9 +86,10 @@ void *kmalloc(size_t size){
 
 void kfree(void *ptr) {
     if((uint64_t) ptr == NULL) {
+        printf("REturning null\n");
         return;
     }
-    if(ptr < kernel_heap_start) {
+    if(ptr < kernel_heap_start && ptr < kernel_heap_tail) {
         return;
     }
     KHeapMemoryNode *ptr_header = (KHeapMemoryNode *) (ptr - sizeof(KHeapMemoryNode));
@@ -102,31 +106,49 @@ void kfree(void *ptr) {
             if(current_node->prev == NULL) {
                 //If current_node is the first node, than the new tail will be ptr_header
                 kernel_heap_tail = ptr_header;
-                //And we should make the current node point to ptr_header
-                current_node->prev = ptr_header;
                 //But also make sure that ptr_header->prev is NULL
                 //This header is always present when memory is allocated
                 ptr_header->prev = NULL;
             } else {
                 ptr_header->prev = current_node->prev;
             }
+            //And we should make the current node point to ptr_header
             current_node->prev = ptr_header;
+            // Now let's see if we can merge the ptr_node with the one just to the right
+            merge_memory_nodes(ptr_header, ptr_header->next);
+            // And do the same with the one on the left
+            merge_memory_nodes(ptr_header->prev, ptr_header);
             //We can stop here no need to continue...
             return;
         }
-        prev_node = current_node;
+        //In theory i should not need prev_node
+        //prev_node = current_node;
         current_node = current_node->next;
     }
-    //If we are here it means that all all items in the free nodes list are before ptr_header
-    //So we can place our ptr_header as the last item
-    prev_node->next = ptr_header;
-    ptr_header->prev = prev_node;
-    ptr_header->is_free = true;
+}
+void merge_memory_nodes(KHeapMemoryNode *left_node, KHeapMemoryNode *right_node) {
+    if(left_node == NULL || right_node == NULL) {
+        printf(" left or right is null\n");
+        return;
+    }
+    printf("left: 0x%x size: 0x%x - right: 0x%x size: 0x%x\n", left_node, left_node->size, right_node, right_node->size);
+    if(((uint64_t) left_node +  left_node->size) == (uint64_t) right_node) {
+        printf("They can be combined\n");
+        //We can combine the two nodes:
+        //1. Sum the sizes
+        left_node->size = left_node->size + right_node->size;
+        //2. left_node next item will point to the next item of the right node (since the right node is going to disappear)
+        left_node->next = right_node->next;
+        //3. Unless we reached the last item, we should also make sure that the element after the right node, will be linked 
+        //   to the left node (via the prev field)
+        if(right_node->next != NULL){
+            printf("Here\n");
+            KHeapMemoryNode *next_node = right_node->next;
+            next_node->prev = left_node;
+        }
+    } 
 }
 
-void merge_memory_nodes(KHeapMemoryNode *left_node, KHeapMemoryNode *right_node) {
-    printf("TBD\n");
-}
 
 KHeapMemoryNode* createKHeapNode(KHeapMemoryNode *current_node, size_t size){
     printf("Address: %x\n", current_node);
