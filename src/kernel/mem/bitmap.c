@@ -8,6 +8,11 @@
 #include <video.h>
 #include <main.h>
 #endif
+
+#ifdef _TEST_
+#include <stdlib.h>
+#endif
+
 extern struct multiboot_tag_basic_meminfo *tagmem;
 extern uint64_t _kernel_physical_end;
 extern uint64_t _kernel_end;

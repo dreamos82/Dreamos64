@@ -12,6 +12,9 @@
     #define KERNEL_PAGE_SIZE 0x1000
 #endif
 
+#define HEAP_ALLOC_ALIGNMENT 0x10
+#define KHEAP_MINIMUM_ALLOCABLE_SIZE 0x20
+
 typedef struct KHeapMemoryNode {
     uint64_t size;
     bool is_free;
@@ -21,8 +24,9 @@ typedef struct KHeapMemoryNode {
 
 //Service functions
 void initialize_kheap();
-KHeapMemoryNode* createKHeapNode(KHeapMemoryNode *, size_t);
+KHeapMemoryNode* create_kheap_node(KHeapMemoryNode *, size_t);
 
+size_t align(size_t);
 //Allocation functions
 void *kmalloc(size_t);
 void kfree(void *);

@@ -164,14 +164,14 @@ void kernel_start(unsigned long addr, unsigned long magic){
     _mmap_setup();
     pmm_reserve_area(0x10000, 10);
     char test_buffer[5];
-    int test_size = _getDecString(test_buffer, 250);
+    /*int test_size = _getDecString(test_buffer, 250);
     _printStringAndNumber("Size: ", test_size);
     _printStr(test_buffer);
     uint64_t *test_addr = map_vaddress((void *)0x1234567800, 0);
 	_printStringAndNumber("Mapping addr: ", (uint64_t)test_addr);
 	*test_addr = 42l;
     _printStringAndNumber("Tesitng value of  new mapped addr should be 42: ", *test_addr);
-    /*_printStr("Try to unmap\n");
+    _printStr("Try to unmap\n");
     int unmap_result = unmap_vaddress(test_addr);
     _printStringAndNumber("Output from unmap: ", unmap_result);
     _printStr("A pf should explode now...\n");
