@@ -1,6 +1,7 @@
-#include <log.h>
+#include <logging.h>
 #include <qemu.h>
 #include <framebuffer.h>
+#include <video.h>
 #include <io.h>
 
 char* logLevelStrings[] = {
@@ -17,23 +18,31 @@ size_t logTrimLevel;
 
 size_t fbCurrentLine;
 size_t fbMaxLine;
-void init_log(size_t defaultOutputs, log_level_t trimBelowLevel){
+bool useVgaOutput;
+void init_log(size_t defaultOutputs, log_level_t trimBelowLevel, bool useVgaVideo){
     if (defaultOutputs == LOG_OUTPUT_DONT_CARE)
         defaultOutputs = LOG_OUTPUT_SERIAL; //default to serial
     
     logDestBitmap = defaultOutputs;
     logTrimLevel = trimBelowLevel;
 
-    uint32_t pw, ph, cw, ch;
-    get_framebuffer_mode(&pw, &ph, &cw, &ch);
-    fbMaxLine = ch;
+    useVgaOutput = useVgaVideo;
+
+    if (useVgaOutput) {
+        fbMaxLine = _SCR_H;
+    }
+    else {
+        uint32_t pw, ph, cw, ch;
+        get_framebuffer_mode(&pw, &ph, &cw, &ch);
+        fbMaxLine = ch;
+    }
 }
 
 void set_log_trim_level(size_t newTrim){
     logTrimLevel = newTrim;
 }
 
-void logln(log_level_t level, char* msg){
+void logline(log_level_t level, char* msg){
     if (level < logTrimLevel)
         return; //dont log things that we dont want to see for now. (would be nice to store these somewhere in the future perhaps, just not display them?)
     
@@ -55,11 +64,20 @@ void logln(log_level_t level, char* msg){
                 break;
 
             case LOG_OUTPUT_FRAMEBUFFER:
-                _fb_printStr(logLevelStrings[level], 0, fbCurrentLine, 0xFFFFFFFF, 0);
-                _fb_printStr(msg, logLevelStrLen, fbCurrentLine, 0xFFFFFFFF, 0);
-                fbCurrentLine++;
+                if (useVgaOutput) {
+                    _setVgaCursorPos(0, fbCurrentLine);
+                    _printStr(logLevelStrings[level]);
+                    _printStr(msg);
+                    fbCurrentLine++;
+                }
+                else {
+                    _fb_printStr(logLevelStrings[level], 0, fbCurrentLine, 0xFFFFFFFF, 0);
+                    _fb_printStr(msg, logLevelStrLen, fbCurrentLine, 0xFFFFFFFF, 0);
+                    fbCurrentLine++;
+                }
+
                 if (fbCurrentLine > fbMaxLine)
-                    fbCurrentLine = 0;
+                        fbCurrentLine = 0;
                 break;
         
             default:

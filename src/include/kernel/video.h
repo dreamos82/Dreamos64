@@ -34,6 +34,7 @@ void _printHex(char*, unsigned long);
 void _clearScreen();
 void _printStringAndNumber(char *, unsigned long);
 void _scrollUp();
+void _setVgaCursorPos(unsigned cx, unsigned cy);
 
 int _getLineNumber();
 #endif

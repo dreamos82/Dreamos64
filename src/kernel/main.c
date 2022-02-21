@@ -26,7 +26,7 @@
 #include <numbers.h>
 #include <ioapic.h>
 #include <keyboard.h>
-#include <log.h>
+#include <logging.h>
 
 extern char _binary_fonts_default_psf_size;
 extern char _binary_fonts_default_psf_start;
@@ -118,11 +118,11 @@ void kernel_start(unsigned long addr, unsigned long magic){
     extern unsigned int _kernel_end;
     extern unsigned int _kernel_physical_end;
     qemu_init_debug();
-    init_log(LOG_OUTPUT_FRAMEBUFFER, Verbose);
+    init_log(LOG_OUTPUT_FRAMEBUFFER, Verbose, false);
     init_idt();
     load_idt();
     _init_basic_system(addr);
-    logln(Info, "Hello world, this is a test log!");
+    logline(Info, "Hello world, this is a test log!");
     _printStringAndNumber("Kernel End: ", (unsigned long)&_kernel_end);
     _printStringAndNumber("Kernel physical end: ", (unsigned long)&_kernel_physical_end);
     //test_image();

@@ -2,6 +2,7 @@
 #define _LOG_H
 
 #include <stddef.h>
+#include <stdbool.h>
 
 #define LOG_DEBUG 0
 #define LOG_VERBOSE 1
@@ -24,8 +25,8 @@ typedef enum {
 #define LOG_OUTPUT_FRAMEBUFFER (1 << 2)
 #define LOG_OUTPUT_COUNT 3
 
-void init_log(size_t defaultOutputs, log_level_t trimBelowLevel);
+void init_log(size_t defaultOutputs, log_level_t trimBelowLevel, bool useVgaVideo);
 void set_log_trim_level(size_t newTrim);
-void logln(log_level_t level, char* msg);
+void logline(log_level_t level, char* msg);
 
 #endif
