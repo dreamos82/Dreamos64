@@ -35,7 +35,7 @@
 #define APIC_SPURIOUS_VECTOR_REGISTER_OFFSET 0xF0
 #define APIC_SPURIOUS_INTERRUPT_IDT_ENTRY 0xFF
 #define APIC_SOFTWARE_ENABLE (1 << 8)
-
+#define APIC_ID_REGISTER_OFFSET 0x20
 
 
 
@@ -51,6 +51,9 @@ void start_apic_timer(uint16_t, bool);
 void write_apic_register(uint32_t, uint32_t);
 
 uint32_t read_apic_register(uint32_t);
+
+uint32_t lapic_id();
+bool lapic_is_x2();
 
 void disable_pic();
 

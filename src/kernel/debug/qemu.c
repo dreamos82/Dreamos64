@@ -17,3 +17,14 @@ void qemu_write_string(char *string){
         string++;
     }
 }
+
+void debugcon_write_string(char* message){
+    while (*message != '\0'){
+        debugcon_write_char(*message);
+        message++;
+    }
+}
+
+void debugcon_write_char(char c){
+    outportb(QEMU_DEBUGCON_PORT, c);
+}
