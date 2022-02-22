@@ -181,5 +181,8 @@ This means that the fonts folder is missing (you need a psfv2 font file in the f
 
 ![dreamosirq](https://user-images.githubusercontent.com/59960116/153755583-4b4ffebe-c35b-4975-ab0e-bd83789a4b7c.gif)
 
+### Acknowledgements
 
+Well so far a big thank you goes to [DeanoBurrito](https://github.com/DeanoBurrito) that implemented several stuff for Dreamos64 (x2apic, fixed some bugs, and more to come...) 
+And his operating system is worth a mention too: [NorthPort](https://github.com/DeanoBurrito/northport)
 

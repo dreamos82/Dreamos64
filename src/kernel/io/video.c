@@ -100,4 +100,6 @@ void _scrollUp(){
     }
 }
 
-
+void _setVgaCursorPos(unsigned int cx, unsigned int cy) {
+    VIDEO_PTR = VIDEO_MEM + cx + (cy * _SCR_W);
+}
