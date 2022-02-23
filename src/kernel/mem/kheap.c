@@ -45,15 +45,17 @@ void *kmalloc(size_t size) {
                 printf("Found suitable node requested size: 0x%x - requested real_size: 0x%x - requested_size: 0x%x\n", current_node->size, real_size, size);
                 if( current_node->size - real_size > KHEAP_MINIMUM_ALLOCABLE_SIZE ) {
                     // We can keep shrinking the heap, since we still have enough space!
+                    // But we need a new node for the allocated area
+                    KHeapMemoryNode *new_node = create_kheap_node(current_node, real_size);
+                    current_node->is_free = false;
+                    current_node->size = real_size;
+                } else {
+                    // The current node space is not enough for shrinking, so we just need to mark the current_node as busy.
+                    current_node->is_free = false;
+                    //current_node->size -= real_size;
                 }
-
-                // I found enough space in the current node
-                new_node = create_kheap_node(current_node, size);
+                return (void *) current_node + sizeof(KHeapMemoryNode);
             }
-            
-            // Shrink the current_node
-            current_node->size = current_node->size - real_size;
-
         }
         current_node = current_node->next;
     }
@@ -187,7 +189,11 @@ void merge_memory_nodes(KHeapMemoryNode *left_node, KHeapMemoryNode *right_node)
 }
 
 
-KHeapMemoryNode* create_kheap_node(KHeapMemoryNode *current_node, size_t size){
+KHeapMemoryNode* create_kheap_node( KHeapMemoryNode *current_node, size_t size ) {
+    // Here we create a new node for the heap.
+    // We basically take the current node and split it in two.
+    // The new node will be placed just after the space used by current_node
+    // And current_node will be the node containing the information regarding the current kmalloc call.
     printf("Address: %x\n", current_node);
     uint64_t header_size = sizeof(KHeapMemoryNode);
     KHeapMemoryNode* new_node = (KHeapMemoryNode *) ((void *)current_node + sizeof(KHeapMemoryNode) + size);
@@ -197,5 +203,4 @@ KHeapMemoryNode* create_kheap_node(KHeapMemoryNode *current_node, size_t size){
     new_node->prev = current_node->prev;
     new_node->next = current_node->next;
     return new_node;
-
 }
