@@ -213,10 +213,16 @@ KHeapMemoryNode* create_kheap_node( KHeapMemoryNode *current_node, size_t size )
     new_node->size = current_node->size - (size + header_size);
     new_node->prev = current_node;
     new_node->next = current_node->next;
+    
     if( current_node->next != NULL) {
         current_node->next->prev = new_node;
     }
+
     current_node->next = new_node;
+    
+    if( current_node == kernel_heap_end) {
+        kernel_heap_end = new_node;
+    }
 
     return new_node;
 }

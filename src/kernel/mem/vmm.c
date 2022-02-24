@@ -49,7 +49,7 @@ void *map_phys_to_virt_addr(void* physical_address, void* address, unsigned int 
     _printStringAndNumber("Mapping address: ", (unsigned long int) address);
     _printStringAndNumber("PML4 Value: ", pml4_e);
 	uint64_t *pml4_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l,510l,510l,510l));
-	if(!(pml4_table[pml4_e] & 0b1)){
+	if( !(pml4_table[pml4_e] & 0b1) ) {
 		uint64_t *new_table = pmm_alloc_frame();
 		pml4_table[pml4_e] = (uint64_t) new_table | WRITE_BIT | PRESENT_BIT;
 		clean_new_table(new_table);
@@ -64,14 +64,14 @@ void *map_phys_to_virt_addr(void* physical_address, void* address, unsigned int 
     _printStringAndNumber("PDPR Value: ", pdpr_e);
     _printStringAndNumber("PDPR Table[pdpr_e]: ", pdpr_table[pdpr_e]);
 #endif
-	if(!(pdpr_table[pdpr_e] & 0b1)){
+	if( !(pdpr_table[pdpr_e] & 0b1)) {
 		uint64_t *new_table = pmm_alloc_frame();
 		pdpr_table[pdpr_e] = (uint64_t) new_table | WRITE_BIT | PRESENT_BIT;
 		clean_new_table(new_table);
 	}
 	uint64_t *pd_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l,510l,pml4_e, pdpr_e));
     uint16_t pd_e = PD_ENTRY((uint64_t) address);
-	if(!(pd_table[pd_e] & 0b01)){
+	if( !(pd_table[pd_e] & 0b01) ) {
 		uint64_t *new_table = pmm_alloc_frame();
 		#if SMALL_PAGES == 1
 		pd_table[pd_e] = (uint64_t) new_table | flags | WRITE_BIT | PRESENT_BIT;
@@ -84,7 +84,7 @@ void *map_phys_to_virt_addr(void* physical_address, void* address, unsigned int 
     #if SMALL_PAGES == 1
 	uint64_t *pt_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l, pml4_e, pdpr_e, pd_e));
     uint16_t pt_e = PT_ENTRY((uint64_t) address);
-	if(!(pt_table[pt_e] & 0b1)) {
+	if( !(pt_table[pt_e] & 0b1 )) {
 		uint64_t *new_table = pmm_alloc_frame();
 		pt_table[pt_e] = (uint64_t) physical_address | WRITE_BIT | PRESENT_BIT;
 	}
@@ -97,6 +97,12 @@ void *map_phys_to_virt_addr(void* physical_address, void* address, unsigned int 
 void *map_vaddress(void *virtual_address, unsigned int flags){
     void *new_addr = pmm_alloc_frame();
     return map_phys_to_virt_addr(new_addr, virtual_address, flags);
+}
+
+void map_vaddress_range(void *virtual_address, unsigned int flags, size_t required_pages) {
+    for(size_t i = 0; i < required_pages; i++) {
+        map_vaddress(virtual_address + (i + PAGE_SIZE), flags);
+    }
 }
 
 
