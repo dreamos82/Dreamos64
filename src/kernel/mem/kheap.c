@@ -51,14 +51,25 @@ void *kmalloc(size_t size) {
                     current_node->size = real_size;
                 } else {
                     // The current node space is not enough for shrinking, so we just need to mark the current_node as busy.
+                    // Size should not be touched.
                     current_node->is_free = false;
                     //current_node->size -= real_size;
                 }
                 return (void *) current_node + sizeof(KHeapMemoryNode);
             }
         }
+
+        if(current_node == kernel_heap_end) {
+            printf("To be expanded");
+            expand_heap(real_size);
+        }
+
         current_node = current_node->next;
     }
+}
+
+void expand_heap(size_t required_size) {
+    size_t number_of_pages = required_size / PAGE_SIZE + 1;
 }
 
 
@@ -200,7 +211,12 @@ KHeapMemoryNode* create_kheap_node( KHeapMemoryNode *current_node, size_t size )
     printf("New address: %x\n", (current_node + sizeof(KHeapMemoryNode) + size));
     new_node->is_free = true;
     new_node->size = current_node->size - (size + header_size);
-    new_node->prev = current_node->prev;
+    new_node->prev = current_node;
     new_node->next = current_node->next;
+    if( current_node->next != NULL) {
+        current_node->next->prev = new_node;
+    }
+    current_node->next = new_node;
+
     return new_node;
 }
