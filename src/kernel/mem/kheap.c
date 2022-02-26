@@ -69,7 +69,19 @@ void *kmalloc(size_t size) {
 }
 
 void expand_heap(size_t required_size) {
-    size_t number_of_pages = required_size / PAGE_SIZE + 1;
+    size_t number_of_pages = required_size / KERNEL_PAGE_SIZE + 1;
+    uint64_t heap_end = compute_kheap_end();
+    map_vaddress_range(heap_end, 0, number_of_pages);
+    KHeapMemoryNode *new_tail = (KHeapMemoryNode *) heap_end;
+    new_tail->next = NULL;
+    new_tail->prev = kernel_heap_end;
+    new_tail->size = KERNEL_PAGE_SIZE * number_of_pages;
+    new_tail->is_free = true;
+    
+}
+
+uint64_t compute_kheap_end() {
+    return (uint64_t)kernel_heap_end + kernel_heap_end->size + sizeof(KHeapMemoryNode);
 }
 
 

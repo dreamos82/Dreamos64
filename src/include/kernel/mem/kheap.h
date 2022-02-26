@@ -27,6 +27,7 @@ void initialize_kheap();
 KHeapMemoryNode* create_kheap_node(KHeapMemoryNode *, size_t);
 
 size_t align(size_t);
+uint64_t compute_kheap_end();
 //Allocation functions
 void *kmalloc(size_t);
 void kfree(void *);

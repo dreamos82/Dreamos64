@@ -1,3 +1,4 @@
+#include <bitmap.h>
 #include <vmm.h>
 #include <vm.h>
 #include <video.h>
@@ -54,16 +55,10 @@ void *map_phys_to_virt_addr(void* physical_address, void* address, unsigned int 
 		pml4_table[pml4_e] = (uint64_t) new_table | WRITE_BIT | PRESENT_BIT;
 		clean_new_table(new_table);
 	}
-#if VERBOSE_OUTPUT == 1
-	_printStringAndNumber("P4_table[pml4_e]: ", p4_table[pml4_e]);
-    _printStringAndNumber("PML4 Value: ", pml4_table[pml4_e]);
-#endif
+
     uint16_t pdpr_e = PDPR_ENTRY((uint64_t) address);
 	uint64_t *pdpr_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l,510l,510l,pml4_e));
-#if VERBOSE_OUTPUT == 1
-    _printStringAndNumber("PDPR Value: ", pdpr_e);
-    _printStringAndNumber("PDPR Table[pdpr_e]: ", pdpr_table[pdpr_e]);
-#endif
+
 	if( !(pdpr_table[pdpr_e] & 0b1)) {
 		uint64_t *new_table = pmm_alloc_frame();
 		pdpr_table[pdpr_e] = (uint64_t) new_table | WRITE_BIT | PRESENT_BIT;
@@ -101,7 +96,7 @@ void *map_vaddress(void *virtual_address, unsigned int flags){
 
 void map_vaddress_range(void *virtual_address, unsigned int flags, size_t required_pages) {
     for(size_t i = 0; i < required_pages; i++) {
-        map_vaddress(virtual_address + (i + PAGE_SIZE), flags);
+        map_vaddress(virtual_address + (i * PAGE_SIZE_IN_BYTES), flags);
     }
 }
 
