@@ -36,6 +36,7 @@ extern uint64_t multiboot_framebuffer_data;
 extern uint64_t multiboot_mmap_data;
 extern uint64_t multiboot_basic_meminfo;
 extern uint64_t multiboot_acpi_info;
+extern uint64_t end_of_mapped_memory;
 struct multiboot_tag_framebuffer *tagfb = NULL;
 struct multiboot_tag_basic_meminfo *tagmem = NULL;
 struct multiboot_tag_old_acpi *tagold_acpi = NULL;
@@ -199,7 +200,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
     //set_irq(0);
     //start_apic_timer(0, 0);
     //asm("sti");
-    
+    printf("(END of Mapped memory: 0x%x)\n", end_of_mapped_memory);
     printf("Init end!! Starting infinite loop\n");
     while(1);
 }
