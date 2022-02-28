@@ -102,13 +102,10 @@ void _init_basic_system(unsigned long addr){
 										+ ((tag->size + 7) & ~7))){
         switch(tag->type){
            case MULTIBOOT_TAG_TYPE_ELF_SECTIONS:
-                _printStr("Found elf sections");
-                _printStringAndNumber("--Size: 0x", tag->size);
-                _printNewLine();
+                printf("Found ELF sections. Size: --0x%x\n", tag->size);
                 break;
             default:
-                _printStringAndNumber("Tag 0x", tag->type);
-                _printStringAndNumber("--Size: 0x", tag->size);
+                printf("--Tag 0x%x - Size: 0x%x\n", tag->size);
                 break;
         }
     }
@@ -127,14 +124,17 @@ void kernel_start(unsigned long addr, unsigned long magic){
     _printStringAndNumber("Kernel End: ", (unsigned long)&_kernel_end);
     _printStringAndNumber("Kernel physical end: ", (unsigned long)&_kernel_physical_end);
     //test_image();
+    // Reminder here: The firt 8 bytes have a fixed structure in the multiboot info:
+    // They are: 0-4: size of the boot information in bytes
+    //           4-8: Reserved (0) 
     unsigned size = *(unsigned*)addr;
     _printStringAndNumber("Size: ", size);
 	_printStringAndNumber("Magic: ", magic);
     _printNewLine();
 	if(magic == 0x36d76289){
-		_printStr("Magic number verified");
+        printf("Magic number verified\n");
 	} else {
-		_printStr("Failed to verify magic number. Something wrong");
+		printf("Failed to verify magic number. Something is wrong\n");
 	}
     PSF_font *font = (PSF_font*)&_binary_fonts_default_psf_start;
     _printStringAndNumber("Magic: ", font->magic);
@@ -157,15 +157,13 @@ void kernel_start(unsigned long addr, unsigned long magic){
         _fb_printStr(" -- Welcome --", 0, 2, 0xFFFFFF, 0x3333ff);
     #endif
     char *cpuid_model = _cpuid_model();
-    _printStr("Cpuid model: ");
-    _printStr(cpuid_model);
-    _printNewLine();
+    printf("Cpuid model: %s\n", cpuid_model);
     uint32_t cpu_info = 0;
     cpu_info = _cpuid_feature_apic();
     _printStringAndNumber("Cpu info result: ", cpu_info);
-    printf("Init apic part\n");
     init_apic();
     _mmap_setup();
+    //Is that a test?
     pmm_reserve_area(0x10000, 10);
     char test_buffer[5];
     /*int test_size = _getDecString(test_buffer, 250);
@@ -201,6 +199,8 @@ void kernel_start(unsigned long addr, unsigned long magic){
     //start_apic_timer(0, 0);
     //asm("sti");
     printf("(END of Mapped memory: 0x%x)\n", end_of_mapped_memory);
+    char *a = kmalloc(5);
+    printf("A: 0x%x\n", a);
     printf("Init end!! Starting infinite loop\n");
     while(1);
 }
