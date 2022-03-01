@@ -36,7 +36,6 @@ void _initialize_bitmap(unsigned long end_of_reserved_area){
     for (uint32_t i=0; i<number_of_entries; i++){
         memory_map[i] = 0x0;
     }
-    printf("Here\n");
     
     uint32_t kernel_entries = _compute_kernel_entries(end_of_reserved_area);
     uint32_t number_of_bitmap_rows = kernel_entries/64;

@@ -9,6 +9,7 @@ KHeapMemoryNode *kernel_heap_current_pos;
 KHeapMemoryNode *kernel_heap_end;
     
 extern unsigned int _kernel_end;
+extern unsigned int end_of_mapped_memory;
 
 void initialize_kheap(){
     //That should be mapped? 
@@ -71,6 +72,10 @@ void *kmalloc(size_t size) {
 void expand_heap(size_t required_size) {
     size_t number_of_pages = required_size / KERNEL_PAGE_SIZE + 1;
     uint64_t heap_end = compute_kheap_end();
+    if( heap_end > end_of_mapped_memory ) {
+        //end_of_mapped memory marks the end of the memory mapped by the kernel loader.
+        //if the new heap address is above that, we need to map a new one, otherwise we can just mark it as used.
+    }
     map_vaddress_range(heap_end, 0, number_of_pages);
     KHeapMemoryNode *new_tail = (KHeapMemoryNode *) heap_end;
     new_tail->next = NULL;
