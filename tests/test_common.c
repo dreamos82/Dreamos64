@@ -30,3 +30,7 @@ void *map_vaddress(void *address, unsigned int flags){
     return NULL;
 }
 
+
+void map_vaddress_range(void *virtual_address, unsigned int flags, size_t required_pages) {
+    return;
+}
