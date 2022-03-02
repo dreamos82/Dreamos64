@@ -7,17 +7,18 @@
 #include <stddef.h>
 #include <string.h>
 #include <numbers.h>
-
+#include <vmm.h>
 
 RSDT* rsdt_root = NULL;
 unsigned int rsdtTablesTotal = 0;
 
 void parse_RSDT(RSDPDescriptor *descriptor){
     printf("Parse RSDP Descriptor\n");
-    rsdt_root = (RSDT *) descriptor->RsdtAddress;
     printf("descriptor Address: 0x%x\n", descriptor->RsdtAddress);
+    map_phys_to_virt_addr(descriptor->RsdtAddress, ensure_address_in_higher_half(descriptor->RsdtAddress), 0);
+    rsdt_root = (RSDT *) ensure_address_in_higher_half((uint64_t) descriptor->RsdtAddress);
+    printf("RSDT_Address: %x\n", ensure_address_in_higher_half(descriptor->RsdtAddress));
     ACPISDTHeader header = rsdt_root->header;
-    
     printf("RSDT_Signature: %.4s\n", header.Signature);
     printf("RSDT_Lenght: %d\n", header.Length);
     rsdtTablesTotal = (header.Length - sizeof(ACPISDTHeader)) / sizeof(uint32_t);

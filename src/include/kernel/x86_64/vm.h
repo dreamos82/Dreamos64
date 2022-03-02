@@ -31,4 +31,5 @@ void initialize_vm();
 void clean_new_table(uint64_t *);
 
 void invalidate_page_table(uint64_t *);
+uint64_t ensure_address_in_higher_half( uint64_t );
 #endif

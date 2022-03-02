@@ -1,6 +1,7 @@
 #include <vm.h>
 #include <video.h>
 #include <framebuffer.h>
+#include <main.h>
 
 extern uint32_t FRAMEBUFFER_MEMORY_SIZE;
 
@@ -42,4 +43,11 @@ void invalidate_page_table(uint64_t *table_address){
     	:
     	: "r"((uint64_t)table_address)
     	: "memory");
+}
+
+uint64_t ensure_address_in_higher_half( uint64_t address ) {
+    if ( address > _HIGHER_HALF_KERNEL_MEM_START ) {
+        return address;
+    }
+    return address + _HIGHER_HALF_KERNEL_MEM_START;
 }
