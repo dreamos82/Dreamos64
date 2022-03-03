@@ -89,7 +89,7 @@ void *map_phys_to_virt_addr(void* physical_address, void* address, unsigned int 
     // Every entry in the page table is a 4kb page of physical memory
     if(!(pt_table[pt_e] & 0b1)) {
     uint64_t *new_table = pmm_alloc_frame();
-        pt_table[pt_e] = (uint64_t) physical_address | WRITE_BIT | PRESENT_BIT;
+        pt_table[pt_e] = (uint64_t) physical_address | flags | WRITE_BIT | PRESENT_BIT;
     }
 #endif
 
