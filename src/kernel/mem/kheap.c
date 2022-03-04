@@ -152,7 +152,11 @@ uint64_t compute_kheap_end() {
 
 void kfree(void *ptr) {
     if(ptr == NULL) {
-        printf("REturning null\n");
+        printf("Returning null\n");
+        return;
+    }
+
+    if ( (uint64_t) ptr < (uint64_t) kernel_heap_start && (uint64_t) ptr > (uint64_t) kernel_heap_end) {
         return;
     }
 /*    if((uint64_t) ptr < (uint64_t) kernel_heap_start && (uint64_t)ptr < (uint64_t)kernel_heap_end) {
