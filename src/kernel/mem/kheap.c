@@ -43,7 +43,7 @@ void *kmalloc(size_t size) {
         if( current_node->is_free) {
             if( current_node->size >= real_size ) {
                 // Ok we have found a node big enough
-                printf("Found suitable node requested size: 0x%x - requested real_size: 0x%x - requested_size: 0x%x\n", current_node->size, real_size, size);
+                printf("Found suitable node current size: 0x%x - requested real_size: 0x%x - requested_size: 0x%x address: 0x%x\n", current_node->size, real_size, size, current_node);
                 if( current_node->size - real_size > KHEAP_MINIMUM_ALLOCABLE_SIZE ) {
                     // We can keep shrinking the heap, since we still have enough space!
                     // But we need a new node for the allocated area
@@ -151,6 +151,7 @@ uint64_t compute_kheap_end() {
 }*/
 
 void kfree(void *ptr) {
+    // Before doing anything let's check that the address provided is valid: not null, and within the heap space
     if(ptr == NULL) {
         printf("Returning null\n");
         return;
@@ -159,6 +160,28 @@ void kfree(void *ptr) {
     if ( (uint64_t) ptr < (uint64_t) kernel_heap_start && (uint64_t) ptr > (uint64_t) kernel_heap_end) {
         return;
     }
+
+    // Now we can search for the node containing our address
+    KHeapMemoryNode *current_node = kernel_heap_start;
+    while( current_node != NULL ) {
+        if( ((uint64_t) current_node + sizeof(KHeapMemoryNode)) == (uint64_t) ptr) {
+            printf("Address found should be marked as used(0): %d\n", current_node->is_free);
+            current_node->is_free = true;
+            uint8_t available_merges = can_merge(current_node);
+ 
+            printf("available merges; left: %d - right: %d\n", available_merges & MERGE_LEFT, available_merges & MERGE_RIGHT);
+            if( available_merges & MERGE_RIGHT ) {
+                merge_memory_nodes(current_node, current_node->next);
+            }
+           
+            if( available_merges & MERGE_LEFT ) {
+                merge_memory_nodes(current_node->prev, current_node);
+            }
+            
+        }
+        current_node = current_node->next;
+    }
+
 /*    if((uint64_t) ptr < (uint64_t) kernel_heap_start && (uint64_t)ptr < (uint64_t)kernel_heap_end) {
         return;
     }
@@ -197,6 +220,32 @@ void kfree(void *ptr) {
     }*/
 }
 
+uint8_t can_merge(KHeapMemoryNode *cur_node) {
+    // This function checks if the current node can be merged to both left and right
+    // There return value is a 2 bits field: bit #0 is set if the node can be merged right
+    // bit #1 is set if the node can be merged left. Bot bits set means it can merge in both diections
+    KHeapMemoryNode *prev_node = cur_node->prev;
+    KHeapMemoryNode *next_node = cur_node->next;
+    uint8_t available_merges = 0;
+    printf("Cur node val: 0x%x\n", cur_node);
+    if( prev_node != NULL && prev_node->is_free ) {
+        printf(" Prv_node address: 0x%x\n", prev_node);
+        uint64_t prev_address = (uint64_t) prev_node + sizeof(KHeapMemoryNode) + prev_node->size;
+        if ( prev_address == (uint64_t) cur_node ) {
+            available_merges = available_merges | MERGE_LEFT;
+        }
+    }
+    if( next_node != NULL && next_node->is_free ) {
+        printf(" Nxt_node address: 0x%x\n", next_node);        
+        uint64_t next_address = (uint64_t) cur_node + sizeof(KHeapMemoryNode) + cur_node->size;
+        if ( next_address == (uint64_t) cur_node->next ) {
+            available_merges = available_merges | MERGE_RIGHT;
+        }
+
+    }
+
+    return available_merges;
+}
 void merge_memory_nodes(KHeapMemoryNode *left_node, KHeapMemoryNode *right_node) {
     if(left_node == NULL || right_node == NULL) {
         printf(" left or right is null\n");

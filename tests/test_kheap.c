@@ -62,13 +62,16 @@ void test_kmalloc(){
 void test_kfree(){
     printf("--- Testing kfree ---\n");
     KHeapMemoryNode *original_end = kernel_heap_end;
-    printf("- Testing kfree with null, nothing should happen\n");
+    printf("Kernel heap end size: 0x%x\n", kernel_heap_end->size);
+    printf("KHeapMemoryNode size: 0x%x\n", sizeof(KHeapMemoryNode));
     kfree(NULL);
     assert(original_end == kernel_heap_end);
     printf("- Testing kfree right after a malloc\n");
-    /*char *test_ptr = (char *) kmalloc(10);
+    char *test_ptr = (char *) kmalloc(10);
+    printf("Kernel heap end size: 0x%x\n", kernel_heap_end->size);
+    printf("test_ptr: 0x%x\n", test_ptr);
     kfree(test_ptr);
-    printf("- Testing kernel_heap_end:0x%x==(test_ptr-sizeof(KHeapMemoryNode)):0x%x\n", kernel_heap_end, (test_ptr - sizeof(KHeapMemoryNode)));
+    /*printf("- Testing kernel_heap_end:0x%x==(test_ptr-sizeof(KHeapMemoryNode)):0x%x\n", kernel_heap_end, (test_ptr - sizeof(KHeapMemoryNode)));
     assert((uint64_t) kernel_heap_end == (uint64_t) (test_ptr - sizeof(KHeapMemoryNode)));
     printf("- Testing two consecutive mallocs\n");
     char *test_ptr2 = (char *) kmalloc(10);

@@ -15,6 +15,11 @@
 #define HEAP_ALLOC_ALIGNMENT 0x10
 #define KHEAP_MINIMUM_ALLOCABLE_SIZE 0x20
 
+#define MERGE_RIGHT 0b01
+#define MERGE_LEFT  0b10
+#define MERGE_BOTH  0b11
+#define MERGE_NONE  0b00
+
 typedef struct KHeapMemoryNode {
     uint64_t size;
     bool is_free;
@@ -31,5 +36,5 @@ uint64_t compute_kheap_end();
 //Allocation functions
 void *kmalloc(size_t);
 void kfree(void *);
-
+uint8_t can_merge( KHeapMemoryNode *);
 #endif
