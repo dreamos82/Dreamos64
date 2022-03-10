@@ -164,6 +164,7 @@ void kfree(void *ptr) {
     // Now we can search for the node containing our address
     KHeapMemoryNode *current_node = kernel_heap_start;
     while( current_node != NULL ) {
+        printf("Current_node: 0x%x - PTR: 0x%x\n", ((uint64_t)current_node + sizeof(KHeapMemoryNode), ptr));
         if( ((uint64_t) current_node + sizeof(KHeapMemoryNode)) == (uint64_t) ptr) {
             printf("Address found should be marked as used(0): %d\n", current_node->is_free);
             current_node->is_free = true;
@@ -171,12 +172,15 @@ void kfree(void *ptr) {
  
             printf("available merges; left: %d - right: %d\n", available_merges & MERGE_LEFT, available_merges & MERGE_RIGHT);
             if( available_merges & MERGE_RIGHT ) {
+                printf("\tMerging right\n");
                 merge_memory_nodes(current_node, current_node->next);
             }
            
             if( available_merges & MERGE_LEFT ) {
+                printf("\tMerging left\n");
                 merge_memory_nodes(current_node->prev, current_node);
             }
+            return;
             
         }
         current_node = current_node->next;
@@ -220,6 +224,18 @@ void kfree(void *ptr) {
     }*/
 }
 
+#ifdef _TEST_
+uint8_t get_kheap_size(KHeapMemoryNode *heap_start) {
+    KHeapMemoryNode *cur_node = heap_start;
+    uint8_t size = 0;
+    while( cur_node != NULL ) {
+        size++;
+        cur_node = cur_node->next;        
+    }
+    return size;
+}
+#endif
+
 uint8_t can_merge(KHeapMemoryNode *cur_node) {
     // This function checks if the current node can be merged to both left and right
     // There return value is a 2 bits field: bit #0 is set if the node can be merged right
@@ -252,7 +268,7 @@ void merge_memory_nodes(KHeapMemoryNode *left_node, KHeapMemoryNode *right_node)
         return;
     }
     printf("left: 0x%x size: 0x%x - right: 0x%x size: 0x%x\n", left_node, left_node->size, right_node, right_node->size);
-    if(((uint64_t) left_node +  left_node->size) == (uint64_t) right_node) {
+    if(((uint64_t) left_node +  left_node->size + sizeof(KHeapMemoryNode)) == (uint64_t) right_node) {
         printf("They can be combined\n");
         //We can combine the two nodes:
         //1. Sum the sizes

@@ -37,4 +37,9 @@ uint64_t compute_kheap_end();
 void *kmalloc(size_t);
 void kfree(void *);
 uint8_t can_merge( KHeapMemoryNode *);
+
+#ifdef _TEST_
+uint8_t get_kheap_size(KHeapMemoryNode *);
+#endif
+
 #endif
