@@ -71,8 +71,9 @@ void expand_heap(size_t required_size) {
     if( heap_end > end_of_mapped_memory ) {
         //end_of_mapped memory marks the end of the memory mapped by the kernel loader.
         //if the new heap address is above that, we need to map a new one, otherwise we can just mark it as used.
+        //That part temporary, it needs to be reviewed when the memory mapping will be reviewed.
+        map_vaddress_range(heap_end, 0, number_of_pages);
     }
-    map_vaddress_range(heap_end, 0, number_of_pages);
     KHeapMemoryNode *new_tail = (KHeapMemoryNode *) heap_end;
     new_tail->next = NULL;
     new_tail->prev = kernel_heap_end;
