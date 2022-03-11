@@ -47,6 +47,8 @@ void test_kmalloc(){
     assert(test_ptr == NULL);
     assert(kernel_heap_start == kernel_heap_end);
     test_ptr = NULL;
+    printf(" - Testing that the size of the heap is 1\n");
+    assert(get_kheap_size(kernel_heap_start) == 1);
     test_ptr = (char *) kmalloc(10);
     printf("test_ptr value: 0x%x\n", test_ptr);
     assert(kernel_heap_start == (test_ptr - sizeof(KHeapMemoryNode)));
