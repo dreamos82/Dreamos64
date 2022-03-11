@@ -9,6 +9,8 @@ extern KHeapMemoryNode* kernel_heap_start;
 extern KHeapMemoryNode* kernel_heap_current_pos;
 extern KHeapMemoryNode* kernel_heap_end;
 
+unsigned int end_of_mapped_memory;;
+
 uint64_t _kernel_end = 0x1190AC;
 uint64_t kheap_size = 8 * PAGE_SIZE;
 
@@ -28,6 +30,7 @@ int main(){
     printf("*  Initialized heap of size: %d\n", kernel_heap_start->size);
     printf("Address of kheap: 0x%X\n", kernel_heap_start);
     kernel_heap_end = kernel_heap_start;
+    end_of_mapped_memory = kernel_heap_end + 0x15000;
     printf("* Initializing sizeof heap structure: ... %d\n", sizeof(KHeapMemoryNode));
     printf("* Address of kheap: 0x%X\n", kernel_heap_end);
     printf("- Kheap size: %d\n", get_kheap_size(kernel_heap_start));
