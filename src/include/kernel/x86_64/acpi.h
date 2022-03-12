@@ -4,6 +4,9 @@
 #include <stdint.h>
 #include <cpu.h>
 
+#define RSDT_V1 14
+#define RSDT_V2 15
+
 typedef struct {
   char Signature[4];
   uint32_t Length;
@@ -21,6 +24,7 @@ typedef struct {
     uint32_t nextSDT_item[1];
 } __attribute__((packed)) RSDT_item;
 
+void parse_SDT(uint64_t, uint8_t);
 void parse_RSDT(RSDPDescriptor *);
 void parse_RSDTv2(RSDPDescriptor20 *);
 int validate_RSDP(RSDPDescriptor *);
