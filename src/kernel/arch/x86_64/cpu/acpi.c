@@ -11,6 +11,8 @@
 #include <kheap.h>
 
 RSDT* rsdt_root = NULL;
+XSDT* xsdt_root = NULL;
+
 unsigned int rsdtTablesTotal = 0;
 
 void parse_SDT(uint64_t address, uint8_t type) {
@@ -54,9 +56,11 @@ void parse_RSDTv2(RSDPDescriptor20 *descriptor){
     printf("Parse RSDP v2 Descriptor\n");
     printf("- Descriptor address: 0x%x\n", descriptor->XsdtAddress);
     map_phys_to_virt_addr((void *) descriptor->XsdtAddress, (void *) ensure_address_in_higher_half(descriptor->XsdtAddress), 0);
-    printf("- RSDTv2_Address: %x\n", (uint64_t) ensure_address_in_higher_half(descriptor->XsdtAddress));
-    rsdt_root = (RSDT *) ensure_address_in_higher_half(descriptor->XsdtAddress);
+    printf("- RSDTv2_Address: %x\n",  ensure_address_in_higher_half((uint64_t)descriptor->XsdtAddress));
+    xsdt_root = (XSDT *) ensure_address_in_higher_half(descriptor->XsdtAddress);
     printf("- RSDTv2_Length: 0x%x\n", descriptor->Length);
+    ACPISDTHeader header = xsdt_root->header;
+    printf("- XSDT_Signature: %.4s\n", header.Signature);
 }
 
 
@@ -84,7 +88,7 @@ ACPISDTHeader* get_RSDT_Item(char* table_name) {
  * @return true if the validation is succesfull
  */
 bool validate_RSDP(char *descriptor, size_t size){
-    uint8_t sum = 0;
+    uint32_t sum = 0;
     printf("Bytes: ");
     for (uint32_t i=0; i < size; i++){
         sum += ((char*) descriptor)[i];
