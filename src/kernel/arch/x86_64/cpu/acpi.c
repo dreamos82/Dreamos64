@@ -56,7 +56,7 @@ void parse_RSDTv2(RSDPDescriptor20 *descriptor){
     printf("Parse RSDP v2 Descriptor\n");
     printf("- Descriptor address: 0x%x\n", descriptor->XsdtAddress);
     map_phys_to_virt_addr((void *) descriptor->XsdtAddress, (void *) ensure_address_in_higher_half(descriptor->XsdtAddress), 0);
-    printf("- RSDTv2_Address: %x\n",  ensure_address_in_higher_half((uint64_t)descriptor->XsdtAddress));
+    printf("- RSDTv2_Address: %x\n",  (uint64_t) ensure_address_in_higher_half(descriptor->XsdtAddress));
     xsdt_root = (XSDT *) ensure_address_in_higher_half(descriptor->XsdtAddress);
     printf("- RSDTv2_Length: 0x%x\n", descriptor->Length);
     ACPISDTHeader header = xsdt_root->header;

@@ -5,23 +5,22 @@
 
 extern uint32_t FRAMEBUFFER_MEMORY_SIZE;
 
-void page_fault_handler(uint64_t error_code){
-    _printStr("Welcome to #PF world - Not ready yet... \n");
+void page_fault_handler(uint64_t error_code) {
+    // TODO: Add ptable info when using 4k pages
+    printf("Welcome to #PF world - Not ready yet... \n");
     uint64_t cr2_content = 0;
     uint64_t pd;
     uint64_t pdpr;
     uint64_t pml4;  
     asm ("mov %%cr2, %0" : "=r" (cr2_content) );
-    _printStringAndNumber("-- Error code value: ", error_code);
-    _printStringAndNumber("--  Faulting address: ", cr2_content);
+    printf("-- Error code value: %d\n", error_code);
+    printf("--  Faulting address: 0x%X\n", cr2_content);
     cr2_content = cr2_content & VM_OFFSET_MASK;
-    _printStringAndNumber("-- Address prepared for PD/PT extraction: ", cr2_content);
+    printf("-- Address prepared for PD/PT extraction: %x\n", cr2_content);
     pd = PD_ENTRY(cr2_content); 
     pdpr = PDPR_ENTRY(cr2_content);
     pml4 = PML4_ENTRY(cr2_content);
-    _printStringAndNumber("pd: ", pd);
-    _printStringAndNumber("pdpr: ", pdpr);
-    _printStringAndNumber("pml4: ", pml4);
+    printf("Entries: pd: 0x%X - pdpr: 0x%X - PML4 0x%X\n", pd, pdpr, pml4);
     asm("hlt");
 }
 
