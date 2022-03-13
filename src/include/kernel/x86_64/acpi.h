@@ -2,6 +2,8 @@
 #define _ACPI_H
 
 #include <stdint.h>
+#include <stddef.h>
+#include <stdbool.h>
 #include <cpu.h>
 
 #define RSDT_V1 14
@@ -27,7 +29,7 @@ typedef struct {
 void parse_SDT(uint64_t, uint8_t);
 void parse_RSDT(RSDPDescriptor *);
 void parse_RSDTv2(RSDPDescriptor20 *);
-int validate_RSDP(RSDPDescriptor *);
+bool validate_RSDP(char *, size_t);
 
 ACPISDTHeader* get_RSDT_Item(char *);
 #endif

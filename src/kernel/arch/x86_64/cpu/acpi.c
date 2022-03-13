@@ -50,6 +50,16 @@ void parse_RSDT(RSDPDescriptor *descriptor){
     }
 }
 
+void parse_RSDTv2(RSDPDescriptor20 *descriptor){
+    printf("Parse RSDP v2 Descriptor\n");
+    printf("- Descriptor address: 0x%x\n", descriptor->XsdtAddress);
+    map_phys_to_virt_addr((void *) descriptor->XsdtAddress, (void *) ensure_address_in_higher_half(descriptor->XsdtAddress), 0);
+    printf("- RSDTv2_Address: %x\n", (uint64_t) ensure_address_in_higher_half(descriptor->XsdtAddress));
+    rsdt_root = (RSDT *) ensure_address_in_higher_half(descriptor->XsdtAddress);
+    printf("- RSDTv2_Length: 0x%x\n", descriptor->Length);
+}
+
+
 ACPISDTHeader* get_RSDT_Item(char* table_name) {
     if(rsdt_root == NULL) {
         return NULL;
@@ -66,31 +76,21 @@ ACPISDTHeader* get_RSDT_Item(char* table_name) {
     return NULL;
 }
 
-void parse_RSDTv2(RSDPDescriptor20 *descriptor){
-    printf("Parse RSDP v2 Descriptor\n");
-    printf("Descriptor address: 0x%x\n", descriptor->XsdtAddress);
-    map_phys_to_virt_addr((void *) descriptor->XsdtAddress, (void *) ensure_address_in_higher_half(descriptor->XsdtAddress), 0);
-    printf("RSDTv2_Address: %x\n", (uint64_t) ensure_address_in_higher_half(descriptor->XsdtAddress));
-    rsdt_root = (RSDT *) ensure_address_in_higher_half(descriptor->XsdtAddress);
-    printf("RSDTv2_Length: 0x%x\n", descriptor->Length);
-    while(1);
-}
-
-
-int validate_RSDP(RSDPDescriptor *descriptor){
+/*! \brief It validate the RSDP (v1 and v2) checksum
+ * 
+ * Given the descriptor as a byte array, it sums each byte, and if the last byte of the sum is 0 this means that the structure is valid.
+ * @param decriptor the RSDPv1/v2 descriptor
+ * @param the size of the struct used by descriptor (should be the size of: RSDPDescriptor or RSDPDescriptorv2)
+ * @return true if the validation is succesfull
+ */
+bool validate_RSDP(char *descriptor, size_t size){
     uint8_t sum = 0;
-    char number[30];
-
-    for (uint32_t i=0; i < sizeof(RSDPDescriptor); i++){
+    printf("Bytes: ");
+    for (uint32_t i=0; i < size; i++){
         sum += ((char*) descriptor)[i];
-        _getHexString(number, sum, false);
-        _printStr(number);
-        _printStr(" ");
+        printf("%x - ", sum); 
     }
-    _printNewLine();
-    _getHexString(number, sum, false);
-    _printStr("Checksum of RSDP is: ");
-    _printStr(number);
-    _printNewLine();
-    return sum == 0;
+    printf("End\n");
+    printf("Checksum of RSDP is: 0x%x\n", sum&0xFF);
+    return (sum&0xFF == 0);
 }

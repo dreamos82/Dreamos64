@@ -86,13 +86,16 @@ void _init_basic_system(unsigned long addr){
         _printStringAndNumber("Found acpi RSDP: ", tagold_acpi->type);
         _printStringAndNumber("Found acpi RSDP address: ", (unsigned long) &tagold_acpi);
         RSDPDescriptor *descriptor = (RSDPDescriptor *)(tagacpi+1);
-        validate_RSDP(descriptor);
-        parse_RSDT(descriptor);
+        validate_RSDP((char *) descriptor, sizeof(RSDPDescriptor));
+        parse_SDT((uint64_t) descriptor, MULTIBOOT_TAG_TYPE_ACPI_OLD);
     } else if(tagacpi->type == MULTIBOOT_TAG_TYPE_ACPI_NEW){
         tagnew_acpi = (struct multiboot_tag_new_acpi *)tagacpi;
         _printStringAndNumber("Found acpi RSDPv2: ", tagnew_acpi->type);
         _printStringAndNumber("Found acpi RSDP address: ", (unsigned long) &tagnew_acpi);
-        _printStr("To be implemented");
+        RSDPDescriptor20 *descriptor = (RSDPDescriptor20 *) (tagacpi+1);
+        parse_RSDTv2(descriptor);
+        validate_RSDP((char *) descriptor, sizeof(RSDPDescriptor20));
+        while(1);
     }
  
 	for (tag=(struct multiboot_tag *) (addr + _HIGHER_HALF_KERNEL_MEM_START + 8);
