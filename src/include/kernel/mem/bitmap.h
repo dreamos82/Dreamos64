@@ -6,9 +6,9 @@
 #include <stdbool.h>
 
 #if SMALL_PAGES == 0
-    #define PAGE_SIZE_IN_BYTES 0x200000
+    #define PAGE_SIZE_IN_BYTES 0x200000l
 #elif SMALL_PAGES == 1
-    #define PAGE_SIZE_IN_BYTES 0x1000
+    #define PAGE_SIZE_IN_BYTES 0x1000l
 #endif
 
 #define BITMAP_ENTRY_FULL 0xfffffffffffffff
