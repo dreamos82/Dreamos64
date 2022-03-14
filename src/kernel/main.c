@@ -95,7 +95,6 @@ void _init_basic_system(unsigned long addr){
         RSDPDescriptor20 *descriptor = (RSDPDescriptor20 *) (tagacpi+1);
         parse_RSDTv2(descriptor);
         validate_RSDP((char *) descriptor, sizeof(RSDPDescriptor20));
-        while(1);
     }
  
 	for (tag=(struct multiboot_tag *) (addr + _HIGHER_HALF_KERNEL_MEM_START + 8);

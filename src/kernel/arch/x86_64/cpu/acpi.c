@@ -15,6 +15,7 @@ RSDT* rsdt_root = NULL;
 XSDT* xsdt_root = NULL;
 
 unsigned int rsdtTablesTotal = 0;
+uint8_t sdt_version = RSDT_V2;
 
 void parse_SDT(uint64_t address, uint8_t type) {
     if ( type == RSDT_V1) {
@@ -33,6 +34,7 @@ void parse_RSDT(RSDPDescriptor *descriptor){
     ACPISDTHeader header = rsdt_root->header;
     printf("- RSDT_Signature: %.4s\n", header.Signature);
     printf("- RSDT_Lenght: %d\n", header.Length);
+    sdt_version = RSDT_V1;
     // Ok we are here and we have mapped the "head of rsdt", it will stay most likely in one page, but there is no way
     // to know the length of the whole table before mapping its header. So now we are able to check if we need to map extra pages
     size_t required_extra_pages = (header.Length / KERNEL_PAGE_SIZE) + 1;
@@ -48,7 +50,8 @@ void parse_RSDT(RSDPDescriptor *descriptor){
     printf("- Total rsdt Tables: %d\n", rsdtTablesTotal);
     
     for(int i=0; i < rsdtTablesTotal; i++) {
-        ACPISDTHeader *tableHeader = (ACPISDTHeader *) rsdt_root->tables[i];
+        map_phys_to_virt_addr(ALIGN_PHYSADDRESS(rsdt_root->tables[i]), ensure_address_in_higher_half(rsdt_root->tables[i]), 0);
+        ACPISDTHeader *tableHeader = (ACPISDTHeader *) ensure_address_in_higher_half(rsdt_root->tables[i]);
         printf("\tTable header %d: Signature: %.4s\n", i, tableHeader->Signature);
     }
 }
@@ -59,19 +62,52 @@ void parse_RSDTv2(RSDPDescriptor20 *descriptor){
     map_phys_to_virt_addr((void *) ALIGN_PHYSADDRESS(descriptor->XsdtAddress), (void *) ensure_address_in_higher_half(descriptor->XsdtAddress), 0);
     printf("- RSDTv2_Address: %x\n",  (uint64_t) ensure_address_in_higher_half(descriptor->XsdtAddress));
     xsdt_root = (XSDT *) ensure_address_in_higher_half((uint64_t) descriptor->XsdtAddress);
-    printf("- RSDTv2_Length: 0x%x\n", xsdt_root);
     printf("- RSDTv2_Length: 0x%x\n", descriptor->Length);
     ACPISDTHeader header = xsdt_root->header;
     printf("- XSDT_Signature: %.4s\n", header.Signature);
+    sdt_version = RSDT_V2;
+
+    size_t required_extra_pages = (header.Length / KERNEL_PAGE_SIZE) + 1;
+    printf("- XSDT_PAGES_NEEDED: %d\n", required_extra_pages);
+
+    if (required_extra_pages > 1) {
+        printf("- Mapping extra pages");
+        for (int j = 1; j < required_extra_pages; j++) {
+            uint64_t new_physical_address = descriptor->XsdtAddress + (j * KERNEL_PAGE_SIZE);
+            map_phys_to_virt_addr(new_physical_address, ensure_address_in_higher_half(new_physical_address), 0);
+        }
+    }
+    
+    rsdtTablesTotal = (header.Length - sizeof(ACPISDTHeader)) / sizeof(uint64_t);
+    printf("- Total xsdt Tables: %d\n", rsdtTablesTotal);
+    
+    for(int i=0; i < rsdtTablesTotal; i++) {
+        map_phys_to_virt_addr(ALIGN_PHYSADDRESS(xsdt_root->tables[i]), ensure_address_in_higher_half(xsdt_root->tables[i]), 0);
+        ACPISDTHeader *tableHeader = (ACPISDTHeader *) ensure_address_in_higher_half(xsdt_root->tables[i]);
+        printf("\tTable header %d: Signature: %.4s\n", i, tableHeader->Signature);
+    }
+
 }
 
 
 ACPISDTHeader* get_RSDT_Item(char* table_name) {
     if(rsdt_root == NULL) {
         return NULL;
-    }    
+    }
     for(int i=0; i < rsdtTablesTotal; i++){
-        ACPISDTHeader *tableItem = (ACPISDTHeader *) rsdt_root->tables[i];
+        ACPISDTHeader *tableItem;
+        switch(sdt_version) {
+            case RSDT_V1:
+                //tableItem = (ACPISDTHeader *) ensure_address_in_higher_half(rsdt_root->tables[i]);
+                tableItem = (ACPISDTHeader *) rsdt_root->tables[i];
+                break;
+            case RSDT_V2:
+                tableItem = (ACPISDTHeader *) ensure_address_in_higher_half(xsdt_root->tables[i]);
+                break;
+            default:
+                printf("That should not happen, PANIC\n");
+                return NULL;
+        }
         int return_value = strncmp(table_name, tableItem->Signature, 4);
         if(return_value == 0) {
             printf("Item Found...\n");
