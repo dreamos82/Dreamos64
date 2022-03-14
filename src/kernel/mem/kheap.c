@@ -79,6 +79,12 @@ void expand_heap(size_t required_size) {
     new_tail->prev = kernel_heap_end;
     new_tail->size = KERNEL_PAGE_SIZE * number_of_pages;
     new_tail->is_free = true;
+    kernel_heap_end->next = new_tail;
+    kernel_heap_end = new_tail;
+    uint8_t available_merges = can_merge(new_tail);
+    if ( available_merges & MERGE_LEFT) {
+        merge_memory_nodes(new_tail->prev, new_tail);
+    }
     
 }
 
@@ -93,7 +99,7 @@ void kfree(void *ptr) {
         return;
     }
 
-    if ( (uint64_t) ptr < (uint64_t) kernel_heap_start && (uint64_t) ptr > (uint64_t) kernel_heap_end) {
+    if ( (uint64_t) ptr < (uint64_t) kernel_heap_start || (uint64_t) ptr > (uint64_t) kernel_heap_end) {
         return;
     }
 
@@ -160,7 +166,7 @@ void merge_memory_nodes(KHeapMemoryNode *left_node, KHeapMemoryNode *right_node)
     if(((uint64_t) left_node +  left_node->size + sizeof(KHeapMemoryNode)) == (uint64_t) right_node) {
         //We can combine the two nodes:
         //1. Sum the sizes
-        left_node->size = left_node->size + right_node->size;
+        left_node->size = left_node->size + right_node->size + sizeof(KHeapMemoryNode);
         //2. left_node next item will point to the next item of the right node (since the right node is going to disappear)
         left_node->next = right_node->next;
         //3. Unless we reached the last item, we should also make sure that the element after the right node, will be linked 
