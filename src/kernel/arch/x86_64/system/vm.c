@@ -20,15 +20,10 @@ void page_fault_handler(uint64_t error_code) {
     pd = PD_ENTRY(cr2_content); 
     pdpr = PDPR_ENTRY(cr2_content);
     pml4 = PML4_ENTRY(cr2_content);
+    uint64_t *pd_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l,510l, (uint64_t) pml4, (uint64_t) pdpr));
     printf("Entries: pd: 0x%X - pdpr: 0x%X - PML4 0x%X\n", pd, pdpr, pml4);
+    printf("Entries: pd[0x%x]: 0x%X\n", pd, pd_table[pd]);
     asm("hlt");
-}
-
-void initialize_vm(){
-    //This function will map essential part of the memory (FB, ACPI stuff)
-#ifdef USE_FRAMEBUFFER
-
-#endif
 }
 
 void clean_new_table(uint64_t *table_to_clean){

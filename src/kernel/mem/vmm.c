@@ -46,7 +46,6 @@ int unmap_vaddress(void *address){
 
 void *map_phys_to_virt_addr(void* physical_address, void* address, unsigned int flags){
     uint16_t pml4_e = PML4_ENTRY((uint64_t) address);
-    printf("Mapping address: 0x%x - PML4 Entry: 0x%x\n", address, pml4_e);
     uint64_t *pml4_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l,510l,510l,510l));
     // If the pml4_e item in the pml4 table is not present, we need to create a new one.
     // Every entry in pml4 table points to a pdpr table
@@ -74,13 +73,12 @@ void *map_phys_to_virt_addr(void* physical_address, void* address, unsigned int 
     // Every entry in pdpr table points to a page table if using 4k pages, or to a 2mb memory area if using 2mb pages
     if(!(pd_table[pd_e] & 0b01)){
 #if SMALL_PAGES == 1
-        printf("Here...\n");
         uint64_t *new_table = pmm_alloc_frame();
         pd_table[pd_e] = (uint64_t) new_table | WRITE_BIT | PRESENT_BIT;
         clean_new_table(new_table);
 #elif SMALL_PAGES == 0
-        pd_table[pd_e] = (uint64_t) physical_address | WRITE_BIT | PRESENT_BIT | HUGEPAGE_BIT;
-        printf("Here...huge %d-%x\n", pd_e, pd_table[pd_e]);
+        pd_table[pd_e] = (uint64_t) (physical_address) | WRITE_BIT | PRESENT_BIT | HUGEPAGE_BIT;
+        printf("Here...huge %d-%x-%x\n", pd_e, (uint64_t) pd_table[pd_e], physical_address);
 #endif
     }
 
@@ -90,11 +88,9 @@ void *map_phys_to_virt_addr(void* physical_address, void* address, unsigned int 
     // This case apply only for 4kb pages, if the pt_e entry is not present in the page table we need to allocate a new 4k page
     // Every entry in the page table is a 4kb page of physical memory
     if(!(pt_table[pt_e] & 0b1)) {
-        uint64_t *new_table = pmm_alloc_frame();
         pt_table[pt_e] = (uint64_t) physical_address | flags | WRITE_BIT | PRESENT_BIT;
     }
 #endif
-    printf("Entries computed: pd: %x pdpr: %x pml4: %x\n", pd_e, pdpr_e, pml4_e);
     return address;
 }
 
