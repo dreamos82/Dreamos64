@@ -20,9 +20,19 @@ void page_fault_handler(uint64_t error_code) {
     pd = PD_ENTRY(cr2_content); 
     pdpr = PDPR_ENTRY(cr2_content);
     pml4 = PML4_ENTRY(cr2_content);
+    printf("Error flags: FETCH(%d) - RSVD(%d) - ACCESS(%d) - WRITE(%d) - PRESENT(%d)\n", \
+            error_code&FETCH_VIOLATION, \
+            error_code&RESERVED_VIOLATION, \
+            error_code&ACCESS_VIOLATION, \
+            error_code&WRITE_VIOLATION, \
+            error_code&PRESENT_VIOLATION);
     uint64_t *pd_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l,510l, (uint64_t) pml4, (uint64_t) pdpr));
+    uint64_t *pdpr_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l,510l, 510l, (uint64_t) pml4));
+    uint64_t *pml4_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l,510l, 510l, 510l));
     printf("Entries: pd: 0x%X - pdpr: 0x%X - PML4 0x%X\n", pd, pdpr, pml4);
     printf("Entries: pd[0x%x]: 0x%X\n", pd, pd_table[pd]);
+    printf("Entries: pdpr[0x%x]: 0x%X\n", pdpr, pdpr_table[pdpr]);
+    printf("Entries: pml4[0x%x]: 0x%X\n", pml4, pml4_table[pml4]);
     asm("hlt");
 }
 

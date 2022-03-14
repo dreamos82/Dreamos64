@@ -9,6 +9,7 @@
 #include <numbers.h>
 #include <vmm.h>
 #include <kheap.h>
+#include <vm.h>
 
 RSDT* rsdt_root = NULL;
 XSDT* xsdt_root = NULL;
@@ -54,8 +55,8 @@ void parse_RSDT(RSDPDescriptor *descriptor){
 
 void parse_RSDTv2(RSDPDescriptor20 *descriptor){
     printf("Parse RSDP v2 Descriptor\n");
-    printf("- Descriptor address: 0x%x\n", descriptor->XsdtAddress);
-    map_phys_to_virt_addr((void *) (descriptor->XsdtAddress & (~0x1fffffl)), (void *) ensure_address_in_higher_half(descriptor->XsdtAddress), 0);
+    printf("- Descriptor address: 0x%x\n", ALIGN_PHYSADDRESS(descriptor->XsdtAddress));
+    map_phys_to_virt_addr((void *) ALIGN_PHYSADDRESS(descriptor->XsdtAddress), (void *) ensure_address_in_higher_half(descriptor->XsdtAddress), 0);
     printf("- RSDTv2_Address: %x\n",  (uint64_t) ensure_address_in_higher_half(descriptor->XsdtAddress));
     xsdt_root = (XSDT *) ensure_address_in_higher_half((uint64_t) descriptor->XsdtAddress);
     printf("- RSDTv2_Length: 0x%x\n", xsdt_root);

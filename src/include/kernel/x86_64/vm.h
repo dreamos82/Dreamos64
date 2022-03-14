@@ -13,7 +13,7 @@
 
 #define PAGE_ALIGNMENT_MASK (PAGE_SIZE_IN_BYTES-1)
 
-#define ALIGN_PHYSADDRESS(address)(address & (~(PAGE_ALIGNMENT_MASK))
+#define ALIGN_PHYSADDRESS(address)(address & (~(PAGE_ALIGNMENT_MASK)))
 
 #define PRESENT_BIT 1
 #define WRITE_BIT 0b10
