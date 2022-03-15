@@ -23,6 +23,7 @@ global p3_table_hh
 %if SMALL_PAGES == 1 
 global pt_tables
 %endif
+global end_of_mapped_memory
 global multiboot_framebuffer_data
 global multiboot_mmap_data
 global multiboot_basic_meminfo
@@ -38,13 +39,11 @@ start:
 
     mov esp, stack.top - KERNEL_VIRTUAL_ADDR
     
-    ; For now we are goin to use 2Mib pages 
-    ; We need only 3 table levels instead of 4
     mov eax, p3_table - KERNEL_VIRTUAL_ADDR; Copy p3_table address in eax
     or eax, PRESENT_BIT | WRITE_BIT        ; set writable and present bits to 1
     mov dword [(p4_table - KERNEL_VIRTUAL_ADDR) + 0], eax   ; Copy eax content into the entry 0 of p4 table
 
-    mov eax, p3_table_hh - KERNEL_VIRTUAL_ADDR
+    mov eax, p3_table_hh - KERNEL_VIRTUAL_ADDR  ; This will contain the mapping of the kernel in the higher half
     or eax, PRESENT_BIT | WRITE_BIT
     mov dword [(p4_table - KERNEL_VIRTUAL_ADDR) + 511 * 8], eax
 
@@ -59,6 +58,7 @@ start:
     mov eax, p2_table - KERNEL_VIRTUAL_ADDR
     or eax, PRESENT_BIT | WRITE_BIT
     mov dword[(p3_table_hh - KERNEL_VIRTUAL_ADDR) + 510 * 8], eax
+
     %if SMALL_PAGES == 1
     mov ebx, 0
     mov eax, pt_tables - KERNEL_VIRTUAL_ADDR
@@ -96,6 +96,7 @@ start:
                             ; this is why the loop is up to 1024
         
         jne .map_p2_table   ; if ecx < 512 then loop
+
 
     ; All set... now we are nearly ready to enter into 64 bit
     ; Is possible to move into cr3 only from another register
@@ -135,6 +136,11 @@ section .text
 kernel_jumper:
     bits 64    
 
+    %if SMALL_PAGES == 0
+    mov qword[(end_of_mapped_memory - KERNEL_VIRTUAL_ADDR)], (511 << 39) | (510 << 30) | (511 << 21)
+    %elif SMALL_PAGES == 1
+    mov qword[(end_of_mapped_memory - KERNEL_VIRTUAL_ADDR)], (511 << 39) | (510 << 30) | ((PD_LOOP_LIMIT-1) << 21) | (511 << 12)
+    %endif
     ; update segment selectors
     mov ax, 0x10
     mov ss, ax  ; Stack segment selector
@@ -241,15 +247,17 @@ p2_table: ;PDP
 %if SMALL_PAGES == 1
 ; if SMALL_PAGES is defined it means we are using 4k pages
 ; For now the first 8mb will be mapped for the kernel.
+; We reserve 8192 bytes, because we are going to fill 2 page tables
 pt_tables:
     resb 8192
 fbb_pt_tables:
     resb 8192
 %endif
-; This section is temporary to test the framebuffer
+
+; This section will be used to get the multiboot info
 align 4096
-fbb_p2_table:
-    resb 4096
+end_of_mapped_memory:
+    resq 1
 multiboot_framebuffer_data:
     resb 8
 multiboot_mmap_data:

@@ -1,3 +1,4 @@
+#include <bitmap.h>
 #include <vmm.h>
 #include <vm.h>
 #include <video.h>
@@ -85,6 +86,7 @@ void *map_phys_to_virt_addr(void* physical_address, void* address, unsigned int 
 #if SMALL_PAGES == 1
     uint64_t *pt_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l, (uint64_t) pml4_e, (uint64_t) pdpr_e, (uint64_t) pd_e));
     uint16_t pt_e = PT_ENTRY((uint64_t) address);
+
     // This case apply only for 4kb pages, if the pt_e entry is not present in the page table we need to allocate a new 4k page
     // Every entry in the page table is a 4kb page of physical memory
     if(!(pt_table[pt_e] & 0b1)) {
@@ -100,4 +102,12 @@ void *map_vaddress(void *virtual_address, unsigned int flags){
     void *new_addr = pmm_alloc_frame();
     return map_phys_to_virt_addr(new_addr, virtual_address, flags);
 }
+
+void map_vaddress_range(void *virtual_address, unsigned int flags, size_t required_pages) {
+    for(size_t i = 0; i < required_pages; i++) {
+        map_vaddress(virtual_address + (i * PAGE_SIZE_IN_BYTES), flags);
+    }
+}
+
+
 
