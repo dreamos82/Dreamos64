@@ -91,9 +91,9 @@ void parse_RSDTv2(RSDPDescriptor20 *descriptor){
 
 
 ACPISDTHeader* get_RSDT_Item(char* table_name) {
-    if(rsdt_root == NULL) {
+    if((sdt_version == RSDT_V1 && rsdt_root == NULL) || (sdt_version == RSDT_V2 && xsdt_root == NULL)) {
         return NULL;
-    }
+    } 
     for(int i=0; i < rsdtTablesTotal; i++){
         ACPISDTHeader *tableItem;
         switch(sdt_version) {
@@ -109,12 +109,12 @@ ACPISDTHeader* get_RSDT_Item(char* table_name) {
                 return NULL;
         }
         int return_value = strncmp(table_name, tableItem->Signature, 4);
+        printf("%d - Table name: %.4s\n", i, tableItem->Signature);
         if(return_value == 0) {
             printf("Item Found...\n");
             return tableItem;
         }
     }
-    printf("\n");
     return NULL;
 }
 

@@ -53,9 +53,8 @@ void _init_basic_system(unsigned long addr){
     tagmmap = (struct multiboot_tag_mmap *) (multiboot_mmap_data + _HIGHER_HALF_KERNEL_MEM_START);
     tagfb   = (struct multiboot_tag_framebuffer *) (multiboot_framebuffer_data + _HIGHER_HALF_KERNEL_MEM_START);
     //Print basic mem Info data
-    _printStringAndNumber("Found basic mem Mem info type: ", tagmem->type);
-    _printStringAndNumber("Memory lower (in kb): ", tagmem->mem_lower);
-    _printStringAndNumber("Memory upper (in kb): ", tagmem->mem_upper); 
+    printf("Found basic mem Mem info type: 0x%x\n", tagmem->type);
+    printf("Memory lower (in kb): %d - upper (in kb): %d\n", tagmem->mem_lower, tagmem->mem_upper);
     memory_size_in_bytes = (tagmem->mem_upper + 1024) * 1024;
     //Print mmap_info
     _printStringAndNumber("Memory map entry: ", tagmmap->type);
@@ -84,15 +83,15 @@ void _init_basic_system(unsigned long addr){
     tagacpi = (struct multiboot_tag *) (multiboot_acpi_info + _HIGHER_HALF_KERNEL_MEM_START);
     if(tagacpi->type == MULTIBOOT_TAG_TYPE_ACPI_OLD){
         tagold_acpi = (struct multiboot_tag_old_acpi *)tagacpi;
-        _printStringAndNumber("Found acpi RSDP: ", tagold_acpi->type);
-        _printStringAndNumber("Found acpi RSDP address: ", (unsigned long) &tagold_acpi);
+        printf("Found acpi RSDP: %x\n", tagold_acpi->type);
+        printf("Found acpi RSDP address: 0x%x\n", (unsigned long) &tagold_acpi);
         RSDPDescriptor *descriptor = (RSDPDescriptor *)(tagacpi+1);
         validate_RSDP((char *) descriptor, sizeof(RSDPDescriptor));
         parse_SDT((uint64_t) descriptor, MULTIBOOT_TAG_TYPE_ACPI_OLD);
     } else if(tagacpi->type == MULTIBOOT_TAG_TYPE_ACPI_NEW){
         tagnew_acpi = (struct multiboot_tag_new_acpi *)tagacpi;
-        _printStringAndNumber("Found acpi RSDPv2: ", tagnew_acpi->type);
-        _printStringAndNumber("Found acpi RSDP address: ", (unsigned long) &tagnew_acpi);
+        printf("Found acpi RSDPv2: %x\n", tagnew_acpi->type);
+        printf("Found acpi RSDP address: 0x%x\n", (unsigned long) &tagnew_acpi);
         RSDPDescriptor20 *descriptor = (RSDPDescriptor20 *) (tagacpi+1);
         parse_RSDTv2(descriptor);
         validate_RSDP((char *) descriptor, sizeof(RSDPDescriptor20));
@@ -103,11 +102,8 @@ void _init_basic_system(unsigned long addr){
 		tag = (struct multiboot_tag *) ((multiboot_uint8_t *) tag 
 										+ ((tag->size + 7) & ~7))){
         switch(tag->type){
-           case MULTIBOOT_TAG_TYPE_ELF_SECTIONS:
-                printf("Found ELF sections. Size: --0x%x\n", tag->size);
-                break;
             default:
-                printf("--Tag 0x%x - Size: 0x%x\n", tag->size);
+                printf("--Tag 0x%x - Size: 0x%x\n", tag->type, tag->size);
                 break;
         }
     }
@@ -130,9 +126,8 @@ void kernel_start(unsigned long addr, unsigned long magic){
     // They are: 0-4: size of the boot information in bytes
     //           4-8: Reserved (0) 
     unsigned size = *(unsigned*)addr;
-    _printStringAndNumber("Size: ", size);
-	_printStringAndNumber("Magic: ", magic);
-    _printNewLine();
+    printf("Size:  %x\n", size);
+	printf("Magic: %x\n\n ", magic);
 	if(magic == 0x36d76289){
         printf("Magic number verified\n");
 	} else {
@@ -158,8 +153,10 @@ void kernel_start(unsigned long addr, unsigned long magic){
         }
         _fb_printStr(" -- Welcome --", 0, 2, 0xFFFFFF, 0x3333ff);
     #endif
+    
     char *cpuid_model = _cpuid_model();
     printf("Cpuid model: %s\n", cpuid_model);
+    
     uint32_t cpu_info = 0;
     cpu_info = _cpuid_feature_apic();
     _printStringAndNumber("Cpu info result: ", cpu_info);
@@ -167,23 +164,12 @@ void kernel_start(unsigned long addr, unsigned long magic){
     _mmap_setup();
     //Is that a test?
     pmm_reserve_area(0x10000, 10);
+
     char test_buffer[5];
-    /*int test_size = _getDecString(test_buffer, 250);
-    _printStringAndNumber("Size: ", test_size);
-    _printStr(test_buffer);
-    uint64_t *test_addr = map_vaddress((void *)0x1234567800, 0);
-	_printStringAndNumber("Mapping addr: ", (uint64_t)test_addr);
-	*test_addr = 42l;
-    _printStringAndNumber("Tesitng value of  new mapped addr should be 42: ", *test_addr);
-    _printStr("Try to unmap\n");
-    int unmap_result = unmap_vaddress(test_addr);
-    _printStringAndNumber("Output from unmap: ", unmap_result);
-    _printStr("A pf should explode now...\n");
-    *test_addr = 12l;
-    _printStringAndNumber("Should not print ", *test_addr);*/
     initialize_kheap();
     char test_str[8] = "hello";
     printf("test_str: %s\n", test_str);
+
     MADT* madt_table = (MADT*) get_RSDT_Item(MADT_ID);    
     printf("Madt SIGNATURE: %.4s\n", madt_table->header.Signature);
     printf("Madt Length: %d\n", madt_table->header.Length);
@@ -194,6 +180,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
     init_keyboard();
     set_irq(PIT_IRQ, IOREDTBL2, 0x22, 0, 0, true);
     asm("sti");
+
     uint32_t apic_ticks = calibrate_apic();
     printf("Calibrated apic value: %u\n", apic_ticks); 
     //set_irq(0, 0x22, 0, 0 ,0);
