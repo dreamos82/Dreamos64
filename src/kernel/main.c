@@ -119,8 +119,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
     load_idt();
     _init_basic_system(addr);
     logline(Info, "Hello world, this is a test log!");
-    _printStringAndNumber("Kernel End: ", (unsigned long)&_kernel_end);
-    _printStringAndNumber("Kernel physical end: ", (unsigned long)&_kernel_physical_end);
+    printf("Kernel End: 0x%x - Physical: %x\n", (unsigned long)&_kernel_end, (unsigned long)&_kernel_physical_end);
     //test_image();
     // Reminder here: The firt 8 bytes have a fixed structure in the multiboot info:
     // They are: 0-4: size of the boot information in bytes
@@ -159,7 +158,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
     
     uint32_t cpu_info = 0;
     cpu_info = _cpuid_feature_apic();
-    _printStringAndNumber("Cpu info result: ", cpu_info);
+    printf("Cpu info result: 0x%x\n", cpu_info);
     init_apic();
     _mmap_setup();
     //Is that a test?

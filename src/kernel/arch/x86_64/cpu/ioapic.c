@@ -91,7 +91,7 @@ int write_io_apic_redirect(uint8_t index, io_apic_redirect_entry_t redtbl_entry)
     printf("Setting redirect entry: %x\n", index);
     uint32_t upper_part = (uint32_t) redtbl_entry.raw >> 32;
     uint32_t lower_part = (uint32_t) redtbl_entry.raw;
-    printf(": Lower part: %x, : upper part: %x\n", lower_part, upper_part);
+    /* printf(": Lower part: %x, : upper part: %x\n", lower_part, upper_part); */
     write_io_apic_register(index, lower_part);
     write_io_apic_register(index+1, upper_part);
     return 0;

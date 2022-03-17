@@ -28,14 +28,18 @@ void parse_SDT(uint64_t address, uint8_t type) {
 void parse_RSDT(RSDPDescriptor *descriptor){
     printf("- Parse RSDP Descriptor\n");
     printf("- descriptor Address: 0x%x\n", descriptor->RsdtAddress);
-    map_phys_to_virt_addr((void *) descriptor->RsdtAddress, (void *) ensure_address_in_higher_half(descriptor->RsdtAddress), 0);
+    bool ret_val = is_phyisical_address_mapped(descriptor->RsdtAddress, ensure_address_in_higher_half(descriptor->RsdtAddress));
+    printf("Is mapped: %d\n", ret_val);
+    map_phys_to_virt_addr((void *) ALIGN_PHYSADDRESS(descriptor->RsdtAddress), (void *) ensure_address_in_higher_half(descriptor->RsdtAddress), 0);
+    ret_val = is_phyisical_address_mapped(descriptor->RsdtAddress, ensure_address_in_higher_half(descriptor->RsdtAddress));
+    printf("Is mapped: %d\n", ret_val);
     rsdt_root = (RSDT *) ensure_address_in_higher_half((uint64_t) descriptor->RsdtAddress);
-    printf("- RSDT_Address: %x\n", (uint64_t) ensure_address_in_higher_half(descriptor->RsdtAddress));
     ACPISDTHeader header = rsdt_root->header;
     printf("- RSDT_Signature: %.4s\n", header.Signature);
     printf("- RSDT_Lenght: %d\n", header.Length);
     sdt_version = RSDT_V1;
-    // Ok we are here and we have mapped the "head of rsdt", it will stay most likely in one page, but there is no way
+
+    // Ok here we are,  and we have mapped the "head of rsdt", it will stay most likely in one page, but there is no way
     // to know the length of the whole table before mapping its header. So now we are able to check if we need to map extra pages
     size_t required_extra_pages = (header.Length / KERNEL_PAGE_SIZE) + 1;
     printf("- RSDT_PAGES_NEEDED: %d\n", required_extra_pages);
@@ -98,8 +102,8 @@ ACPISDTHeader* get_RSDT_Item(char* table_name) {
         ACPISDTHeader *tableItem;
         switch(sdt_version) {
             case RSDT_V1:
-                //tableItem = (ACPISDTHeader *) ensure_address_in_higher_half(rsdt_root->tables[i]);
-                tableItem = (ACPISDTHeader *) rsdt_root->tables[i];
+                tableItem = (ACPISDTHeader *) ensure_address_in_higher_half(rsdt_root->tables[i]);
+                //tableItem = (ACPISDTHeader *) rsdt_root->tables[i];
                 break;
             case RSDT_V2:
                 tableItem = (ACPISDTHeader *) ensure_address_in_higher_half(xsdt_root->tables[i]);
