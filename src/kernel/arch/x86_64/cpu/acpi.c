@@ -28,10 +28,12 @@ void parse_SDT(uint64_t address, uint8_t type) {
 void parse_RSDT(RSDPDescriptor *descriptor){
     printf("- Parse RSDP Descriptor\n");
     printf("- descriptor Address: 0x%x\n", descriptor->RsdtAddress);
-    bool ret_val = is_phyisical_address_mapped(descriptor->RsdtAddress, ensure_address_in_higher_half(descriptor->RsdtAddress));
+    uint8_t ret_val = is_phyisical_address_mapped(descriptor->RsdtAddress, ensure_address_in_higher_half(descriptor->RsdtAddress));
     printf("Is mapped: %d\n", ret_val);
     map_phys_to_virt_addr((void *) ALIGN_PHYSADDRESS(descriptor->RsdtAddress), (void *) ensure_address_in_higher_half(descriptor->RsdtAddress), 0);
     ret_val = is_phyisical_address_mapped(descriptor->RsdtAddress, ensure_address_in_higher_half(descriptor->RsdtAddress));
+    printf("Is mapped: %d\n", ret_val);
+    ret_val = is_phyisical_address_mapped(descriptor->RsdtAddress-0x5000, ensure_address_in_higher_half(descriptor->RsdtAddress));
     printf("Is mapped: %d\n", ret_val);
     rsdt_root = (RSDT *) ensure_address_in_higher_half((uint64_t) descriptor->RsdtAddress);
     ACPISDTHeader header = rsdt_root->header;

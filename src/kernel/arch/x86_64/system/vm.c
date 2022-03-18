@@ -50,8 +50,8 @@ void invalidate_page_table(uint64_t *table_address){
 }
 
 uint64_t ensure_address_in_higher_half( uint64_t address ) {
-    if ( address > _HIGHER_HALF_KERNEL_MEM_START ) {
+    if ( address > HIGHER_HALF_ADDRESS_OFFSET ) {
         return address;
     }
-    return address + _HIGHER_HALF_KERNEL_MEM_START;
+    return address + HIGHER_HALF_ADDRESS_OFFSET;
 }

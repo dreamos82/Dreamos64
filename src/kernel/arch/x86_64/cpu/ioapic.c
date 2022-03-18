@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stddef.h>
 #include <vmm.h>
+#include <vm.h>
 
 uint32_t io_apic_base_address;
 uint8_t io_apic_max_redirections = 0;
@@ -13,7 +14,12 @@ void init_ioapic(MADT *madt_table){
     MADT_Item* item = get_MADT_item(madt_table, MADT_IO_APIC, 0);
     io_apic_source_override_array_size = 0;
     if(item != NULL) {
-        IO_APIC_Item *ioapic_item = (IO_APIC_Item *) ((uint32_t) item + sizeof(MADT_Item));
+        printf("IOAPIC Item type: 0x%x\n", item->type);
+        printf("IOAPIC Item address: 0x%x - length: 0x%x\n", item, item->length);
+        IO_APIC_Item *ioapic_item = (IO_APIC_Item *) ( ensure_address_in_higher_half((uint64_t)item + sizeof(MADT_Item)));
+        if (is_phyisical_address_mapped(ALIGN_PHYSADDRESS((uint64_t) item), ensure_address_in_higher_half((uint64_t)item)) == PHYS_ADDRESS_NOT_MAPPED) {
+            map_phys_to_virt_addr(ALIGN_PHYSADDRESS((uint64_t)item), ensure_address_in_higher_half((uint64_t) item),0);
+        }
         printf("IOAPIC_ID: 0x%x, Address: 0x%x\n", ioapic_item->ioapic_id, ioapic_item->address ); 
         printf("IOApic_Global_System_Interrupt_Base: 0x%x\n", ioapic_item->global_system_interrupt_base);
         io_apic_base_address = ioapic_item->address;
@@ -35,13 +41,17 @@ void init_ioapic(MADT *madt_table){
 }
 
 int parse_io_apic_interrupt_source_overrides(MADT* table) {
-    printf("Work in progress\n");
+    printf("madt_address: 0x%x\n", (uint64_t) table);
+/*    if(is_phyisical_address_mapped(ALIGN_PHYSADDRESS(table), ensure_address_in_higher_half(table) == PHYS_ADDRESS_MAPPED)) {
+        
+    }*/
     int total_length = sizeof(MADT);
     int source_override_counter = 0;
-    MADT_Item* item = (MADT_Item *) ((uint32_t)table + sizeof(MADT));
+    //MADT_Item* item = (MADT_Item *) ((uint32_t)table + sizeof(MADT));
+    MADT_Item* item = get_MADT_item(table, MADT_IO_APIC_INTERRUPT_SOURCE_OVERRIDE, source_override_counter);
     while(total_length < table->header.Length && source_override_counter < IO_APIC_SOURCE_OVERRIDE_MAX_ITEMS) {
         total_length = total_length + item->length;
-        if(item->type == MADT_IO_APIC_INTTERUPT_SOURCE_OVERRIDE){
+        if(item != NULL && item->type == MADT_IO_APIC_INTERRUPT_SOURCE_OVERRIDE){
             IO_APIC_source_override_item_t *so_item = (IO_APIC_source_override_item_t *) (item + 1);
             io_apic_source_overrides[source_override_counter].bus_source = so_item->bus_source;
             io_apic_source_overrides[source_override_counter].irq_source = so_item->irq_source;
@@ -50,7 +60,8 @@ int parse_io_apic_interrupt_source_overrides(MADT* table) {
             printf("---- SO Item: bus_source: %x - irq_source: %x - GSI: %x - Flags: %x\n", so_item->bus_source, so_item->irq_source, so_item->global_system_interrupt, so_item->flags);
             source_override_counter++;
         }
-        item = (MADT_Item *)((uint32_t)table + total_length);
+        //item = (MADT_Item *)((uint32_t)table + total_length);
+        item = get_MADT_item(table, MADT_IO_APIC_INTERRUPT_SOURCE_OVERRIDE, source_override_counter);
     }
     return source_override_counter;
 }

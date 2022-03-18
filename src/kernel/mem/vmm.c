@@ -9,28 +9,31 @@ extern uint64_t p3_table_hh[];
 extern uint64_t p2_table[];
 extern uint64_t pt_tables[];
 
-bool is_phyisical_address_mapped(uint64_t physical_address, uint64_t virtual_address) {
+uint8_t is_phyisical_address_mapped(uint64_t physical_address, uint64_t virtual_address) {
     uint16_t pml4_e = PML4_ENTRY((uint64_t) virtual_address); 
     uint64_t *pml4_table = (uint64_t) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l, 510l, 510l, 510l));
     if ( !pml4_table[pml4_e] & PRESENT_BIT ) {
-        return false;
+        return PHYS_ADDRESS_NOT_MAPPED;
     }
 
     uint16_t pdpr_e = PDPR_ENTRY((uint64_t) virtual_address);
     uint64_t *pdpr_table = (uint64_t) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l, 510l, 510l, (uint64_t)  pml4_e)); 
     if ( !pdpr_table[pdpr_e] & PRESENT_BIT) {
-        return false;
+        return PHYS_ADDRESS_NOT_MAPPED;
     }
 
     uint16_t pd_e = PD_ENTRY((uint64_t) virtual_address);
     uint64_t *pd_table = (uint64_t) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l, 510l, pml4_e, (uint64_t)  pdpr_e));
     if ( !pd_table[pd_e] & PRESENT_BIT  ) {
-        return false;
+        return PHYS_ADDRESS_NOT_MAPPED;
     }
 #if SMALL_PAGES == 0    
-    else ( pd_table[pd_e] & PRESENT_BIT ) {
-        printf("pd entry: 0x%x - phys address: 0x%x\n", pd_table[pd_e], physical_address);
-        return (ALIGN_PHYSADDRESS(pd_table[pd_e]) == ALIGN_PHYSADDRESS(physical_address));
+    else {
+        if (ALIGN_PHYSADDRESS(pd_table[pd_e]) == ALIGN_PHYSADDRESS(physical_address)) {
+            return PHYS_ADDRESS_MAPPED;
+        } else {
+            return PHYS_ADDRESS_MISMATCH;
+        }
     }
 #endif
 
@@ -38,13 +41,16 @@ bool is_phyisical_address_mapped(uint64_t physical_address, uint64_t virtual_add
     uint16_t pt_e = PT_ENTRY((uint64_t) virtual_address);
     uint64_t *pt_table = (uint64_t) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l, (uint64_t)  pml4_e, (uint64_t)  pdpr_e, (uint64_t)  pd_e));
     if ( !pt_table[pt_e] & PRESENT_BIT ) {
-        return false;
+        return PHYS_ADDRESS_NOT_MAPPED;
     } else {
-        printf("Pt entry: 0x%x\n", pt_table[pt_e]);
-        return (ALIGN_PHYSADDRESS(pt_table[pt_e]) == ALIGN_PHYSADDRESS(physical_address));
+        if (ALIGN_PHYSADDRESS(pt_table[pt_e]) == ALIGN_PHYSADDRESS(physical_address)) {
+            return PHYS_ADDRESS_MAPPED;
+        } else {
+            return PHYS_ADDRESS_MISMATCH;
+        }
     }
 #endif
-    return true;
+    return 0;
 }
 
 int unmap_vaddress(void *address){
