@@ -87,7 +87,7 @@ void parse_RSDTv2(RSDPDescriptor20 *descriptor){
 }
 
 
-ACPISDTHeader* get_RSDT_Item(char* table_name) {
+ACPISDTHeader* get_SDT_Item(char* table_name) {
     if((sdt_version == RSDT_V1 && rsdt_root == NULL) || (sdt_version == RSDT_V2 && xsdt_root == NULL)) {
         return NULL;
     } 
@@ -120,7 +120,7 @@ ACPISDTHeader* get_RSDT_Item(char* table_name) {
  * @param the size of the struct used by descriptor (should be the size of: RSDPDescriptor or RSDPDescriptorv2)
  * @return true if the validation is succesfull
  */
-bool validate_RSDP(char *descriptor, size_t size){
+bool validate_SDT(char *descriptor, size_t size){
     uint32_t sum = 0;
     printf("Bytes: ");
     for (uint32_t i=0; i < size; i++){

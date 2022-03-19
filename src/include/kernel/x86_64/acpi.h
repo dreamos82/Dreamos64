@@ -29,7 +29,7 @@ typedef struct {
 void parse_SDT(uint64_t, uint8_t);
 void parse_RSDT(RSDPDescriptor *);
 void parse_RSDTv2(RSDPDescriptor20 *);
-bool validate_RSDP(char *, size_t);
+bool validate_SDT(char *, size_t);
 
-ACPISDTHeader* get_RSDT_Item(char *);
+ACPISDTHeader* get_SDT_Item(char *);
 #endif

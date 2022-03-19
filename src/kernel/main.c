@@ -86,15 +86,15 @@ void _init_basic_system(unsigned long addr){
         printf("Found acpi RSDP: %x\n", tagold_acpi->type);
         printf("Found acpi RSDP address: 0x%x\n", (unsigned long) &tagold_acpi);
         RSDPDescriptor *descriptor = (RSDPDescriptor *)(tagacpi+1);
-        validate_RSDP((char *) descriptor, sizeof(RSDPDescriptor));
         parse_SDT((uint64_t) descriptor, MULTIBOOT_TAG_TYPE_ACPI_OLD);
+        validate_SDT((char *) descriptor, sizeof(RSDPDescriptor));
     } else if(tagacpi->type == MULTIBOOT_TAG_TYPE_ACPI_NEW){
         tagnew_acpi = (struct multiboot_tag_new_acpi *)tagacpi;
         printf("Found acpi RSDPv2: %x\n", tagnew_acpi->type);
         printf("Found acpi RSDP address: 0x%x\n", (unsigned long) &tagnew_acpi);
         RSDPDescriptor20 *descriptor = (RSDPDescriptor20 *) (tagacpi+1);
         parse_SDT((uint64_t) descriptor, MULTIBOOT_TAG_TYPE_ACPI_NEW);
-        validate_RSDP((char *) descriptor, sizeof(RSDPDescriptor20));
+        validate_SDT((char *) descriptor, sizeof(RSDPDescriptor20));
     }
  
 	for (tag=(struct multiboot_tag *) (addr + _HIGHER_HALF_KERNEL_MEM_START + 8);
@@ -169,7 +169,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
     char test_str[8] = "hello";
     printf("test_str: %s\n", test_str);
 
-    MADT* madt_table = (MADT*) get_RSDT_Item(MADT_ID);    
+    MADT* madt_table = (MADT*) get_SDT_Item(MADT_ID);    
     printf("Madt ADDRESS: %x\n", madt_table);
     printf("Madt SIGNATURE: %.4s\n", madt_table->header.Signature);
     printf("Madt Length: %d\n", madt_table->header.Length);
