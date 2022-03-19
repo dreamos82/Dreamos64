@@ -28,13 +28,7 @@ void parse_SDT(uint64_t address, uint8_t type) {
 void parse_RSDT(RSDPDescriptor *descriptor){
     printf("- Parse RSDP Descriptor\n");
     printf("- descriptor Address: 0x%x\n", descriptor->RsdtAddress);
-    uint8_t ret_val = is_phyisical_address_mapped(descriptor->RsdtAddress, ensure_address_in_higher_half(descriptor->RsdtAddress));
-    printf("Is mapped: %d\n", ret_val);
     map_phys_to_virt_addr((void *) ALIGN_PHYSADDRESS(descriptor->RsdtAddress), (void *) ensure_address_in_higher_half(descriptor->RsdtAddress), 0);
-    ret_val = is_phyisical_address_mapped(descriptor->RsdtAddress, ensure_address_in_higher_half(descriptor->RsdtAddress));
-    printf("Is mapped: %d\n", ret_val);
-    ret_val = is_phyisical_address_mapped(descriptor->RsdtAddress-0x5000, ensure_address_in_higher_half(descriptor->RsdtAddress));
-    printf("Is mapped: %d\n", ret_val);
     rsdt_root = (RSDT *) ensure_address_in_higher_half((uint64_t) descriptor->RsdtAddress);
     ACPISDTHeader header = rsdt_root->header;
     printf("- RSDT_Signature: %.4s\n", header.Signature);
@@ -44,9 +38,8 @@ void parse_RSDT(RSDPDescriptor *descriptor){
     // Ok here we are,  and we have mapped the "head of rsdt", it will stay most likely in one page, but there is no way
     // to know the length of the whole table before mapping its header. So now we are able to check if we need to map extra pages
     size_t required_extra_pages = (header.Length / KERNEL_PAGE_SIZE) + 1;
-    printf("- RSDT_PAGES_NEEDED: %d\n", required_extra_pages);
     if (required_extra_pages > 1) {
-        printf("- Mapping extra pages");
+        printf("- RSDT_PAGES_NEEDED: %d\n", required_extra_pages);
         for (int j = 1; j < required_extra_pages; j++) {
             uint64_t new_physical_address = descriptor->RsdtAddress + (j * KERNEL_PAGE_SIZE);
             map_phys_to_virt_addr(new_physical_address, ensure_address_in_higher_half(new_physical_address), 0);
@@ -64,20 +57,18 @@ void parse_RSDT(RSDPDescriptor *descriptor){
 
 void parse_RSDTv2(RSDPDescriptor20 *descriptor){
     printf("Parse RSDP v2 Descriptor\n");
-    printf("- Descriptor address: 0x%x\n", ALIGN_PHYSADDRESS(descriptor->XsdtAddress));
+    printf("- Descriptor physical address: 0x%x\n", ALIGN_PHYSADDRESS(descriptor->XsdtAddress));
     map_phys_to_virt_addr((void *) ALIGN_PHYSADDRESS(descriptor->XsdtAddress), (void *) ensure_address_in_higher_half(descriptor->XsdtAddress), 0);
-    printf("- RSDTv2_Address: %x\n",  (uint64_t) ensure_address_in_higher_half(descriptor->XsdtAddress));
     xsdt_root = (XSDT *) ensure_address_in_higher_half((uint64_t) descriptor->XsdtAddress);
-    printf("- RSDTv2_Length: 0x%x\n", descriptor->Length);
+    printf("- XSDT_Length: 0x%x\n", descriptor->Length);
     ACPISDTHeader header = xsdt_root->header;
     printf("- XSDT_Signature: %.4s\n", header.Signature);
     sdt_version = RSDT_V2;
 
     size_t required_extra_pages = (header.Length / KERNEL_PAGE_SIZE) + 1;
-    printf("- XSDT_PAGES_NEEDED: %d\n", required_extra_pages);
 
     if (required_extra_pages > 1) {
-        printf("- Mapping extra pages");
+        printf("- XSDT_PAGES_NEEDED: %d\n", required_extra_pages);
         for (int j = 1; j < required_extra_pages; j++) {
             uint64_t new_physical_address = descriptor->XsdtAddress + (j * KERNEL_PAGE_SIZE);
             map_phys_to_virt_addr(new_physical_address, ensure_address_in_higher_half(new_physical_address), 0);
@@ -105,7 +96,6 @@ ACPISDTHeader* get_RSDT_Item(char* table_name) {
         switch(sdt_version) {
             case RSDT_V1:
                 tableItem = (ACPISDTHeader *) ensure_address_in_higher_half(rsdt_root->tables[i]);
-                //tableItem = (ACPISDTHeader *) rsdt_root->tables[i];
                 break;
             case RSDT_V2:
                 tableItem = (ACPISDTHeader *) ensure_address_in_higher_half(xsdt_root->tables[i]);
@@ -117,7 +107,6 @@ ACPISDTHeader* get_RSDT_Item(char* table_name) {
         int return_value = strncmp(table_name, tableItem->Signature, 4);
         printf("%d - Table name: %.4s\n", i, tableItem->Signature);
         if(return_value == 0) {
-            printf("Item Found...\n");
             return tableItem;
         }
     }

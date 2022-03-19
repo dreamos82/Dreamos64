@@ -93,7 +93,7 @@ void _init_basic_system(unsigned long addr){
         printf("Found acpi RSDPv2: %x\n", tagnew_acpi->type);
         printf("Found acpi RSDP address: 0x%x\n", (unsigned long) &tagnew_acpi);
         RSDPDescriptor20 *descriptor = (RSDPDescriptor20 *) (tagacpi+1);
-        parse_RSDTv2(descriptor);
+        parse_SDT((uint64_t) descriptor, MULTIBOOT_TAG_TYPE_ACPI_NEW);
         validate_RSDP((char *) descriptor, sizeof(RSDPDescriptor20));
     }
  

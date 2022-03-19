@@ -42,9 +42,6 @@ void init_ioapic(MADT *madt_table){
 
 int parse_io_apic_interrupt_source_overrides(MADT* table) {
     printf("madt_address: 0x%x\n", (uint64_t) table);
-/*    if(is_phyisical_address_mapped(ALIGN_PHYSADDRESS(table), ensure_address_in_higher_half(table) == PHYS_ADDRESS_MAPPED)) {
-        
-    }*/
     int total_length = sizeof(MADT);
     int source_override_counter = 0;
     //MADT_Item* item = (MADT_Item *) ((uint32_t)table + sizeof(MADT));
