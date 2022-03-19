@@ -87,7 +87,7 @@ void parse_RSDTv2(RSDPDescriptor20 *descriptor){
 }
 
 
-ACPISDTHeader* get_SDT_Item(char* table_name) {
+ACPISDTHeader* get_SDT_item(char* table_name) {
     if((sdt_version == RSDT_V1 && rsdt_root == NULL) || (sdt_version == RSDT_V2 && xsdt_root == NULL)) {
         return NULL;
     } 

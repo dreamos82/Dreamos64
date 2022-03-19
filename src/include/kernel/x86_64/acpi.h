@@ -31,5 +31,5 @@ void parse_RSDT(RSDPDescriptor *);
 void parse_RSDTv2(RSDPDescriptor20 *);
 bool validate_SDT(char *, size_t);
 
-ACPISDTHeader* get_SDT_Item(char *);
+ACPISDTHeader* get_SDT_item(char *);
 #endif

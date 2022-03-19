@@ -169,7 +169,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
     char test_str[8] = "hello";
     printf("test_str: %s\n", test_str);
 
-    MADT* madt_table = (MADT*) get_SDT_Item(MADT_ID);    
+    MADT* madt_table = (MADT*) get_SDT_item(MADT_ID);
     printf("Madt ADDRESS: %x\n", madt_table);
     printf("Madt SIGNATURE: %.4s\n", madt_table->header.Signature);
     printf("Madt Length: %d\n", madt_table->header.Length);
