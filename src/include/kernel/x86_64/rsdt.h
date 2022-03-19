@@ -11,14 +11,17 @@ typedef struct RSDT {
     uint32_t tables[];
 } __attribute__((packed)) RSDT;
 
+typedef struct XSDT {
+    ACPISDTHeader header;
+    uint64_t tables[];
+} __attribute__((packed)) XSDT;
+
 
 typedef struct MADT {
     ACPISDTHeader header;
     uint32_t local_apic_base;
     uint32_t flags;
 } __attribute__((packed)) MADT;
-
-
 
 extern uint32_t rsdtTablesTotal;
 extern RSDT* rsdt_root;
