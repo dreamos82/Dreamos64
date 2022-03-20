@@ -18,6 +18,10 @@ uint8_t get_PSF_version(char *_font_structure){
    return 0;
 }
 
+void set_maximum_lines(uint8_t version) {
+
+}
+
 
 uint8_t* get_glyph(uint8_t symbolnumber, uint8_t version){
     if (version == PSF_V1){
