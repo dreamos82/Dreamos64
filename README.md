@@ -27,9 +27,12 @@ What i have implemented so far:
 * Added support to access paging data structures with recursion tecnique. 
 * Implemented basic physical memory manager
 * Enabled paging
-* Added basic kmalloc
+* Implement basic kheap memory manager
+* Added basic kmalloc, kfree
+* Support Acpi V1 and V2
 * Local Apic support
 * IO-Apic support (Keyboard IRQ enable)
+* Suppoort for PSF v1 and v2 fonts in framebuffer mode
 
 
 ## Prerequisites: 

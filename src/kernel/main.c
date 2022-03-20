@@ -115,10 +115,11 @@ void kernel_start(unsigned long addr, unsigned long magic){
     extern unsigned int _kernel_end;
     extern unsigned int _kernel_physical_end;
     qemu_init_debug();
-    init_log(LOG_OUTPUT_FRAMEBUFFER, Verbose, false);
+    psf_font_version = get_PSF_version(&_binary_fonts_default_psf_start);
     init_idt();
     load_idt();
     _init_basic_system(addr);
+    init_log(LOG_OUTPUT_FRAMEBUFFER, Verbose, false);
     printf("Kernel End: 0x%x - Physical: %x\n", (unsigned long)&_kernel_end, (unsigned long)&_kernel_physical_end);
     //test_image();
     // Reminder here: The firt 8 bytes have a fixed structure in the multiboot info:
@@ -132,21 +133,26 @@ void kernel_start(unsigned long addr, unsigned long magic){
 	} else {
 		printf("Failed to verify magic number. Something is wrong\n");
 	}
-    PSF_font *font = (PSF_font*)&_binary_fonts_default_psf_start;
-    _printStringAndNumber("Magic: ", font->magic);
-    _printStringAndNumber("Number of glyphs: ", font->numglyph);
-    _printStringAndNumber("Header size: ", font->headersize);
-    _printStringAndNumber("Bytes per glyphs: ", font->bytesperglyph);
-    _printStringAndNumber("Flags: ", font->flags);
-    _printStringAndNumber("Version: ", font->version);
-    _printStringAndNumber("Width: ", font->width);
-    _printStringAndNumber("Height: ", font->height);
     #if USE_FRAMEBUFFER == 1 
-        psf_font_version = get_PSF_version(&_binary_fonts_default_psf_start);
         if(get_PSF_version(&_binary_fonts_default_psf_start) == 1){
             qemu_write_string("PSF v1 found\n");
+            PSFv1_Font *font = (PSF_font*)&_binary_fonts_default_psf_start;
+            printf("Magic: [%x %x]\n", font->magic[1], font->magic[0]);
+            printf("Flags: 0x%x\n", font->mode);
+            printf("Charsize: 0x%x\n", font->charsize);
         }  else {
+            PSF_font *font = (PSF_font*)&_binary_fonts_default_psf_start;
+            printf("Magic: 0x%x\n", font->magic);
+            printf("Number of glyphs: 0x%x\n", font->numglyph);
+            printf("Header size: 0x%x\n", font->headersize);
+            printf("Bytes per glyphs: 0x%x\n", font->bytesperglyph);
+            printf("Flags: 0x%x\n", font->flags);
+            printf("Version: 0x%x\n", font->version);
+            printf("Width: 0x%x\n", font->width);
+            printf("Height: 0x%x\n", font->height);
             qemu_write_string("PSF v2 found\n");
+            printf("Get Width test: %x\n", get_width(psf_font_version));
+            printf("Get Height test: %x\n", get_height(psf_font_version));
         }
         printf("PSF stored version: %d\n", psf_font_version);
 

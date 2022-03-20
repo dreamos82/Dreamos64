@@ -102,22 +102,24 @@ void set_fb_data(struct multiboot_tag_framebuffer *fbtag){
 
 void _fb_putchar(unsigned short int symbol, int cx, int cy, uint32_t fg, uint32_t bg){
     char *framebuffer = (char *) FRAMEBUFFER_MEM;
-    PSF_font *default_font = (PSF_font*)&_binary_fonts_default_psf_start;
     uint32_t pitch = FRAMEBUFFER_PITCH;
+    uint32_t width, height;
+    width = get_width(psf_font_version);
+    height = get_height(psf_font_version);
+
     //uint32_t charsize = default_font->height * ((default_font->width + 7)/8);
     //uint8_t *glyph = (uint8_t*)&_binary_fonts_default_psf_start + 
     //    default_font->headersize + (symbol>0&&symbol<default_font->numglyph?symbol:0) * default_font->bytesperglyph;
     uint8_t *glyph = (uint8_t*) get_glyph(symbol, psf_font_version);
-    int bytesperline =  (default_font->width + 7)/8;
-    int offset = (cy * default_font->height * pitch) + 
-        (cx * (default_font->width) * sizeof(PIXEL));
+    int bytesperline =  (width + 7)/8;
+    int offset = (cy * height * pitch) + 
+        (cx * (width) * sizeof(PIXEL));
     
     uint32_t x, y, line, mask;
-
-    for(y=0; y<default_font->height; y++){
+    for(y=0; y<height; y++){
         line = offset;
-        mask = 1 << (default_font->width - 1);
-        for(x=0; x<default_font->width; x++){
+        mask = 1 << (width - 1);
+        for(x=0; x<width; x++){
             //*((uint32_t*) (framebuffer + line)) = *((unsigned int*) glyph) & mask ? fg : bg;
             *((PIXEL*) (framebuffer + line)) = glyph[x/8] & (0x80 >> (x & 7)) ? fg : bg;
             mask >>= 1;
@@ -131,7 +133,7 @@ void _fb_putchar(unsigned short int symbol, int cx, int cy, uint32_t fg, uint32_
 void _fb_printStr(char *string, int cx, int cy, uint32_t fg, uint32_t bg){
     while (*string != '\0'){
         if (*string == '\n'){
-            qemu_write_string("_fb_printStr: newline support not added yet");
+            qemu_write_string("_fb_printStr: newline support not added yet\n");
             cx=0;
             cy++;
         } else {
@@ -163,9 +165,8 @@ void get_framebuffer_mode(uint32_t* pixels_w, uint32_t* pixels_h, uint32_t* char
     if (pixels_h != NULL)
         *pixels_h = FRAMEBUFFER_HEIGHT;
 
-    PSF_font *default_font = (PSF_font*)&_binary_fonts_default_psf_start;
     if (chars_w != NULL)
-        *chars_w = FRAMEBUFFER_WIDTH / default_font->width;
+        *chars_w = FRAMEBUFFER_WIDTH / get_width(psf_font_version);
     if (chars_h != NULL)
-        *chars_h = FRAMEBUFFER_HEIGHT / default_font->height;
+        *chars_h = FRAMEBUFFER_HEIGHT / get_height(get_height);
 }

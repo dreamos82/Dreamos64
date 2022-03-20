@@ -31,5 +31,15 @@ uint8_t* get_glyph(uint8_t symbolnumber, uint8_t version){
 }
 
 uint32_t get_width(uint8_t version){
-    return version;
+    if ( version == PSF_V1) {
+        return 8;
+    }
+    return ((PSF_font *)&_binary_fonts_default_psf_start)->width;
+}
+
+uint32_t get_height(uint8_t version){
+    if ( version == PSF_V1) {
+        return ((PSFv1_Font *)&_binary_fonts_default_psf_start)->charsize;
+    }
+    return ((PSF_font *)&_binary_fonts_default_psf_start)->height;
 }
