@@ -178,7 +178,7 @@ This means you are missing the grub-pc-bin package, and you need to install it.
 src/kernel/framebuffer/framebuffer.c:122: undefined reference to `_binary_fonts_default_psf_start'
 ```
 
-This means that the fonts folder is missing (you need a psfv2 font file in the fonts folder, the file has to be called default.psf)
+This means that the fonts folder is missing (you need either a psf v2 or v1 font file in the fonts folder, the file has to be called default.psf)
 
 ### And now show time! :) 
 
