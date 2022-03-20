@@ -4,6 +4,8 @@ extern char _binary_fonts_default_psf_size;
 extern char _binary_fonts_default_psf_start;
 extern char _binary_fonts_default_psf_end;
 
+uint8_t psf_font_version;
+
 uint8_t get_PSF_version(char *_font_structure){
    PSFv1_Font *_v1_font = (PSFv1_Font*) _font_structure;
    if( _v1_font->magic[0] == MAGIC_V1_0 && _v1_font->magic[1] == MAGIC_V1_1){

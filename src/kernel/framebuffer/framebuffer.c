@@ -16,6 +16,7 @@ extern uint64_t p4_table[];
 extern uint64_t p3_table_hh[];
 extern uint64_t p2_table[];
 extern uint64_t pt_tables[];
+extern uint8_t psf_font_version;
 
 uint32_t FRAMEBUFFER_PITCH;
 void *FRAMEBUFFER_MEM;
@@ -29,21 +30,12 @@ void map_framebuffer(struct multiboot_tag_framebuffer *tagfb){
     uint32_t fb_entries = FRAMEBUFFER_MEMORY_SIZE / PAGE_SIZE_IN_BYTES;
     uint32_t fb_entries_mod = FRAMEBUFFER_MEMORY_SIZE % PAGE_SIZE_IN_BYTES;
     
-    /*
-    _printStringAndNumber("FB: Entries: ", fb_entries);
-    _printStringAndNumber("FB: Mod Entries: ", fb_entries_mod);
-    _printStringAndNumber("FB: size: ", FRAMEBUFFER_MEMORY_SIZE);
-    */
     uint64_t phys_address = (uint64_t) tagfb->common.framebuffer_addr;
 
     uint32_t pd = PD_ENTRY(_FRAMEBUFFER_MEM_START); 
     uint32_t pdpr = PDPR_ENTRY(_FRAMEBUFFER_MEM_START);
     uint32_t pml4 = PML4_ENTRY(_FRAMEBUFFER_MEM_START);
-    /*
-    _printStringAndNumber("pd: ", pd);
-    _printStringAndNumber("pdpr: ", pdpr);
-    _printStringAndNumber("pml4: ", pml4);
-    */
+
 #if SMALL_PAGES == 1
     uint32_t fb_pd_entries = fb_entries / VM_PAGES_PER_TABLE;
     uint32_t pt = PT_ENTRY(_FRAMEBUFFER_MEM_START);
@@ -113,8 +105,9 @@ void _fb_putchar(unsigned short int symbol, int cx, int cy, uint32_t fg, uint32_
     PSF_font *default_font = (PSF_font*)&_binary_fonts_default_psf_start;
     uint32_t pitch = FRAMEBUFFER_PITCH;
     //uint32_t charsize = default_font->height * ((default_font->width + 7)/8);
-    uint8_t *glyph = (uint8_t*)&_binary_fonts_default_psf_start + 
-        default_font->headersize + (symbol>0&&symbol<default_font->numglyph?symbol:0) * default_font->bytesperglyph;
+    //uint8_t *glyph = (uint8_t*)&_binary_fonts_default_psf_start + 
+    //    default_font->headersize + (symbol>0&&symbol<default_font->numglyph?symbol:0) * default_font->bytesperglyph;
+    uint8_t *glyph = (uint8_t*) get_glyph(symbol, psf_font_version);
     int bytesperline =  (default_font->width + 7)/8;
     int offset = (cy * default_font->height * pitch) + 
         (cx * (default_font->width) * sizeof(PIXEL));

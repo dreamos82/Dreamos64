@@ -37,6 +37,7 @@ extern uint64_t multiboot_mmap_data;
 extern uint64_t multiboot_basic_meminfo;
 extern uint64_t multiboot_acpi_info;
 extern uint64_t end_of_mapped_memory;
+extern uint8_t psf_font_version;
 struct multiboot_tag_framebuffer *tagfb = NULL;
 struct multiboot_tag_basic_meminfo *tagmem = NULL;
 struct multiboot_tag_old_acpi *tagold_acpi = NULL;
@@ -57,7 +58,7 @@ void _init_basic_system(unsigned long addr){
     printf("Memory lower (in kb): %d - upper (in kb): %d\n", tagmem->mem_lower, tagmem->mem_upper);
     memory_size_in_bytes = (tagmem->mem_upper + 1024) * 1024;
     //Print mmap_info
-    _printStringAndNumber("Memory map entry: ", tagmmap->type);
+    printf("Memory map entry: 0x%x\n",  tagmmap->type);
     _printStringAndNumber("---Size: ", tagmmap->size);
     _printStringAndNumber("---Entrysize: ", tagmmap->entry_size);
     _printStringAndNumber("---EntryVersion: ", tagmmap->entry_version);
@@ -118,7 +119,6 @@ void kernel_start(unsigned long addr, unsigned long magic){
     init_idt();
     load_idt();
     _init_basic_system(addr);
-    logline(Info, "Hello world, this is a test log!");
     printf("Kernel End: 0x%x - Physical: %x\n", (unsigned long)&_kernel_end, (unsigned long)&_kernel_physical_end);
     //test_image();
     // Reminder here: The firt 8 bytes have a fixed structure in the multiboot info:
@@ -142,17 +142,21 @@ void kernel_start(unsigned long addr, unsigned long magic){
     _printStringAndNumber("Width: ", font->width);
     _printStringAndNumber("Height: ", font->height);
     #if USE_FRAMEBUFFER == 1 
-        _fb_printStr("Ciao!", 1,1, 0x000000, 0xFFFFFF);
-        _fb_printStr("Dreamos64", 0, 0, 0xFFFFFF, 0x3333ff);
-        _fb_printStr("Thanks\nfor\n using it", 0, 6, 0xFFFFFF, 0x3333ff);
+        psf_font_version = get_PSF_version(&_binary_fonts_default_psf_start);
         if(get_PSF_version(&_binary_fonts_default_psf_start) == 1){
             qemu_write_string("PSF v1 found\n");
         }  else {
             qemu_write_string("PSF v2 found\n");
         }
-        _fb_printStr(" -- Welcome --", 0, 2, 0xFFFFFF, 0x3333ff);
+        printf("PSF stored version: %d\n", psf_font_version);
+
+        _fb_printStr("Ciao!", 1,2, 0x000000, 0xFFFFFF);
+        _fb_printStr("Dreamos64", 0, 1, 0xFFFFFF, 0x3333ff);
+        _fb_printStr("Thanks\nfor\n using it", 0, 7, 0xFFFFFF, 0x3333ff);
+        _fb_printStr(" -- Welcome --", 0, 3, 0xFFFFFF, 0x3333ff);
     #endif
     
+    logline(Info, "Hello world, this is a test log!");
     char *cpuid_model = _cpuid_model();
     printf("Cpuid model: %s\n", cpuid_model);
     
