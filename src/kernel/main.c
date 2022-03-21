@@ -37,6 +37,7 @@ extern uint64_t multiboot_mmap_data;
 extern uint64_t multiboot_basic_meminfo;
 extern uint64_t multiboot_acpi_info;
 extern uint64_t end_of_mapped_memory;
+extern uint8_t psf_font_version;
 struct multiboot_tag_framebuffer *tagfb = NULL;
 struct multiboot_tag_basic_meminfo *tagmem = NULL;
 struct multiboot_tag_old_acpi *tagold_acpi = NULL;
@@ -57,7 +58,7 @@ void _init_basic_system(unsigned long addr){
     printf("Memory lower (in kb): %d - upper (in kb): %d\n", tagmem->mem_lower, tagmem->mem_upper);
     memory_size_in_bytes = (tagmem->mem_upper + 1024) * 1024;
     //Print mmap_info
-    _printStringAndNumber("Memory map entry: ", tagmmap->type);
+    printf("Memory map entry: 0x%x\n",  tagmmap->type);
     _printStringAndNumber("---Size: ", tagmmap->size);
     _printStringAndNumber("---Entrysize: ", tagmmap->entry_size);
     _printStringAndNumber("---EntryVersion: ", tagmmap->entry_version);
@@ -114,11 +115,13 @@ void kernel_start(unsigned long addr, unsigned long magic){
     extern unsigned int _kernel_end;
     extern unsigned int _kernel_physical_end;
     qemu_init_debug();
-    init_log(LOG_OUTPUT_FRAMEBUFFER, Verbose, false);
+    psf_font_version = get_PSF_version(&_binary_fonts_default_psf_start);
     init_idt();
     load_idt();
     _init_basic_system(addr);
-    logline(Info, "Hello world, this is a test log!");
+    #ifdef USE_FRAMEBUFFER
+    init_log(LOG_OUTPUT_FRAMEBUFFER, Verbose, false);
+    #endif
     printf("Kernel End: 0x%x - Physical: %x\n", (unsigned long)&_kernel_end, (unsigned long)&_kernel_physical_end);
     //test_image();
     // Reminder here: The firt 8 bytes have a fixed structure in the multiboot info:
@@ -132,25 +135,37 @@ void kernel_start(unsigned long addr, unsigned long magic){
 	} else {
 		printf("Failed to verify magic number. Something is wrong\n");
 	}
-    PSF_font *font = (PSF_font*)&_binary_fonts_default_psf_start;
-    _printStringAndNumber("Magic: ", font->magic);
-    _printStringAndNumber("Number of glyphs: ", font->numglyph);
-    _printStringAndNumber("Header size: ", font->headersize);
-    _printStringAndNumber("Bytes per glyphs: ", font->bytesperglyph);
-    _printStringAndNumber("Flags: ", font->flags);
-    _printStringAndNumber("Version: ", font->version);
-    _printStringAndNumber("Width: ", font->width);
-    _printStringAndNumber("Height: ", font->height);
     #if USE_FRAMEBUFFER == 1 
-        _fb_printStr("Ciao!", 1,1, 0x000000, 0xFFFFFF);
-        _fb_printStr("Dreamos64", 0, 0, 0xFFFFFF, 0x3333ff);
-        _fb_printStr("Thanks\nfor\n using it", 0, 6, 0xFFFFFF, 0x3333ff);
         if(get_PSF_version(&_binary_fonts_default_psf_start) == 1){
             qemu_write_string("PSF v1 found\n");
+            PSFv1_Font *font = (PSF_font*)&_binary_fonts_default_psf_start;
+            printf("Magic: [%x %x]\n", font->magic[1], font->magic[0]);
+            printf("Flags: 0x%x\n", font->mode);
+            printf("Charsize: 0x%x\n", font->charsize);
         }  else {
+            PSF_font *font = (PSF_font*)&_binary_fonts_default_psf_start;
+            printf("Magic: 0x%x\n", font->magic);
+            printf("Number of glyphs: 0x%x\n", font->numglyph);
+            printf("Header size: 0x%x\n", font->headersize);
+            printf("Bytes per glyphs: 0x%x\n", font->bytesperglyph);
+            printf("Flags: 0x%x\n", font->flags);
+            printf("Version: 0x%x\n", font->version);
+            printf("Width: 0x%x\n", font->width);
+            printf("Height: 0x%x\n", font->height);
             qemu_write_string("PSF v2 found\n");
+            printf("Get Width test: %x\n", get_width(psf_font_version));
+            printf("Get Height test: %x\n", get_height(psf_font_version));
         }
-        _fb_printStr(" -- Welcome --", 0, 2, 0xFFFFFF, 0x3333ff);
+        printf("PSF stored version: %d\n", psf_font_version);
+        uint32_t pw, ph, cw, ch;
+        get_framebuffer_mode(&pw, &ph, &cw, &ch);
+        printf("Number of lines: %d\n", ch);
+
+        _fb_printStr("Ciao!", 1, 0, 0x000000, 0xFFFFFF);
+        _fb_printStr("Dreamos64", 0, 1, 0xFFFFFF, 0x3333ff);
+        _fb_printStr("Thanks\nfor\n using it", 0, 7, 0xFFFFFF, 0x3333ff);
+        _fb_printStr(" -- Welcome --", 0, 3, 0xFFFFFF, 0x3333ff);
+        logline(Info, "Hello world, this is a test log!");
     #endif
     
     char *cpuid_model = _cpuid_model();

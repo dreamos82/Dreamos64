@@ -36,4 +36,7 @@ typedef struct {
 uint8_t get_PSF_version(char *);
 
 uint8_t* get_glyph(uint8_t, uint8_t);
+uint32_t get_height(uint8_t);
+uint32_t get_width(uint8_t);
+
 #endif
