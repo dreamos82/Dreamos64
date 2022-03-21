@@ -25,9 +25,6 @@ uint32_t FRAMEBUFFER_MEMORY_SIZE = 0;
 uint32_t FRAMEBUFFER_WIDTH;
 uint32_t FRAMEBUFFER_HEIGHT;
 
-uint32_t current_cursor_line = 0;
-
-
 void map_framebuffer(struct multiboot_tag_framebuffer *tagfb){
     uint32_t fb_entries = FRAMEBUFFER_MEMORY_SIZE / PAGE_SIZE_IN_BYTES;
     uint32_t fb_entries_mod = FRAMEBUFFER_MEMORY_SIZE % PAGE_SIZE_IN_BYTES;
@@ -129,9 +126,6 @@ void _fb_putchar(unsigned short int symbol, int cx, int cy, uint32_t fg, uint32_
         }
         glyph += bytesperline;
         offset +=pitch;
-    }
-    if (cy >= current_cursor_line) {
-        current_cursor_line = ++cy;
     }
 }
 

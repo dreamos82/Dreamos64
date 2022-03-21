@@ -46,10 +46,6 @@ struct multiboot_tag_mmap *tagmmap = NULL;
 struct multiboot_tag *tagacpi = NULL;
 uint32_t memory_size_in_bytes;
 
-#ifdef USE_FRAMEBUFFER
-extern uint32_t current_cursor_line;
-#endif
-
 void _init_basic_system(unsigned long addr){
     struct multiboot_tag* tag;
     uint32_t mbi_size = *(uint32_t *) addr;
@@ -165,8 +161,8 @@ void kernel_start(unsigned long addr, unsigned long magic){
         get_framebuffer_mode(&pw, &ph, &cw, &ch);
         printf("Number of lines: %d\n", ch);
 
-        _fb_printStr("Ciao!", 1, current_cursor_line, 0x000000, 0xFFFFFF);
-        _fb_printStr("Dreamos64", 0, current_cursor_line, 0xFFFFFF, 0x3333ff);
+        _fb_printStr("Ciao!", 1, 0, 0x000000, 0xFFFFFF);
+        _fb_printStr("Dreamos64", 0, 1, 0xFFFFFF, 0x3333ff);
         _fb_printStr("Thanks\nfor\n using it", 0, 7, 0xFFFFFF, 0x3333ff);
         _fb_printStr(" -- Welcome --", 0, 3, 0xFFFFFF, 0x3333ff);
         logline(Info, "Hello world, this is a test log!");
