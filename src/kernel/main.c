@@ -144,6 +144,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
             printf("Charsize: 0x%x\n", font->charsize);
         }  else {
             PSF_font *font = (PSF_font*)&_binary_fonts_default_psf_start;
+            qemu_write_string("PSF v2 found\n");
             printf("Magic: 0x%x\n", font->magic);
             printf("Number of glyphs: 0x%x\n", font->numglyph);
             printf("Header size: 0x%x\n", font->headersize);
@@ -152,7 +153,6 @@ void kernel_start(unsigned long addr, unsigned long magic){
             printf("Version: 0x%x\n", font->version);
             printf("Width: 0x%x\n", font->width);
             printf("Height: 0x%x\n", font->height);
-            qemu_write_string("PSF v2 found\n");
             printf("Get Width test: %x\n", get_width(psf_font_version));
             printf("Get Height test: %x\n", get_height(psf_font_version));
         }
@@ -179,11 +179,8 @@ void kernel_start(unsigned long addr, unsigned long magic){
     //Is that a test?
     pmm_reserve_area(0x10000, 10);
 
-    char test_buffer[5];
     initialize_kheap();
-    char test_str[8] = "hello";
-    printf("test_str: %s\n", test_str);
-
+    
     MADT* madt_table = (MADT*) get_SDT_item(MADT_ID);
     printf("Madt ADDRESS: %x\n", madt_table);
     printf("Madt SIGNATURE: %.4s\n", madt_table->header.Signature);
