@@ -165,6 +165,10 @@ void kernel_start(unsigned long addr, unsigned long magic){
         _fb_printStr("Dreamos64", 0, 1, 0xFFFFFF, 0x3333ff);
         _fb_printStr("Thanks\nfor\n using it", 0, 7, 0xFFFFFF, 0x3333ff);
         _fb_printStr(" -- Welcome --", 0, 3, 0xFFFFFF, 0x3333ff);
+        _fb_put_pixel(0xE169CD, 600, 600);
+        _fb_put_pixel(0xE169CD, 601, 601);
+        _fb_put_pixel(0xE169CD, 602, 602);
+        _fb_put_pixel(0xE169CD, 603, 603);
         logline(Info, "Hello world, this is a test log!");
     #endif
     

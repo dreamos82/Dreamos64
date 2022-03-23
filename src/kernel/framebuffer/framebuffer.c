@@ -25,6 +25,8 @@ uint32_t FRAMEBUFFER_MEMORY_SIZE = 0;
 uint32_t FRAMEBUFFER_WIDTH;
 uint32_t FRAMEBUFFER_HEIGHT;
 
+uint16_t cur_fb_line;
+
 void map_framebuffer(struct multiboot_tag_framebuffer *tagfb){
     uint32_t fb_entries = FRAMEBUFFER_MEMORY_SIZE / PAGE_SIZE_IN_BYTES;
     uint32_t fb_entries_mod = FRAMEBUFFER_MEMORY_SIZE % PAGE_SIZE_IN_BYTES;
@@ -97,6 +99,7 @@ void set_fb_data(struct multiboot_tag_framebuffer *fbtag){
     FRAMEBUFFER_MEMORY_SIZE = FRAMEBUFFER_PITCH * fbtag->common.framebuffer_height;
     FRAMEBUFFER_WIDTH = fbtag->common.framebuffer_width;
     FRAMEBUFFER_HEIGHT = fbtag->common.framebuffer_height;
+    cur_fb_line = 0;
 }
 
 void _fb_putchar(unsigned short int symbol, int cx, int cy, uint32_t fg, uint32_t bg){
@@ -110,18 +113,25 @@ void _fb_putchar(unsigned short int symbol, int cx, int cy, uint32_t fg, uint32_
     //uint8_t *glyph = (uint8_t*)&_binary_fonts_default_psf_start + 
     //    default_font->headersize + (symbol>0&&symbol<default_font->numglyph?symbol:0) * default_font->bytesperglyph;
     uint8_t *glyph = (uint8_t*) get_glyph(symbol, psf_font_version);
+    //bytesperline is the number of bytes per each row of the glyph
     int bytesperline =  (width + 7)/8;
     int offset = (cy * height * pitch) + 
         (cx * (width) * sizeof(PIXEL));
-    
+    // x,y = current coordinates on the glyph bitmap
+
     uint32_t x, y, line, mask;
     for(y=0; y<height; y++){
         line = offset;
-        mask = 1 << (width - 1);
+        //mask = 1 << (width - 1);
         for(x=0; x<width; x++){
             //*((uint32_t*) (framebuffer + line)) = *((unsigned int*) glyph) & mask ? fg : bg;
+            //We are plotting the pixel
+            //0x80 = 0b10000000, it is shifted right at every iteration this for loop.
+            //glyph[x/8] if widht > 8, x/8 = byte selector 
+            //(ie width = 16bits, when x < 8, x/8, so we read glyph[0]. if x>8 then x/8 = 1, and we read glyph[1]
+            //if the bit at position x is 1 plot the foreground color if is 0 plot the background color
             *((PIXEL*) (framebuffer + line)) = glyph[x/8] & (0x80 >> (x & 7)) ? fg : bg;
-            mask >>= 1;
+            //mask >>= 1;
             line +=sizeof(PIXEL);
         }
         glyph += bytesperline;
@@ -167,4 +177,11 @@ void get_framebuffer_mode(uint32_t* pixels_w, uint32_t* pixels_h, uint32_t* char
         *chars_w = FRAMEBUFFER_WIDTH / get_width(psf_font_version);
     if (chars_h != NULL)
         *chars_h = FRAMEBUFFER_HEIGHT / get_height(get_height);
+}
+
+void _fb_put_pixel(uint32_t color, uint32_t x, uint32_t y) {
+    uint32_t cy = y * FRAMEBUFFER_PITCH;
+    uint32_t cx = x * sizeof(PIXEL);
+    char *framebuffer = (char *) FRAMEBUFFER_MEM;    
+    *((PIXEL*) (framebuffer + cy + cx)) = color;
 }
