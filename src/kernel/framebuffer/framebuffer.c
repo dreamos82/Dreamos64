@@ -8,6 +8,8 @@
 #include <qemu.h>
 //#endif
 
+#define PIXEL uint32_t
+
 extern char _binary_fonts_default_psf_size;
 extern char _binary_fonts_default_psf_start;
 extern char _binary_fonts_default_psf_end;
@@ -24,12 +26,15 @@ uint8_t FRAMEBUFFER_BPP = 0;
 uint32_t FRAMEBUFFER_MEMORY_SIZE = 0;
 uint32_t FRAMEBUFFER_WIDTH;
 uint32_t FRAMEBUFFER_HEIGHT;
+framebuffer_info framebuffer_data;
 
-void map_framebuffer(struct multiboot_tag_framebuffer *tagfb){
-    uint32_t fb_entries = FRAMEBUFFER_MEMORY_SIZE / PAGE_SIZE_IN_BYTES;
-    uint32_t fb_entries_mod = FRAMEBUFFER_MEMORY_SIZE % PAGE_SIZE_IN_BYTES;
+size_t cur_fb_line;
+
+void map_framebuffer(struct framebuffer_info fbdata){
+    uint32_t fb_entries = fbdata.memory_size / PAGE_SIZE_IN_BYTES;
+    uint32_t fb_entries_mod =  fbdata.memory_size % PAGE_SIZE_IN_BYTES;
     
-    uint64_t phys_address = (uint64_t) tagfb->common.framebuffer_addr;
+    uint64_t phys_address = (uint64_t) fbdata.phys_address;
 
     uint32_t pd = PD_ENTRY(_FRAMEBUFFER_MEM_START); 
     uint32_t pdpr = PDPR_ENTRY(_FRAMEBUFFER_MEM_START);
@@ -78,9 +83,9 @@ void map_framebuffer(struct multiboot_tag_framebuffer *tagfb){
         counter++;
         fb_entries--;
         if((p2_table[pd+j] < phys_address 
-                    || p2_table[pd+j] > (phys_address + FRAMEBUFFER_MEMORY_SIZE)) 
+                || p2_table[pd+j] > (phys_address + fbdata.memory_size)) 
                 || p2_table[pd+j] == 0x00l){
-            p2_table[pd+j] = (phys_address + (j * PAGE_SIZE_IN_BYTES)) | PAGE_ENTRY_FLAGS;
+                p2_table[pd+j] = (phys_address + (j * PAGE_SIZE_IN_BYTES)) | PAGE_ENTRY_FLAGS;
         }
     }
 
@@ -91,17 +96,21 @@ void map_framebuffer(struct multiboot_tag_framebuffer *tagfb){
 
 void set_fb_data(struct multiboot_tag_framebuffer *fbtag){
     //FRAMEBUFFER_MEM = (void*)(uint64_t)fbtag->common.framebuffer_addr;
-    FRAMEBUFFER_MEM = (void*)(uint64_t)_FRAMEBUFFER_MEM_START;
-    FRAMEBUFFER_PITCH = fbtag->common.framebuffer_pitch;
-    FRAMEBUFFER_BPP = fbtag->common.framebuffer_bpp;
-    FRAMEBUFFER_MEMORY_SIZE = FRAMEBUFFER_PITCH * fbtag->common.framebuffer_height;
-    FRAMEBUFFER_WIDTH = fbtag->common.framebuffer_width;
-    FRAMEBUFFER_HEIGHT = fbtag->common.framebuffer_height;
+    framebuffer_data.address = (void*)(uint64_t)_FRAMEBUFFER_MEM_START;
+    framebuffer_data.pitch = fbtag->common.framebuffer_pitch;
+    framebuffer_data.bpp = fbtag->common.framebuffer_bpp;
+    framebuffer_data.memory_size = fbtag->common.framebuffer_pitch * fbtag->common.framebuffer_height;
+    framebuffer_data.width = fbtag->common.framebuffer_width;
+    framebuffer_data.height = fbtag->common.framebuffer_height;
+    framebuffer_data.phys_address = fbtag->common.framebuffer_addr;
+
+    map_framebuffer(framebuffer_data);
+    cur_fb_line = 0;
 }
 
-void _fb_putchar(unsigned short int symbol, int cx, int cy, uint32_t fg, uint32_t bg){
-    char *framebuffer = (char *) FRAMEBUFFER_MEM;
-    uint32_t pitch = FRAMEBUFFER_PITCH;
+void _fb_putchar(char symbol, size_t cx, size_t cy, uint32_t fg, uint32_t bg){
+    char *framebuffer = (char *) framebuffer_data.address;
+    uint32_t pitch = framebuffer_data.pitch;
     uint32_t width, height;
     width = get_width(psf_font_version);
     height = get_height(psf_font_version);
@@ -110,18 +119,25 @@ void _fb_putchar(unsigned short int symbol, int cx, int cy, uint32_t fg, uint32_
     //uint8_t *glyph = (uint8_t*)&_binary_fonts_default_psf_start + 
     //    default_font->headersize + (symbol>0&&symbol<default_font->numglyph?symbol:0) * default_font->bytesperglyph;
     uint8_t *glyph = (uint8_t*) get_glyph(symbol, psf_font_version);
+    //bytesperline is the number of bytes per each row of the glyph
     int bytesperline =  (width + 7)/8;
     int offset = (cy * height * pitch) + 
         (cx * (width) * sizeof(PIXEL));
-    
+    // x,y = current coordinates on the glyph bitmap
+
     uint32_t x, y, line, mask;
     for(y=0; y<height; y++){
         line = offset;
-        mask = 1 << (width - 1);
+        //mask = 1 << (width - 1);
         for(x=0; x<width; x++){
             //*((uint32_t*) (framebuffer + line)) = *((unsigned int*) glyph) & mask ? fg : bg;
+            //We are plotting the pixel
+            //0x80 = 0b10000000, it is shifted right at every iteration this for loop.
+            //glyph[x/8] if widht > 8, x/8 = byte selector 
+            //(ie width = 16bits, when x < 8, x/8, so we read glyph[0]. if x>8 then x/8 = 1, and we read glyph[1]
+            //if the bit at position x is 1 plot the foreground color if is 0 plot the background color
             *((PIXEL*) (framebuffer + line)) = glyph[x/8] & (0x80 >> (x & 7)) ? fg : bg;
-            mask >>= 1;
+            //mask >>= 1;
             line +=sizeof(PIXEL);
         }
         glyph += bytesperline;
@@ -129,7 +145,7 @@ void _fb_putchar(unsigned short int symbol, int cx, int cy, uint32_t fg, uint32_
     }
 }
 
-void _fb_printStr(char *string, int cx, int cy, uint32_t fg, uint32_t bg){
+void _fb_printStr(const char *string, size_t cx, size_t cy, uint32_t fg, uint32_t bg){
     while (*string != '\0'){
         if (*string == '\n'){
             cx=0;
@@ -142,7 +158,7 @@ void _fb_printStr(char *string, int cx, int cy, uint32_t fg, uint32_t bg){
     }
 }
 
-void _fb_printStrAndNumber(char *string, uint64_t number, int cx, int cy, uint32_t fg, uint32_t bg){
+void _fb_printStrAndNumber(const char *string, uint64_t number, size_t cx, size_t cy, uint32_t fg, uint32_t bg){
     char *buffer[30];
     
     _getHexString(buffer, number, true);
@@ -152,19 +168,26 @@ void _fb_printStrAndNumber(char *string, uint64_t number, int cx, int cy, uint32
         counter++;
         string++;
     }
-    string[counter] = ' ';
+
     _fb_printStr(buffer, cx + counter, cy, fg, bg);
 }
 
 void get_framebuffer_mode(uint32_t* pixels_w, uint32_t* pixels_h, uint32_t* chars_w, uint32_t* chars_h)
 {
     if (pixels_w != NULL)
-        *pixels_w = FRAMEBUFFER_WIDTH;
+        *pixels_w = framebuffer_data.width;
     if (pixels_h != NULL)
-        *pixels_h = FRAMEBUFFER_HEIGHT;
+        *pixels_h = framebuffer_data.height;
 
     if (chars_w != NULL)
-        *chars_w = FRAMEBUFFER_WIDTH / get_width(psf_font_version);
+        *chars_w = framebuffer_data.width / get_width(psf_font_version);
     if (chars_h != NULL)
-        *chars_h = FRAMEBUFFER_HEIGHT / get_height(get_height);
+        *chars_h = framebuffer_data.height / get_height(get_height);
+}
+
+void _fb_put_pixel(uint32_t x, uint32_t y, uint32_t color) {
+    uint32_t cy = y * framebuffer_data.pitch;
+    uint32_t cx = x * sizeof(PIXEL);
+    char *framebuffer = (char *) framebuffer_data.address;
+    *((PIXEL*) (framebuffer + cy + cx)) = color;
 }

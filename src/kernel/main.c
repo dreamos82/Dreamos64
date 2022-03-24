@@ -78,7 +78,6 @@ void _init_basic_system(unsigned long addr){
     printf("---framebuffer-pitch: 0x%x\n", tagfb->common.framebuffer_pitch);
     printf("---Address: 0x%x\n", tagfb + _HIGHER_HALF_KERNEL_MEM_START);
     set_fb_data(tagfb);
-    map_framebuffer(tagfb);
     printf("---Total framebuffer size is: 0x%x\n", FRAMEBUFFER_MEMORY_SIZE);
     
     tagacpi = (struct multiboot_tag *) (multiboot_acpi_info + _HIGHER_HALF_KERNEL_MEM_START);
@@ -165,6 +164,10 @@ void kernel_start(unsigned long addr, unsigned long magic){
         _fb_printStr("Dreamos64", 0, 1, 0xFFFFFF, 0x3333ff);
         _fb_printStr("Thanks\nfor\n using it", 0, 7, 0xFFFFFF, 0x3333ff);
         _fb_printStr(" -- Welcome --", 0, 3, 0xFFFFFF, 0x3333ff);
+        _fb_put_pixel(600, 600, 0xE169CD);
+        _fb_put_pixel(601, 601, 0xE169CD);
+        _fb_put_pixel(602, 602, 0xE169CD);
+        _fb_put_pixel(603, 603, 0xE169CD);
         logline(Info, "Hello world, this is a test log!");
     #endif
     
