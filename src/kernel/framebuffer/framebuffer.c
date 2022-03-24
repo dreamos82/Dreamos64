@@ -109,7 +109,7 @@ void set_fb_data(struct multiboot_tag_framebuffer *fbtag){
 }
 
 void _fb_putchar(char symbol, size_t cx, size_t cy, uint32_t fg, uint32_t bg){
-    char *framebuffer = (char *) framebuffer_data.address;
+    uint8_t *framebuffer = (char *) framebuffer_data.address;
     uint32_t pitch = framebuffer_data.pitch;
     uint32_t width, height;
     width = get_width(psf_font_version);
@@ -118,10 +118,10 @@ void _fb_putchar(char symbol, size_t cx, size_t cy, uint32_t fg, uint32_t bg){
     //uint32_t charsize = default_font->height * ((default_font->width + 7)/8);
     //uint8_t *glyph = (uint8_t*)&_binary_fonts_default_psf_start + 
     //    default_font->headersize + (symbol>0&&symbol<default_font->numglyph?symbol:0) * default_font->bytesperglyph;
-    uint8_t *glyph = (uint8_t*) get_glyph(symbol, psf_font_version);
+    uint8_t *glyph = get_glyph(symbol, psf_font_version);
     //bytesperline is the number of bytes per each row of the glyph
-    int bytesperline =  (width + 7)/8;
-    int offset = (cy * height * pitch) + 
+    size_t bytesperline =  (width + 7)/8;
+    size_t offset = (cy * height * pitch) + 
         (cx * (width) * sizeof(PIXEL));
     // x,y = current coordinates on the glyph bitmap
 
@@ -138,7 +138,7 @@ void _fb_putchar(char symbol, size_t cx, size_t cy, uint32_t fg, uint32_t bg){
             //if the bit at position x is 1 plot the foreground color if is 0 plot the background color
             *((PIXEL*) (framebuffer + line)) = glyph[x/8] & (0x80 >> (x & 7)) ? fg : bg;
             //mask >>= 1;
-            line +=sizeof(PIXEL);
+            line +=sizeof(framebuffer_data.bpp / 8);
         }
         glyph += bytesperline;
         offset +=pitch;
