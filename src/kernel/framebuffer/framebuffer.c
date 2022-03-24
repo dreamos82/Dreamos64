@@ -8,6 +8,8 @@
 #include <qemu.h>
 //#endif
 
+#define PIXEL uint32_t
+
 extern char _binary_fonts_default_psf_size;
 extern char _binary_fonts_default_psf_start;
 extern char _binary_fonts_default_psf_end;
@@ -106,7 +108,7 @@ void set_fb_data(struct multiboot_tag_framebuffer *fbtag){
     cur_fb_line = 0;
 }
 
-void _fb_putchar(unsigned short int symbol, int cx, int cy, uint32_t fg, uint32_t bg){
+void _fb_putchar(char symbol, size_t cx, size_t cy, uint32_t fg, uint32_t bg){
     char *framebuffer = (char *) framebuffer_data.address;
     uint32_t pitch = framebuffer_data.pitch;
     uint32_t width, height;
@@ -143,7 +145,7 @@ void _fb_putchar(unsigned short int symbol, int cx, int cy, uint32_t fg, uint32_
     }
 }
 
-void _fb_printStr(char *string, int cx, int cy, uint32_t fg, uint32_t bg){
+void _fb_printStr(const char *string, size_t cx, size_t cy, uint32_t fg, uint32_t bg){
     while (*string != '\0'){
         if (*string == '\n'){
             cx=0;
@@ -156,7 +158,7 @@ void _fb_printStr(char *string, int cx, int cy, uint32_t fg, uint32_t bg){
     }
 }
 
-void _fb_printStrAndNumber(char *string, uint64_t number, int cx, int cy, uint32_t fg, uint32_t bg){
+void _fb_printStrAndNumber(const char *string, uint64_t number, size_t cx, size_t cy, uint32_t fg, uint32_t bg){
     char *buffer[30];
     
     _getHexString(buffer, number, true);
@@ -166,7 +168,7 @@ void _fb_printStrAndNumber(char *string, uint64_t number, int cx, int cy, uint32
         counter++;
         string++;
     }
-    string[counter] = ' ';
+
     _fb_printStr(buffer, cx + counter, cy, fg, bg);
 }
 
