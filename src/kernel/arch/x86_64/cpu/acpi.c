@@ -29,6 +29,7 @@ void parse_RSDT(RSDPDescriptor *descriptor){
     printf("- Parse RSDP Descriptor\n");
     printf("- descriptor Address: 0x%x\n", descriptor->RsdtAddress);
     map_phys_to_virt_addr((void *) ALIGN_PHYSADDRESS(descriptor->RsdtAddress), (void *) ensure_address_in_higher_half(descriptor->RsdtAddress), 0);
+    _bitmap_set_bit_from_address(ALIGN_PHYSADDRESS(descriptor->RsdtAddress));
     rsdt_root = (RSDT *) ensure_address_in_higher_half((uint64_t) descriptor->RsdtAddress);
     ACPISDTHeader header = rsdt_root->header;
     printf("- RSDT_Signature: %.4s\n", header.Signature);
@@ -42,7 +43,8 @@ void parse_RSDT(RSDPDescriptor *descriptor){
         printf("- RSDT_PAGES_NEEDED: %d\n", required_extra_pages);
         for (int j = 1; j < required_extra_pages; j++) {
             uint64_t new_physical_address = descriptor->RsdtAddress + (j * KERNEL_PAGE_SIZE);
-            map_phys_to_virt_addr(new_physical_address, ensure_address_in_higher_half(new_physical_address), 0);
+            map_phys_to_virt_addr(ALIGN_PHYSADDRESS(new_physical_address), ensure_address_in_higher_half(new_physical_address), 0);
+            _bitmap_set_bit_from_address(ALIGN_PHYSADDRESS(new_physical_address));
         }
     }
     rsdtTablesTotal = (header.Length - sizeof(ACPISDTHeader)) / sizeof(uint32_t);
@@ -59,6 +61,7 @@ void parse_RSDTv2(RSDPDescriptor20 *descriptor){
     printf("Parse RSDP v2 Descriptor\n");
     printf("- Descriptor physical address: 0x%x\n", ALIGN_PHYSADDRESS(descriptor->XsdtAddress));
     map_phys_to_virt_addr((void *) ALIGN_PHYSADDRESS(descriptor->XsdtAddress), (void *) ensure_address_in_higher_half(descriptor->XsdtAddress), 0);
+    _bitmap_set_bit_from_address(ALIGN_PHYSADDRESS(descriptor->XsdtAddress));
     xsdt_root = (XSDT *) ensure_address_in_higher_half((uint64_t) descriptor->XsdtAddress);
     printf("- XSDT_Length: 0x%x\n", descriptor->Length);
     ACPISDTHeader header = xsdt_root->header;
@@ -72,6 +75,7 @@ void parse_RSDTv2(RSDPDescriptor20 *descriptor){
         for (int j = 1; j < required_extra_pages; j++) {
             uint64_t new_physical_address = descriptor->XsdtAddress + (j * KERNEL_PAGE_SIZE);
             map_phys_to_virt_addr(new_physical_address, ensure_address_in_higher_half(new_physical_address), 0);
+            _bitmap_set_bit_from_address(ALIGN_PHYSADDRESS(new_physical_address));
         }
     }
     
@@ -80,6 +84,7 @@ void parse_RSDTv2(RSDPDescriptor20 *descriptor){
     
     for(int i=0; i < rsdtTablesTotal; i++) {
         map_phys_to_virt_addr(ALIGN_PHYSADDRESS(xsdt_root->tables[i]), ensure_address_in_higher_half(xsdt_root->tables[i]), 0);
+        _bitmap_set_bit_from_address(ALIGN_PHYSADDRESS(xsdt_root->tables[i]));
         ACPISDTHeader *tableHeader = (ACPISDTHeader *) ensure_address_in_higher_half(xsdt_root->tables[i]);
         printf("\tTable header %d: Signature: %.4s\n", i, tableHeader->Signature);
     }

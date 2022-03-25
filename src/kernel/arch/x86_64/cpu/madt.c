@@ -17,6 +17,7 @@ void map_madt(MADT* table){
     
     uint64_t madt_address = ((uint64_t) table + sizeof(MADT));
     map_phys_to_virt_addr(ALIGN_PHYSADDRESS(madt_address), ensure_address_in_higher_half(madt_address), 0);
+    _bitmap_set_bit_from_address(ALIGN_PHYSADDRESS(madt_address));
     printf("Sizeof MADT struct: 0x%x\n", sizeof(MADT));
     madt_base = ensure_address_in_higher_half((uint64_t)madt_address);
     is_madt_mapped = true;
