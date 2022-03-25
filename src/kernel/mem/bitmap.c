@@ -16,6 +16,7 @@
 extern struct multiboot_tag_basic_meminfo *tagmem;
 extern uint64_t _kernel_physical_end;
 extern uint64_t _kernel_end;
+extern uint64_t memory_size_in_bytes;
 
 uint64_t *memory_map = (uint64_t *) &_kernel_end;
 uint32_t number_of_entries = 0;
@@ -24,8 +25,8 @@ uint32_t used_frames;
 
 
 void _initialize_bitmap(unsigned long end_of_reserved_area){
-    uint32_t memory_size_in_bytes = (tagmem->mem_upper + 1024) * 1024;
-    bitmap_size = memory_size_in_bytes / PAGE_SIZE_IN_BYTES + 1;
+    uint32_t memory_size = (tagmem->mem_upper + 1024) * 1024;
+    bitmap_size = memory_size / PAGE_SIZE_IN_BYTES + 1;
     used_frames = 0;
     number_of_entries = bitmap_size / 64 + 1;
 #ifdef _TEST_
@@ -47,10 +48,10 @@ void _initialize_bitmap(unsigned long end_of_reserved_area){
     //used_frames = kernel_entries;
     //used_frames = 0x09; // Is the number of currently used frames - 1 (since the count starts from 0)
     used_frames = kernel_entries;
-    _printStringAndNumber("Page size: ", PAGE_SIZE_IN_BYTES);
-    _printStringAndNumber("Actual size in bytes: ", memory_size_in_bytes);
-    _printStringAndNumber("Number of bit entries: ", bitmap_size);
-    _printStringAndNumber("Number of items: ", number_of_entries);
+    printf("Page size: %d\n", PAGE_SIZE_IN_BYTES);
+    printf("Actual size in bytes: %d\n", memory_size_in_bytes);
+    printf("Number of bit entries: %d\n", bitmap_size);
+    printf("Number of items: %d\n", number_of_entries);
     //_bitmap_request_frame();
     //pmm_alloc_frame();
 }
@@ -100,7 +101,11 @@ int64_t _bitmap_request_frame(){
     return -1;
 }
 
-
+void _bitmap_set_bit_from_address(uint64_t address) {
+    if( address < memory_size_in_bytes ) {
+        _bitmap_set_bit(ADDRESS_TO_BITMAP_ENTRY(address));
+    }
+}
 
 /**
  * In the next 3 function location is the bit-location inside the bitmap
