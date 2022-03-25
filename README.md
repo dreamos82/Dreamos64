@@ -45,7 +45,7 @@ These are the packages you need to build and run it:
 * grub-pc-bin
 * xorriso
 * mtools
-* Gcc cross compiler - Instructions coming soon
+* Gcc cross compiler
 
 ## Build
 ### Building the cross compiler
