@@ -169,6 +169,8 @@ read_multiboot:
     jmp .item_not_needed
     .parse_fb_data:
         mov [multiboot_framebuffer_data], rax
+    ; Here mapping the first 4mb(2mb using 4k pages)  of framebuffer
+    ; The rest of the initialization will be done in the _init_basic_system functin
     %if SMALL_PAGES == 0
         mov rbx, [(rax + multiboot_tag_framebuffer.framebuffer_addr)]
         or rbx, PAGE_TABLE_ENTRY

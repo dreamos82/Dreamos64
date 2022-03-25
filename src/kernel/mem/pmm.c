@@ -45,13 +45,13 @@ void _map_pmm()
     bitmap_start = (bitmap_start / PAGE_SIZE_IN_BYTES) * PAGE_SIZE_IN_BYTES;
     const size_t pages_required = bitmap_size_bytes / PAGE_SIZE_IN_BYTES + 1;
 
-    _printStringAndNumber("Identity mapping PMM bitmap, addr(virt & phys)= 0x", bitmap_start);
-    _printStringAndNumber("    \\- Pages required=", pages_required);
+    printf("Identity mapping PMM bitmap, addr(virt & phys)= 0x%x\n", bitmap_start);
+    printf("    \\- Pages required=%d\n", pages_required);
 
     for (size_t i = 0; i < pages_required; i++)
         map_vaddress((void*)(bitmap_start + i * PAGE_SIZE_IN_BYTES), 0); //0 as no extra flags required
 
-    _printStr("PMM bitmap successfully mapped.");
+    printf("PMM bitmap successfully mapped.");
 }
 
 void *pmm_alloc_frame(){

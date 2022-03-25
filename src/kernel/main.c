@@ -38,6 +38,7 @@ extern uint64_t multiboot_basic_meminfo;
 extern uint64_t multiboot_acpi_info;
 extern uint64_t end_of_mapped_memory;
 extern uint8_t psf_font_version;
+extern struct framebuffer_info framebuffer_data;
 struct multiboot_tag_framebuffer *tagfb = NULL;
 struct multiboot_tag_basic_meminfo *tagmem = NULL;
 struct multiboot_tag_old_acpi *tagold_acpi = NULL;
@@ -62,23 +63,18 @@ void _init_basic_system(unsigned long addr){
     printf("---Size: 0x%x\n", tagmmap->size);
     printf("---Entrysize: 0x%x\n", tagmmap->entry_size);
     printf("---EntryVersion: 0x%x\n", tagmmap->entry_version);
-    printf("---Struct size: 0x%x\n", sizeof(struct multiboot_tag_mmap));
-    printf("---framebuffer-type: 0x%x\n", tagfb->common.framebuffer_type);
     _mmap_parse(tagmmap);
-    printf("---framebuffer-address: 0x%x\n", tagfb->common.framebuffer_addr);
     pmm_setup(addr, mbi_size);
 
     //Print framebuffer info
-    printf("Found multiboot framebuffer: 0x%x\n", tagmem->type); 
-    printf("---framebuffer-type: 0x%x\n", tagfb->common.framebuffer_type);
+    printf("---framebuffer-type: 0x%x - address: 0x%x\n", tagfb->common.framebuffer_type, tagfb->common.framebuffer_addr);
     printf("---framebuffer-width: 0x%x\n", tagfb->common.framebuffer_width);
     printf("---framebuffer-height: 0x%x\n", tagfb->common.framebuffer_height);
-    printf("---framebuffer-address: 0x%x\n", tagfb->common.framebuffer_addr);
     printf("---framebuffer-bpp: 0x%x\n", tagfb->common.framebuffer_bpp);
     printf("---framebuffer-pitch: 0x%x\n", tagfb->common.framebuffer_pitch);
-    printf("---Address: 0x%x\n", tagfb + _HIGHER_HALF_KERNEL_MEM_START);
+    printf("---Virtual Address: 0x%x\n", tagfb + _HIGHER_HALF_KERNEL_MEM_START);
     set_fb_data(tagfb);
-    printf("---Total framebuffer size is: 0x%x\n", FRAMEBUFFER_MEMORY_SIZE);
+    printf("---Total framebuffer size is: 0x%x\n", framebuffer_data.memory_size);
     
     tagacpi = (struct multiboot_tag *) (multiboot_acpi_info + _HIGHER_HALF_KERNEL_MEM_START);
     if(tagacpi->type == MULTIBOOT_TAG_TYPE_ACPI_OLD){

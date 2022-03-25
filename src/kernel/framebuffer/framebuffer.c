@@ -26,11 +26,11 @@ uint8_t FRAMEBUFFER_BPP = 0;
 uint32_t FRAMEBUFFER_MEMORY_SIZE = 0;
 uint32_t FRAMEBUFFER_WIDTH;
 uint32_t FRAMEBUFFER_HEIGHT;
-framebuffer_info framebuffer_data;
+struct framebuffer_info framebuffer_data;
 
 size_t cur_fb_line;
 
-void map_framebuffer(struct framebuffer_info fbdata){
+void map_framebuffer(struct framebuffer_info fbdata) {
     uint32_t fb_entries = fbdata.memory_size / PAGE_SIZE_IN_BYTES;
     uint32_t fb_entries_mod =  fbdata.memory_size % PAGE_SIZE_IN_BYTES;
     
@@ -48,7 +48,7 @@ void map_framebuffer(struct framebuffer_info fbdata){
     uint32_t counter = 0;
 
     if(p4_table[pml4] == 0x00l || p3_table_hh[pdpr] == 0x00l){
-        _printStr("PANIC - PML4 or PDPR Empty - not supported for now\n");
+        printf("PANIC - PML4 or PDPR Empty - not supported for now\n");
         asm("hlt");
     }
 
