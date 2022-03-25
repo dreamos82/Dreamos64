@@ -16,7 +16,7 @@
 extern struct multiboot_tag_basic_meminfo *tagmem;
 extern uint64_t _kernel_physical_end;
 extern uint64_t _kernel_end;
-extern uint64_t memory_size_in_bytes;
+extern size_t memory_size_in_bytes;
 
 uint64_t *memory_map = (uint64_t *) &_kernel_end;
 uint32_t number_of_entries = 0;
@@ -25,7 +25,7 @@ uint32_t used_frames;
 
 
 void _initialize_bitmap(unsigned long end_of_reserved_area){
-    uint32_t memory_size = (tagmem->mem_upper + 1024) * 1024;
+    uint64_t memory_size = (tagmem->mem_upper + 1024) * 1024;
     bitmap_size = memory_size / PAGE_SIZE_IN_BYTES + 1;
     used_frames = 0;
     number_of_entries = bitmap_size / 64 + 1;
@@ -52,6 +52,7 @@ void _initialize_bitmap(unsigned long end_of_reserved_area){
     printf("Actual size in bytes: %d\n", memory_size_in_bytes);
     printf("Number of bit entries: %d\n", bitmap_size);
     printf("Number of items: %d\n", number_of_entries);
+    printf("Used frames: 0x%x\n", used_frames);
     //_bitmap_request_frame();
     //pmm_alloc_frame();
 }

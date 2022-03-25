@@ -44,7 +44,7 @@ struct multiboot_tag_old_acpi *tagold_acpi = NULL;
 struct multiboot_tag_new_acpi *tagnew_acpi = NULL;
 struct multiboot_tag_mmap *tagmmap = NULL;
 struct multiboot_tag *tagacpi = NULL;
-uint32_t memory_size_in_bytes;
+uint64_t memory_size_in_bytes;
 
 void _init_basic_system(unsigned long addr){
     struct multiboot_tag* tag;

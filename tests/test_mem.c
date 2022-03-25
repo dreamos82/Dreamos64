@@ -10,6 +10,7 @@
 #include <inttypes.h>
 #include <test_mem.h>
 #include <test_common.h>
+#include <main.h>
 
 struct multiboot_tag_basic_meminfo *tagmem;
 struct multiboot_tag_mmap *mmap_root;
@@ -23,9 +24,11 @@ extern uint32_t bitmap_size;
 extern uint32_t used_frames;
 extern uint32_t mmap_number_of_entries;
 extern multiboot_memory_map_t *mmap_entries;
+size_t memory_size_in_bytes;
 
 int main(){
     uint32_t bitmap_entries = _compute_kernel_entries(_kernel_end);
+    memory_size_in_bytes = 20 * sizeof(uint64_t);
     memory_map = (uint64_t *) malloc(20 * sizeof(uint64_t)); 
     tagmem = (struct multiboot_tag_basic_meminfo *) malloc(sizeof(struct multiboot_tag_basic_meminfo));
     tagmem->mem_lower = 0x27F;

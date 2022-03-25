@@ -10,7 +10,7 @@
 #include <cpuid.h>
 //cpuid is non-standard header, but is supported by both gcc/clang.
 
-extern uint32_t memory_size_in_bytes;
+extern size_t memory_size_in_bytes;
 uint32_t apic_base_address;
 bool apicInX2Mode;
 
