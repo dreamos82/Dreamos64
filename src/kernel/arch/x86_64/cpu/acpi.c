@@ -11,8 +11,6 @@
 #include <kheap.h>
 #include <vm.h>
 
-extern uint32_t memory_size_in_bytes;
-
 RSDT* rsdt_root = NULL;
 XSDT* xsdt_root = NULL;
 
