@@ -2,6 +2,7 @@
 #include <video.h>
 #include <framebuffer.h>
 #include <main.h>
+#include <stdio.h>
 
 extern uint32_t FRAMEBUFFER_MEMORY_SIZE;
 

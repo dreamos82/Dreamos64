@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <util.h>
 #include <cpuid.h>
+#include <io.h>
 //cpuid is non-standard header, but is supported by both gcc/clang.
 
 extern size_t memory_size_in_bytes;

@@ -4,6 +4,7 @@
 #include <kernel/psf.h>
 #include <kernel/mem/bitmap.h>
 #include <vm.h>
+#include <stdio.h>
 //#ifdef DEBUG - This will be uncommented when the framebuffer library will be completed
 #include <qemu.h>
 //#endif

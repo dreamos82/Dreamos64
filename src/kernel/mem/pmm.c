@@ -3,6 +3,8 @@
 #include <stdbool.h>
 #include <mmap.h>
 #include <vmm.h>
+#include <stdio.h>
+
 #ifndef _TEST_
 #include <video.h>
 #endif

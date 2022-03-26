@@ -6,6 +6,7 @@
 #include <lapic.h>
 #include <stdio.h>
 #include <keyboard.h>
+#include <timer.h>
 
 static const char *exception_names[] = {
   "Divide by Zero Error",

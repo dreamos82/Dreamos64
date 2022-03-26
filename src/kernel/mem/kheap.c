@@ -45,6 +45,7 @@ void *kmalloc(size_t size) {
                     // We can keep shrinking the heap, since we still have enough space!
                     // But we need a new node for the allocated area
                     KHeapMemoryNode *new_node = create_kheap_node(current_node, real_size);
+                    // Let's update current_node status
                     current_node->is_free = false;
                     current_node->size = real_size;
                 } else {
@@ -63,6 +64,8 @@ void *kmalloc(size_t size) {
 
         current_node = current_node->next;
     }
+
+    return NULL;
 }
 
 void expand_heap(size_t required_size) {
@@ -159,6 +162,7 @@ uint8_t can_merge(KHeapMemoryNode *cur_node) {
 
     return available_merges;
 }
+
 void merge_memory_nodes(KHeapMemoryNode *left_node, KHeapMemoryNode *right_node) {
     if(left_node == NULL || right_node == NULL) {
         return;

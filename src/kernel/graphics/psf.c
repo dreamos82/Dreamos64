@@ -18,11 +18,6 @@ uint8_t get_PSF_version(char *_font_structure){
    return 0;
 }
 
-void set_maximum_lines(uint8_t version) {
-
-}
-
-
 uint8_t* get_glyph(uint8_t symbolnumber, uint8_t version){
     if (version == PSF_V1){
         PSFv1_Font* loaded_font = (PSFv1_Font *)&_binary_fonts_default_psf_start;

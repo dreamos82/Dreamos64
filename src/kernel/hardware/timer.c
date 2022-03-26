@@ -4,6 +4,7 @@
 #include <io.h>
 #include <stddef.h>
 #include <stdio.h>
+#include <framebuffer.h>
 
 uint8_t pit_timer_counter = 0;
 volatile uint32_t pitTicks = 0;

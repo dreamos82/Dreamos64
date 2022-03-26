@@ -38,6 +38,7 @@ void *kmalloc(size_t);
 void kfree(void *);
 uint8_t can_merge( KHeapMemoryNode *);
 void expand_heap(size_t);
+void merge_memory_nodes(KHeapMemoryNode *, KHeapMemoryNode *);
 
 #ifdef _TEST_
 uint8_t get_kheap_size(KHeapMemoryNode *);

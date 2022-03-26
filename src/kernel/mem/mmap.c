@@ -75,7 +75,7 @@ void* _mmap_determine_bitmap_region(uint64_t lower_limit, size_t bytes_needed){
         
         if (actual_available_space >= bytes_needed)
         {
-            _printStringAndNumber("Found space for bitnmap at address:", current_entry->addr + entry_offset);
+            printf("Found space for bitnmap at address: 0x%x\n", current_entry->addr + entry_offset);
             return (void*)(current_entry->addr + entry_offset);
         }
     }

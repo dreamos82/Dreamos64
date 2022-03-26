@@ -27,6 +27,7 @@
 #include <ioapic.h>
 #include <keyboard.h>
 #include <logging.h>
+#include <timer.h>
 
 extern char _binary_fonts_default_psf_size;
 extern char _binary_fonts_default_psf_start;
@@ -133,7 +134,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
     #if USE_FRAMEBUFFER == 1 
         if(get_PSF_version(&_binary_fonts_default_psf_start) == 1){
             qemu_write_string("PSF v1 found\n");
-            PSFv1_Font *font = (PSF_font*)&_binary_fonts_default_psf_start;
+            PSFv1_Font *font = (PSFv1_Font*)&_binary_fonts_default_psf_start;
             printf("Magic: [%x %x]\n", font->magic[1], font->magic[0]);
             printf("Flags: 0x%x\n", font->mode);
             printf("Charsize: 0x%x\n", font->charsize);

@@ -21,7 +21,7 @@ typedef struct framebuffer_info {
 
 void _fb_putchar(char symbol, size_t cx, size_t cy, uint32_t fg, uint32_t bg);
 void _fb_printStr(const char *string, size_t cx, size_t cy, uint32_t fg, uint32_t bg);
-void _fb_putPixel(uint32_t, uint32_t, uint32_t);
+void _fb_put_pixel(uint32_t, uint32_t, uint32_t);
 
 /*void map_framebuffer(struct multiboot_tag_framebuffer *);*/
 void set_fb_data(struct multiboot_tag_framebuffer *);

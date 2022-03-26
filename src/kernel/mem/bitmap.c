@@ -67,7 +67,7 @@ void _bitmap_get_region(uint64_t* base_address, size_t* length_in_bytes)
 uint32_t _compute_kernel_entries(uint64_t end_of_kernel_area){
     uint32_t kernel_entries = ((uint64_t)end_of_kernel_area) / PAGE_SIZE_IN_BYTES;
     uint32_t kernel_mod_entries = ((uint32_t)(end_of_kernel_area)) % PAGE_SIZE_IN_BYTES;
-    _printStringAndNumber("number of entries: ", kernel_entries);
+    printf("number of entries: 0x%x\n", kernel_entries);
     if (  kernel_mod_entries != 0){
         return kernel_entries + 2;
     } 
