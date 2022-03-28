@@ -93,27 +93,37 @@ int unmap_vaddress(void *address){
 void *map_phys_to_virt_addr(void* physical_address, void* address, unsigned int flags){
     uint16_t pml4_e = PML4_ENTRY((uint64_t) address);
     uint64_t *pml4_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l,510l,510l,510l));
+    
+    uint16_t pdpr_e = PDPR_ENTRY((uint64_t) address);
+    uint64_t *pdpr_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l,510l,510l, (uint64_t) pml4_e));
+
+    uint64_t *pd_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l,510l, (uint64_t) pml4_e, (uint64_t) pdpr_e));
+    uint16_t pd_e = PD_ENTRY((uint64_t) address);
+    
+    #if SMALL_PAGES == 1
+
+    uint64_t *pt_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l, (uint64_t) pml4_e, (uint64_t) pdpr_e, (uint64_t) pd_e));
+    uint16_t pt_e = PT_ENTRY((uint64_t) address);
+
+    #endif
+
     // If the pml4_e item in the pml4 table is not present, we need to create a new one.
     // Every entry in pml4 table points to a pdpr table
     if( !(pml4_table[pml4_e] & 0b1) ) {
         uint64_t *new_table = pmm_alloc_frame();
         pml4_table[pml4_e] = (uint64_t) new_table | WRITE_BIT | PRESENT_BIT;
-        clean_new_table(new_table);
+        clean_new_table(pdpr_table);
     }
 
-    uint16_t pdpr_e = PDPR_ENTRY((uint64_t) address);
-    uint64_t *pdpr_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l,510l,510l, (uint64_t) pml4_e));
 
     // If the pdpr_e item in the pdpr table is not present, we need to create a new one.
     // Every entry in pdpr table points to a pdpr table
     if( !(pdpr_table[pdpr_e] & 0b1) ) {
         uint64_t *new_table = pmm_alloc_frame();
         pdpr_table[pdpr_e] = (uint64_t) new_table | WRITE_BIT | PRESENT_BIT;
-        clean_new_table(new_table);
+        clean_new_table(pd_table);
     }
 
-    uint64_t *pd_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l,510l, (uint64_t) pml4_e, (uint64_t) pdpr_e));
-    uint16_t pd_e = PD_ENTRY((uint64_t) address);
 
     // If the pd_e item in the pd table is not present, we need to create a new one.
     // Every entry in pdpr table points to a page table if using 4k pages, or to a 2mb memory area if using 2mb pages
@@ -121,15 +131,13 @@ void *map_phys_to_virt_addr(void* physical_address, void* address, unsigned int 
 #if SMALL_PAGES == 1
         uint64_t *new_table = pmm_alloc_frame();
         pd_table[pd_e] = (uint64_t) new_table | WRITE_BIT | PRESENT_BIT;
-        clean_new_table(new_table);
+        clean_new_table(pt_table);
 #elif SMALL_PAGES == 0
         pd_table[pd_e] = (uint64_t) (physical_address) | WRITE_BIT | PRESENT_BIT | HUGEPAGE_BIT;
 #endif
     }
 
 #if SMALL_PAGES == 1
-    uint64_t *pt_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l, (uint64_t) pml4_e, (uint64_t) pdpr_e, (uint64_t) pd_e));
-    uint16_t pt_e = PT_ENTRY((uint64_t) address);
 
     // This case apply only for 4kb pages, if the pt_e entry is not present in the page table we need to allocate a new 4k page
     // Every entry in the page table is a 4kb page of physical memory
