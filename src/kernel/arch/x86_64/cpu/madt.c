@@ -24,7 +24,6 @@ void map_madt(MADT* table){
 }
 
 MADT_Item* get_MADT_item(MADT* table, uint8_t type, uint8_t offset) {
-    printf("Searching for item type: %d\n", type);
     if ( madt_base == NULL ) {
         map_madt(table);
     }
@@ -32,11 +31,10 @@ MADT_Item* get_MADT_item(MADT* table, uint8_t type, uint8_t offset) {
         return NULL;
     }
     MADT_Item* item = (MADT_Item *) madt_base;
-    printf("Address of MADT: %x\n", (uint64_t) madt_base);
-    int total_length = 0;
+    uint64_t total_length = 0;
     uint8_t counter = 0;
     while (total_length + sizeof(MADT) < table->header.Length && counter <= offset ) {
-        //printf("Item found: 0x%x - Length: 0x%x\n", item->type, item->length);
+        //printf("Item found: 0x%x - Length: 0x%x - total_length: %x\n", item->type, item->length, total_length);
         if (item->type == type) {
             // Should it return null if offset > #items of required type? or return the last one found?
             if(counter ==  offset) {

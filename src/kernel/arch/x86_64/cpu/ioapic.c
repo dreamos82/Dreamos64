@@ -42,10 +42,11 @@ void init_ioapic(MADT *madt_table){
 
 int parse_io_apic_interrupt_source_overrides(MADT* table) {
     printf("madt_address: 0x%x\n", (uint64_t) table);
-    int total_length = sizeof(MADT);
-    int source_override_counter = 0;
+    uint32_t total_length = sizeof(MADT);
+    uint32_t source_override_counter = 0;
     //MADT_Item* item = (MADT_Item *) ((uint32_t)table + sizeof(MADT));
     MADT_Item* item = get_MADT_item(table, MADT_IO_APIC_INTERRUPT_SOURCE_OVERRIDE, source_override_counter);
+    printf("Table Lenght: %x\n", table->header.Length);
     while(total_length < table->header.Length && source_override_counter < IO_APIC_SOURCE_OVERRIDE_MAX_ITEMS) {
         total_length = total_length + item->length;
         if(item != NULL && item->type == MADT_IO_APIC_INTERRUPT_SOURCE_OVERRIDE){
@@ -54,11 +55,12 @@ int parse_io_apic_interrupt_source_overrides(MADT* table) {
             io_apic_source_overrides[source_override_counter].irq_source = so_item->irq_source;
             io_apic_source_overrides[source_override_counter].global_system_interrupt = so_item->global_system_interrupt;
             io_apic_source_overrides[source_override_counter].flags = so_item->flags;
-            printf("---- SO Item: bus_source: %x - irq_source: %x - GSI: %x - Flags: %x\n", so_item->bus_source, so_item->irq_source, so_item->global_system_interrupt, so_item->flags);
+            printf("--SO Item: type: %x  bus_src: %x - irq_src: %x - GSI: %x -\n", item->type, so_item->bus_source, so_item->irq_source, so_item->global_system_interrupt);
             source_override_counter++;
         }
         //item = (MADT_Item *)((uint32_t)table + total_length);
         item = get_MADT_item(table, MADT_IO_APIC_INTERRUPT_SOURCE_OVERRIDE, source_override_counter);
+        if(item == NULL) break;
     }
     return source_override_counter;
 }
