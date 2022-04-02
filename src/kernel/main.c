@@ -69,8 +69,7 @@ void _init_basic_system(unsigned long addr){
 
     //Print framebuffer info
     printf("---framebuffer-type: 0x%x - address: 0x%x\n", tagfb->common.framebuffer_type, tagfb->common.framebuffer_addr);
-    printf("---framebuffer-width: 0x%x\n", tagfb->common.framebuffer_width);
-    printf("---framebuffer-height: 0x%x\n", tagfb->common.framebuffer_height);
+    printf("---framebuffer-width: 0x%x - height: 0x%x\n", tagfb->common.framebuffer_width, tagfb->common.framebuffer_height);
     printf("---framebuffer-bpp: 0x%x\n", tagfb->common.framebuffer_bpp);
     printf("---framebuffer-pitch: 0x%x\n", tagfb->common.framebuffer_pitch);
     printf("---Virtual Address: 0x%x\n", tagfb + _HIGHER_HALF_KERNEL_MEM_START);
@@ -188,8 +187,8 @@ void kernel_start(unsigned long addr, unsigned long magic){
     printf("MADT local apic base: %x\n", madt_table->local_apic_base);
     print_madt_table(madt_table);
     init_ioapic(madt_table);
-    set_irq(KEYBOARD_IRQ, IOREDTBL1, 0x21, 0, 0, false);
     init_keyboard();
+    set_irq(KEYBOARD_IRQ, IOREDTBL1, 0x21, 0, 0, false);
     set_irq(PIT_IRQ, IOREDTBL2, 0x22, 0, 0, true);
     asm("sti");
 
