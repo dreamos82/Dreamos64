@@ -14,23 +14,25 @@ void init_keyboard(){
     outportb(KEYBOARD_ENCODER_PORT, 0xF0);
     outportb(KEYBOARD_ENCODER_PORT, 0x00);
     uint8_t status_read = inportb(KEYBOARD_ENCODER_PORT);
-    printf("First byte read: 0x%x - ", status_read);
     if(status_read == KEYBOARD_ACK_BYTE) {
         status_read = inportb(KEYBOARD_ENCODER_PORT);    
         printf("Found scancode set: 0x%x\n", status_read);
         kernel_settings.keyboard.scancode_set = status_read;
+    } else {
+        printf("Unable to read from keyboard, ... \n");
     }
-    outportb(0x64, 0x20);
-    
-    while((inportb(0x64) & 2) != 0) {
-        status_read = inportb(0x64);
+    outportb(0x64, PS2_READ_CONFIGURATION_COMMAND);
+    status_read = inportb(PS2_STATUS_REGISTER);
+    while(status_read & 2) != 0) {
         printf("Not ready yet... %x\n", status_read);
+        status_read = inportb(PS2_STATUS_REGISTER);
     }
-    uint8_t configuration_byte = inportb(0x60);
-    printf("Configuration byte: %x\n", configuration_byte);
+    uint8_t configuration_byte = inportb(PS2_DATA_REGISTER);    
     if((configuration_byte & (1 << 6)) != 0) {
         printf("Translation enabled\n");
         kernel_settings.keyboard.translation_enabled = true;
+    } else {
+        kernel_settings.keyboard.translation_enabled = false;
     }
 }
 
