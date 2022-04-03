@@ -23,7 +23,7 @@ void init_keyboard(){
     }
     outportb(0x64, PS2_READ_CONFIGURATION_COMMAND);
     status_read = inportb(PS2_STATUS_REGISTER);
-    while(status_read & 2) != 0) {
+    while((status_read & 2) != 0) {
         printf("Not ready yet... %x\n", status_read);
         status_read = inportb(PS2_STATUS_REGISTER);
     }
