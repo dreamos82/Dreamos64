@@ -14,5 +14,5 @@ typedef struct kernel_status_t {
     struct keyboard_status_t keyboard;
 } kernel_status_t;
 
-
+extern kernel_status_t kernel_settings;
 #endif

@@ -5,7 +5,10 @@
 #include <ps2.h>
 #include <kernel.h>
 
-extern kernel_status_t kernel_settings;
+//extern kernel_status_t kernel_settings;
+
+key_status keyboard_buffer[MAX_KEYB_BUFFER_SIZE];
+size_t buf_position;
 
 void init_keyboard(){
     //Let's do a keyboard read just to make sure it's empty
@@ -32,26 +35,34 @@ void init_keyboard(){
         printf("Translation enabled\n");
         kernel_settings.keyboard.translation_enabled = true;
     } else {
-        kernel_settings.keyboard.translation_enabled = false;
+        kernel_settings.keyboard.translation_enabled = false;        
     }
+    buf_position = 0;
 }
 
 void handle_keyboard_interrupt() {
     
-    int scancode = inportb(KEYBOARD_ENCODER_PORT);    
-    
-    if(scancode & KEY_RELEASE_MASK) {
-        #if USE_FRAMEBUFFER == 1
-            _fb_printStrAndNumber(" Key released: 0x", scancode, 0, 10, 0x000000, 0xE169CD);
-
-        #endif
-
-        printf("---A key is released booh... %x\n", scancode);
-    } else {
-        #if USE_FRAMEBUFFER == 1
-            _fb_printStrAndNumber("  Key pressed: 0x", scancode, 0, 10, 0x000000, 0xE169CD);
-
-        #endif
-        printf("---A key is pressed hooray... %x\n", scancode);
+    int scancode = inportb(KEYBOARD_ENCODER_PORT);
+  
+    if(kernel_settings.keyboard.translation_enabled == true || kernel_settings.keyboard.scancode_set) {
+        keyboard_buffer[buf_position].code = translate(scancode);
+        if(scancode & KEY_RELEASE_MASK) {
+            SET_RELEASED_STATUS(keyboard_buffer[buf_position].modifiers);
+            #if USE_FRAMEBUFFER == 1
+                _fb_printStrAndNumber(" Key released: 0x", scancode, 0, 10, 0x000000, 0xE169CD);
+            #endif
+            printf("---A key is released: %d -  %x - %x - 0x%x\n", buf_position, scancode, keyboard_buffer[buf_position].code, keyboard_buffer[buf_position].modifiers);
+         } else {
+            SET_PRESSED_STATUS(keyboard_buffer[buf_position].modifiers);
+            #if USE_FRAMEBUFFER == 1
+                _fb_printStrAndNumber("  Key pressed: 0x", scancode, 0, 10, 0x000000, 0xE169CD);
+            #endif
+            printf("---A key is pressed %d -  %x - %x - 0x%x\n", buf_position, scancode, keyboard_buffer[buf_position].code, keyboard_buffer[buf_position].modifiers);
+        }
+        buf_position = BUF_STEP(buf_position);
     } 
+}
+
+key_codes translate(uint8_t scancode) {
+    return F12;
 }
