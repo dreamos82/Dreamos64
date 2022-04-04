@@ -8,6 +8,8 @@
 //extern kernel_status_t kernel_settings;
 
 key_status keyboard_buffer[MAX_KEYB_BUFFER_SIZE];
+key_codes scancode_mappings[] = {-1, ESCAPE, D1, D2, D3, D4, D5, D6, D7, D8, D9, D0, MINUS};
+
 size_t buf_position;
 
 void init_keyboard(){
@@ -64,5 +66,10 @@ void handle_keyboard_interrupt() {
 }
 
 key_codes translate(uint8_t scancode) {
-    return F12;
+    if(scancode < 0xD) {
+        printf("Translated: %x\n", scancode_mappings[scancode]);
+        return scancode_mappings[scancode];
+    }
+
+    return scancode_mappings[0];
 }

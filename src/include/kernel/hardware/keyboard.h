@@ -17,10 +17,18 @@
 #define BUF_STEP(x) ((x < MAX_KEYB_BUFFER_SIZE -1) ? x+1 : 0  )
 typedef enum {
 
-    ESCAPE=0000,
-    F1=0001,
-    F2=0002,
-    F12=0012
+    ESCAPE=0x01,
+    D1=0x02,
+    D2=0x03,    
+    D3=0x04,
+    D4=0x05,
+    D5=0x06,
+    D6=0x07,
+    D7=0x08,
+    D8=0x09,
+    D9=0x0A,
+    D0=0x0B,
+    MINUS=0x0C
     //etc
 } key_codes;
 
