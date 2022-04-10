@@ -20,6 +20,8 @@ KEYPAD_D7, KEYPAD_D8, KEYPAD_D9, KEYPAD_MINUS, KEYPAD_D4, KEYPAD_D5, KEYPAD_D6, 
 };
 
 size_t buf_position;
+uint8_t current_modifiers;
+bool extended_read;
 
 void init_keyboard(){
     //Let's do a keyboard read just to make sure it's empty
@@ -27,6 +29,7 @@ void init_keyboard(){
     // The following two bytes will read the scancode set used by the keyboard
     outportb(KEYBOARD_ENCODER_PORT, 0xF0);
     outportb(KEYBOARD_ENCODER_PORT, 0x00);
+    current_modifiers = no_keys;
     uint8_t status_read = inportb(KEYBOARD_ENCODER_PORT);
     if(status_read == KEYBOARD_ACK_BYTE) {
         status_read = inportb(KEYBOARD_ENCODER_PORT);    
@@ -49,38 +52,69 @@ void init_keyboard(){
         kernel_settings.keyboard.translation_enabled = false;        
     }
     buf_position = 0;
+    
+}
+
+uint8_t update_modifiers(key_modifiers modifier, bool is_pressed) {
+    printf("modifier: %x\n", modifier);
+    if ( is_pressed == true ) {
+        current_modifiers |= modifier;
+    } else {
+        current_modifiers = current_modifiers  & ~(modifier);
+    }
+    
+    return current_modifiers;
 }
 
 void handle_keyboard_interrupt() {
     
-    int scancode = inportb(KEYBOARD_ENCODER_PORT);
+    uint8_t scancode = inportb(KEYBOARD_ENCODER_PORT);
   
     if(kernel_settings.keyboard.translation_enabled == true || kernel_settings.keyboard.scancode_set) {
         keyboard_buffer[buf_position].code = translate(scancode);
-        if(scancode & KEY_RELEASE_MASK) {
-            SET_RELEASED_STATUS(keyboard_buffer[buf_position].modifiers);
+        keyboard_buffer[buf_position].modifiers = current_modifiers;
+        if(keyboard_buffer[buf_position].code & KEY_RELEASE_MASK) {
+            //SET_RELEASED_STATUS(keyboard_buffer[buf_position].modifiers);
+            keyboard_buffer[buf_position].is_pressed = false;
             #if USE_FRAMEBUFFER == 1
-                _fb_printStrAndNumber(" Key released: 0x", translate(scancode), 0, 10, 0x000000, 0xE169CD);
+                _fb_printStrAndNumber(" Key released: 0x", keyboard_buffer[buf_position].code, 0, 10, 0x000000, 0xE169CD);
             #endif
-            printf("---A key is released: %d - SC:  %x - Code:  %x - Mod: 0x%x\n", buf_position, scancode, keyboard_buffer[buf_position].code, keyboard_buffer[buf_position].modifiers);
+            printf("---A key is released:  SC:  %x - Code:  %x - Mod: 0x%x\n", scancode, keyboard_buffer[buf_position].code, keyboard_buffer[buf_position].modifiers);
          } else {
-            SET_PRESSED_STATUS(keyboard_buffer[buf_position].modifiers);
+            //SET_PRESSED_STATUS(keyboard_buffer[buf_position].modifiers);
+            keyboard_buffer[buf_position].is_pressed = true;
             #if USE_FRAMEBUFFER == 1
-                _fb_printStrAndNumber("  Key pressed: 0x", translate(scancode), 0, 10, 0x000000, 0xE169CD);
+                _fb_printStrAndNumber("  Key pressed: 0x", keyboard_buffer[buf_position].code, 0, 10, 0x000000, 0xE169CD);
             #endif
-            printf("---A key is pressed %d -  SC: %x - Code: %x - Mod: 0x%x\n", buf_position, scancode, keyboard_buffer[buf_position].code, keyboard_buffer[buf_position].modifiers);
+            printf("---A key is pressed SC: %x - Code: %x - Mod: 0x%x\n", scancode, keyboard_buffer[buf_position].code, keyboard_buffer[buf_position].modifiers);
         }
         buf_position = BUF_STEP(buf_position);
     } 
 }
 
 key_codes translate(uint8_t scancode) {
-    if(scancode == 0xE0) {
-        printf("Extended byte\n");
+    // TODO: check if key is released here.
+    bool is_pressed = true;
+    uint8_t read_scancode = scancode;
+    if(scancode == EXTENDED_PREFIX) {
+        extended_read = true;
+        return scancode;
     }
-    if(scancode < 0x47) {
-        printf("Translated: %x\n", scancode_mappings[scancode]);
-        return scancode_mappings[scancode];
+    if (read_scancode & KEY_RELEASE_MASK) {
+        is_pressed = false;
+        read_scancode &= ~((uint8_t)KEY_RELEASE_MASK);
+        printf("read_scancode: %x\n", read_scancode);
     }
+    if(read_scancode < 0x47) {
+        if(read_scancode == LEFT_CTRL) {
+            update_modifiers(extended_read ? right_ctrl : left_ctrl, is_pressed);
+//            if(scancode & ~KEY_RELEASE_MASK)
+            //printf("Left ctrl\n");
+        }
+        extended_read = false;
+        //printf("Translated: %x\n", scancode_mappings[scancode]);
+        return scancode_mappings[read_scancode];
+    }
+    extended_read = false;
     return scancode_mappings[0];
 }

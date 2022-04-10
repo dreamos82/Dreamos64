@@ -2,6 +2,7 @@
 #define __KEYBOARD_H_
 
 #include <stdint.h>
+#include <stdbool.h>
 
 #define KEYBOARD_ENCODER_PORT   0x60
 #define KEYBOARD_STATUS_REGISTER   0x64
@@ -119,8 +120,30 @@ typedef enum {
     EXTENDED_PREFIX=0xE0
 } key_codes;
 
+typedef enum {
+    
+    no_keys = 0,
+    left_shift = (1<<0),
+    right_shift = (1 << 1),
+    both_shift = (3 << 0),
+
+    left_alt = (1 << 2),
+    right_alt = (1 << 3),
+    both_alt = (3 << 2),
+
+    left_ctrl = (1 << 4),
+    right_ctrl = (1 << 5),
+    both_ctrl = (3 << 4),
+    
+    left_gui = (1 << 6),
+    right_gui = (1 << 7),
+    both_gui = (3 << 6),
+
+} key_modifiers;
+
 typedef struct {
     key_codes code;
+    bool is_pressed;
     uint8_t modifiers; //Modifiers bit[0]: pressed/released
 } key_status;
 
