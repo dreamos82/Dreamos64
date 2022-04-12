@@ -116,6 +116,9 @@ typedef enum {
     // Special
     NUM_LOCK=0x45,
     SCROLL_LOCK=0x46,
+
+    LEFT_GUI=0x5B,
+    RIGHT_GUI=0x5C,
     
     EXTENDED_PREFIX=0xE0
 } key_codes;
