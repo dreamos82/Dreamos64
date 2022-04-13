@@ -152,6 +152,7 @@ typedef struct {
 
 void init_keyboard();
 void handle_keyboard_interrupt();
+char kgetch(key_status);
 
 key_codes translate(uint8_t);
 #endif
