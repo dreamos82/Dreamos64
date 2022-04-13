@@ -19,6 +19,18 @@ F11, F12, NUM_LOCK, SCROLL_LOCK,
 KEYPAD_D7, KEYPAD_D8, KEYPAD_D9, KEYPAD_MINUS, KEYPAD_D4, KEYPAD_D5, KEYPAD_D6, KEYPAD_PLUS, KEYPAD_D1, KEYPAD_D2, KEYPAD_D3, KEYPAD_D0, KEYPAD_DOT,
 };
 
+char keymap[] = {
+0, ESCAPE, '1', '2', '3', '4', '5', '6', '7', D8, D9, D0, MINUS, EQUALS, BACKSPACE,
+TAB, Q, W, E, R, T, Y, U, I, O, P, SQBRACKET_OPEN, SQBRACKET_CLOSE, ENTER,
+LEFT_CTRL, A, S, D, F, G, H, J, K, L, SEMICOLON, SINGLE_QUOTE, BACK_TICK,
+LEFT_SHIFT, SLASH, Z, X, C, V, B, N, M, COMMA, DOT, BACKSLASH, RIGHT_SHIFT,
+KEYPAD_STAR, LEFT_ALT, SPACE, CAPS_LOCK,
+F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, 
+F11, F12, NUM_LOCK, SCROLL_LOCK,
+KEYPAD_D7, KEYPAD_D8, KEYPAD_D9, KEYPAD_MINUS, KEYPAD_D4, KEYPAD_D5, KEYPAD_D6, KEYPAD_PLUS, KEYPAD_D1, KEYPAD_D2, KEYPAD_D3, KEYPAD_D0, KEYPAD_DOT,
+
+};
+
 size_t buf_position;
 uint8_t current_modifiers;
 bool extended_read;
@@ -81,14 +93,14 @@ void handle_keyboard_interrupt() {
                 #if USE_FRAMEBUFFER == 1
                     _fb_printStrAndNumber(" Key released: 0x", keyboard_buffer[buf_position].code, 0, 10, 0x000000, 0xE169CD);
                 #endif
-                printf("---A key is released:  SC:  %x - Code:  %x - Mod: 0x%x\n", scancode, keyboard_buffer[buf_position].code, keyboard_buffer[buf_position].modifiers);
+                printf("---Key released: pos: %d: SC: %x - Code: %x - Mod: %x\n", buf_position, scancode, keyboard_buffer[buf_position].code, keyboard_buffer[buf_position].modifiers);
              } else {
                 //SET_PRESSED_STATUS(keyboard_buffer[buf_position].modifiers);
                 keyboard_buffer[buf_position].is_pressed = true;
                 #if USE_FRAMEBUFFER == 1
                     _fb_printStrAndNumber("  Key pressed: 0x", keyboard_buffer[buf_position].code, 0, 10, 0x000000, 0xE169CD);
                 #endif
-                printf("---A key is pressed SC: %x - Code: %x - Mod: 0x%x\n", scancode, keyboard_buffer[buf_position].code, keyboard_buffer[buf_position].modifiers);
+                printf("---Key is pressed pos %d: SC: %x - Code: %x - Mod: %x %c-\n", buf_position, scancode, keyboard_buffer[buf_position].code, keyboard_buffer[buf_position].modifiers, keymap[scancode]);
             }
             buf_position = BUF_STEP(buf_position);
         } 

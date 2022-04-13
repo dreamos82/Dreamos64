@@ -73,6 +73,9 @@ int vsprintf(char *buffer, const char *fmt, va_list args){
                 break;
             }
             case 'c':
+                unsigned char character = va_arg(args, unsigned char);
+                *str++ = 'C';
+                //*str++ = 'v';
                 break;
             case 's': {
                 char *arg_string = va_arg(args, char*);
