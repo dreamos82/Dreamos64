@@ -82,23 +82,25 @@ void handle_keyboard_interrupt() {
     
     uint8_t scancode = inportb(KEYBOARD_ENCODER_PORT);
   
-    if(kernel_settings.keyboard.translation_enabled == true || kernel_settings.keyboard.scancode_set) {
+    if(kernel_settings.keyboard.translation_enabled == true || kernel_settings.keyboard.scancode_set == 1) {
         uint8_t read_scancode = keyboard_buffer[buf_position].code = translate(scancode);        
         if( scancode != EXTENDED_PREFIX ) {
             keyboard_buffer[buf_position].code = read_scancode;
             keyboard_buffer[buf_position].modifiers = current_modifiers;
             if(scancode & KEY_RELEASE_MASK) {
-                //SET_RELEASED_STATUS(keyboard_buffer[buf_position].modifiers);
                 keyboard_buffer[buf_position].is_pressed = false;
-                #if USE_FRAMEBUFFER == 1
-                    _fb_printStrAndNumber(" Key released: 0x", keyboard_buffer[buf_position].code, 0, 10, 0x000000, 0xE169CD);
-                #endif
-                printf("---Key released: pos: %d: SC: %x - Code: %x - Mod: %x\n", buf_position, scancode, keyboard_buffer[buf_position].code, keyboard_buffer[buf_position].modifiers);
-             } else {
-                //SET_PRESSED_STATUS(keyboard_buffer[buf_position].modifiers);
+            } else {
                 keyboard_buffer[buf_position].is_pressed = true;
+                char read_char = kgetch(keyboard_buffer[buf_position]);
                 #if USE_FRAMEBUFFER == 1
-                    _fb_printStrAndNumber("  Key pressed: 0x", keyboard_buffer[buf_position].code, 0, 10, 0x000000, 0xE169CD);
+                    //_fb_printStrAndNumber("  Key pressed: 0x", keyboard_buffer[buf_position].code, 0, 10, 0x000000, 0xE169CD);
+                    if (read_char != 0) {
+                        char string[13] = "Pressed: ";
+                        string[9] = read_char;
+                        string[10] = '-';
+                        printf("%s\n", string);
+                        _fb_printStr(string, 0, 10, 0x000000, 0xE169CD);
+                    }
                 #endif
                 printf("---Key is pressed pos %d: SC: %x - Code: %x - Mod: %x %c-\n", buf_position, scancode, keyboard_buffer[buf_position].code, keyboard_buffer[buf_position].modifiers, kgetch(keyboard_buffer[buf_position]));
             }
@@ -108,12 +110,17 @@ void handle_keyboard_interrupt() {
 }
 
 char kgetch(key_status char_item) {
-    if( char_item.is_pressed == true) {
-        if( (keymap[char_item.code] > 'a' && keymap[char_item.code] < 'z') && (char_item.modifiers & 0b00000011) ) {
-            printf(" Here...");
+    uint8_t char_code = char_item.code;
+    if ( char_item.is_pressed == true) {
+        if ( (keymap[char_code] >= 'a' && keymap[char_code] <= 'z') && (char_item.modifiers & 0b00000011) ) {
             const char offset = 'a' - 'A';
-            return keymap[char_item.code] - offset;
-        } 
+            return keymap[char_code] - offset;
+        } else {
+            if ( (keymap[char_code] >='0' && keymap[char_code] <= '9') && (char_item.modifiers & 0b00000011) ) {                
+                return keymap[char_code] - ASCII_DIGIT_OFFSET;
+            }
+
+        }
         return keymap[char_item.code];
     }
     return 0;
@@ -124,14 +131,12 @@ key_codes translate(uint8_t scancode) {
     bool is_pressed = true;
     uint8_t read_scancode = scancode;
     if(scancode == EXTENDED_PREFIX) {
-        printf("Extended byte found... ");
         extended_read = true;
         return scancode;
     }
     if (read_scancode & KEY_RELEASE_MASK) {
         is_pressed = false;
         read_scancode &= ~((uint8_t)KEY_RELEASE_MASK);
-        printf("read_scancode: %x\n", read_scancode);
     }
     if(read_scancode < 0x60) {
 
@@ -147,7 +152,6 @@ key_codes translate(uint8_t scancode) {
             read_scancode = 0;
             break;
         case RIGHT_GUI:
-            printf("0x%x, is pressed right_gui\n", is_pressed);
             update_modifiers(right_gui, is_pressed);
             read_scancode = 0;
             break;

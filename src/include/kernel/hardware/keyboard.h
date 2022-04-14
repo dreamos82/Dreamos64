@@ -15,6 +15,7 @@
 #define SET_PRESSED_STATUS(status)(status = (status|1) )
 #define SET_RELEASED_STATUS(status)(status = (status&(~0b00000001)) )
 
+#define ASCII_DIGIT_OFFSET  0x10
 #define BUF_STEP(x) ((x < MAX_KEYB_BUFFER_SIZE -1) ? x+1 : 0  )
 typedef enum {
     //Row 1
