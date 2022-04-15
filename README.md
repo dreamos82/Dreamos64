@@ -33,6 +33,7 @@ What i have implemented so far:
 * Local Apic support
 * IO-Apic support (Keyboard IRQ enable)
 * Suppoort for PSF v1 and v2 fonts in framebuffer mode
+* Basic keyboard driver and keyboard map (most of the keys are mapped)
 
 
 ## Prerequisites: 
@@ -182,7 +183,9 @@ This means that the fonts folder is missing (you need either a psf v2 or v1 font
 
 ### And now show time! :) 
 
-![dreamosirq](https://user-images.githubusercontent.com/59960116/153755583-4b4ffebe-c35b-4975-ab0e-bd83789a4b7c.gif)
+![ezgif com-gif-maker(2)](https://user-images.githubusercontent.com/59960116/163491073-10c90d24-bf6f-470a-a480-60623ee76f89.gif)
+
+
 
 ### Acknowledgements
 

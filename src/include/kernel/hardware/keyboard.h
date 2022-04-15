@@ -2,6 +2,7 @@
 #define __KEYBOARD_H_
 
 #include <stdint.h>
+#include <stdbool.h>
 
 #define KEYBOARD_ENCODER_PORT   0x60
 #define KEYBOARD_STATUS_REGISTER   0x64
@@ -14,6 +15,7 @@
 #define SET_PRESSED_STATUS(status)(status = (status|1) )
 #define SET_RELEASED_STATUS(status)(status = (status&(~0b00000001)) )
 
+#define ASCII_DIGIT_OFFSET  0x10
 #define BUF_STEP(x) ((x < MAX_KEYB_BUFFER_SIZE -1) ? x+1 : 0  )
 typedef enum {
     //Row 1
@@ -115,17 +117,43 @@ typedef enum {
     // Special
     NUM_LOCK=0x45,
     SCROLL_LOCK=0x46,
+
+    LEFT_GUI=0x5B,
+    RIGHT_GUI=0x5C,
     
     EXTENDED_PREFIX=0xE0
 } key_codes;
 
+typedef enum {
+    
+    no_keys = 0,
+    left_shift = (1<<0),
+    right_shift = (1 << 1),
+    both_shift = (3 << 0),
+
+    left_alt = (1 << 2),
+    right_alt = (1 << 3),
+    both_alt = (3 << 2),
+
+    left_ctrl = (1 << 4),
+    right_ctrl = (1 << 5),
+    both_ctrl = (3 << 4),
+    
+    left_gui = (1 << 6),
+    right_gui = (1 << 7),
+    both_gui = (3 << 6),
+
+} key_modifiers;
+
 typedef struct {
     key_codes code;
+    bool is_pressed;
     uint8_t modifiers; //Modifiers bit[0]: pressed/released
 } key_status;
 
 void init_keyboard();
 void handle_keyboard_interrupt();
+char kgetch(key_status);
 
 key_codes translate(uint8_t);
 #endif
