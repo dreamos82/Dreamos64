@@ -127,12 +127,9 @@ ACPISDTHeader* get_SDT_item(char* table_name) {
  */
 bool validate_SDT(char *descriptor, size_t size){
     uint32_t sum = 0;
-    printf("Bytes: ");
     for (uint32_t i=0; i < size; i++){
         sum += ((char*) descriptor)[i];
-        printf("%x - ", sum); 
     }
-    printf("End\n");
     printf("Checksum of RSDP is: 0x%x\n", sum&0xFF);
     return (sum&0xFF == 0);
 }
