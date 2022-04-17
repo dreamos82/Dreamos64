@@ -15,8 +15,12 @@
 
 #define CALIBRATION_MS_TO_WAIT  30
 
-uint32_t calibrate_apic();
-void pit_irq_handler();
+#define APIC_TIMER_SET_PERIODIC 0x20000
+#define APIC_TIMER_SET_MASKED   0x10000
 
-void start_apic_timer(uint16_t, bool);
+uint32_t calibrate_apic();
+
+void pit_irq_handler();
+void timer_handler();
+void start_apic_timer(uint32_t, uint32_t, uint8_t divider);
 #endif

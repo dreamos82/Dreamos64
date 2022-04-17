@@ -28,6 +28,7 @@
 #include <keyboard.h>
 #include <logging.h>
 #include <timer.h>
+#include <kernel.h>
 
 extern char _binary_fonts_default_psf_size;
 extern char _binary_fonts_default_psf_start;
@@ -193,6 +194,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
     asm("sti");
 
     uint32_t apic_ticks = calibrate_apic();
+    kernel_settings.timer_ticks_base = apic_ticks;
     printf("Calibrated apic value: %u\n", apic_ticks); 
     //set_irq(0, 0x22, 0, 0 ,0);
     //set_irq(0);
@@ -202,6 +204,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
     char *a = kmalloc(5);
     printf("A: 0x%x\n", a);
     printf("Init end!! Starting infinite loop\n");
+    start_apic_timer(kernel_settings.timer_ticks_base, APIC_TIMER_SET_PERIODIC, APIC_TIMER_DIVIDER_1);
     while(1);
 }
 

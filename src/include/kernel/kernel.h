@@ -12,6 +12,8 @@ struct keyboard_status_t {
 typedef struct kernel_status_t {
 
     struct keyboard_status_t keyboard;
+
+    uint32_t timer_ticks_base;
 } kernel_status_t;
 
 extern kernel_status_t kernel_settings;

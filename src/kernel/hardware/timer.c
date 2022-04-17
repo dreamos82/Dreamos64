@@ -28,6 +28,7 @@ uint32_t calibrate_apic() {
     //It's time to get the timers start... followed immediately by the apic..
     set_irq_mask(IOREDTBL2, false);
     //Let's set the APIC Timer initial value to the maximum available
+    // Initial value of the apic is the maximum number that can be stored
     write_apic_register(APIC_TIMER_INITIAL_COUNT_REGISTER_OFFSET, (uint32_t)-1);
     //Now it's time to enable interrupts...
     //Now we need to decide how many milliseconds  we want the pit irq to be fired...
@@ -48,18 +49,31 @@ uint32_t calibrate_apic() {
     return apic_calibrated_ticks;
 }
 
-void start_apic_timer(uint16_t flags, bool periodic){
+void start_apic_timer(uint32_t initial_count, uint32_t flags, uint8_t divider) {
 
-    if(apic_base_address == NULL){
+    if(apic_base_address == NULL) {
         printf("Apic_base_address not found, or apic not initialized\n");
     }
 
     printf("Read apic_register: 0x%x\n", read_apic_register(APIC_TIMER_LVT_OFFSET));
 
-    write_apic_register(APIC_TIMER_INITIAL_COUNT_REGISTER_OFFSET, 0x100000);
-    write_apic_register(APIC_TIMER_CONFIGURATION_OFFSET, APIC_TIMER_DIVIDER_1);
-    write_apic_register(APIC_TIMER_LVT_OFFSET, APIC_TIMER_IDT_ENTRY);
+    write_apic_register(APIC_TIMER_INITIAL_COUNT_REGISTER_OFFSET, initial_count);
+    write_apic_register(APIC_TIMER_CONFIGURATION_OFFSET, divider);
+    write_apic_register(APIC_TIMER_LVT_OFFSET, flags | APIC_TIMER_IDT_ENTRY);
     asm("sti");
+}
+
+void timer_handler() {
+#if USE_FRAMEBUFFER == 1
+    if(pit_timer_counter == 0) {
+        pit_timer_counter = 1;
+        _fb_printStr("*", 0, 12, 0x000000, 0xE169CD);
+    } else {
+        pit_timer_counter = 0;
+        _fb_printStr("/", 0, 12, 0x000000, 0xE169CD);
+    }
+#endif
+
 }
 
 

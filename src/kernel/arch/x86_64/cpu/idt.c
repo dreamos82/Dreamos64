@@ -56,7 +56,7 @@ void interrupts_handler(cpu_status_t *status){
             asm("hlt");
             break;
         case APIC_TIMER_INTERRUPT:
-            printf("Received timer_interrupt\n");
+            timer_handler();    
             write_apic_register(APIC_EOI_REGISTER_OFFSET, 0x0l);
             break;
         case APIC_SPURIOUS_INTERRUPT:
