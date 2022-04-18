@@ -183,7 +183,8 @@ This means that the fonts folder is missing (you need either a psf v2 or v1 font
 
 ### And now show time! :) 
 
-![ezgif com-gif-maker(2)](https://user-images.githubusercontent.com/59960116/163491073-10c90d24-bf6f-470a-a480-60623ee76f89.gif)
+![ezgif com-gif-maker (2)](https://user-images.githubusercontent.com/59960116/163857438-bb5e3ad5-47c5-40d3-9d63-a85381449425.gif)
+
 
 
 
