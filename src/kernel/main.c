@@ -165,6 +165,8 @@ void kernel_start(unsigned long addr, unsigned long magic){
         _fb_put_pixel(601, 601, 0xE169CD);
         _fb_put_pixel(602, 602, 0xE169CD);
         _fb_put_pixel(603, 603, 0xE169CD);
+
+        draw_logo(0, 400);
         logline(Info, "Hello world, this is a test log!");
     #endif
     

@@ -38,7 +38,9 @@ void _printStr(char *string){
         if (*string == '\n'){
             _printNewLine();
         } else {
+        #if USE_FRAMEBUFFER != 1
             _printCh(*string, WHITE);
+        #endif
         #ifdef DEBUG
 			qemu_write_char(*string);
 		#endif
@@ -75,7 +77,9 @@ void _printHex(char *buffer, unsigned long hexnumber){
 }
 
 void _printNewLine(){
+    #if USE_FRAMEBUFFER != 1
     VIDEO_PTR = VIDEO_MEM + ((((VIDEO_PTR - VIDEO_MEM) / (_SCR_W * 2)) + 1) * (_SCR_W * 2));
+    #endif
     #ifdef DEBUG
 			qemu_write_char('\n');
 	#endif

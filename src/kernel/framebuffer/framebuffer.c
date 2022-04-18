@@ -9,6 +9,8 @@
 #include <qemu.h>
 //#endif
 
+#include <dreamcatcher.h>
+
 #define PIXEL uint32_t
 
 extern char _binary_fonts_default_psf_size;
@@ -191,4 +193,20 @@ void _fb_put_pixel(uint32_t x, uint32_t y, uint32_t color) {
     uint32_t cx = x * sizeof(PIXEL);
     char *framebuffer = (char *) framebuffer_data.address;
     *((PIXEL*) (framebuffer + cy + cx)) = color;
+}
+
+void draw_logo(uint32_t start_x, uint32_t start_y) {
+    char *logo_data = header_data;
+    char *pixel[4];
+    uint32_t counter = width * height;
+    for (int i = 0; i < height; i++) {
+        for(int j = 0; j < width; j++) {
+            HEADER_PIXEL(logo_data, pixel); 
+            uint32_t num = (uint32_t)pixel[0] << 24 |
+              (uint32_t)pixel[1] << 16 |
+              (uint32_t)pixel[2] << 8  |
+              (uint32_t)pixel[3];
+            _fb_put_pixel(start_x + j, start_y + i, num);
+        }
+    }
 }

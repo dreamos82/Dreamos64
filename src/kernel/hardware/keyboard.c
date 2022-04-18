@@ -35,7 +35,7 @@ size_t buf_position;
 uint8_t current_modifiers;
 bool extended_read;
 
-void init_keyboard(){
+void init_keyboard() {
     //Let's do a keyboard read just to make sure it's empty
     inportb(KEYBOARD_ENCODER_PORT);
     // The following two bytes will read the scancode set used by the keyboard
@@ -99,14 +99,14 @@ void handle_keyboard_interrupt() {
                         string[9] = read_char;
                         string[10] = '-';
                         printf("%s\n", string);
-                        _fb_printStr(string, 0, 10, 0x000000, 0xE169CD);
+                        _fb_printStr(string, 0, 10, 0x000000, 0x1ad652);
                     }
                 #endif
                 printf("---Key is pressed pos %d: SC: %x - Code: %x - Mod: %x %c-\n", buf_position, scancode, keyboard_buffer[buf_position].code, keyboard_buffer[buf_position].modifiers, kgetch(keyboard_buffer[buf_position]));
             }
             buf_position = BUF_STEP(buf_position);
         } 
-    }
+    } 
 }
 
 char kgetch(key_status char_item) {

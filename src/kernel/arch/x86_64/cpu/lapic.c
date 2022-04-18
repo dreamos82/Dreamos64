@@ -10,6 +10,7 @@
 #include <cpuid.h>
 #include <io.h>
 #include <kernel.h>
+
 //cpuid is non-standard header, but is supported by both gcc/clang.
 
 extern size_t memory_size_in_bytes;
@@ -36,7 +37,7 @@ void init_apic() {
     if (x2ApicLeaf & (1 << 21)) {
         printf("X2APIC available!\n");
         apicInX2Mode = true;
-
+        kernel_settings.use_x2_apic = true;
         //no need to map mmio registers as we'll be accessing apic via MSRs
         //we just set bit 10 of the apic base msr, and we're good to go!
         msr_output |= (1 << 10);
@@ -45,11 +46,13 @@ void init_apic() {
     else if (xApicLeaf & (1 << 9)) {
         printf("APIC available!\n");
         apicInX2Mode = false;
+        kernel_settings.use_x2_apic = false;
 
         //registers are accessed via mmio, make sure they're identity mapped
         map_phys_to_virt_addr(apic_base_address, apic_base_address, 0);
     }
     else {
+        kernel_settings.use_x2_apic = false;
         printf("ERROR: No local APIC is supported by this cpu!\n");
         return; //not good.
     }

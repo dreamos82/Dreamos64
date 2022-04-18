@@ -5,6 +5,7 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <framebuffer.h>
+#include <scheduler.h>
 
 uint8_t pit_timer_counter = 0;
 volatile uint32_t pitTicks = 0;
@@ -80,6 +81,8 @@ void timer_handler() {
 
 void pit_irq_handler() {
     pitTicks++;
+    scheduler_ticks++;
+    schedule();
 #if USE_FRAMEBUFFER == 1
     if(pit_timer_counter == 0) {
         pit_timer_counter = 1;

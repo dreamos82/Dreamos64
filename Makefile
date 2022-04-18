@@ -11,6 +11,7 @@ CFLAGS := -std=gnu99 \
         -I src/include/kernel/mem \
         -I src/include/kernel/x86_64 \
         -I src/include/kernel/hardware \
+        -I src/include/kernel/scheduling \
         -I src/include/libc \
         -mno-red-zone \
         -mno-sse \
@@ -61,7 +62,7 @@ run: build/os.iso
 
 debug: DEBUG=1
 debug: build/os.iso
-	qemu-system-x86_64 -monitor unix:qemu-monitor-socket,server,nowait -cdrom build/DreamOs64.iso -serial file:dreamos64.log -m 1G -d int -no-reboot
+	qemu-system-x86_64 -monitor unix:qemu-monitor-socket,server,nowait -cpu qemu64,+x2apic  -cdrom build/DreamOs64.iso -serial file:dreamos64.log -m 1G -d int -no-reboot -no-shutdown 
 
 build/os.iso: build/kernel.bin grub.cfg
 	mkdir -p build/isofiles/boot/grub
