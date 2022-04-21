@@ -3,6 +3,8 @@
 #include <framebuffer.h>
 #include <video.h>
 #include <io.h>
+#include <stdio.h>
+#include <stdarg.h>
 
 char* logLevelStrings[] = {
     "  [DEBUG] ",
@@ -12,6 +14,7 @@ char* logLevelStrings[] = {
     "  [FATAL] ",
 };
 const size_t logLevelStrLen = 10; //all the above strings are 10 chars long (excluding null terminator)
+const size_t formatBufferLen = 256; //formatted log output limit, in characters.
 
 size_t logDestBitmap;
 size_t logTrimLevel;
@@ -42,7 +45,7 @@ void set_log_trim_level(size_t newTrim){
     logTrimLevel = newTrim;
 }
 
-void logline(log_level_t level, char* msg){
+void logline(log_level_t level, const char* msg){
     if (level < logTrimLevel)
         return; //dont log things that we dont want to see for now. (would be nice to store these somewhere in the future perhaps, just not display them?)
     
@@ -90,4 +93,16 @@ void logline(log_level_t level, char* msg){
         cli();
         while (1);
     }
+}
+
+void loglinef(log_level_t level, const char* msg, ...)
+{
+    char format_buffer[formatBufferLen];
+    
+    va_list format_args;
+    va_start(format_args, msg);
+    vsprintf(format_buffer, msg, format_args);
+    va_end(format_args);
+
+    logline(level, format_buffer);
 }
