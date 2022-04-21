@@ -115,11 +115,11 @@ void kernel_start(unsigned long addr, unsigned long magic){
     init_idt();
     load_idt();
     _init_basic_system(addr);
-    #ifdef USE_FRAMEBUFFER
-    init_log(LOG_OUTPUT_FRAMEBUFFER, Verbose, false);
-    #endif
+    //#ifdef USE_FRAMEBUFFER
+    //init_log(LOG_OUTPUT_FRAMEBUFFER, Verbose, false);
+    //#endif
+    init_log(LOG_OUTPUT_SERIAL, Verbose, false);
     printf("Kernel End: 0x%x - Physical: %x\n", (unsigned long)&_kernel_end, (unsigned long)&_kernel_physical_end);
-    //test_image();
     // Reminder here: The firt 8 bytes have a fixed structure in the multiboot info:
     // They are: 0-4: size of the boot information in bytes
     //           4-8: Reserved (0) 
@@ -127,9 +127,9 @@ void kernel_start(unsigned long addr, unsigned long magic){
     printf("Size:  %x\n", size);
 	printf("Magic: %x\n\n ", magic);
 	if(magic == 0x36d76289){
-        printf("Magic number verified\n");
+        logline(Verbose, "Magic number verified\n");
 	} else {
-		printf("Failed to verify magic number. Something is wrong\n");
+		logline(Verbose, "Failed to verify magic number. Something is wrong\n");
 	}
     #if USE_FRAMEBUFFER == 1 
         if(get_PSF_version(&_binary_fonts_default_psf_start) == 1){
@@ -161,13 +161,8 @@ void kernel_start(unsigned long addr, unsigned long magic){
         _fb_printStr("Dreamos64", 0, 1, 0xFFFFFF, 0x3333ff);
         _fb_printStr("Thanks\nfor\n using it", 0, 7, 0xFFFFFF, 0x3333ff);
         _fb_printStr(" -- Welcome --", 0, 3, 0xFFFFFF, 0x3333ff);
-        _fb_put_pixel(600, 600, 0xE169CD);
-        _fb_put_pixel(601, 601, 0xE169CD);
-        _fb_put_pixel(602, 602, 0xE169CD);
-        _fb_put_pixel(603, 603, 0xE169CD);
 
         draw_logo(0, 400);
-        logline(Info, "Hello world, this is a test log!");
     #endif
     
     char *cpuid_model = _cpuid_model();
@@ -196,7 +191,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
     asm("sti");
 
     uint32_t apic_ticks = calibrate_apic();
-    kernel_settings.timer_ticks_base = apic_ticks;
+    kernel_settings.apic_timer.timer_ticks_base = apic_ticks;
     printf("Calibrated apic value: %u\n", apic_ticks); 
     //set_irq(0, 0x22, 0, 0 ,0);
     //set_irq(0);
@@ -205,8 +200,9 @@ void kernel_start(unsigned long addr, unsigned long magic){
     printf("(END of Mapped memory: 0x%x)\n", end_of_mapped_memory);
     char *a = kmalloc(5);
     printf("A: 0x%x\n", a);
-    printf("Init end!! Starting infinite loop\n");
-    start_apic_timer(kernel_settings.timer_ticks_base, APIC_TIMER_SET_PERIODIC, APIC_TIMER_DIVIDER_1);
+    logline(Info, "Init end!! Starting infinite loop\n");
+    logline(Info, "Hello world, this is a test log!");
+    start_apic_timer(kernel_settings.apic_timer.timer_ticks_base, APIC_TIMER_SET_PERIODIC, kernel_settings.apic_timer.timer_divisor);
     while(1);
 }
 

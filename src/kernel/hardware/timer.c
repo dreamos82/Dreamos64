@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <framebuffer.h>
 #include <scheduler.h>
+#include <kernel.h>
 
 uint8_t pit_timer_counter = 0;
 volatile uint32_t pitTicks = 0;
@@ -46,6 +47,9 @@ uint32_t calibrate_apic() {
     uint32_t time_elapsed = ((uint32_t)-1) - current_apic_count;
     // now we want to know how many apic ticks are in 1ms so we divide per CALIBRATION_MS_TO_WAIT 
     apic_calibrated_ticks = time_elapsed / CALIBRATION_MS_TO_WAIT;
+    //Let's store the result along with the divider in the kernel_settings.
+    kernel_settings.apic_timer.timer_ticks_base = apic_calibrated_ticks;
+    kernel_settings.apic_timer.timer_divisor = APIC_TIMER_DIVIDER_2;
     // et voila... calibration done, now we can use this value as a base for the initial count register
     return apic_calibrated_ticks;
 }

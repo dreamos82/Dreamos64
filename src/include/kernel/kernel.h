@@ -9,11 +9,14 @@ struct keyboard_status_t {
     bool    translation_enabled;
 };
 
-typedef struct kernel_status_t {
-
-    struct keyboard_status_t keyboard;
-
+struct apic_timer_parameters {
     uint32_t timer_ticks_base;
+    uint8_t timer_divisor;
+};
+
+typedef struct kernel_status_t {
+    struct keyboard_status_t keyboard;
+    struct apic_timer_parameters apic_timer;
     bool use_x2_apic;
 } kernel_status_t;
 
