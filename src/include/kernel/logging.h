@@ -27,6 +27,7 @@ typedef enum {
 
 void init_log(size_t defaultOutputs, log_level_t trimBelowLevel, bool useVgaVideo);
 void set_log_trim_level(size_t newTrim);
-void logline(log_level_t level, char* msg);
+void logline(log_level_t level, const char* msg);
+void loglinef(log_level_t level, const char* msg, ...);
 
 #endif
