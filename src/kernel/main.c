@@ -29,6 +29,7 @@
 #include <logging.h>
 #include <timer.h>
 #include <kernel.h>
+#include <string.h>
 
 extern char _binary_fonts_default_psf_size;
 extern char _binary_fonts_default_psf_start;
@@ -203,6 +204,9 @@ void kernel_start(unsigned long addr, unsigned long magic){
     logline(Info, "Init end!! Starting infinite loop\n");
     logline(Info, "Hello world, this is a test log!");
     start_apic_timer(kernel_settings.apic_timer.timer_ticks_base, APIC_TIMER_SET_PERIODIC, kernel_settings.apic_timer.timer_divisor);
+    create_thread("Asd");
+    init_scheduler();
+//    create_thread(4);
     while(1);
 }
 
