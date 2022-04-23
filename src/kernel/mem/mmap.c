@@ -3,6 +3,7 @@
 #include <pmm.h>
 #include <stdint.h>
 #include <multiboot.h>
+#include <stdio.h>
 #include <video.h>
 
 extern uint32_t used_frames;

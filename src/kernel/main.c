@@ -29,6 +29,9 @@
 #include <logging.h>
 #include <timer.h>
 #include <kernel.h>
+#include <string.h>
+#include <scheduler.h>
+#include <thread.h>
 
 extern char _binary_fonts_default_psf_size;
 extern char _binary_fonts_default_psf_start;
@@ -193,16 +196,15 @@ void kernel_start(unsigned long addr, unsigned long magic){
     uint32_t apic_ticks = calibrate_apic();
     kernel_settings.apic_timer.timer_ticks_base = apic_ticks;
     printf("Calibrated apic value: %u\n", apic_ticks); 
-    //set_irq(0, 0x22, 0, 0 ,0);
-    //set_irq(0);
-    //start_apic_timer(0, 0);
-    //asm("sti");
     printf("(END of Mapped memory: 0x%x)\n", end_of_mapped_memory);
-    char *a = kmalloc(5);
-    printf("A: 0x%x\n", a);
+    //char *a = kmalloc(5);
+    //printf("A: 0x%x\n", a);
     logline(Info, "Init end!! Starting infinite loop\n");
     logline(Info, "Hello world, this is a test log!");
     start_apic_timer(kernel_settings.apic_timer.timer_ticks_base, APIC_TIMER_SET_PERIODIC, kernel_settings.apic_timer.timer_divisor);
+    init_scheduler();
+    create_thread("asd");
+//    create_thread(4);
     while(1);
 }
 
