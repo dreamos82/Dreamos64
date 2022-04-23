@@ -28,4 +28,5 @@ void set_fb_data(struct multiboot_tag_framebuffer *);
 void _fb_printStrAndNumber(const char*, uint64_t, size_t, size_t, uint32_t, uint32_t);
 
 void get_framebuffer_mode(uint32_t* pixels_w, uint32_t* pixels_h, uint32_t* chars_w, uint32_t* chars_h);
+void draw_logo();
 #endif

@@ -99,6 +99,7 @@ void map_framebuffer(struct framebuffer_info fbdata) {
 
 void set_fb_data(struct multiboot_tag_framebuffer *fbtag){
     //FRAMEBUFFER_MEM = (void*)(uint64_t)fbtag->common.framebuffer_addr;
+#if USE_FRAMEBUFFER == 1
     framebuffer_data.address = (void*)(uint64_t)_FRAMEBUFFER_MEM_START;
     framebuffer_data.pitch = fbtag->common.framebuffer_pitch;
     framebuffer_data.bpp = fbtag->common.framebuffer_bpp;
@@ -109,10 +110,11 @@ void set_fb_data(struct multiboot_tag_framebuffer *fbtag){
 
     map_framebuffer(framebuffer_data);
     cur_fb_line = 0;
+#endif
 }
 
 void _fb_putchar(char symbol, size_t cx, size_t cy, uint32_t fg, uint32_t bg){
-    uint8_t *framebuffer = (char *) framebuffer_data.address;
+    uint8_t *framebuffer = (uint8_t *) framebuffer_data.address;
     uint32_t pitch = framebuffer_data.pitch;
     uint32_t width, height;
     width = get_width(psf_font_version);
