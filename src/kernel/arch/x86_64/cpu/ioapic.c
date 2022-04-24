@@ -16,14 +16,15 @@ void init_ioapic(MADT *madt_table){
     if(item != NULL) {
         printf("IOAPIC Item type: 0x%x\n", item->type);
         printf("IOAPIC Item address: 0x%x - length: 0x%x\n", item, item->length);
-        IO_APIC_Item *ioapic_item = (IO_APIC_Item *) ( ensure_address_in_higher_half((uint64_t)item + sizeof(MADT_Item)));
-        if (is_phyisical_address_mapped(ALIGN_PHYSADDRESS((uint64_t) item), ensure_address_in_higher_half((uint64_t)item)) == PHYS_ADDRESS_NOT_MAPPED) {
-            map_phys_to_virt_addr(ALIGN_PHYSADDRESS((uint64_t)item), ensure_address_in_higher_half((uint64_t) item),0);
+        IO_APIC_Item *ioapic_item = (IO_APIC_Item *) ( ensure_address_in_higher_half((uint64_t) item + sizeof(MADT_Item)));
+        if (is_phyisical_address_mapped(ALIGN_PHYSADDRESS((uint64_t) item), ensure_address_in_higher_half((uint64_t) item)) == PHYS_ADDRESS_NOT_MAPPED) {
+            map_phys_to_virt_addr((uint64_t *) ALIGN_PHYSADDRESS((uint64_t) item), ensure_address_in_higher_half((uint64_t) item),0);
         }
         printf("IOAPIC_ID: 0x%x, Address: 0x%x\n", ioapic_item->ioapic_id, ioapic_item->address ); 
         printf("IOApic_Global_System_Interrupt_Base: 0x%x\n", ioapic_item->global_system_interrupt_base);
         io_apic_base_address = ioapic_item->address;
-        map_phys_to_virt_addr(io_apic_base_address, io_apic_base_address, 0);
+        // This one should be mapped in the higher half ?? 
+        map_phys_to_virt_addr((uint64_t *) io_apic_base_address, (uint64_t *) io_apic_base_address, 0);
         _bitmap_set_bit(ADDRESS_TO_BITMAP_ENTRY(io_apic_base_address));
         uint32_t ioapic_version = read_io_apic_register(IO_APIC_VER_OFFSET);
         printf("IOAPIC Version: 0x%x\n", ioapic_version);
@@ -99,7 +100,7 @@ int write_io_apic_redirect(uint8_t index, io_apic_redirect_entry_t redtbl_entry)
         return -1;
     }
     printf("Setting redirect entry: %x\n", index);
-    uint32_t upper_part = (uint32_t) redtbl_entry.raw >> 32;
+    uint32_t upper_part = (uint32_t) (redtbl_entry.raw >> 32);
     uint32_t lower_part = (uint32_t) redtbl_entry.raw;
     /* printf(": Lower part: %x, : upper part: %x\n", lower_part, upper_part); */
     write_io_apic_register(index, lower_part);

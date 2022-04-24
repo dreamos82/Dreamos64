@@ -10,5 +10,5 @@
 void init_scheduler();
 
 void schedule();
-extern uint8_t scheduler_ticks;
+extern uint16_t scheduler_ticks;
 #endif

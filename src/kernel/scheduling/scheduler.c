@@ -2,7 +2,7 @@
 #include <framebuffer.h>
 #include <string.h>
 
-uint8_t scheduler_ticks;
+uint16_t scheduler_ticks;
 thread_t thread_pool[5];
 size_t next_thread_id;
 void init_scheduler() {

@@ -189,7 +189,7 @@ void get_framebuffer_mode(uint32_t* pixels_w, uint32_t* pixels_h, uint32_t* char
     if (chars_w != NULL)
         *chars_w = framebuffer_data.width / get_width(psf_font_version);
     if (chars_h != NULL)
-        *chars_h = framebuffer_data.height / get_height(get_height);
+        *chars_h = framebuffer_data.height / get_height(psf_font_version);
 }
 
 void _fb_put_pixel(uint32_t x, uint32_t y, uint32_t color) {
@@ -202,9 +202,8 @@ void _fb_put_pixel(uint32_t x, uint32_t y, uint32_t color) {
 void draw_logo(uint32_t start_x, uint32_t start_y) {
     char *logo_data = header_data;
     char *pixel[4];
-    uint32_t counter = width * height;
-    for (int i = 0; i < height; i++) {
-        for(int j = 0; j < width; j++) {
+    for (uint32_t i = 0; i < height; i++) {
+        for(uint32_t j = 0; j < width; j++) {
             HEADER_PIXEL(logo_data, pixel); 
             uint32_t num = (uint32_t)pixel[0] << 24 |
               (uint32_t)pixel[1] << 16 |
