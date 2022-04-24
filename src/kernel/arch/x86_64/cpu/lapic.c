@@ -9,6 +9,7 @@
 #include <util.h>
 #include <cpuid.h>
 #include <io.h>
+#include <vmm.h>
 #include <kernel.h>
 
 //cpuid is non-standard header, but is supported by both gcc/clang.
@@ -23,7 +24,7 @@ void init_apic() {
     printf("APIC MSR Return value: 0x%X\n", msr_output);
     printf("APIC MSR Base Address: 0x%X\n", (msr_output&APIC_BASE_ADDRESS_MASK));
     apic_base_address = (msr_output&APIC_BASE_ADDRESS_MASK);
-    if(apic_base_address == NULL) {
+    if(apic_base_address == 0) {
         printf("ERROR: cannot determine apic base address\n");
     }
 

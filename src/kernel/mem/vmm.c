@@ -12,19 +12,19 @@ extern uint64_t pt_tables[];
 
 uint8_t is_phyisical_address_mapped(uint64_t physical_address, uint64_t virtual_address) {
     uint16_t pml4_e = PML4_ENTRY((uint64_t) virtual_address); 
-    uint64_t *pml4_table = (uint64_t) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l, 510l, 510l, 510l));
+    uint64_t *pml4_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l, 510l, 510l, 510l));
     if ( !pml4_table[pml4_e] & PRESENT_BIT ) {
         return PHYS_ADDRESS_NOT_MAPPED;
     }
 
     uint16_t pdpr_e = PDPR_ENTRY((uint64_t) virtual_address);
-    uint64_t *pdpr_table = (uint64_t) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l, 510l, 510l, (uint64_t)  pml4_e)); 
+    uint64_t *pdpr_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l, 510l, 510l, (uint64_t)  pml4_e)); 
     if ( !pdpr_table[pdpr_e] & PRESENT_BIT) {
         return PHYS_ADDRESS_NOT_MAPPED;
     }
 
     uint16_t pd_e = PD_ENTRY((uint64_t) virtual_address);
-    uint64_t *pd_table = (uint64_t) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l, 510l, pml4_e, (uint64_t)  pdpr_e));
+    uint64_t *pd_table = (uint64_t*) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l, 510l, pml4_e, (uint64_t)  pdpr_e));
     if ( !pd_table[pd_e] & PRESENT_BIT  ) {
         return PHYS_ADDRESS_NOT_MAPPED;
     }

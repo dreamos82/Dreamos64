@@ -10,7 +10,6 @@
 
 uint8_t pit_timer_counter = 0;
 volatile uint32_t pitTicks = 0;
-extern uint32_t apic_base_address;
 uint32_t apic_calibrated_ticks;
 
 uint32_t calibrate_apic() {
@@ -56,7 +55,7 @@ uint32_t calibrate_apic() {
 
 void start_apic_timer(uint32_t initial_count, uint32_t flags, uint8_t divider) {
 
-    if(apic_base_address == NULL) {
+    if(apic_base_address == 0) {
         printf("Apic_base_address not found, or apic not initialized\n");
     }
 

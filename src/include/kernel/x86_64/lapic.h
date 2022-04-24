@@ -43,6 +43,7 @@
 #define SLAVE_PIC_DATA_PORT 0xA1
 
 
+extern uint32_t apic_base_address;
 
 void init_apic();
 void init_local_vector_table();

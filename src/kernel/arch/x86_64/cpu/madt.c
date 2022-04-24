@@ -12,7 +12,7 @@ MADT_Item *madt_base = NULL;
 void map_madt(MADT* table){
     if(strncmp(table->header.Signature, MADT_ID, 4) != 0) {
         // Table is not MADT
-        return NULL;
+        return;
     }
     
     uint64_t madt_address = ((uint64_t) table + sizeof(MADT));

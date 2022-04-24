@@ -10,6 +10,7 @@
 #include <vmm.h>
 #include <kheap.h>
 #include <vm.h>
+#include <bitmap.h>
 
 RSDT* rsdt_root = NULL;
 XSDT* xsdt_root = NULL;
@@ -41,17 +42,17 @@ void parse_RSDT(RSDPDescriptor *descriptor){
     size_t required_extra_pages = (header.Length / KERNEL_PAGE_SIZE) + 1;
     if (required_extra_pages > 1) {
         printf("- RSDT_PAGES_NEEDED: %d\n", required_extra_pages);
-        for (int j = 1; j < required_extra_pages; j++) {
+        for (size_t j = 1; j < required_extra_pages; j++) {
             uint64_t new_physical_address = descriptor->RsdtAddress + (j * KERNEL_PAGE_SIZE);
-            map_phys_to_virt_addr(ALIGN_PHYSADDRESS(new_physical_address), ensure_address_in_higher_half(new_physical_address), 0);
+            map_phys_to_virt_addr(ALIGN_PHYSADDRESS(new_physical_address), (void *) ensure_address_in_higher_half(new_physical_address), 0);
             _bitmap_set_bit_from_address(ALIGN_PHYSADDRESS(new_physical_address));
         }
     }
     rsdtTablesTotal = (header.Length - sizeof(ACPISDTHeader)) / sizeof(uint32_t);
     printf("- Total rsdt Tables: %d\n", rsdtTablesTotal);
     
-    for(int i=0; i < rsdtTablesTotal; i++) {
-        map_phys_to_virt_addr(ALIGN_PHYSADDRESS(rsdt_root->tables[i]), ensure_address_in_higher_half(rsdt_root->tables[i]), 0);
+    for(uint32_t i=0; i < rsdtTablesTotal; i++) {
+        map_phys_to_virt_addr((void *) ALIGN_PHYSADDRESS(rsdt_root->tables[i]), (void *) ensure_address_in_higher_half(rsdt_root->tables[i]), 0);
         ACPISDTHeader *tableHeader = (ACPISDTHeader *) ensure_address_in_higher_half(rsdt_root->tables[i]);
         printf("\tTable header %d: Signature: %.4s\n", i, tableHeader->Signature);
     }
@@ -72,9 +73,9 @@ void parse_RSDTv2(RSDPDescriptor20 *descriptor){
 
     if (required_extra_pages > 1) {
         printf("- XSDT_PAGES_NEEDED: %d\n", required_extra_pages);
-        for (int j = 1; j < required_extra_pages; j++) {
+        for (size_t j = 1; j < required_extra_pages; j++) {
             uint64_t new_physical_address = descriptor->XsdtAddress + (j * KERNEL_PAGE_SIZE);
-            map_phys_to_virt_addr(new_physical_address, ensure_address_in_higher_half(new_physical_address), 0);
+            map_phys_to_virt_addr(new_physical_address, (uint64_t *) ensure_address_in_higher_half(new_physical_address), 0);
             _bitmap_set_bit_from_address(ALIGN_PHYSADDRESS(new_physical_address));
         }
     }
@@ -82,7 +83,7 @@ void parse_RSDTv2(RSDPDescriptor20 *descriptor){
     rsdtTablesTotal = (header.Length - sizeof(ACPISDTHeader)) / sizeof(uint64_t);
     printf("- Total xsdt Tables: %d\n", rsdtTablesTotal);
     
-    for(int i=0; i < rsdtTablesTotal; i++) {
+    for(uint32_t i=0; i < rsdtTablesTotal; i++) {
         map_phys_to_virt_addr(ALIGN_PHYSADDRESS(xsdt_root->tables[i]), ensure_address_in_higher_half(xsdt_root->tables[i]), 0);
         _bitmap_set_bit_from_address(ALIGN_PHYSADDRESS(xsdt_root->tables[i]));
         ACPISDTHeader *tableHeader = (ACPISDTHeader *) ensure_address_in_higher_half(xsdt_root->tables[i]);
@@ -96,7 +97,7 @@ ACPISDTHeader* get_SDT_item(char* table_name) {
     if((sdt_version == RSDT_V1 && rsdt_root == NULL) || (sdt_version == RSDT_V2 && xsdt_root == NULL)) {
         return NULL;
     } 
-    for(int i=0; i < rsdtTablesTotal; i++){
+    for(uint32_t i=0; i < rsdtTablesTotal; i++){
         ACPISDTHeader *tableItem;
         switch(sdt_version) {
             case RSDT_V1:
@@ -131,5 +132,5 @@ bool validate_SDT(char *descriptor, size_t size){
         sum += ((char*) descriptor)[i];
     }
     printf("Checksum of RSDP is: 0x%x\n", sum&0xFF);
-    return (sum&0xFF == 0);
+    return ((sum&0xFF) == 0);
 }

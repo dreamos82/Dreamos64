@@ -26,6 +26,7 @@ int64_t _bitmap_request_frame();
 void _bitmap_set_bit(uint64_t);
 void _bitmap_free_bit(uint64_t);
 bool _bitmap_test_bit(uint64_t);
+void _bitmap_set_bit_from_address(uint64_t);
 uint32_t _compute_kernel_entries(uint64_t);
 
 #endif

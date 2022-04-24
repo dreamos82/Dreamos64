@@ -5,6 +5,7 @@
 #include <kernel/mem/bitmap.h>
 #include <vm.h>
 #include <stdio.h>
+#include <numbers.h>
 //#ifdef DEBUG - This will be uncommented when the framebuffer library will be completed
 #include <qemu.h>
 //#endif
@@ -130,7 +131,8 @@ void _fb_putchar(char symbol, size_t cx, size_t cy, uint32_t fg, uint32_t bg){
         (cx * (width) * sizeof(PIXEL));
     // x,y = current coordinates on the glyph bitmap
 
-    uint32_t x, y, line, mask;
+    uint32_t x, y, line;
+    //uint32_t mask;
     for(y=0; y<height; y++){
         line = offset;
         //mask = 1 << (width - 1);

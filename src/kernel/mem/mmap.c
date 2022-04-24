@@ -68,7 +68,7 @@ void* _mmap_determine_bitmap_region(uint64_t lower_limit, size_t bytes_needed){
             continue; //mmap area is too low to be relevant, ignore it
 
         //there's at some overlap, now check if there is enough pages within the region
-        const size_t pages_needed = bytes_needed / PAGE_SIZE_IN_BYTES + 1; //potential for a lot of wasted space, depending on page size.
+        //const size_t pages_needed = bytes_needed / PAGE_SIZE_IN_BYTES + 1; //potential for a lot of wasted space, depending on page size.
         size_t actual_available_space = current_entry->len;
         const size_t entry_offset = lower_limit > current_entry->addr ? lower_limit - current_entry->addr : 0;
 
