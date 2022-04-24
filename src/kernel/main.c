@@ -9,8 +9,8 @@
 #include <kernel/video.h>
 #include <kernel/io.h>
 #include <kernel/qemu.h>
+#include <psf.h>
 #include <kernel/framebuffer.h>
-#include <kernel/psf.h>
 #include <cpu.h>
 #include <lapic.h>
 #include <acpi.h>
@@ -33,9 +33,6 @@
 #include <scheduler.h>
 #include <thread.h>
 
-extern char _binary_fonts_default_psf_size;
-extern char _binary_fonts_default_psf_start;
-extern char _binary_fonts_default_psf_end;
 extern uint32_t FRAMEBUFFER_MEMORY_SIZE;
 extern uint64_t multiboot_framebuffer_data;
 extern uint64_t multiboot_mmap_data;

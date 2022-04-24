@@ -1,8 +1,4 @@
-#include <kernel/psf.h>
-
-extern char _binary_fonts_default_psf_size;
-extern char _binary_fonts_default_psf_start;
-extern char _binary_fonts_default_psf_end;
+#include <psf.h>
 
 uint8_t psf_font_version;
 
