@@ -44,7 +44,7 @@ void parse_RSDT(RSDPDescriptor *descriptor){
         printf("- RSDT_PAGES_NEEDED: %d\n", required_extra_pages);
         for (size_t j = 1; j < required_extra_pages; j++) {
             uint64_t new_physical_address = descriptor->RsdtAddress + (j * KERNEL_PAGE_SIZE);
-            map_phys_to_virt_addr(ALIGN_PHYSADDRESS(new_physical_address), (void *) ensure_address_in_higher_half(new_physical_address), 0);
+            map_phys_to_virt_addr((void *) ALIGN_PHYSADDRESS(new_physical_address), (void *) ensure_address_in_higher_half(new_physical_address), 0);
             _bitmap_set_bit_from_address(ALIGN_PHYSADDRESS(new_physical_address));
         }
     }
@@ -75,7 +75,7 @@ void parse_RSDTv2(RSDPDescriptor20 *descriptor){
         printf("- XSDT_PAGES_NEEDED: %d\n", required_extra_pages);
         for (size_t j = 1; j < required_extra_pages; j++) {
             uint64_t new_physical_address = descriptor->XsdtAddress + (j * KERNEL_PAGE_SIZE);
-            map_phys_to_virt_addr(new_physical_address, (uint64_t *) ensure_address_in_higher_half(new_physical_address), 0);
+            map_phys_to_virt_addr((uint64_t *) new_physical_address, (uint64_t *) ensure_address_in_higher_half(new_physical_address), 0);
             _bitmap_set_bit_from_address(ALIGN_PHYSADDRESS(new_physical_address));
         }
     }
@@ -84,7 +84,7 @@ void parse_RSDTv2(RSDPDescriptor20 *descriptor){
     printf("- Total xsdt Tables: %d\n", rsdtTablesTotal);
     
     for(uint32_t i=0; i < rsdtTablesTotal; i++) {
-        map_phys_to_virt_addr(ALIGN_PHYSADDRESS(xsdt_root->tables[i]), ensure_address_in_higher_half(xsdt_root->tables[i]), 0);
+        map_phys_to_virt_addr((uint64_t *) ALIGN_PHYSADDRESS(xsdt_root->tables[i]), (uint64_t *) ensure_address_in_higher_half(xsdt_root->tables[i]), 0);
         _bitmap_set_bit_from_address(ALIGN_PHYSADDRESS(xsdt_root->tables[i]));
         ACPISDTHeader *tableHeader = (ACPISDTHeader *) ensure_address_in_higher_half(xsdt_root->tables[i]);
         printf("\tTable header %d: Signature: %.4s\n", i, tableHeader->Signature);

@@ -166,7 +166,7 @@ void _fb_printStr(const char *string, size_t cx, size_t cy, uint32_t fg, uint32_
 }
 
 void _fb_printStrAndNumber(const char *string, uint64_t number, size_t cx, size_t cy, uint32_t fg, uint32_t bg){
-    char *buffer[30];
+    char buffer[30];
     
     _getHexString(buffer, number, true);
     _fb_printStr(string, cx, cy, fg, bg);
