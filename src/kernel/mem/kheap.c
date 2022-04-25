@@ -44,7 +44,7 @@ void *kmalloc(size_t size) {
                 if( current_node->size - real_size > KHEAP_MINIMUM_ALLOCABLE_SIZE ) {
                     // We can keep shrinking the heap, since we still have enough space!
                     // But we need a new node for the allocated area
-                    KHeapMemoryNode *new_node = create_kheap_node(current_node, real_size);
+                    create_kheap_node(current_node, real_size);
                     // Let's update current_node status
                     current_node->is_free = false;
                     current_node->size = real_size;
@@ -75,7 +75,7 @@ void expand_heap(size_t required_size) {
         //end_of_mapped memory marks the end of the memory mapped by the kernel loader.
         //if the new heap address is above that, we need to map a new one, otherwise we can just mark it as used.
         //That part temporary, it needs to be reviewed when the memory mapping will be reviewed.
-        map_vaddress_range(heap_end, 0, number_of_pages);
+        map_vaddress_range((uint64_t *) heap_end, 0, number_of_pages);
     }
     KHeapMemoryNode *new_tail = (KHeapMemoryNode *) heap_end;
     new_tail->next = NULL;

@@ -198,12 +198,12 @@ void _fb_put_pixel(uint32_t x, uint32_t y, uint32_t color) {
 
 void draw_logo(uint32_t start_x, uint32_t start_y) {
     char *logo_data = header_data;
-    char *pixel[4];
+    char pixel[4];
     for (uint32_t i = 0; i < height; i++) {
         for(uint32_t j = 0; j < width; j++) {
             HEADER_PIXEL(logo_data, pixel); 
             pixel[3] = 0;
-            uint32_t num = (uint32_t)pixel[0] << 24 |
+            uint32_t num = (uint32_t) pixel[0] << 24 |
               (uint32_t)pixel[1] << 16 |
               (uint32_t)pixel[2] << 8  |
               (uint32_t)pixel[3];

@@ -24,7 +24,7 @@ void init_ioapic(MADT *madt_table){
         printf("IOApic_Global_System_Interrupt_Base: 0x%x\n", ioapic_item->global_system_interrupt_base);
         io_apic_base_address = ioapic_item->address;
         // This one should be mapped in the higher half ?? 
-        map_phys_to_virt_addr((uint64_t *) io_apic_base_address, (uint64_t *) io_apic_base_address, 0);
+        map_phys_to_virt_addr((uint64_t) io_apic_base_address, (uint64_t) io_apic_base_address, 0);
         _bitmap_set_bit(ADDRESS_TO_BITMAP_ENTRY(io_apic_base_address));
         uint32_t ioapic_version = read_io_apic_register(IO_APIC_VER_OFFSET);
         printf("IOAPIC Version: 0x%x\n", ioapic_version);

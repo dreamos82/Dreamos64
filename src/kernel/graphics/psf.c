@@ -17,10 +17,10 @@ uint8_t get_PSF_version(char *_font_structure){
 uint8_t* get_glyph(uint8_t symbolnumber, uint8_t version){
     if (version == PSF_V1){
         PSFv1_Font* loaded_font = (PSFv1_Font *)&_binary_fonts_default_psf_start;
-        return (uint8_t *)loaded_font + sizeof(PSFv1_Font) + (symbolnumber * loaded_font->charsize);
+        return (uint8_t *) loaded_font + sizeof(PSFv1_Font) + (symbolnumber * loaded_font->charsize);
     } else if (version == PSF_V2) {
         PSF_font* loaded_font = (PSF_font *)&_binary_fonts_default_psf_start;
-        return  (uint8_t*)loaded_font + loaded_font->headersize + (symbolnumber * loaded_font->bytesperglyph);
+        return  (uint8_t*) loaded_font + loaded_font->headersize + (symbolnumber * loaded_font->bytesperglyph);
     }
     return 0;
 }
@@ -29,12 +29,12 @@ uint32_t get_width(uint8_t version){
     if ( version == PSF_V1) {
         return 8;
     }
-    return ((PSF_font *)&_binary_fonts_default_psf_start)->width;
+    return ((PSF_font *) &_binary_fonts_default_psf_start)->width;
 }
 
 uint32_t get_height(uint8_t version){
     if ( version == PSF_V1) {
-        return ((PSFv1_Font *)&_binary_fonts_default_psf_start)->charsize;
+        return ((PSFv1_Font *) &_binary_fonts_default_psf_start)->charsize;
     }
-    return ((PSF_font *)&_binary_fonts_default_psf_start)->height;
+    return ((PSF_font *) &_binary_fonts_default_psf_start)->height;
 }
