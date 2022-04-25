@@ -33,6 +33,10 @@ typedef struct {
     uint32_t width;         /* width in pixels */
 } PSF_font;
 
+extern char _binary_fonts_default_psf_size;
+extern char _binary_fonts_default_psf_start;
+extern char _binary_fonts_default_psf_end;
+
 uint8_t get_PSF_version(char *);
 
 uint8_t* get_glyph(uint8_t, uint8_t);

@@ -14,9 +14,6 @@
 
 #define PIXEL uint32_t
 
-extern char _binary_fonts_default_psf_size;
-extern char _binary_fonts_default_psf_start;
-extern char _binary_fonts_default_psf_end;
 extern void *cur_framebuffer_pos;
 extern uint64_t p4_table[];
 extern uint64_t p3_table_hh[];
@@ -205,6 +202,7 @@ void draw_logo(uint32_t start_x, uint32_t start_y) {
     for (uint32_t i = 0; i < height; i++) {
         for(uint32_t j = 0; j < width; j++) {
             HEADER_PIXEL(logo_data, pixel); 
+            pixel[3] = 0;
             uint32_t num = (uint32_t)pixel[0] << 24 |
               (uint32_t)pixel[1] << 16 |
               (uint32_t)pixel[2] << 8  |
