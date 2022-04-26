@@ -27,7 +27,7 @@ typedef enum {
 } character_color;
 
 void _printCh(char, character_color);
-void _printStr(char *);
+void _printStr(const char *);
 void _printNewLine();
 void _printNumber(char*, unsigned long, int);
 void _printHex(char*, unsigned long);

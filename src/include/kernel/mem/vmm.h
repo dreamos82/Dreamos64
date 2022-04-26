@@ -11,6 +11,8 @@
 #define PHYS_ADDRESS_MAPPED 0b1
 #define PHYS_ADDRESS_MISMATCH 0b10 // This is returned when given a phys and virt address, the virt address does not contain the phys one
 
+#define VPTR(x) (void*)((uint64_t)(x))
+
 void *map_vaddress(void *, unsigned int);
 int unmap_vaddress(void *);
 

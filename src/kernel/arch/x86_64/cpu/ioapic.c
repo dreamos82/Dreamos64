@@ -18,13 +18,13 @@ void init_ioapic(MADT *madt_table){
         printf("IOAPIC Item address: 0x%x - length: 0x%x\n", item, item->length);
         IO_APIC_Item *ioapic_item = (IO_APIC_Item *) ( ensure_address_in_higher_half((uint64_t) item + sizeof(MADT_Item)));
         if (is_phyisical_address_mapped(ALIGN_PHYSADDRESS((uint64_t) item), ensure_address_in_higher_half((uint64_t) item)) == PHYS_ADDRESS_NOT_MAPPED) {
-            map_phys_to_virt_addr((uint64_t *) ALIGN_PHYSADDRESS((uint64_t) item), ensure_address_in_higher_half((uint64_t) item),0);
+            map_phys_to_virt_addr((void *) ALIGN_PHYSADDRESS((uint64_t) item), (void *)ensure_address_in_higher_half((uint64_t) item),0);
         }
         printf("IOAPIC_ID: 0x%x, Address: 0x%x\n", ioapic_item->ioapic_id, ioapic_item->address ); 
         printf("IOApic_Global_System_Interrupt_Base: 0x%x\n", ioapic_item->global_system_interrupt_base);
         io_apic_base_address = ioapic_item->address;
         // This one should be mapped in the higher half ?? 
-        map_phys_to_virt_addr((uint64_t) io_apic_base_address, (uint64_t) io_apic_base_address, 0);
+        map_phys_to_virt_addr(VPTR(io_apic_base_address), VPTR(io_apic_base_address), 0);
         _bitmap_set_bit(ADDRESS_TO_BITMAP_ENTRY(io_apic_base_address));
         uint32_t ioapic_version = read_io_apic_register(IO_APIC_VER_OFFSET);
         printf("IOAPIC Version: 0x%x\n", ioapic_version);
@@ -69,7 +69,6 @@ int parse_io_apic_interrupt_source_overrides(MADT* table) {
 
 uint32_t read_io_apic_register(uint8_t offset){
     if (io_apic_base_address == 0) {
-        printf("It's null");
         return 0;
     }
     *(volatile uint32_t*) io_apic_base_address = offset;

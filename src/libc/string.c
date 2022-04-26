@@ -45,6 +45,7 @@ char *strcpy(char *dst, const char *src) {
     while (*src != '\0') {
         *output++ = *src++;
     }
+    *output = '\0';
     return dst;
 }
 

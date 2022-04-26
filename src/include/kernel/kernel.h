@@ -21,4 +21,8 @@ typedef struct kernel_status_t {
 } kernel_status_t;
 
 extern kernel_status_t kernel_settings;
+
+extern unsigned int _kernel_end;
+extern unsigned int _kernel_physical_end;
+
 #endif

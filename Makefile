@@ -56,7 +56,8 @@ default: build
 build: build/os.iso
 
 clean:
-	rm -rf build
+	rm -rf build && find -name *.o -type f -delete
+
 run: build/os.iso
 	qemu-system-x86_64 -cdrom build/DreamOs64.iso
 

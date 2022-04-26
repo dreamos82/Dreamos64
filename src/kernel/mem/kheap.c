@@ -2,18 +2,17 @@
 #include <stdio.h>
 #include <bitmap.h>
 #include <vmm.h>
-
+#include <kernel.h>
 
 KHeapMemoryNode *kernel_heap_start;
 KHeapMemoryNode *kernel_heap_current_pos;
 KHeapMemoryNode *kernel_heap_end;
     
-extern unsigned int _kernel_end;
 extern unsigned int end_of_mapped_memory;
 
 void initialize_kheap(){
     //That should be mapped? 
-    kernel_heap_start = (KHeapMemoryNode *) (&_kernel_end + KERNEL_MEMORY_PADDING);
+    kernel_heap_start = (KHeapMemoryNode *) ((uint64_t)&_kernel_end + KERNEL_MEMORY_PADDING);
     kernel_heap_current_pos = kernel_heap_start;
     kernel_heap_end = kernel_heap_start;
     kernel_heap_current_pos->size = 0x1000;

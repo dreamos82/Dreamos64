@@ -6,7 +6,7 @@ void _printStringAndNumber(char *string, unsigned long number){
     printf("%s0x%X\n", string, number);
 }
 
-void _printStr(char *string){
+void _printStr(const char *string){
     printf("%s", string);
 }
 

@@ -33,7 +33,7 @@ void _printCh(char c, character_color color){
     *VIDEO_PTR++ = color;
 }
 
-void _printStr(char *string){
+void _printStr(const char *string){
     while (*string != '\0'){
         if (*string == '\n'){
             _printNewLine();

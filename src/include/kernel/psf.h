@@ -34,7 +34,7 @@ typedef struct {
 } PSF_font;
 
 extern char _binary_fonts_default_psf_size;
-extern char _binary_fonts_default_psf_start;
+extern char _binary_fonts_default_psf_start[];
 extern char _binary_fonts_default_psf_end;
 
 uint8_t get_PSF_version(char *);

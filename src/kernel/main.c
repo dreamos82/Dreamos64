@@ -48,6 +48,8 @@ struct multiboot_tag_new_acpi *tagnew_acpi = NULL;
 struct multiboot_tag_mmap *tagmmap = NULL;
 struct multiboot_tag *tagacpi = NULL;
 uint64_t memory_size_in_bytes;
+//unsigned int _kernel_end;
+//unsigned int _kernel_physical_end;
 
 void _init_basic_system(unsigned long addr){
     struct multiboot_tag* tag;
@@ -108,10 +110,8 @@ void _init_basic_system(unsigned long addr){
 }
 
 void kernel_start(unsigned long addr, unsigned long magic){
-    extern unsigned int _kernel_end;
-    extern unsigned int _kernel_physical_end;
     qemu_init_debug();
-    psf_font_version = get_PSF_version(&_binary_fonts_default_psf_start);
+    psf_font_version = get_PSF_version(_binary_fonts_default_psf_start);
     init_idt();
     load_idt();
     _init_basic_system(addr);
@@ -132,9 +132,9 @@ void kernel_start(unsigned long addr, unsigned long magic){
 		logline(Verbose, "Failed to verify magic number. Something is wrong\n");
 	}
     #if USE_FRAMEBUFFER == 1 
-        if(get_PSF_version(&_binary_fonts_default_psf_start) == 1){
+        if(get_PSF_version(_binary_fonts_default_psf_start) == 1){
             qemu_write_string("PSF v1 found\n");
-            PSFv1_Font *font = (PSFv1_Font*)&_binary_fonts_default_psf_start;
+            PSFv1_Font *font = (PSFv1_Font*)_binary_fonts_default_psf_start;
             printf("Magic: [%x %x]\n", font->magic[1], font->magic[0]);
             printf("Flags: 0x%x\n", font->mode);
             printf("Charsize: 0x%x\n", font->charsize);
