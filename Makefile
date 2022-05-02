@@ -51,12 +51,13 @@ OBJ_C_FILE := $(patsubst src/%.c, build/%.o, $(SRC_C_FILES))
 OBJ_FONT_FILE := $(patsubst fonts/%.psf, build/%.o, $(SRC_FONT_FILES))
 default: build
 
-.PHONY: default build run clean debug tests
+.PHONY: default build run clean debug tests gdb
 
 build: build/os.iso
 
 clean:
-	rm -rf build && find -name *.o -type f -delete
+	rm -rf build
+	find -name *.o -type f -delete
 
 run: build/os.iso
 	qemu-system-x86_64 -cdrom build/DreamOs64.iso

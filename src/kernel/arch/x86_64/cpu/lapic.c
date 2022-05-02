@@ -11,11 +11,13 @@
 #include <io.h>
 #include <vmm.h>
 #include <kernel.h>
+#include <vm.h>
 
 //cpuid is non-standard header, but is supported by both gcc/clang.
 
 extern size_t memory_size_in_bytes;
 uint32_t apic_base_address;
+uint64_t apic_hh_base_address;
 bool apicInX2Mode;
 
 void init_apic() {
@@ -24,6 +26,7 @@ void init_apic() {
     printf("APIC MSR Return value: 0x%X\n", msr_output);
     printf("APIC MSR Base Address: 0x%X\n", (msr_output&APIC_BASE_ADDRESS_MASK));
     apic_base_address = (msr_output&APIC_BASE_ADDRESS_MASK);
+    apic_hh_base_address = ensure_address_in_higher_half(apic_base_address);
     if(apic_base_address == 0) {
         printf("ERROR: cannot determine apic base address\n");
     }
@@ -50,7 +53,7 @@ void init_apic() {
         kernel_settings.use_x2_apic = false;
 
         //registers are accessed via mmio, make sure they're identity mapped
-        map_phys_to_virt_addr(VPTR(apic_base_address), VPTR(apic_base_address), 0);
+        map_phys_to_virt_addr(VPTR(apic_base_address), VPTR(apic_hh_base_address), 0);
     }
     else {
         kernel_settings.use_x2_apic = false;
@@ -99,14 +102,14 @@ uint32_t read_apic_register(uint32_t register_offset) {
     if (apicInX2Mode)
         return (uint32_t)rdmsr((register_offset >> 4) + 0x800);
     else
-        return READMEM32(apic_base_address + register_offset);
+        return READMEM32(apic_hh_base_address + register_offset);
 }
 
 void write_apic_register(uint32_t register_offset, uint32_t value) {
     if (apicInX2Mode)
         wrmsr((register_offset >> 4) + 0x800, value);
     else
-        WRITEMEM32(apic_base_address + register_offset, value);
+        WRITEMEM32(apic_hh_base_address + register_offset, value);
 }
 
 uint32_t lapic_id()

@@ -6,6 +6,7 @@
 #include <vm.h>
 
 uint32_t io_apic_base_address;
+uint64_t io_apic_hh_base_address;
 uint8_t io_apic_max_redirections = 0;
 IO_APIC_source_override_item_t io_apic_source_overrides[IO_APIC_SOURCE_OVERRIDE_MAX_ITEMS];
 uint8_t io_apic_source_override_array_size;
@@ -22,9 +23,12 @@ void init_ioapic(MADT *madt_table){
         }
         printf("IOAPIC_ID: 0x%x, Address: 0x%x\n", ioapic_item->ioapic_id, ioapic_item->address ); 
         printf("IOApic_Global_System_Interrupt_Base: 0x%x\n", ioapic_item->global_system_interrupt_base);
+        printf("IOApic Higher Half Address: 0x%x\n", ensure_address_in_higher_half(ioapic_item->address));
         io_apic_base_address = ioapic_item->address;
+        io_apic_hh_base_address = ensure_address_in_higher_half(ioapic_item->address);
         // This one should be mapped in the higher half ?? 
-        map_phys_to_virt_addr(VPTR(io_apic_base_address), VPTR(io_apic_base_address), 0);
+        //map_phys_to_virt_addr(VPTR(io_apic_base_address), VPTR(io_apic_base_address), 0);
+        map_phys_to_virt_addr(VPTR(io_apic_base_address), (void *) io_apic_hh_base_address, 0);
         _bitmap_set_bit(ADDRESS_TO_BITMAP_ENTRY(io_apic_base_address));
         uint32_t ioapic_version = read_io_apic_register(IO_APIC_VER_OFFSET);
         printf("IOAPIC Version: 0x%x\n", ioapic_version);
@@ -68,11 +72,11 @@ int parse_io_apic_interrupt_source_overrides(MADT* table) {
 
 
 uint32_t read_io_apic_register(uint8_t offset){
-    if (io_apic_base_address == 0) {
+    if (io_apic_hh_base_address == 0) {
         return 0;
     }
-    *(volatile uint32_t*) io_apic_base_address = offset;
-    return *(volatile uint32_t*) (io_apic_base_address + 0x10);
+    *(volatile uint32_t*) io_apic_hh_base_address = offset;
+    return *(volatile uint32_t*) (io_apic_hh_base_address + 0x10);
 }
 
 int read_io_apic_redirect(uint8_t index, io_apic_redirect_entry_t *redtbl_entry){
@@ -108,8 +112,8 @@ int write_io_apic_redirect(uint8_t index, io_apic_redirect_entry_t redtbl_entry)
 }
 
 void write_io_apic_register(uint8_t offset, uint32_t value) {
-    *(volatile uint32_t*) io_apic_base_address = offset;
-    *(volatile uint32_t*) (io_apic_base_address + 0x10) = value;
+    *(volatile uint32_t*) io_apic_hh_base_address = offset;
+    *(volatile uint32_t*) (io_apic_hh_base_address + 0x10) = value;
 }
 
 void set_irq(uint8_t irq_type, uint8_t redirect_table_pos, uint8_t idt_entry, uint8_t destination_field, uint32_t flags, bool masked) {

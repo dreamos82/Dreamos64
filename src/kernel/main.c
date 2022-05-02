@@ -173,11 +173,10 @@ void kernel_start(unsigned long addr, unsigned long magic){
     printf("Cpu info result: 0x%x\n", cpu_info);
     init_apic();
     _mmap_setup();
-    //Is that a test?
-    pmm_reserve_area(0x10000, 10);
 
     initialize_kheap();
     
+    //The table containing the IOAPIC information is called MADT    
     MADT* madt_table = (MADT*) get_SDT_item(MADT_ID);
     printf("Madt ADDRESS: %x\n", madt_table);
     printf("Madt SIGNATURE: %.4s\n", madt_table->header.Signature);
