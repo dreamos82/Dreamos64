@@ -25,6 +25,7 @@ TESTFLAGS := -std=gnu99 \
         -I src/include/base \
         -I src/include/kernel/mem \
         -I src/include/kernel \
+        -I src/include/kernel/x86_64 \
         -DSMALL_PAGES=$(SMALL_PAGES) \
         -D_TEST_=1
 
@@ -111,5 +112,6 @@ tests:
 	gcc ${TESTFLAGS} tests/test_mem.c tests/test_common.c src/kernel/mem/bitmap.c src/kernel/mem/pmm.c src/kernel/mem/mmap.c -o tests/test_mem.o
 	gcc ${TESTFLAGS} tests/test_number_conversion.c tests/test_common.c src//base/numbers.c -o tests/test_number_conversion.o
 	gcc ${TESTFLAGS} tests/test_kheap.c src/kernel/mem/kheap.c tests/test_common.c -o tests/test_kheap.o
-	./tests/test_mem.o && ./tests/test_kheap.o && ./tests/test_number_conversion.o
+	gcc ${TESTFLAGS} tests/test_vm.c src/kernel/arch/x86_64/system/vm.c -o tests/test_vm.o
+	./tests/test_mem.o && ./tests/test_kheap.o && ./tests/test_number_conversion.o && ./tests/test_vm.o
 

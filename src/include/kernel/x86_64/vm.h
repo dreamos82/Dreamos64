@@ -2,6 +2,7 @@
 #define _VM_H
 
 #include <stdint.h>
+#include <stdbool.h>
 #include <bitmap.h>
 
 #define PML4_ENTRY(address)((address>>39) & 0x1ff)
@@ -44,5 +45,8 @@ void initialize_vm();
 void clean_new_table(uint64_t *);
 
 void invalidate_page_table(uint64_t *);
+
 uint64_t ensure_address_in_higher_half( uint64_t );
+
+bool is_address_higher_half(uint64_t);
 #endif
