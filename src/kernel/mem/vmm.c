@@ -133,7 +133,7 @@ void *map_phys_to_virt_addr(void* physical_address, void* address, unsigned int 
         pd_table[pd_e] = (uint64_t) new_table | WRITE_BIT | PRESENT_BIT;
         clean_new_table(pt_table);
 #elif SMALL_PAGES == 0
-        pd_table[pd_e] = (uint64_t) (physical_address) | WRITE_BIT | PRESENT_BIT | HUGEPAGE_BIT;
+        pd_table[pd_e] = (uint64_t) (physical_address) | WRITE_BIT | PRESENT_BIT | HUGEPAGE_BIT | flags;
 #endif
     }
 
