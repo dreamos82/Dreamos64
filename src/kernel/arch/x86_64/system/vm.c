@@ -56,3 +56,10 @@ uint64_t ensure_address_in_higher_half( uint64_t address ) {
     }
     return address + HIGHER_HALF_ADDRESS_OFFSET;
 }
+
+bool is_address_higher_half(uint64_t address) {
+    if ( address & (1l << 62) ) {
+        return true;
+    }
+    return false;
+}

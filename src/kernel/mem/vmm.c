@@ -99,6 +99,8 @@ void *map_phys_to_virt_addr(void* physical_address, void* address, unsigned int 
 
     uint64_t *pd_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l,510l, (uint64_t) pml4_e, (uint64_t) pdpr_e));
     uint16_t pd_e = PD_ENTRY((uint64_t) address);
+
+    uint8_t user_mode_status = 0;
     
     #if SMALL_PAGES == 1
 
@@ -107,11 +109,15 @@ void *map_phys_to_virt_addr(void* physical_address, void* address, unsigned int 
 
     #endif
 
+    if ( !is_address_higher_half((uint64_t) address) ) {
+        flags = flags | USER_LEVEL;
+        user_mode_status = USER_LEVEL;
+    }
     // If the pml4_e item in the pml4 table is not present, we need to create a new one.
     // Every entry in pml4 table points to a pdpr table
     if( !(pml4_table[pml4_e] & 0b1) ) {
         uint64_t *new_table = pmm_alloc_frame();
-        pml4_table[pml4_e] = (uint64_t) new_table | WRITE_BIT | PRESENT_BIT;
+        pml4_table[pml4_e] = (uint64_t) new_table | user_mode_status | WRITE_BIT | PRESENT_BIT;
         clean_new_table(pdpr_table);
     }
 
@@ -120,7 +126,7 @@ void *map_phys_to_virt_addr(void* physical_address, void* address, unsigned int 
     // Every entry in pdpr table points to a pdpr table
     if( !(pdpr_table[pdpr_e] & 0b1) ) {
         uint64_t *new_table = pmm_alloc_frame();
-        pdpr_table[pdpr_e] = (uint64_t) new_table | WRITE_BIT | PRESENT_BIT;
+        pdpr_table[pdpr_e] = (uint64_t) new_table | user_mode_status | WRITE_BIT | PRESENT_BIT;
         clean_new_table(pd_table);
     }
 
@@ -130,7 +136,7 @@ void *map_phys_to_virt_addr(void* physical_address, void* address, unsigned int 
     if( !(pd_table[pd_e] & 0b01) ) {
 #if SMALL_PAGES == 1
         uint64_t *new_table = pmm_alloc_frame();
-        pd_table[pd_e] = (uint64_t) new_table | WRITE_BIT | PRESENT_BIT;
+        pd_table[pd_e] = (uint64_t) new_table | user_mode_status | WRITE_BIT | PRESENT_BIT;
         clean_new_table(pt_table);
 #elif SMALL_PAGES == 0
         pd_table[pd_e] = (uint64_t) (physical_address) | WRITE_BIT | PRESENT_BIT | HUGEPAGE_BIT | flags;
