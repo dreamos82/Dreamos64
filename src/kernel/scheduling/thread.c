@@ -3,12 +3,14 @@
 #include <stdio.h>
 #include <video.h>
 #include <string.h>
+#include <kheap.h>
 
-thread_t create_thread(char* thread_name) {
-    thread_t new_thread;
-    new_thread.tid = next_thread_id++;
-    strcpy(new_thread.thread_name, thread_name);
+thread_t* create_thread(char* thread_name) {
+    thread_t *new_thread = kmalloc(sizeof(thread_t));
+    new_thread->tid = next_thread_id++;
+    new_thread->status = INIT;
+    strcpy(new_thread->thread_name, thread_name);
     //strcpy(new_thread.thread_name, thread_name);
-    printf("Creating a new_thread with tid: %d and name: %s\n", new_thread.tid, new_thread.thread_name);
+    //TODO Intialize cpu_status_t
     return new_thread;
 }
