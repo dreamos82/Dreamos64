@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <thread.h>
 
-#define SCHEDULER_NUMBER_OF_TICKS   0x300
+#define SCHEDULER_NUMBER_OF_TICKS   0x200
 
 //extern thread_t thread_pool[5]; //This is temporary
 void init_scheduler();

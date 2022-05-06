@@ -199,8 +199,8 @@ void kernel_start(unsigned long addr, unsigned long magic){
     logline(Info, "Hello world, this is a test log!");
     start_apic_timer(kernel_settings.apic_timer.timer_ticks_base, APIC_TIMER_SET_PERIODIC, kernel_settings.apic_timer.timer_divisor);
     init_scheduler();
-    thread_t* new_thread = create_thread("asd");
-    printf("Created a new_thread with tid: %d and name: %s\n", new_thread->tid, new_thread->thread_name);
+    thread_t* new_thread = create_thread("asd", noop);
+    //printf("Created a new_thread with tid: %d and name: %s\n", new_thread->tid, new_thread->thread_name);
 
 //    create_thread(4);
     while(1);

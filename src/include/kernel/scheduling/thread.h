@@ -5,10 +5,12 @@
 #include <stddef.h>
 #include <cpu.h>
 
+#define TASK_NAME_MAX_LEN 32
 #define THREAD_NAME_MAX_LEN 32
 #define THREAD_MAX_ID (uint16_t-1)
 
 typedef enum {
+    NEW, //Not sure if needed
     INIT,
     RUN,
     WAIT,
@@ -17,19 +19,22 @@ typedef enum {
 
 typedef struct {
     size_t task_id;
+    char task_name[TASK_NAME_MAX_LEN];
+    struct thread_t* threads;
     //TODO: add list of child threads
 } task_t;
 
-typedef struct {
+struct thread_t {
     uint16_t tid;
     char thread_name[THREAD_NAME_MAX_LEN];
     task_t* parent;
     thread_status status;
-    cpu_status_t execution_frame;
-} thread_t;
+    cpu_status_t *execution_frame;
+};
 
+typedef struct thread_t thread_t;
 extern size_t next_thread_id;
 
-thread_t* create_thread(char*);
-
+thread_t* create_thread(char*, int (*)(void *));
+void noop();
 #endif
