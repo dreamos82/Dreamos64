@@ -13,6 +13,7 @@ thread_t* create_thread(char* thread_name, int (*_entry_point)(void *data)) {
     new_thread->execution_frame = kmalloc(sizeof(cpu_status_t));
     new_thread->execution_frame->interrupt_number = 0x101;
     (new_thread->execution_frame)->error_code = 0x0;
+    scheduler_add_thred(new_thread);
     //TODO Intialize cpu_status_t
     return new_thread;
 }
