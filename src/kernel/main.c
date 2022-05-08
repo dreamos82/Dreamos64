@@ -200,6 +200,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
     start_apic_timer(kernel_settings.apic_timer.timer_ticks_base, APIC_TIMER_SET_PERIODIC, kernel_settings.apic_timer.timer_divisor);
     init_scheduler();
     thread_t* new_thread = create_thread("asd", noop);
+    thread_t* new_thread2 = create_thread("bosd", noop);
     //printf("Created a new_thread with tid: %d and name: %s\n", new_thread->tid, new_thread->thread_name);
 
 //    create_thread(4);

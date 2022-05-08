@@ -10,10 +10,11 @@ thread_t* create_thread(char* thread_name, int (*_entry_point)(void *data)) {
     new_thread->tid = next_thread_id++;
     new_thread->status = INIT;
     strcpy(new_thread->thread_name, thread_name);
+    new_thread->next = NULL;
     new_thread->execution_frame = kmalloc(sizeof(cpu_status_t));
     new_thread->execution_frame->interrupt_number = 0x101;
     (new_thread->execution_frame)->error_code = 0x0;
-    scheduler_add_thred(new_thread);
+    scheduler_add_thread(new_thread);
     //TODO Intialize cpu_status_t
     return new_thread;
 }

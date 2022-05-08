@@ -12,5 +12,7 @@ extern thread_t* thread_pool[5]; //This is temporary
 
 void init_scheduler();
 void schedule();
-void scheduler_add_thred(thread_t*);
+void scheduler_add_thread(thread_t*);
+thread_t* scheduler_get_next_thread();
+size_t scheduler_get_queue_size();
 #endif

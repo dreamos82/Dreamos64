@@ -13,6 +13,7 @@ typedef enum {
     NEW, //Not sure if needed
     INIT,
     RUN,
+    READY,
     WAIT,
     DEAD
 } thread_status;
@@ -30,6 +31,7 @@ struct thread_t {
     task_t* parent;
     thread_status status;
     cpu_status_t *execution_frame;
+    struct thread_t* next;
 };
 
 typedef struct thread_t thread_t;
