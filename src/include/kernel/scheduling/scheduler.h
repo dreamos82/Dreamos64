@@ -8,7 +8,6 @@
 #define SCHEDULER_MAX_THREAD_NUMBER 0x10
 
 extern uint16_t scheduler_ticks;
-extern thread_t* thread_pool[5]; //This is temporary
 
 void init_scheduler();
 void schedule();

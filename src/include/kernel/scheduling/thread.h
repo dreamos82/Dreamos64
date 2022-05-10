@@ -8,6 +8,7 @@
 #define TASK_NAME_MAX_LEN 32
 #define THREAD_NAME_MAX_LEN 32
 #define THREAD_MAX_ID (uint16_t-1)
+#define THREAD_TICKS 0x50
 
 typedef enum {
     NEW, //Not sure if needed
@@ -30,6 +31,7 @@ struct thread_t {
     char thread_name[THREAD_NAME_MAX_LEN];
     task_t* parent;
     thread_status status;
+    size_t ticks;
     cpu_status_t *execution_frame;
     struct thread_t* next;
 };
@@ -37,6 +39,6 @@ struct thread_t {
 typedef struct thread_t thread_t;
 extern size_t next_thread_id;
 
-thread_t* create_thread(char*, int (*)(void *));
+thread_t* create_thread(char*, void (*)(void *));
 void noop();
 #endif
