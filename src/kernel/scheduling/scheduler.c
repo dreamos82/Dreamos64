@@ -33,7 +33,6 @@ void schedule() {
             //selected_thread->status = READY;
             selected_thread = scheduler_get_next_thread();
             if(selected_thread != NULL) {
-                //printf("Picked task: %d, name: %s\n", selected_thread->tid, selected_thread->thread_name);
                 loglinef(Verbose, "Picked task: %d, name: %s", selected_thread->tid, selected_thread->thread_name);
                 selected_thread->status = RUN;
             }
@@ -54,6 +53,10 @@ void scheduler_add_thread(thread_t* thread) {
     thread_list_size++;
     thread_list = thread;
     printf("Adding thread: %s - %d\n", thread_list->thread_name, thread_list->tid);
+    if (selected_thread == NULL) {
+        //This means that there are not tasks on the queue yet.
+        selected_thread = thread;
+    }
 }
 
 thread_t* scheduler_get_next_thread() {
