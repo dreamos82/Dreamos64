@@ -23,7 +23,7 @@ void init_scheduler() {
     thread_list_size = 0;
 }
 
-void schedule() {
+cpu_status_t* schedule(cpu_status_t* cur_status) {
    #if USE_FRAMEBUFFER == 1
    if(scheduler_ticks ==  SCHEDULER_NUMBER_OF_TICKS) {
         scheduler_ticks = 0;
@@ -52,7 +52,7 @@ void scheduler_add_thread(thread_t* thread) {
     thread->next = thread_list;    
     thread_list_size++;
     thread_list = thread;
-    printf("Adding thread: %s - %d\n", thread_list->thread_name, thread_list->tid);
+    loglinef(Verbose, "Adding thread: %s - %d", thread_list->thread_name, thread_list->tid);
     if (selected_thread == NULL) {
         //This means that there are not tasks on the queue yet.
         selected_thread = thread;

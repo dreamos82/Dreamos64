@@ -57,6 +57,7 @@ cpu_status_t* interrupts_handler(cpu_status_t *status){
             break;
         case APIC_TIMER_INTERRUPT:
             timer_handler();
+            schedule(status);
             write_apic_register(APIC_EOI_REGISTER_OFFSET, 0x0l);
             break;
         case APIC_SPURIOUS_INTERRUPT:

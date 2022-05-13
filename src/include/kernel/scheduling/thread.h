@@ -10,6 +10,8 @@
 #define THREAD_MAX_ID (uint16_t-1)
 #define THREAD_TICKS 0x50
 
+#define THREAD_DEFAULT_STACK_SIZE   0x10000
+
 typedef enum {
     NEW, //Not sure if needed
     INIT,
@@ -29,6 +31,9 @@ typedef struct {
 struct thread_t {
     uint16_t tid;
     char thread_name[THREAD_NAME_MAX_LEN];
+
+    uint64_t *stack;
+    
     task_t* parent;
     thread_status status;
     size_t ticks;
@@ -39,6 +44,8 @@ struct thread_t {
 typedef struct thread_t thread_t;
 extern size_t next_thread_id;
 
-thread_t* create_thread(char*, void (*)(void *));
+thread_t* create_thread(char*, void (*)(void *), void*);
+void thread_execution_wrapper( void (*)(void *), void*);
+void thread_suicide_trap();
 void noop();
 #endif

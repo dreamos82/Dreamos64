@@ -69,7 +69,6 @@ void start_apic_timer(uint32_t initial_count, uint32_t flags, uint8_t divider) {
 
 void timer_handler() {
     scheduler_ticks++;
-    schedule();
 #if USE_FRAMEBUFFER == 1
     if(pit_timer_counter == 0) {
         pit_timer_counter = 1;
