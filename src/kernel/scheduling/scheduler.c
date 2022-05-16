@@ -23,29 +23,33 @@ void init_scheduler() {
     thread_list_size = 0;
 }
 
+
 cpu_status_t* schedule(cpu_status_t* cur_status) {
-   #if USE_FRAMEBUFFER == 1
-   if(scheduler_ticks ==  SCHEDULER_NUMBER_OF_TICKS) {
+    // The scheduling function take as parameter the current iret_frame cur_status, and if is time to change task (ticks threshold reached)
+    // It save it to the current tax, and select a new one for execution and return the new task execution frame.
+    // If the tick threshold has not been reached it return cur_status as it is
+    if(scheduler_ticks ==  SCHEDULER_NUMBER_OF_TICKS) {
         scheduler_ticks = 0;
         cur_thread_index = (cur_thread_index + 1) % 5;
-        _fb_printStrAndNumber("i:", cur_thread_index, 0, 12, 0x000000, 0xE169CD);        
-        if(thread_list_size != 0) {
-            //selected_thread->status = READY;
+        #if USE_FRAMEBUFFER == 1
+        _fb_printStrAndNumber("i:", cur_thread_index, 0, 12, 0x000000, 0xE169CD);
+        #endif
+        if (thread_list_size != 0) {
+            thread_t* prev_thread = selected_thread;
+            prev_thread->status = READY;
+            prev_thread->execution_frame = cur_status;
             selected_thread = scheduler_get_next_thread();
-            if(selected_thread != NULL) {
-                loglinef(Verbose, "Picked task: %d, name: %s", selected_thread->tid, selected_thread->thread_name);
+            if(selected_thread != NULL && prev_thread->tid != selected_thread->tid) {
+                loglinef(Verbose, "Picked task: %d, name: %s - prev_thread tid: %d", selected_thread->tid, selected_thread->thread_name, prev_thread->tid);
                 selected_thread->status = RUN;
+                //cur_status = selected_thread->execution_frame;
+                return selected_thread->execution_frame;
             }
         }
-        //if(cur_thread_index < next_thread_id) {
-            //printf("Picked task: %d - name: %s\n", thread_pool[cur_thread_index]->tid, thread_pool[cur_thread_index]->thread_name);
-        //}
-        //_fb_printStr("*", 0, 11, 0x000000, 0xE169CD);
-    } else {
-        //_fb_printStr("/", 0, 11, 0x000000, 0xE169CD);
+        return cur_status;
     }
-    #endif
-
+    // The thread hasn't finished its allocated time it can keep running
+    return cur_status;
 }
 
 void scheduler_add_thread(thread_t* thread) {

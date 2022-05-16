@@ -47,5 +47,5 @@ extern size_t next_thread_id;
 thread_t* create_thread(char*, void (*)(void *), void*);
 void thread_execution_wrapper( void (*)(void *), void*);
 void thread_suicide_trap();
-void noop();
+void noop(char *c);
 #endif

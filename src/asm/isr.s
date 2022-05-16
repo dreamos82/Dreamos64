@@ -12,6 +12,7 @@ interrupt_service_routine_%1:
     mov rdi, rsp    ; Let's set the current stack pointer as a parameter of the interrupts_handler
     cld ; Clear the direction flag
     call interrupts_handler ; Now we call the interrupt handler
+    mov rsp, rax    ; use the returned context
     restore_context ; We served the interrupt let's restore the previous context
     add rsp, 16 ; We can discard the interrupt number and the error code
     sti

@@ -21,11 +21,14 @@ thread_t* create_thread(char* thread_name, void (*_entry_point)(void *), void* a
     new_thread->execution_frame->rdi = _entry_point;
     new_thread->execution_frame->rsi = arg;
     new_thread->execution_frame->rflags = 0x202;
+    new_thread->execution_frame->ss = 0x10;
+    new_thread->execution_frame->cs = 0x8;
     // We need to allocate a new stack for each thread
     uint64_t *stack_pointer = kmalloc(THREAD_DEFAULT_STACK_SIZE);
     
     // The stack grow backward, so the pointer will be the end of the stack
     new_thread->stack = stack_pointer + (THREAD_DEFAULT_STACK_SIZE);
+    new_thread->execution_frame->rsp = new_thread->stack;
     
     scheduler_add_thread(new_thread);
     //TODO Intialize cpu_status_t
@@ -33,21 +36,21 @@ thread_t* create_thread(char* thread_name, void (*_entry_point)(void *), void* a
 }
 
 void thread_suicide_trap() {
-    logline(Verbose, "Suicide functioin called");
+    logline(Verbose, "Suicide function called");
 }
 
 void thread_execution_wrapper( void (*_thread_function)(void *), void* arg) {
+    logline(Verbose, "Called");
     _thread_function(arg);
     thread_suicide_trap();
     return;
 }
 
-void noop() {
+void noop(char *c) {
     int i=0;
-    while(i < 100) {
-        loglinef(Verbose, "A%d", i);
+    while(1) {
+        loglinef(Verbose, "Task: %c", (char) *c);
     }
-    while(1);
     asm("nop");
 }
 
