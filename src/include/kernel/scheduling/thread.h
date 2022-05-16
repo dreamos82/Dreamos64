@@ -8,7 +8,6 @@
 #define TASK_NAME_MAX_LEN 32
 #define THREAD_NAME_MAX_LEN 32
 #define THREAD_MAX_ID (uint16_t-1)
-#define THREAD_TICKS 0x50
 
 #define THREAD_DEFAULT_STACK_SIZE   0x10000
 

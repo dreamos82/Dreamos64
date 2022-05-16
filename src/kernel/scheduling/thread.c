@@ -27,7 +27,7 @@ thread_t* create_thread(char* thread_name, void (*_entry_point)(void *), void* a
     uint64_t *stack_pointer = kmalloc(THREAD_DEFAULT_STACK_SIZE);
     
     // The stack grow backward, so the pointer will be the end of the stack
-    new_thread->stack = stack_pointer + (THREAD_DEFAULT_STACK_SIZE);
+    new_thread->stack = stack_pointer + THREAD_DEFAULT_STACK_SIZE;
     new_thread->execution_frame->rsp = new_thread->stack;
     
     scheduler_add_thread(new_thread);
