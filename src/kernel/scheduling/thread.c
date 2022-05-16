@@ -9,11 +9,11 @@
 thread_t* create_thread(char* thread_name, void (*_entry_point)(void *), void* arg) {
     thread_t *new_thread = kmalloc(sizeof(thread_t));
     new_thread->tid = next_thread_id++;
-    new_thread->status = INIT;
+    new_thread->status = NEW;
     strcpy(new_thread->thread_name, thread_name);
     new_thread->next = NULL;
     new_thread->ticks = 0;
-
+    loglinef(Verbose, "Creating thread with arg: %c - arg: %x", (char) *((char*) arg), &arg);
     new_thread->execution_frame = kmalloc(sizeof(cpu_status_t));
     new_thread->execution_frame->interrupt_number = 0x101;
     new_thread->execution_frame->error_code = 0x0;
@@ -40,7 +40,6 @@ void thread_suicide_trap() {
 }
 
 void thread_execution_wrapper( void (*_thread_function)(void *), void* arg) {
-    logline(Verbose, "Called");
     _thread_function(arg);
     thread_suicide_trap();
     return;
@@ -48,9 +47,32 @@ void thread_execution_wrapper( void (*_thread_function)(void *), void* arg) {
 
 void noop(char *c) {
     int i=0;
+    char *str[2];
+    str[0] = *c;
+    str[1] = '\0';
     while(1) {
-        loglinef(Verbose, "Task: %c", (char) *c);
+        i++;
+        loglinef(Verbose, "Task: %c - %d", (char) *c, i);
+        #if USE_FRAMEBUFFER == 1
+        _fb_printStr(str, 0, 12, 0x000000, 0xE169CD);
+        #endif
     }
     asm("nop");
 }
 
+void noop2(char *c) {
+    int i=0;
+    char *str[2];
+    str[0] = *c;
+    str[1] = '\0';
+
+    while(1) {
+        i++;
+        loglinef(Verbose, "Task2: %c - %d", (char) *c, i);
+        #if USE_FRAMEBUFFER == 1
+        _fb_printStr(str, 0, 12, 0x000000, 0xE169CD);
+        #endif
+
+    }
+    asm("nop");
+}

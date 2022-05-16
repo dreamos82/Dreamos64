@@ -5,7 +5,7 @@
 #include <thread.h>
 #include <cpu.h>
 
-#define SCHEDULER_NUMBER_OF_TICKS   0x200
+#define SCHEDULER_NUMBER_OF_TICKS   0x20
 #define SCHEDULER_MAX_THREAD_NUMBER 0x10
 
 extern uint16_t scheduler_ticks;

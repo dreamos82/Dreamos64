@@ -48,4 +48,5 @@ thread_t* create_thread(char*, void (*)(void *), void*);
 void thread_execution_wrapper( void (*)(void *), void*);
 void thread_suicide_trap();
 void noop(char *c);
+void noop2(char *c);
 #endif

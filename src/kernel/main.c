@@ -198,13 +198,13 @@ void kernel_start(unsigned long addr, unsigned long magic){
     logline(Info, "Init end!! Starting infinite loop");
     logline(Info, "Hello world, this is a test log!");
     init_scheduler();
+    char a = 'a';
+    char b = 'b';
+    //*a = 'a';
+    //*b = 'b';
+    create_thread("idle", noop,  &a);
+    create_thread("eldi", noop2, &b);
     start_apic_timer(kernel_settings.apic_timer.timer_ticks_base, APIC_TIMER_SET_PERIODIC, kernel_settings.apic_timer.timer_divisor);
-    char *a;
-    char *b;
-    *a = 'a';
-    *b = 'b';
-    create_thread("idle", noop, a);
-    create_thread("eldi", noop, b);
     //printf("Created a new_thread with tid: %d and name: %s\n", new_thread->tid, new_thread->thread_name);
 
     //    create_thread(4);

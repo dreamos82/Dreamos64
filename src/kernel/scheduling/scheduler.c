@@ -32,13 +32,18 @@ cpu_status_t* schedule(cpu_status_t* cur_status) {
         scheduler_ticks = 0;
         cur_thread_index = (cur_thread_index + 1) % 5;
         #if USE_FRAMEBUFFER == 1
-        _fb_printStrAndNumber("i:", cur_thread_index, 0, 12, 0x000000, 0xE169CD);
+        //_fb_printStrAndNumber("i:", cur_thread_index, 0, 12, 0x000000, 0xE169CD);
         #endif
         if (thread_list_size != 0) {
             thread_t* prev_thread = selected_thread;
+            loglinef(Verbose, "Prev_thread->status: %d", prev_thread->status);
+            if (prev_thread->status != NEW) {
+                prev_thread->execution_frame = cur_status;
+            }
+
             prev_thread->status = READY;
-            prev_thread->execution_frame = cur_status;
             selected_thread = scheduler_get_next_thread();
+            loglinef(Verbose, "new_thread is: %d, old thread is: %d - status: %d", selected_thread->tid, prev_thread->tid, prev_thread->status);
             if(selected_thread != NULL && prev_thread->tid != selected_thread->tid) {
                 loglinef(Verbose, "Picked task: %d, name: %s - prev_thread tid: %d", selected_thread->tid, selected_thread->thread_name, prev_thread->tid);
                 selected_thread->status = RUN;
@@ -60,6 +65,7 @@ void scheduler_add_thread(thread_t* thread) {
     if (selected_thread == NULL) {
         //This means that there are not tasks on the queue yet.
         selected_thread = thread;
+        loglinef(Verbose, "Selected thread is: %d", selected_thread->tid);
     }
 }
 
