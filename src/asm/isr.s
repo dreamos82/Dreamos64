@@ -4,7 +4,6 @@
 %macro interrupt_service_routine 1
 [global interrupt_service_routine_%1]
 interrupt_service_routine_%1:
-    cli
     ; When this macro is called the status registers are already on the stack
     push 0	; since we have no error code, to keep things consistent we push a default EC of 0
     push %1 ; pushing the interrupt number for easier identification by the handler
@@ -15,22 +14,19 @@ interrupt_service_routine_%1:
     mov rsp, rax    ; use the returned context
     restore_context ; We served the interrupt let's restore the previous context
     add rsp, 16 ; We can discard the interrupt number and the error code
-    sti
     iretq ; Now we can return from the interrupt
 %endmacro
 
 %macro interrupt_service_routine_error_code 1
 [global interrupt_service_routine_error_code_%1]
 interrupt_service_routine_error_code_%1:
-    cli
     push %1 ; In this case the error code is already present on the stack
-	save_context
-	mov rdi, rsp
+    save_context
+    mov rdi, rsp
     cld
     call interrupts_handler
-	restore_context
-	add rsp, 16
-	sti
+    restore_context
+    add rsp, 16
     iretq
 %endmacro
 
