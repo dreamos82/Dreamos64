@@ -59,7 +59,7 @@ void init_idt();
 void load_idt();
 void set_idt_entry(uint16_t , uint8_t, uint16_t, uint8_t, void (*)());
 
-void interrupts_handler(cpu_status_t*);
+cpu_status_t* interrupts_handler(cpu_status_t*);
 
 void default_isr();
 

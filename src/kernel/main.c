@@ -191,16 +191,23 @@ void kernel_start(unsigned long addr, unsigned long magic){
 
     uint32_t apic_ticks = calibrate_apic();
     kernel_settings.apic_timer.timer_ticks_base = apic_ticks;
-    printf("Calibrated apic value: %u\n", apic_ticks); 
-    printf("(END of Mapped memory: 0x%x)\n", end_of_mapped_memory);
+    loglinef(Verbose, "Calibrated apic value: %u", apic_ticks); 
+    loglinef(Verbose, "(END of Mapped memory: 0x%x)", end_of_mapped_memory);
     //char *a = kmalloc(5);
     //printf("A: 0x%x\n", a);
-    logline(Info, "Init end!! Starting infinite loop\n");
+    logline(Info, "Init end!! Starting infinite loop");
     logline(Info, "Hello world, this is a test log!");
-    start_apic_timer(kernel_settings.apic_timer.timer_ticks_base, APIC_TIMER_SET_PERIODIC, kernel_settings.apic_timer.timer_divisor);
     init_scheduler();
-    create_thread("asd");
-//    create_thread(4);
+    char a = 'a';
+    char b = 'b';
+    //*a = 'a';
+    //*b = 'b';
+    create_thread("idle", noop,  &a);
+    create_thread("eldi", noop2, &b);
+    start_apic_timer(kernel_settings.apic_timer.timer_ticks_base, APIC_TIMER_SET_PERIODIC, kernel_settings.apic_timer.timer_divisor);
+    //printf("Created a new_thread with tid: %d and name: %s\n", new_thread->tid, new_thread->thread_name);
+
+    //    create_thread(4);
     while(1);
 }
 

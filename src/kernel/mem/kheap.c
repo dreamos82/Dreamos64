@@ -15,6 +15,7 @@ void initialize_kheap(){
     kernel_heap_start = (KHeapMemoryNode *) ((uint64_t)&_kernel_end + KERNEL_MEMORY_PADDING);
     kernel_heap_current_pos = kernel_heap_start;
     kernel_heap_end = kernel_heap_start;
+    printf("Kheap memory end: 0x%x\n", kernel_heap_end);
     kernel_heap_current_pos->size = 0x1000;
     kernel_heap_current_pos->is_free = true;
     kernel_heap_current_pos->next = NULL;

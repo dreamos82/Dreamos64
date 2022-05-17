@@ -12,11 +12,11 @@ I started this project because i was missing the excitement of low-level program
 
 ## What it does
 
-Actually nothing! :D 
+Actually nothing (more or less)! :D 
 
-It just prints the OS name and another string. 
+It just prints the OS name and few other string. 
 
-What i have implemented so far:
+But at kernel level several things have been implemented:
 
 * Long mode 
 * Kernel load in higher half
@@ -34,7 +34,7 @@ What i have implemented so far:
 * IO-Apic support (Keyboard IRQ enable)
 * Suppoort for PSF v1 and v2 fonts in framebuffer mode
 * Basic keyboard driver and keyboard map (most of the keys are mapped)
-
+* Thread switching (work in progress)
 
 ## Prerequisites: 
 
@@ -190,6 +190,6 @@ This means that the fonts folder is missing (you need either a psf v2 or v1 font
 
 ### Acknowledgements
 
-Well so far a big thank you goes to [DeanoBurrito](https://github.com/DeanoBurrito) that implemented several stuff for Dreamos64 (x2apic, fixed some bugs, and more to come...) 
+Well so far a big thank you goes to [DeanoBurrito](https://github.com/DeanoBurrito) that implemented several stuff for Dreamos64 (x2apic, fixed some bugs, logging, and more to come...) not to mention his precious help explaining things and reviewing my crappy code :) 
 And his operating system is worth a mention too: [NorthPort](https://github.com/DeanoBurrito/northport)
 

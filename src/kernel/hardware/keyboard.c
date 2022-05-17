@@ -4,6 +4,7 @@
 #include <io.h>
 #include <ps2.h>
 #include <kernel.h>
+#include <logging.h>
 
 //extern kernel_status_t kernel_settings;
 
@@ -45,10 +46,10 @@ void init_keyboard() {
     uint8_t status_read = inportb(KEYBOARD_ENCODER_PORT);
     if(status_read == KEYBOARD_ACK_BYTE) {
         status_read = inportb(KEYBOARD_ENCODER_PORT);    
-        printf("Found scancode set: 0x%x\n", status_read);
+        loglinef(Verbose, "Found scancode set: 0x%x", status_read);
         kernel_settings.keyboard.scancode_set = status_read;
     } else {
-        printf("Unable to read from keyboard, ... \n");
+        logline(Verbose, "Unable to read from keyboard");
     }
     outportb(0x64, PS2_READ_CONFIGURATION_COMMAND);
     status_read = inportb(PS2_STATUS_REGISTER);
@@ -58,7 +59,7 @@ void init_keyboard() {
     }
     uint8_t configuration_byte = inportb(PS2_DATA_REGISTER);    
     if((configuration_byte & (1 << 6)) != 0) {
-        printf("Translation enabled\n");
+        logline(Verbose, "Translation enabled\n");
         kernel_settings.keyboard.translation_enabled = true;
     } else {
         kernel_settings.keyboard.translation_enabled = false;        
@@ -68,7 +69,7 @@ void init_keyboard() {
 }
 
 uint8_t update_modifiers(key_modifiers modifier, bool is_pressed) {
-    printf("modifier: %x\n", modifier);
+    loglinef(Verbose, "modifier: %x", modifier);
     if ( is_pressed == true ) {
         current_modifiers |= modifier;
     } else {
@@ -98,11 +99,11 @@ void handle_keyboard_interrupt() {
                         char string[13] = "Pressed: ";
                         string[9] = read_char;
                         string[10] = '-';
-                        printf("%s\n", string);
+                        //printf("%s\n", string);
                         _fb_printStr(string, 0, 10, 0x000000, 0x1ad652);
                     }
                 #endif
-                printf("---Key is pressed pos %d: SC: %x - Code: %x - Mod: %x %c-\n", buf_position, scancode, keyboard_buffer[buf_position].code, keyboard_buffer[buf_position].modifiers, kgetch(keyboard_buffer[buf_position]));
+                loglinef(Verbose, "+ Key is pressed pos %d: SC: %x - Code: %x - Mod: %x %c", buf_position, scancode, keyboard_buffer[buf_position].code, keyboard_buffer[buf_position].modifiers, kgetch(keyboard_buffer[buf_position]));
             }
             buf_position = BUF_STEP(buf_position);
         } 

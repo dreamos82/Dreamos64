@@ -45,7 +45,7 @@ static const char *exception_names[] = {
 
 IDT_descriptor idt_table[IDT_SIZE];
 
-void interrupts_handler(cpu_status_t *status){
+cpu_status_t* interrupts_handler(cpu_status_t *status){
     switch(status->interrupt_number){
         case PAGE_FAULT:
             printf("---To be handled Page fault\n");
@@ -57,6 +57,7 @@ void interrupts_handler(cpu_status_t *status){
             break;
         case APIC_TIMER_INTERRUPT:
             timer_handler();
+            status = schedule(status);
             write_apic_register(APIC_EOI_REGISTER_OFFSET, 0x0l);
             break;
         case APIC_SPURIOUS_INTERRUPT:
@@ -80,6 +81,7 @@ void interrupts_handler(cpu_status_t *status){
             asm("hlt");
             break;
     }
+    return status;
 }
 
 void init_idt(){
