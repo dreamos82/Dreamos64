@@ -10,7 +10,7 @@
 #include <kernel/io.h>
 #include <kernel/qemu.h>
 #include <psf.h>
-#include <kernel/framebuffer.h>
+#include <framebuffer.h>
 #include <cpu.h>
 #include <lapic.h>
 #include <acpi.h>
@@ -48,8 +48,6 @@ struct multiboot_tag_new_acpi *tagnew_acpi = NULL;
 struct multiboot_tag_mmap *tagmmap = NULL;
 struct multiboot_tag *tagacpi = NULL;
 uint64_t memory_size_in_bytes;
-//unsigned int _kernel_end;
-//unsigned int _kernel_physical_end;
 
 void _init_basic_system(unsigned long addr){
     struct multiboot_tag* tag;
@@ -178,10 +176,10 @@ void kernel_start(unsigned long addr, unsigned long magic){
     
     //The table containing the IOAPIC information is called MADT    
     MADT* madt_table = (MADT*) get_SDT_item(MADT_ID);
-    printf("Madt ADDRESS: %x\n", madt_table);
-    printf("Madt SIGNATURE: %.4s\n", madt_table->header.Signature);
-    printf("Madt Length: %d\n", madt_table->header.Length);
-    printf("MADT local apic base: %x\n", madt_table->local_apic_base);
+    loglinef(Verbose, "Madt ADDRESS: %x\n", madt_table);
+    loglinef(Verbose, "Madt SIGNATURE: %.4s\n", madt_table->header.Signature);
+    loglinef(Verbose, "Madt Length: %d\n", madt_table->header.Length);
+    loglinef(Verbose, "MADT local apic base: %x\n", madt_table->local_apic_base);
     print_madt_table(madt_table);
     init_ioapic(madt_table);
     init_keyboard();
@@ -193,21 +191,15 @@ void kernel_start(unsigned long addr, unsigned long magic){
     kernel_settings.apic_timer.timer_ticks_base = apic_ticks;
     loglinef(Verbose, "Calibrated apic value: %u", apic_ticks); 
     loglinef(Verbose, "(END of Mapped memory: 0x%x)", end_of_mapped_memory);
-    //char *a = kmalloc(5);
-    //printf("A: 0x%x\n", a);
     logline(Info, "Init end!! Starting infinite loop");
     logline(Info, "Hello world, this is a test log!");
     init_scheduler();
     char a = 'a';
     char b = 'b';
-    //*a = 'a';
-    //*b = 'b';
     create_thread("idle", noop,  &a);
     create_thread("eldi", noop2, &b);
     start_apic_timer(kernel_settings.apic_timer.timer_ticks_base, APIC_TIMER_SET_PERIODIC, kernel_settings.apic_timer.timer_divisor);
-    //printf("Created a new_thread with tid: %d and name: %s\n", new_thread->tid, new_thread->thread_name);
 
-    //    create_thread(4);
     while(1);
 }
 

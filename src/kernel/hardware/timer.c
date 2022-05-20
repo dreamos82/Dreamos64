@@ -3,10 +3,10 @@
 #include <ioapic.h>
 #include <io.h>
 #include <stddef.h>
-#include <stdio.h>
 #include <framebuffer.h>
 #include <scheduler.h>
 #include <kernel.h>
+#include <logging.h>
 
 uint8_t pit_timer_counter = 0;
 volatile uint32_t pitTicks = 0;
@@ -56,10 +56,10 @@ uint32_t calibrate_apic() {
 void start_apic_timer(uint32_t initial_count, uint32_t flags, uint8_t divider) {
 
     if(apic_base_address == 0) {
-        printf("Apic_base_address not found, or apic not initialized\n");
+        logline(Error, "Apic_base_address not found, or apic not initialized\n");
     }
 
-    printf("Read apic_register: 0x%x\n", read_apic_register(APIC_TIMER_LVT_OFFSET));
+    loglinef(Verbose, "Read apic_register: 0x%x\n", read_apic_register(APIC_TIMER_LVT_OFFSET));
 
     write_apic_register(APIC_TIMER_INITIAL_COUNT_REGISTER_OFFSET, initial_count);
     write_apic_register(APIC_TIMER_CONFIGURATION_OFFSET, divider);

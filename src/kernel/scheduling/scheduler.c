@@ -6,16 +6,14 @@
 
 uint16_t scheduler_ticks;
 size_t next_thread_id;
-size_t cur_thread_index;
 size_t next_thread_index;
 
 thread_t* thread_list;
-thread_t* selected_thread;
+volatile thread_t* selected_thread;
 size_t thread_list_size;
 
 void init_scheduler() {
     scheduler_ticks = 0;
-    cur_thread_index = 0;
     next_thread_index = 0; 
     next_thread_id = 0;
     selected_thread = NULL;
@@ -28,23 +26,26 @@ cpu_status_t* schedule(cpu_status_t* cur_status) {
     // The scheduling function take as parameter the current iret_frame cur_status, and if is time to change task (ticks threshold reached)
     // It save it to the current tax, and select a new one for execution and return the new task execution frame.
     // If the tick threshold has not been reached it return cur_status as it is
+    thread_t* prev_thread = selected_thread;
     if(scheduler_ticks ==  SCHEDULER_NUMBER_OF_TICKS) {
+        // We first reset the ticks for the next task
         scheduler_ticks = 0;
-        cur_thread_index = (cur_thread_index + 1) % 5;
-        #if USE_FRAMEBUFFER == 1
-        //_fb_printStrAndNumber("i:", cur_thread_index, 0, 12, 0x000000, 0xE169CD);
-        #endif
         if (thread_list_size != 0) {
-            thread_t* prev_thread = selected_thread;
-            loglinef(Verbose, "Prev_thread->status: %d", prev_thread->status);
+            loglinef(Verbose, "prev_thread status: %d", prev_thread->status);
             if (prev_thread->status != NEW) {
                 prev_thread->execution_frame = cur_status;
             }
 
-            prev_thread->status = READY;
+            if (prev_thread->status == DEAD) {
+                scheduler_delete_thread(prev_thread->tid);
+            } else {
+                prev_thread->status = READY;
+            }
+
             selected_thread = scheduler_get_next_thread();
-            loglinef(Verbose, "new_thread is: %d, old thread is: %d - status: %d", selected_thread->tid, prev_thread->tid, prev_thread->status);
-            if(selected_thread != NULL && prev_thread->tid != selected_thread->tid) {
+
+            loglinef(Verbose, "- new_thread is: %d, old thread is: %d - status: %d", selected_thread->tid, prev_thread->tid, selected_thread->status);
+            if (selected_thread != NULL && prev_thread->tid != selected_thread->tid) {
                 loglinef(Verbose, "Picked task: %d, name: %s - prev_thread tid: %d", selected_thread->tid, selected_thread->thread_name, prev_thread->tid);
                 selected_thread->status = RUN;
                 //cur_status = selected_thread->execution_frame;
@@ -63,10 +64,32 @@ void scheduler_add_thread(thread_t* thread) {
     thread_list = thread;
     loglinef(Verbose, "Adding thread: %s - %d", thread_list->thread_name, thread_list->tid);
     if (selected_thread == NULL) {
-        //This means that there are not tasks on the queue yet.
+        //This means that there are no tasks on the queue yet.
         selected_thread = thread;
         loglinef(Verbose, "Selected thread is: %d", selected_thread->tid);
     }
+}
+
+void scheduler_delete_thread(size_t thread_id) {
+    loglinef(Verbose, "Called with thread id: %d", thread_id);
+    thread_t *thread_item = thread_list;
+    thread_t *prev_item = NULL;
+    
+    while (thread_item != NULL && thread_item->tid != thread_id ) {
+        prev_item = thread_item;
+        thread_item = thread_item->next;
+    }
+    
+    if (thread_item == thread_list) {
+        // If thread_item == thread_list it means that it is the first item so we just need 
+        // to make the root of the stack to point to the next item
+        thread_list = thread_list->next;
+    } else {
+        // Otherwise we only need to make the previous thread
+        // to point to thread pointe by the one we are deleting
+        prev_item->next = thread_list->next;
+    }
+    // TODO: free the memory
 }
 
 thread_t* scheduler_get_next_thread() {
@@ -83,5 +106,11 @@ thread_t* scheduler_get_next_thread() {
 }
 
 size_t scheduler_get_queue_size() {
-    return 0;
+    thread_t *thread = thread_list;
+    uint32_t counter = 0;
+    while (thread != NULL) {
+        counter++;
+        thread = thread->next;
+    }
+    return counter;
 }

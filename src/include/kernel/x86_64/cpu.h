@@ -4,15 +4,15 @@
 #include <stdint.h>
 
 typedef struct {
-	uint64_t r15;
-	uint64_t r14;
-	uint64_t r13;
-	uint64_t r12;
-	uint64_t r11;
-	uint64_t r10;
-	uint64_t r9;
-	uint64_t r8;
-	uint64_t rdi;
+    uint64_t r15;
+    uint64_t r14;
+    uint64_t r13;
+    uint64_t r12;
+    uint64_t r11;
+    uint64_t r10;
+    uint64_t r9;
+    uint64_t r8;
+    uint64_t rdi;
     uint64_t rsi;
     uint64_t rbp;
     uint64_t rdx;
@@ -31,20 +31,20 @@ typedef struct {
 } __attribute__((__packed__)) cpu_status_t ;
 
 typedef struct {
- char Signature[8];
- uint8_t Checksum;
- char OEMID[6];
- uint8_t Revision;
- uint32_t RsdtAddress;
+    char Signature[8];
+    uint8_t Checksum;
+    char OEMID[6];
+    uint8_t Revision;
+    uint32_t RsdtAddress;
 } __attribute__ ((packed)) RSDPDescriptor;
 
 typedef struct RSDPDescriptor20 {
- RSDPDescriptor firstPart;
- 
- uint32_t Length;
- uint64_t XsdtAddress;
- uint8_t ExtendedChecksum;
- uint8_t reserved[3];
+    RSDPDescriptor firstPart;
+    
+    uint32_t Length;
+    uint64_t XsdtAddress;
+    uint8_t ExtendedChecksum;
+    uint8_t reserved[3];
 } __attribute__ ((packed)) RSDPDescriptor20;
 
 extern char* _cpuid_model();
