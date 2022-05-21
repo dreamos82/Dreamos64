@@ -196,8 +196,10 @@ void kernel_start(unsigned long addr, unsigned long magic){
     init_scheduler();
     char a = 'a';
     char b = 'b';
+    char c = 'c';
     create_thread("idle", noop,  &a);
     create_thread("eldi", noop2, &b);
+    create_thread("ledi", noop2, &c);
     start_apic_timer(kernel_settings.apic_timer.timer_ticks_base, APIC_TIMER_SET_PERIODIC, kernel_settings.apic_timer.timer_divisor);
 
     while(1);

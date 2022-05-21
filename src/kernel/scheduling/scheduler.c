@@ -3,13 +3,14 @@
 #include <string.h>
 #include <stdio.h>
 #include <logging.h>
+#include <kheap.h>
 
 uint16_t scheduler_ticks;
 size_t next_thread_id;
 size_t next_thread_index;
 
 thread_t* thread_list;
-volatile thread_t* selected_thread;
+thread_t* selected_thread;
 size_t thread_list_size;
 
 void init_scheduler() {
@@ -48,7 +49,6 @@ cpu_status_t* schedule(cpu_status_t* cur_status) {
             if (selected_thread != NULL && prev_thread->tid != selected_thread->tid) {
                 loglinef(Verbose, "Picked task: %d, name: %s - prev_thread tid: %d", selected_thread->tid, selected_thread->thread_name, prev_thread->tid);
                 selected_thread->status = RUN;
-                //cur_status = selected_thread->execution_frame;
                 return selected_thread->execution_frame;
             }
         }
@@ -75,21 +75,26 @@ void scheduler_delete_thread(size_t thread_id) {
     thread_t *thread_item = thread_list;
     thread_t *prev_item = NULL;
     
+    // First thing: we should search for the task to be deleted.
     while (thread_item != NULL && thread_item->tid != thread_id ) {
         prev_item = thread_item;
         thread_item = thread_item->next;
     }
+
+    kfree(thread_item->execution_frame);
     
     if (thread_item == thread_list) {
         // If thread_item == thread_list it means that it is the first item so we just need 
         // to make the root of the stack to point to the next item
         thread_list = thread_list->next;
+        thread_list_size--;
     } else {
         // Otherwise we only need to make the previous thread
         // to point to thread pointe by the one we are deleting
         prev_item->next = thread_list->next;
+        thread_list_size--;
     }
-    // TODO: free the memory
+    kfree(thread_item);
 }
 
 thread_t* scheduler_get_next_thread() {

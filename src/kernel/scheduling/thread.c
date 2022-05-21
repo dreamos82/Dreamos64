@@ -18,9 +18,9 @@ thread_t* create_thread(char* thread_name, void (*_entry_point)(void *), void* a
     new_thread->execution_frame = kmalloc(sizeof(cpu_status_t));
     new_thread->execution_frame->interrupt_number = 0x101;
     new_thread->execution_frame->error_code = 0x0;
-    new_thread->execution_frame->rip = thread_execution_wrapper;
-    new_thread->execution_frame->rdi = _entry_point;
-    new_thread->execution_frame->rsi = arg;
+    new_thread->execution_frame->rip = (uint64_t) thread_execution_wrapper;
+    new_thread->execution_frame->rdi = (uint64_t) _entry_point;
+    new_thread->execution_frame->rsi = (uint64_t) arg;
     new_thread->execution_frame->rflags = 0x202;
     new_thread->execution_frame->ss = 0x10;
     new_thread->execution_frame->cs = 0x8;
@@ -29,7 +29,7 @@ thread_t* create_thread(char* thread_name, void (*_entry_point)(void *), void* a
     
     // The stack grow backward, so the pointer will be the end of the stack
     new_thread->stack = stack_pointer + THREAD_DEFAULT_STACK_SIZE;
-    new_thread->execution_frame->rsp = new_thread->stack;
+    new_thread->execution_frame->rsp = (uint64_t) new_thread->stack;
     
     scheduler_add_thread(new_thread);
     return new_thread;
