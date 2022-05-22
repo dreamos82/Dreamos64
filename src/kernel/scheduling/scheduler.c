@@ -80,6 +80,10 @@ void scheduler_delete_thread(size_t thread_id) {
         prev_item = thread_item;
         thread_item = thread_item->next;
     }
+    
+    if (thread_item == NULL) {
+        return;
+    }
 
     kfree(thread_item->execution_frame);
     kfree(thread_item->stack);
