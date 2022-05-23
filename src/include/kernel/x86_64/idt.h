@@ -41,13 +41,13 @@
 #define PIT_INTERRUPT 34
 
 typedef struct IDT_desc {
-   uint16_t offset_low;
-   uint16_t segment_selector;
-   uint8_t ist; //only first 2 bits are used, the rest is 0
-   uint8_t flags; //P(resent) DPL (0) TYPE
-   uint16_t offset_mid;
-   uint32_t offset_high;
-   uint32_t reserved; //0
+    uint16_t offset_low;
+    uint16_t segment_selector;
+    uint8_t ist; //only first 2 bits are used, the rest is 0
+    uint8_t flags; //P(resent) DPL (0) TYPE
+    uint16_t offset_mid;
+    uint32_t offset_high;
+    uint32_t reserved; //0
 } __attribute__((__packed__))IDT_descriptor;
 
 typedef struct IDT_reg {

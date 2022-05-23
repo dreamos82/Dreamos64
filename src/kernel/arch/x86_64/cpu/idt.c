@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <keyboard.h>
 #include <timer.h>
+#include <scheduler.h>
 
 static const char *exception_names[] = {
   "Divide by Zero Error",
