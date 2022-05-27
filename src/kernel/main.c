@@ -32,6 +32,7 @@
 #include <string.h>
 #include <scheduler.h>
 #include <thread.h>
+#include <rtc.h>
 
 extern uint32_t FRAMEBUFFER_MEMORY_SIZE;
 extern uint64_t multiboot_framebuffer_data;
@@ -193,6 +194,11 @@ void kernel_start(unsigned long addr, unsigned long magic){
     loglinef(Verbose, "(END of Mapped memory: 0x%x)", end_of_mapped_memory);
     logline(Info, "Init end!! Starting infinite loop");
     logline(Info, "Hello world, this is a test log!");
+    uint64_t unix_timestamp = read_rtc_time();
+    #if USE_FRAMEBUFFER == 1
+    _fb_printStrAndNumber("Epoch time: ", unix_timestamp, 0, 5, 0xf5c4f1, 0x000000);
+    #endif 
+    loglinef(Verbose, "Epoch time: %u", unix_timestamp);
     init_scheduler();
     char a = 'a';
     char b = 'b';
