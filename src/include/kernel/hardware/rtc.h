@@ -10,7 +10,7 @@
 #define BASE_EPOCH_YEAR 1970
 #define BASE_CENTURY    2000
 
-enum rtc_ports {
+enum rtc_registers {
     Seconds = 0x00,
     Minutes = 0x02,
     Hours = 0x04,
