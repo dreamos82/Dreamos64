@@ -13,7 +13,7 @@ thread_t* create_thread(char* thread_name, void (*_entry_point)(void *), void* a
     strcpy(new_thread->thread_name, thread_name);
     new_thread->next = NULL;
     new_thread->ticks = 0;    
-    loglinef(Verbose, "Creating thread with arg: %c - arg: %x", (char) *((char*) arg), &arg);
+    loglinef(Verbose, "Creating thread with arg: %c - arg: %x", (char) *((char*) arg), arg);
     //Here we create a new execution frame to be used when switching to a newly created task
     new_thread->execution_frame = kmalloc(sizeof(cpu_status_t));
     new_thread->execution_frame->interrupt_number = 0x101;
