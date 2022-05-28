@@ -4,7 +4,7 @@
 
 const uint64_t daysPerMonth[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 
-uint8_t read_rtc_register(uint8_t port_number) {
+uint8_t read_rtc_register(enum rtc_registers port_number) {
     outportb(CMOS_ADDRESS_REGISTER, port_number);    
     return inportb(CMOS_DATA_REGISTER);
 }
@@ -13,14 +13,14 @@ uint64_t read_rtc_time() {
     // Yes is nearly identical to the one in northport! (i implemented it there first and then ported it to Dreamos! :) 
 
     while ( is_rtc_updating() );
-    uint8_t rtc_register_statusB = read_rtc_register(StatusRegisterB);
+    const uint8_t rtc_register_statusB = read_rtc_register(StatusRegisterB);
     // Depending on the configuration of the RTC we can have different formats for the time
     // It can be in 12/24 hours format
     // Or it can be in Binary or BCD, binary is the time as it is, BCD use hex values for the time
     // meaning that if read 22:33:12 in BCD it actually is 0x22, 0x33, 0x12, 
     // in this case we need to render the numbers in decimal before printing them
-    bool is_24hours = rtc_register_statusB & 0x02;
-    bool is_binary = rtc_register_statusB & 0x04;
+    const bool is_24hours = rtc_register_statusB & 0x02;
+    const bool is_binary = rtc_register_statusB & 0x04;
 
     uint8_t seconds = read_rtc_register(Seconds);
     uint8_t minutes = read_rtc_register(Minutes);

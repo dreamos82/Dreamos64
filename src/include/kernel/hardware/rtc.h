@@ -42,7 +42,7 @@ typedef struct {
 } rtc_time_t;
 
 
-uint8_t read_rtc_register(uint8_t port_number);
+uint8_t read_rtc_register(enum rtc_registers port_number);
 uint64_t convert_bcd_to_binary(uint8_t value);
 uint64_t read_rtc_time();
 bool is_rtc_updating();
