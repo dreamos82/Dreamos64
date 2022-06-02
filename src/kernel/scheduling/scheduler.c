@@ -29,31 +29,43 @@ cpu_status_t* schedule(cpu_status_t* cur_status) {
     // If the tick threshold has not been reached it return cur_status as it is
     thread_t* prev_thread = selected_thread;
 
-    if(scheduler_ticks != SCHEDULER_NUMBER_OF_TICKS) {
+    if (selected_thread->status == SLEEP) {
+        loglinef(Verbose, "Thread %d, is sleeping", selected_thread->tid);
+        scheduler_ticks = SCHEDULER_NUMBER_OF_TICKS;
+    }
+
+    if (scheduler_ticks != SCHEDULER_NUMBER_OF_TICKS) {
         return cur_status;
     }
    // We first reset the ticks for the next task
    scheduler_ticks = 0;
    if (thread_list_size != 0) {
-       loglinef(Verbose, "prev_thread status: %d", prev_thread->status);
-       if (prev_thread->status != NEW) {
-           prev_thread->execution_frame = cur_status;
-       }
-
-       if (prev_thread->status == DEAD) {
-           scheduler_delete_thread(prev_thread->tid);
-       } else {
-           prev_thread->status = READY;
-       }
-
-       selected_thread = scheduler_get_next_thread();
-
-       loglinef(Verbose, "- new_thread is: %d, old thread is: %d - status: %d", selected_thread->tid, prev_thread->tid, selected_thread->status);
-       if (selected_thread != NULL && prev_thread->tid != selected_thread->tid) {
-           loglinef(Verbose, "Picked task: %d, name: %s - prev_thread tid: %d", selected_thread->tid, selected_thread->thread_name, prev_thread->tid);
-           selected_thread->status = RUN;
-           return selected_thread->execution_frame;
-       }
+        loglinef(Verbose, "prev_thread status: %d", prev_thread->status);
+        if (prev_thread->status != NEW) {
+            prev_thread->execution_frame = cur_status;
+        }
+        
+        if (prev_thread->status == DEAD) {
+            scheduler_delete_thread(prev_thread->tid);
+        } else if(prev_thread->status != SLEEP) {
+            prev_thread->status = READY;
+        }
+        selected_thread = scheduler_get_next_thread();       
+        while (selected_thread->status == SLEEP) {
+            loglinef(Verbose, "selected_thread->wakeup_time: %d - current_uptime: %d", selected_thread->wakeup_time, get_kernel_uptime());
+            if(!(get_kernel_uptime() > selected_thread->wakeup_time)) {
+                selected_thread = scheduler_get_next_thread();
+            } else {
+                break;
+            }
+        }
+        
+        loglinef(Verbose, "- new_thread is: %d, old thread is: %d - status: %d", selected_thread->tid, prev_thread->tid, selected_thread->status);
+        if (selected_thread != NULL && prev_thread->tid != selected_thread->tid) {
+            loglinef(Verbose, "Picked task: %d, name: %s - prev_thread tid: %d", selected_thread->tid, selected_thread->thread_name, prev_thread->tid);
+            selected_thread->status = RUN;
+            return selected_thread->execution_frame;
+        }
    }
    return cur_status;
 }
@@ -124,3 +136,9 @@ size_t scheduler_get_queue_size() {
     }
     return counter;
 }
+
+void scheduler_yield() {
+    logline(Verbose, "Interrupting current_thread");
+    asm("int $0x20");
+}
+

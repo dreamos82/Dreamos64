@@ -8,6 +8,7 @@
 #include <keyboard.h>
 #include <timer.h>
 #include <scheduler.h>
+#include <kernel.h>
 
 static const char *exception_names[] = {
   "Divide by Zero Error",
@@ -59,6 +60,7 @@ cpu_status_t* interrupts_handler(cpu_status_t *status){
         case APIC_TIMER_INTERRUPT:
             timer_handler();
             status = schedule(status);
+            kernel_settings.kernel_uptime++;
             write_apic_register(APIC_EOI_REGISTER_OFFSET, 0x0l);
             break;
         case APIC_SPURIOUS_INTERRUPT:

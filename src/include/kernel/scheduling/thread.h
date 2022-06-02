@@ -16,6 +16,7 @@ typedef enum {
     INIT,
     RUN,
     READY,
+    SLEEP,
     WAIT,
     DEAD
 } thread_status;
@@ -37,6 +38,7 @@ struct thread_t {
     thread_status status;
     size_t ticks;
     cpu_status_t *execution_frame;
+    size_t wakeup_time;
     struct thread_t* next;
 };
 
@@ -46,6 +48,9 @@ extern size_t next_thread_id;
 thread_t* create_thread(char*, void (*)(void *), void*);
 void thread_execution_wrapper( void (*)(void *), void*);
 void thread_suicide_trap();
+void thread_sleep(size_t millis);
+void thread_wakeup(thread_t* thread);
 void noop(char *c);
 void noop2(char *c);
+void noop3(char *c);
 #endif
