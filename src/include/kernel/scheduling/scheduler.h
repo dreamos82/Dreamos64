@@ -9,7 +9,8 @@
 #define SCHEDULER_MAX_THREAD_NUMBER 0x10
 
 extern uint16_t scheduler_ticks;
-extern thread_t* selected_thread;
+extern thread_t* current_executing_thread;
+extern thread_t* idle_thread;
 
 void init_scheduler();
 cpu_status_t* schedule(cpu_status_t* cur_status);

@@ -10,10 +10,12 @@
 thread_t* create_thread(char* thread_name, void (*_entry_point)(void *), void* arg) {
     thread_t *new_thread = kmalloc(sizeof(thread_t));
     new_thread->tid = next_thread_id++;
+    new_thread->parent = NULL;
     new_thread->status = NEW;
+    new_thread->wakeup_time = 0;
     strcpy(new_thread->thread_name, thread_name);
     new_thread->next = NULL;
-    new_thread->ticks = 0;    
+    new_thread->ticks = 0;
     loglinef(Verbose, "Creating thread with arg: %c - arg: %x - name: %s", (char) *((char*) arg), arg, thread_name);
     //Here we create a new execution frame to be used when switching to a newly created task
     new_thread->execution_frame = kmalloc(sizeof(cpu_status_t));
@@ -37,10 +39,10 @@ thread_t* create_thread(char* thread_name, void (*_entry_point)(void *), void* a
 }
 
 void thread_sleep(size_t millis) {
-    selected_thread->status = SLEEP;
+    current_executing_thread->status = SLEEP;
     uint64_t kernel_uptime = get_kernel_uptime();
-    selected_thread->wakeup_time = kernel_uptime + millis; // To change with millis since boot + millis
-    loglinef(Verbose, "Kernel uptime is: %u - wakeup time is: %u", kernel_uptime, selected_thread->wakeup_time);
+    current_executing_thread->wakeup_time = kernel_uptime + millis; // To change with millis since boot + millis
+    loglinef(Verbose, "Kernel uptime is: %u - wakeup time is: %u", kernel_uptime, current_executing_thread->wakeup_time);
     scheduler_yield();
 }
 
@@ -49,8 +51,8 @@ void thread_wakeup(thread_t* thread) {
 }
 
 void thread_suicide_trap() {
-    loglinef(Verbose, "Suicide function called on thread: %d", selected_thread->tid);
-    selected_thread->status = DEAD;
+    loglinef(Verbose, "Suicide function called on thread: %d", current_executing_thread->tid);
+    current_executing_thread->status = DEAD;
     while(1);
 }
 
@@ -82,7 +84,7 @@ void noop2(char *c) {
     str[1] = '\0';
     //thread_sleep(5000);
     while(i < 100) {
-        i++;
+        //i++;
         //loglinef(Verbose, "Task2: %c - %d", (char) *c, i);
         #if USE_FRAMEBUFFER == 1
         _fb_printStr(str, 0, 12, 0x000000, 0xE169CD);
@@ -107,7 +109,7 @@ void noop3(char *c) {
     }
     loglinef(Verbose, "Going to sleep %d", get_kernel_uptime());
     thread_sleep(5000);
-    loglinef(Verbose, "Wakeup %d - %d", get_kernel_uptime(), selected_thread->wakeup_time);
+    loglinef(Verbose, "Wakeup %d - %d", get_kernel_uptime(), current_executing_thread->wakeup_time);
     while(i < 100) {
         i++;
         //loglinef(Verbose, "Task2: %c - %d", (char) *c, i);
