@@ -52,6 +52,10 @@ cpu_status_t* schedule(cpu_status_t* cur_status) {
         current_executing_thread->execution_frame = cur_status;
     }
 
+    if (current_executing_thread->status != SLEEP && current_executing_thread->status != DEAD) {
+        current_executing_thread->status = READY;
+    }
+
     prev_executing_thread = current_executing_thread;
     prev_thread_tid = prev_executing_thread->tid;
     current_thread = scheduler_get_next_thread();
@@ -161,7 +165,7 @@ void scheduler_delete_thread(size_t thread_id) {
     }
 
     kfree(thread_item->execution_frame);
-    kfree(thread_item->stack);
+    kfree(thread_item->stack - THREAD_DEFAULT_STACK_SIZE);
     
     if (thread_item == thread_list) {
         // If thread_item == thread_list it means that it is the first item so we just need 
@@ -171,7 +175,7 @@ void scheduler_delete_thread(size_t thread_id) {
     } else {
         // Otherwise we only need to make the previous thread
         // to point to thread pointe by the one we are deleting
-        prev_item->next = thread_list->next;
+        prev_item->next = thread_item->next;
         thread_list_size--;
     }
     kfree(thread_item);
@@ -181,6 +185,7 @@ thread_t* scheduler_get_next_thread() {
     if (thread_list_size == 0 || thread_list == NULL) {
         return NULL;
     }
+
     if (current_executing_thread == NULL) {
         return thread_list;
     }

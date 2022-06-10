@@ -17,6 +17,7 @@ thread_t* create_thread(char* thread_name, void (*_entry_point)(void *), void* a
     new_thread->next = NULL;
     new_thread->ticks = 0;
     loglinef(Verbose, "Creating thread with arg: %c - arg: %x - name: %s", (char) *((char*) arg), arg, thread_name);
+
     //Here we create a new execution frame to be used when switching to a newly created task
     new_thread->execution_frame = kmalloc(sizeof(cpu_status_t));
     new_thread->execution_frame->interrupt_number = 0x101;
@@ -84,7 +85,7 @@ void noop2(char *c) {
     str[1] = '\0';
     //thread_sleep(5000);
     while(i < 100) {
-        //i++;
+        i++;
         //loglinef(Verbose, "Task2: %c - %d", (char) *c, i);
         #if USE_FRAMEBUFFER == 1
         _fb_printStr(str, 0, 12, 0x000000, 0xE169CD);
