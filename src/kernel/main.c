@@ -113,11 +113,8 @@ void kernel_start(unsigned long addr, unsigned long magic){
     psf_font_version = get_PSF_version(_binary_fonts_default_psf_start);
     init_idt();
     load_idt();
-    _init_basic_system(addr);
-    //#ifdef USE_FRAMEBUFFER
-    //init_log(LOG_OUTPUT_FRAMEBUFFER, Verbose, false);
-    //#endif
     init_log(LOG_OUTPUT_SERIAL, Verbose, false);
+    _init_basic_system(addr);
     printf("Kernel End: 0x%x - Physical: %x\n", (unsigned long)&_kernel_end, (unsigned long)&_kernel_physical_end);
     // Reminder here: The firt 8 bytes have a fixed structure in the multiboot info:
     // They are: 0-4: size of the boot information in bytes
@@ -174,7 +171,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
     _mmap_setup();
 
     initialize_kheap();
-    
+    kernel_settings.kernel_uptime = 0;
     //The table containing the IOAPIC information is called MADT    
     MADT* madt_table = (MADT*) get_SDT_item(MADT_ID);
     loglinef(Verbose, "Madt ADDRESS: %x", madt_table);
@@ -203,9 +200,10 @@ void kernel_start(unsigned long addr, unsigned long magic){
     char a = 'a';
     char b = 'b';
     char c = 'c';
-    create_thread("idle", noop,  &a);
+    idle_thread = create_thread("idle", noop,  &a);
     create_thread("eldi", noop2, &b);
     create_thread("ledi", noop2, &c);
+    create_thread("sleeper", noop3, &c);
     start_apic_timer(kernel_settings.apic_timer.timer_ticks_base, APIC_TIMER_SET_PERIODIC, kernel_settings.apic_timer.timer_divisor);
 
     while(1);
