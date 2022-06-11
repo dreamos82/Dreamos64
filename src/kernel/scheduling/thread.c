@@ -29,7 +29,7 @@ thread_t* create_thread(char* thread_name, void (*_entry_point)(void *), void* a
     new_thread->execution_frame->ss = 0x10;
     new_thread->execution_frame->cs = 0x8;
     // We need to allocate a new stack for each thread
-    uint64_t *stack_pointer = kmalloc(THREAD_DEFAULT_STACK_SIZE);
+    uintptr_t stack_pointer = (uintptr_t) kmalloc(THREAD_DEFAULT_STACK_SIZE);
     
     // The stack grow backward, so the pointer will be the end of the stack
     new_thread->stack = stack_pointer + THREAD_DEFAULT_STACK_SIZE;

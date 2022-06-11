@@ -32,7 +32,7 @@ struct thread_t {
     uint16_t tid;
     char thread_name[THREAD_NAME_MAX_LEN];
 
-    uint64_t *stack;
+    uintptr_t stack;
     
     task_t* parent;
     thread_status status;
