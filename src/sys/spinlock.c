@@ -4,7 +4,6 @@
 spinlock_t* spinlock_init(char *name) {
     spinlock_t* new_spinlock = kmalloc(sizeof(spinlock_t));
     new_spinlock->locked = false;
-    new_spinlock->name = name;
     return new_spinlock;
 }
 
