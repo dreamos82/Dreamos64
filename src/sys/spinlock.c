@@ -1,9 +1,9 @@
 #include <spinlock.h>
 #include <kheap.h>
 
-spinlock_t* spinlock_init(char *name) {
+spinlock_t* spinlock_init() {
     spinlock_t* new_spinlock = kmalloc(sizeof(spinlock_t));
-    new_spinlock->locked = false;
+    spinlock_release(&new_spinlock->locked);
     return new_spinlock;
 }
 

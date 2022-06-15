@@ -8,7 +8,7 @@ typedef struct {
 } spinlock_t;
 
 
-spinlock_t* spinlock_init(char *name);
+spinlock_t* spinlock_init();
 void spinlock_acquire(spinlock_t *lock);
 void spinlock_release(spinlock_t *lock);
 void spinlock_free(spinlock_t *lock);
