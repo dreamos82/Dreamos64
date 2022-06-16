@@ -3,7 +3,7 @@
 #include <multiboot.h>
 #include <stddef.h>
 #include <mmap.h>
-#include <stdio.h>
+#include <logging.h>
 #ifndef _TEST_
 #include <video.h>
 #include <main.h>
@@ -48,11 +48,11 @@ void _initialize_bitmap(unsigned long end_of_reserved_area){
     //used_frames = kernel_entries;
     //used_frames = 0x09; // Is the number of currently used frames - 1 (since the count starts from 0)
     used_frames = kernel_entries;
-    printf("Page size: %d\n", PAGE_SIZE_IN_BYTES);
-    printf("Actual size in bytes: %d\n", memory_size_in_bytes);
-    printf("Number of bit entries: %d\n", bitmap_size);
-    printf("Number of items: %d\n", number_of_entries);
-    printf("Used frames: 0x%x\n", used_frames);
+    loglinef(Verbose, "Page size: %d", PAGE_SIZE_IN_BYTES);
+    loglinef(Verbose, "Actual size in bytes: %d", memory_size_in_bytes);
+    loglinef(Verbose, "Number of bit entries: %d", bitmap_size);
+    loglinef(Verbose, "Number of items: %d", number_of_entries);
+    loglinef(Verbose, "Used frames: 0x%x", used_frames);
     //_bitmap_request_frame();
     //pmm_alloc_frame();
 }
@@ -67,7 +67,7 @@ void _bitmap_get_region(uint64_t* base_address, size_t* length_in_bytes)
 uint32_t _compute_kernel_entries(uint64_t end_of_kernel_area){
     uint32_t kernel_entries = ((uint64_t)end_of_kernel_area) / PAGE_SIZE_IN_BYTES;
     uint32_t kernel_mod_entries = ((uint32_t)(end_of_kernel_area)) % PAGE_SIZE_IN_BYTES;
-    printf("number of entries: 0x%x\n", kernel_entries);
+    loglinef(Verbose, "number of entries: 0x%x", kernel_entries);
     if (  kernel_mod_entries != 0){
         return kernel_entries + 2;
     } 

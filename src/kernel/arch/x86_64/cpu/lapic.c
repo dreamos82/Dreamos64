@@ -12,6 +12,7 @@
 #include <vmm.h>
 #include <kernel.h>
 #include <vm.h>
+#include <logging.h>
 
 //cpuid is non-standard header, but is supported by both gcc/clang.
 
@@ -23,12 +24,12 @@ bool apicInX2Mode;
 void init_apic() {
 
     uint64_t msr_output = rdmsr(IA32_APIC_BASE);
-    printf("APIC MSR Return value: 0x%X\n", msr_output);
-    printf("APIC MSR Base Address: 0x%X\n", (msr_output&APIC_BASE_ADDRESS_MASK));
+    loglinef(Verbose, "APIC MSR Return value: 0x%X", msr_output);
+    loglinef(Verbose, "APIC MSR Base Address: 0x%X", (msr_output&APIC_BASE_ADDRESS_MASK));
     apic_base_address = (msr_output&APIC_BASE_ADDRESS_MASK);
     apic_hh_base_address = ensure_address_in_higher_half(apic_base_address);
     if(apic_base_address == 0) {
-        printf("ERROR: cannot determine apic base address\n");
+        logline(Verbose, "ERROR: cannot determine apic base address");
     }
 
     //determine if x2apic is available, if so, enable it. It's cpuid leaf 1, ecx bit 21.
@@ -39,7 +40,7 @@ void init_apic() {
     (void)ignored;
     
     if (x2ApicLeaf & (1 << 21)) {
-        printf("X2APIC available!\n");
+        logline(Verbose, "X2APIC available!");
         apicInX2Mode = true;
         kernel_settings.use_x2_apic = true;
         //no need to map mmio registers as we'll be accessing apic via MSRs
@@ -48,7 +49,7 @@ void init_apic() {
         wrmsr(IA32_APIC_BASE, msr_output);
     }
     else if (xApicLeaf & (1 << 9)) {
-        printf("APIC available!\n");
+        logline(Verbose, "APIC available!");
         apicInX2Mode = false;
         kernel_settings.use_x2_apic = false;
 
@@ -57,16 +58,16 @@ void init_apic() {
     }
     else {
         kernel_settings.use_x2_apic = false;
-        printf("ERROR: No local APIC is supported by this cpu!\n");
+        logline(Verbose, "ERROR: No local APIC is supported by this cpu!");
         return; //not good.
     }
 
 
     uint32_t spurious_interrupt_register = read_apic_register(APIC_SPURIOUS_VECTOR_REGISTER_OFFSET);
-    printf("Apic enabled: %x - Apic BSP bit: %x\n", 1&(msr_output >> APIC_GLOBAL_ENABLE_BIT), 1&(msr_output >> APIC_BSP_BIT));
+    loglinef(Verbose, "Apic enabled: %x - Apic BSP bit: %x", 1&(msr_output >> APIC_GLOBAL_ENABLE_BIT), 1&(msr_output >> APIC_BSP_BIT));
     
     if(!(1&(msr_output >> APIC_GLOBAL_ENABLE_BIT))) {
-        printf("Apic disabled globally\n");
+        logline(Verbose, "Apic disabled globally");
         return;
     }
     
@@ -76,12 +77,12 @@ void init_apic() {
     if(apic_base_address < memory_size_in_bytes) {
         //I think that ideally it should be relocated above the physical memory (that should be possible)
         //but for now i'll mark that location as used
-        printf("Apic base address in physical memory area\n");
+        logline(Verbose, "Apic base address in physical memory area");
         _bitmap_set_bit(ADDRESS_TO_BITMAP_ENTRY(apic_base_address));
     }
     uint32_t version_register = read_apic_register(APIC_VERSION_REGISTER_OFFSET);
-    printf("Version register value: 0x%x\n", version_register);
-    printf("Spurious vector value: 0x%x\n", spurious_interrupt_register);
+    loglinef(Verbose, "Version register value: 0x%x", version_register);
+    loglinef(Verbose, "Spurious vector value: 0x%x", spurious_interrupt_register);
     disable_pic();
 }
 

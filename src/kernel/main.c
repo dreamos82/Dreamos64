@@ -130,14 +130,14 @@ void kernel_start(unsigned long addr, unsigned long magic){
 	}
     #if USE_FRAMEBUFFER == 1 
         if(get_PSF_version(_binary_fonts_default_psf_start) == 1){
-            qemu_write_string("PSF v1 found");
+            logline(Verbose, "PSF v1 found");
             PSFv1_Font *font = (PSFv1_Font*)_binary_fonts_default_psf_start;
             loglinef(Verbose, "Magic: [%x %x]", font->magic[1], font->magic[0]);
             loglinef(Verbose, "Flags: 0x%x", font->mode);
             loglinef(Verbose, "Charsize: 0x%x", font->charsize);
         }  else {
             PSF_font *font = (PSF_font*)&_binary_fonts_default_psf_start;
-            qemu_write_string("PSF v2 found");
+            logline(Verbose, "PSF v2 found");
             loglinef(Verbose, "Magic: 0x%x", font->magic);
             loglinef(Verbose, "Number of glyphs: 0x%x", font->numglyph);
             loglinef(Verbose, "Header size: 0x%x", font->headersize);

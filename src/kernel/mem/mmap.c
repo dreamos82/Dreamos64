@@ -3,8 +3,8 @@
 #include <pmm.h>
 #include <stdint.h>
 #include <multiboot.h>
-#include <stdio.h>
 #include <video.h>
+#include <logging.h>
 
 extern uint32_t used_frames;
 extern struct multiboot_tag_basic_meminfo *tagmem;
@@ -29,13 +29,13 @@ void _mmap_parse(struct multiboot_tag_mmap *mmap_root){
 
 #ifndef _TEST_
     while(i<mmap_number_of_entries){
-        printf("Address: 0x%x - Len: 0x%x\n", mmap_entries[i].addr, mmap_entries[i].len);
-        printf("---Type:: %d - %s\n", mmap_entries[i].type, (char *) mmap_types[mmap_entries[i].type]);
-        printf("---END OF MMAP ITEM\n");
+        loglinef(Verbose, "Address: 0x%x - Len: 0x%x", mmap_entries[i].addr, mmap_entries[i].len);
+        loglinef(Verbose, "---Type:: %d - %s", mmap_entries[i].type, (char *) mmap_types[mmap_entries[i].type]);
+        logline(Verbose, "---END OF MMAP ITEM");
         total_entries++;
         i++;
     }
-    printf("Total entries: %d\n", total_entries);
+    loglinef(Verbose, "Total entries: %d", total_entries);
 #endif
 }
 
@@ -47,7 +47,7 @@ void _mmap_setup(){
         while(counter < mmap_number_of_entries){
             if(mmap_entries[counter].addr < mem_limit &&
                     mmap_entries[counter].type > 1){
-               _printStringAndNumber("Found entry at addr: ", mmap_entries[counter].addr);
+               loglinef(Verbose, "Found entry at addr: %x", mmap_entries[counter].addr);
                pmm_reserve_area(mmap_entries[counter].addr, mmap_entries[counter].len);
                count_physical_reserved++;
             }
@@ -76,12 +76,12 @@ void* _mmap_determine_bitmap_region(uint64_t lower_limit, size_t bytes_needed){
         
         if (actual_available_space >= bytes_needed)
         {
-            printf("Found space for bitnmap at address: 0x%x\n", current_entry->addr + entry_offset);
+            loglinef(Verbose, "Found space for bitnmap at address: 0x%x", current_entry->addr + entry_offset);
             return (void*)(current_entry->addr + entry_offset);
         }
     }
 
     //BOOM! D:
-    printf("Could not find a space big enough to hold the pmm bitmap! This should not happen.");
+    logline(Verbose, "Could not find a space big enough to hold the pmm bitmap! This should not happen.");
     return NULL;
 }

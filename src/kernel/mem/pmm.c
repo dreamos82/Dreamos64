@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #include <mmap.h>
 #include <vmm.h>
-#include <stdio.h>
+#include <logging.h>
 
 #ifndef _TEST_
 #include <video.h>
@@ -47,13 +47,13 @@ void _map_pmm()
     bitmap_start = (bitmap_start / PAGE_SIZE_IN_BYTES) * PAGE_SIZE_IN_BYTES;
     const size_t pages_required = bitmap_size_bytes / PAGE_SIZE_IN_BYTES + 1;
 
-    printf("Identity mapping PMM bitmap, addr(virt & phys)= 0x%x\n", bitmap_start);
-    printf("    \\- Pages required=%d\n", pages_required);
+    loglinef(Verbose, "Identity mapping PMM bitmap, addr(virt & phys)= 0x%x", bitmap_start);
+    loglinef(Verbose, "    \\- Pages required=%d", pages_required);
 
     for (size_t i = 0; i < pages_required; i++)
         map_vaddress((void*)(bitmap_start + i * PAGE_SIZE_IN_BYTES), 0); //0 as no extra flags required
 
-    printf("PMM bitmap successfully mapped.");
+    loglinef(Verbose, "PMM bitmap successfully mapped.");
 }
 
 void *pmm_alloc_frame(){

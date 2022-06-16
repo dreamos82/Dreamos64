@@ -54,12 +54,12 @@ void init_keyboard() {
     outportb(0x64, PS2_READ_CONFIGURATION_COMMAND);
     status_read = inportb(PS2_STATUS_REGISTER);
     while((status_read & 2) != 0) {
-        printf("Not ready yet... %x\n", status_read);
+        loglinef(Verbose, "Not ready yet... %x", status_read);
         status_read = inportb(PS2_STATUS_REGISTER);
     }
     uint8_t configuration_byte = inportb(PS2_DATA_REGISTER);    
     if((configuration_byte & (1 << 6)) != 0) {
-        logline(Verbose, "Translation enabled\n");
+        logline(Verbose, "Translation enabled");
         kernel_settings.keyboard.translation_enabled = true;
     } else {
         kernel_settings.keyboard.translation_enabled = false;        
