@@ -9,6 +9,7 @@
 #include <timer.h>
 #include <scheduler.h>
 #include <kernel.h>
+#include <logging.h>
 
 static const char *exception_names[] = {
   "Divide by Zero Error",
@@ -50,11 +51,11 @@ IDT_descriptor idt_table[IDT_SIZE];
 cpu_status_t* interrupts_handler(cpu_status_t *status){
     switch(status->interrupt_number){
         case PAGE_FAULT:
-            printf("---To be handled Page fault\n");
+            logline(Verbose, "---To be handled Page fault");
             page_fault_handler(status->error_code);
             break;
         case GENERAL_PROTECTION:
-            printf("#GP Error code: 0x%x\n", status->error_code);
+            loglinef(Verbose, "#GP Error code: 0x%x", status->error_code);
             asm("hlt");
             break;
         case APIC_TIMER_INTERRUPT:
@@ -64,7 +65,7 @@ cpu_status_t* interrupts_handler(cpu_status_t *status){
             write_apic_register(APIC_EOI_REGISTER_OFFSET, 0x0l);
             break;
         case APIC_SPURIOUS_INTERRUPT:
-            printf("Spurious interrupt received\n");
+            logline(Verbose, "Spurious interrupt received");
             //should i send an eoi on a spurious interrupt?
             write_apic_register(APIC_EOI_REGISTER_OFFSET, 0x00l);
             break;
@@ -80,7 +81,7 @@ cpu_status_t* interrupts_handler(cpu_status_t *status){
         default:
             qemu_write_string((char *) exception_names[status->interrupt_number]);
             qemu_write_string("\n");
-            printf("Actually i don't know what to do... Better going crazy... asdfasdasdsD - Interrupt number 0x%x\n", status->interrupt_number);
+            loglinef(Verbose, "Actually i don't know what to do... Better going crazy... asdfasdasdsD - Interrupt number 0x%x", status->interrupt_number);
             asm("hlt");
             break;
     }
