@@ -43,7 +43,7 @@ void thread_sleep(size_t millis) {
     current_executing_thread->status = SLEEP;
     uint64_t kernel_uptime = get_kernel_uptime();
     current_executing_thread->wakeup_time = kernel_uptime + millis; // To change with millis since boot + millis
-    loglinef(Verbose, "Kernel uptime is: %u - wakeup time is: %u", kernel_uptime, current_executing_thread->wakeup_time);
+    //loglinef(Verbose, "Kernel uptime is: %u - wakeup time is: %u", kernel_uptime, current_executing_thread->wakeup_time);
     scheduler_yield();
 }
 
@@ -52,7 +52,7 @@ void thread_wakeup(thread_t* thread) {
 }
 
 void thread_suicide_trap() {
-    loglinef(Verbose, "Suicide function called on thread: %d", current_executing_thread->tid);
+    //loglinef(Verbose, "Suicide function called on thread: %d", current_executing_thread->tid);
     current_executing_thread->status = DEAD;
     while(1);
 }
@@ -120,3 +120,4 @@ void noop3(char *c) {
 
     }
 }
+

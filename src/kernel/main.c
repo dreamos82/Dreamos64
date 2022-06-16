@@ -33,6 +33,9 @@
 #include <scheduler.h>
 #include <thread.h>
 #include <rtc.h>
+#include <spinlock.h>
+
+//#include <runtime_tests.h>
 
 extern uint32_t FRAMEBUFFER_MEMORY_SIZE;
 extern uint64_t multiboot_framebuffer_data;
@@ -105,7 +108,6 @@ void _init_basic_system(unsigned long addr){
                 break;
         }
     }
-    printf("End of read configuration\n");
 }
 
 void kernel_start(unsigned long addr, unsigned long magic){
@@ -120,8 +122,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
     // They are: 0-4: size of the boot information in bytes
     //           4-8: Reserved (0) 
     unsigned size = *(unsigned*)addr;
-    printf("Size:  %x\n", size);
-	printf("Magic: %x\n\n ", magic);
+    loglinef(Verbose, "Size:  %x - Magic: %x\n", size, magic);
 	if(magic == 0x36d76289){
         logline(Verbose, "Magic number verified\n");
 	} else {
@@ -190,12 +191,10 @@ void kernel_start(unsigned long addr, unsigned long magic){
     loglinef(Verbose, "Calibrated apic value: %u", apic_ticks); 
     loglinef(Verbose, "(END of Mapped memory: 0x%x)", end_of_mapped_memory);
     logline(Info, "Init end!! Starting infinite loop");
-    logline(Info, "Hello world, this is a test log!");
     uint64_t unix_timestamp = read_rtc_time();
     #if USE_FRAMEBUFFER == 1
     _fb_printStrAndNumber("Epoch time: ", unix_timestamp, 0, 5, 0xf5c4f1, 0x000000);
     #endif 
-    loglinef(Verbose, "Epoch time: %u", unix_timestamp);
     init_scheduler();
     char a = 'a';
     char b = 'b';
@@ -204,8 +203,8 @@ void kernel_start(unsigned long addr, unsigned long magic){
     create_thread("eldi", noop2, &b);
     create_thread("ledi", noop2, &c);
     create_thread("sleeper", noop3, &c);
+    //execute_runtime_tests();
     start_apic_timer(kernel_settings.apic_timer.timer_ticks_base, APIC_TIMER_SET_PERIODIC, kernel_settings.apic_timer.timer_divisor);
-
     while(1);
 }
 

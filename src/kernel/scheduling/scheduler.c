@@ -39,7 +39,7 @@ cpu_status_t* schedule(cpu_status_t* cur_status) {
     // First let's check if the current task need to be scheduled or not;
     if (current_executing_thread->status == SLEEP) {
         // If the task has been placed to sleep it needs to be scheduled
-        loglinef(Verbose, "Current thread %d status is sleeping!", current_executing_thread->tid);
+        //loglinef(Verbose, "Current thread %d status is sleeping!", current_executing_thread->tid);
         current_executing_thread->ticks = SCHEDULER_NUMBER_OF_TICKS;
     }
     
@@ -62,7 +62,7 @@ cpu_status_t* schedule(cpu_status_t* cur_status) {
 
     while (current_thread->tid != prev_thread_tid) {
         if (current_thread->status == SLEEP) {
-            loglinef(Verbose, "Current uptime: %d - wakeup: %d", get_kernel_uptime(), current_thread->wakeup_time);
+            //loglinef(Verbose, "Current uptime: %d - wakeup: %d", get_kernel_uptime(), current_thread->wakeup_time);
             if ( get_kernel_uptime() > current_thread->wakeup_time) {
                 current_thread->status = READY;
                 thread_to_execute = current_thread;
@@ -80,7 +80,7 @@ cpu_status_t* schedule(cpu_status_t* cur_status) {
         current_thread = scheduler_get_next_thread();        
     }
 
-    loglinef(Verbose, "Picked thread: %d - %s list size: %d", thread_to_execute->tid, thread_to_execute->thread_name, thread_list_size);
+    //loglinef(Verbose, "Picked thread: %d - %s list size: %d", thread_to_execute->tid, thread_to_execute->thread_name, thread_list_size);
     thread_to_execute->status = RUN;
     thread_to_execute->ticks = 0;
     current_executing_thread = thread_to_execute;
