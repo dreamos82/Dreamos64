@@ -66,8 +66,7 @@ void _init_basic_system(unsigned long addr){
     memory_size_in_bytes = (tagmem->mem_upper + 1024) * 1024;
     //Print mmap_info
     loglinef(Verbose, "Memory map entry: 0x%x",  tagmmap->type);
-    loglinef(Verbose, "---Size: 0x%x", tagmmap->size);
-    loglinef(Verbose,"---Entrysize: 0x%x", tagmmap->entry_size);
+    loglinef(Verbose, "---Size: 0x%x, Entry size: 0x%x", tagmmap->size, tagmmap->entry_size);
     loglinef(Verbose,"---EntryVersion: 0x%x", tagmmap->entry_version);
     _mmap_parse(tagmmap);
     pmm_setup(addr, mbi_size);
@@ -75,8 +74,7 @@ void _init_basic_system(unsigned long addr){
     //Print framebuffer info
     loglinef(Verbose, "---framebuffer-type: 0x%x - address: 0x%x", tagfb->common.framebuffer_type, tagfb->common.framebuffer_addr);
     loglinef(Verbose, "---framebuffer-width: 0x%x - height: 0x%x", tagfb->common.framebuffer_width, tagfb->common.framebuffer_height);
-    loglinef(Verbose, "---framebuffer-bpp: 0x%x", tagfb->common.framebuffer_bpp);
-    loglinef(Verbose, "---framebuffer-pitch: 0x%x", tagfb->common.framebuffer_pitch);
+    loglinef(Verbose, "---framebuffer-bpp: 0x%x - framebuffer-pitch: 0x%x", tagfb->common.framebuffer_bpp, tagfb->common.framebuffer_pitch);
     loglinef(Verbose, "---Virtual Address: 0x%x", tagfb + _HIGHER_HALF_KERNEL_MEM_START);
     set_fb_data(tagfb);
     loglinef(Verbose, "---Total framebuffer size is: 0x%x", framebuffer_data.memory_size);
@@ -118,7 +116,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
     init_log(LOG_OUTPUT_SERIAL, Verbose, false);
     _init_basic_system(addr);
     loglinef(Verbose, "Kernel End: 0x%x - Physical: %x", (unsigned long)&_kernel_end, (unsigned long)&_kernel_physical_end);
-    // Reminder here: The firt 8 bytes have a fixed structure in the multiboot info:
+    // Reminder here: The first 8 bytes have a fixed structure in the multiboot info:
     // They are: 0-4: size of the boot information in bytes
     //           4-8: Reserved (0) 
     unsigned size = *(unsigned*)addr;
