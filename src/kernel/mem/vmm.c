@@ -3,7 +3,7 @@
 #include <vm.h>
 #include <video.h>
 #include <pmm.h>
-#include <stdio.h>
+#include <logging.h> 
 
 extern uint64_t p4_table[];
 extern uint64_t p3_table_hh[];
@@ -72,7 +72,7 @@ int unmap_vaddress(void *address){
 	}
 	
 	#if SMALL_PAGES == 0
-	printf("Freeing page\n");
+	logline(Verbose, "Freeing page");
 	pd_table[pd_e] = 0x0l;
 	invalidate_page_table(pd_table);
 	#elif SMALL_PAGES == 1

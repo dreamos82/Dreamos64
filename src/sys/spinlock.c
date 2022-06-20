@@ -3,7 +3,7 @@
 
 spinlock_t* spinlock_init() {
     spinlock_t* new_spinlock = kmalloc(sizeof(spinlock_t));
-    spinlock_release(&new_spinlock->locked);
+    spinlock_release(new_spinlock);
     return new_spinlock;
 }
 
