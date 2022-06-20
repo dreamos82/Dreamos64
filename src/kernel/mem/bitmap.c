@@ -50,8 +50,7 @@ void _initialize_bitmap(unsigned long end_of_reserved_area){
     used_frames = kernel_entries;
     loglinef(Verbose, "Page size: %d", PAGE_SIZE_IN_BYTES);
     loglinef(Verbose, "Actual size in bytes: %d", memory_size_in_bytes);
-    loglinef(Verbose, "Number of bit entries: %d", bitmap_size);
-    loglinef(Verbose, "Number of items: %d", number_of_entries);
+    loglinef(Verbose, "Number of bit entries: %d - %d", bitmap_size, number_of_entries);
     loglinef(Verbose, "Used frames: 0x%x", used_frames);
     //_bitmap_request_frame();
     //pmm_alloc_frame();
@@ -67,7 +66,7 @@ void _bitmap_get_region(uint64_t* base_address, size_t* length_in_bytes)
 uint32_t _compute_kernel_entries(uint64_t end_of_kernel_area){
     uint32_t kernel_entries = ((uint64_t)end_of_kernel_area) / PAGE_SIZE_IN_BYTES;
     uint32_t kernel_mod_entries = ((uint32_t)(end_of_kernel_area)) % PAGE_SIZE_IN_BYTES;
-    loglinef(Verbose, "number of entries: 0x%x", kernel_entries);
+    loglinef(Verbose, "number of kernel entries: 0x%x", kernel_entries);
     if (  kernel_mod_entries != 0){
         return kernel_entries + 2;
     } 

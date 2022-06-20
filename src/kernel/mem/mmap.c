@@ -31,7 +31,7 @@ void _mmap_parse(struct multiboot_tag_mmap *mmap_root){
     while(i<mmap_number_of_entries){
         loglinef(Verbose, "Address: 0x%x - Len: 0x%x", mmap_entries[i].addr, mmap_entries[i].len);
         loglinef(Verbose, "---Type:: %d - %s", mmap_entries[i].type, (char *) mmap_types[mmap_entries[i].type]);
-        logline(Verbose, "---END OF MMAP ITEM");
+        logline(Verbose,  "---END OF MMAP ITEM");
         total_entries++;
         i++;
     }
