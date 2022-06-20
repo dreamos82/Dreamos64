@@ -11,6 +11,7 @@
 #include <kheap.h>
 #include <vm.h>
 #include <bitmap.h>
+#include <logging.h>
 
 RSDT* rsdt_root = NULL;
 XSDT* xsdt_root = NULL;
@@ -27,21 +28,21 @@ void parse_SDT(uint64_t address, uint8_t type) {
 }
 
 void parse_RSDT(RSDPDescriptor *descriptor){
-    printf("- Parse RSDP Descriptor\n");
-    printf("- descriptor Address: 0x%x\n", descriptor->RsdtAddress);
+    loglinef(Verbose, "- Parse RSDP Descriptor");
+    loglinef(Verbose, "- descriptor Address: 0x%x", descriptor->RsdtAddress);
     map_phys_to_virt_addr((void *) ALIGN_PHYSADDRESS(descriptor->RsdtAddress), (void *) ensure_address_in_higher_half(descriptor->RsdtAddress), 0);
     _bitmap_set_bit_from_address(ALIGN_PHYSADDRESS(descriptor->RsdtAddress));
     rsdt_root = (RSDT *) ensure_address_in_higher_half((uint64_t) descriptor->RsdtAddress);
     ACPISDTHeader header = rsdt_root->header;
-    printf("- RSDT_Signature: %.4s\n", header.Signature);
-    printf("- RSDT_Lenght: %d\n", header.Length);
+    loglinef(Verbose, "- RSDT_Signature: %.4s", header.Signature);
+    loglinef(Verbose, "- RSDT_Lenght: %d", header.Length);
     sdt_version = RSDT_V1;
 
     // Ok here we are,  and we have mapped the "head of rsdt", it will stay most likely in one page, but there is no way
     // to know the length of the whole table before mapping its header. So now we are able to check if we need to map extra pages
     size_t required_extra_pages = (header.Length / KERNEL_PAGE_SIZE) + 1;
     if (required_extra_pages > 1) {
-        printf("- RSDT_PAGES_NEEDED: %d\n", required_extra_pages);
+        loglinef(Verbose, "- RSDT_PAGES_NEEDED: %d", required_extra_pages);
         for (size_t j = 1; j < required_extra_pages; j++) {
             uint64_t new_physical_address = descriptor->RsdtAddress + (j * KERNEL_PAGE_SIZE);
             map_phys_to_virt_addr((void *) ALIGN_PHYSADDRESS(new_physical_address), (void *) ensure_address_in_higher_half(new_physical_address), 0);
@@ -49,30 +50,30 @@ void parse_RSDT(RSDPDescriptor *descriptor){
         }
     }
     rsdtTablesTotal = (header.Length - sizeof(ACPISDTHeader)) / sizeof(uint32_t);
-    printf("- Total rsdt Tables: %d\n", rsdtTablesTotal);
+    loglinef(Verbose, "- Total rsdt Tables: %d", rsdtTablesTotal);
     
     for(uint32_t i=0; i < rsdtTablesTotal; i++) {
         map_phys_to_virt_addr((void *) ALIGN_PHYSADDRESS(rsdt_root->tables[i]), (void *) ensure_address_in_higher_half(rsdt_root->tables[i]), 0);
         ACPISDTHeader *tableHeader = (ACPISDTHeader *) ensure_address_in_higher_half(rsdt_root->tables[i]);
-        printf("\tTable header %d: Signature: %.4s\n", i, tableHeader->Signature);
+        loglinef(Verbose, "\tTable header %d: Signature: %.4s", i, tableHeader->Signature);
     }
 }
 
 void parse_RSDTv2(RSDPDescriptor20 *descriptor){
-    printf("Parse RSDP v2 Descriptor\n");
-    printf("- Descriptor physical address: 0x%x\n", ALIGN_PHYSADDRESS(descriptor->XsdtAddress));
+    loglinef(Verbose, "Parse RSDP v2 Descriptor\n");
+    loglinef(Verbose, "- Descriptor physical address: 0x%x", ALIGN_PHYSADDRESS(descriptor->XsdtAddress));
     map_phys_to_virt_addr((void *) ALIGN_PHYSADDRESS(descriptor->XsdtAddress), (void *) ensure_address_in_higher_half(descriptor->XsdtAddress), 0);
     _bitmap_set_bit_from_address(ALIGN_PHYSADDRESS(descriptor->XsdtAddress));
     xsdt_root = (XSDT *) ensure_address_in_higher_half((uint64_t) descriptor->XsdtAddress);
-    printf("- XSDT_Length: 0x%x\n", descriptor->Length);
+    loglinef(Verbose, "- XSDT_Length: 0x%x", descriptor->Length);
     ACPISDTHeader header = xsdt_root->header;
-    printf("- XSDT_Signature: %.4s\n", header.Signature);
+    loglinef(Verbose, "- XSDT_Signature: %.4s", header.Signature);
     sdt_version = RSDT_V2;
 
     size_t required_extra_pages = (header.Length / KERNEL_PAGE_SIZE) + 1;
 
     if (required_extra_pages > 1) {
-        printf("- XSDT_PAGES_NEEDED: %d\n", required_extra_pages);
+        loglinef(Verbose, "- XSDT_PAGES_NEEDED: %d", required_extra_pages);
         for (size_t j = 1; j < required_extra_pages; j++) {
             uint64_t new_physical_address = descriptor->XsdtAddress + (j * KERNEL_PAGE_SIZE);
             map_phys_to_virt_addr((uint64_t *) new_physical_address, (uint64_t *) ensure_address_in_higher_half(new_physical_address), 0);
@@ -81,13 +82,13 @@ void parse_RSDTv2(RSDPDescriptor20 *descriptor){
     }
     
     rsdtTablesTotal = (header.Length - sizeof(ACPISDTHeader)) / sizeof(uint64_t);
-    printf("- Total xsdt Tables: %d\n", rsdtTablesTotal);
+    loglinef(Verbose, "- Total xsdt Tables: %d", rsdtTablesTotal);
     
     for(uint32_t i=0; i < rsdtTablesTotal; i++) {
         map_phys_to_virt_addr((uint64_t *) ALIGN_PHYSADDRESS(xsdt_root->tables[i]), (uint64_t *) ensure_address_in_higher_half(xsdt_root->tables[i]), 0);
         _bitmap_set_bit_from_address(ALIGN_PHYSADDRESS(xsdt_root->tables[i]));
         ACPISDTHeader *tableHeader = (ACPISDTHeader *) ensure_address_in_higher_half(xsdt_root->tables[i]);
-        printf("\tTable header %d: Signature: %.4s\n", i, tableHeader->Signature);
+        loglinef(Verbose, "\tTable header %d: Signature: %.4s", i, tableHeader->Signature);
     }
 
 }
@@ -107,11 +108,11 @@ ACPISDTHeader* get_SDT_item(char* table_name) {
                 tableItem = (ACPISDTHeader *) ensure_address_in_higher_half(xsdt_root->tables[i]);
                 break;
             default:
-                printf("That should not happen, PANIC\n");
+                logline(Verbose, "That should not happen, PANIC");
                 return NULL;
         }
         int return_value = strncmp(table_name, tableItem->Signature, 4);
-        printf("%d - Table name: %.4s\n", i, tableItem->Signature);
+        loglinef(Verbose, "%d - Table name: %.4s", i, tableItem->Signature);
         if(return_value == 0) {
             return tableItem;
         }
@@ -131,6 +132,6 @@ bool validate_SDT(char *descriptor, size_t size){
     for (uint32_t i=0; i < size; i++){
         sum += ((char*) descriptor)[i];
     }
-    printf("Checksum of RSDP is: 0x%x\n", sum&0xFF);
+    loglinef(Verbose, "Checksum of RSDP is: 0x%x", sum&0xFF);
     return ((sum&0xFF) == 0);
 }
