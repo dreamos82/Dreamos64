@@ -34,3 +34,18 @@ void *map_vaddress(void *address, unsigned int flags){
 void map_vaddress_range(void *virtual_address, unsigned int flags, size_t required_pages) {
     return;
 }
+
+void init_log(size_t defaultOutputs, log_level_t trimBelowLevel, bool useVgaVideo) {
+    return;
+}
+void set_log_trim_level(size_t newTrim) {
+    return;
+}
+void logline(log_level_t level, const char* msg) {
+    return;
+}
+
+void loglinef(log_level_t level, const char* msg, ...){
+    return;
+}
+
