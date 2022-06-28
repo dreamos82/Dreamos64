@@ -152,9 +152,9 @@ int memcmp(const void* a, const void* b, size_t limit)
 
     for (size_t i = 0; i < limit; i++)
     {
-        if (ap < bp)
+        if (ap[i] < bp[i])
             return -1;
-        if (ap > bp)
+        if (ap[i] > bp[i])
             return 1;
     }
 
