@@ -63,6 +63,10 @@ void thread_execution_wrapper( void (*_thread_function)(void *), void* arg) {
     return;
 }
 
+void idle() {
+    while(1);
+}
+
 void noop(char *c) {
     int i=0;
     char str[2];
@@ -97,11 +101,11 @@ void noop2(char *c) {
 void noop3(char *c) {
     int i=0;
     char str[4];
-    str[0] = *c;
+    str[0] = (char) *c;
     str[1] = 'b';
     str[2] = 'b';
     str[3] = '\0';
-    while(i < 100) {
+    while(i < 10000) {
         i++;
         //loglinef(Verbose, "Task2: %c - %d", (char) *c, i);
         #if USE_FRAMEBUFFER == 1
@@ -111,11 +115,12 @@ void noop3(char *c) {
     loglinef(Verbose, "Going to sleep %d", get_kernel_uptime());
     thread_sleep(5000);
     loglinef(Verbose, "Wakeup %d - %d", get_kernel_uptime(), current_executing_thread->wakeup_time);
-    while(i < 100) {
+    i = 0;
+    while(i < 1000) {
         i++;
-        //loglinef(Verbose, "Task2: %c - %d", (char) *c, i);
+        //loglinef(Verbose, "Task2: r- %d", (char) *c, i);
         #if USE_FRAMEBUFFER == 1
-        _fb_printStr("r", 0, 12, 0x000000, 0xE169CD);
+        _fb_printStr("r", 1, 12, 0x000000, 0xE169CD);
         #endif
 
     }

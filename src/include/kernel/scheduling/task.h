@@ -16,4 +16,5 @@ struct task_t {
     //TODO: add list of child threads
 };
 
+task_t* create_task(char *name, void (*_entry_point)(void *), void *args);
 #endif
