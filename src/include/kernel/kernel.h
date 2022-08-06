@@ -28,4 +28,5 @@ extern unsigned int _kernel_end;
 extern unsigned int _kernel_physical_end;
 
 void init_kernel_settings();
+uint64_t get_kernel_uptime();
 #endif

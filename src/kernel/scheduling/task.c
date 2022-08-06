@@ -3,6 +3,7 @@
 #include <string.h>
 #include <logging.h>
 
+
 task_t* create_task(char *name, void (*_entry_point)(void *), void *args) {
     task_t* new_task = (task_t*) kmalloc(sizeof(task_t));
     strcpy(new_task->task_name, name);
