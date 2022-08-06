@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <logging.h>
 #include <kheap.h>
+#include <kernel.h>
 
 uint16_t scheduler_ticks;
 size_t next_thread_id;
@@ -11,8 +12,8 @@ size_t next_thread_index;
 
 thread_t* thread_list;
 thread_t* current_executing_thread;
-thread_t* current_executing_thread;
 thread_t* idle_thread;
+task_t* root_task;
 
 size_t thread_list_size;
 
@@ -23,6 +24,7 @@ void init_scheduler() {
     current_executing_thread = NULL;
     thread_list = NULL;
     idle_thread = NULL;
+    root_task = NULL;
     thread_list_size = 0;
 }
 
