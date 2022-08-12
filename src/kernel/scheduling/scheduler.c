@@ -8,7 +8,7 @@
 
 uint16_t scheduler_ticks;
 size_t next_thread_id;
-size_t next_thread_index;
+size_t next_task_id;
 
 thread_t* thread_list;
 thread_t* current_executing_thread;
@@ -19,7 +19,7 @@ size_t thread_list_size;
 
 void init_scheduler() {
     scheduler_ticks = 0;
-    next_thread_index = 0; 
+    next_task_id = 0;
     next_thread_id = 0;
     current_executing_thread = NULL;
     thread_list = NULL;
@@ -138,6 +138,13 @@ cpu_status_t* schedule(cpu_status_t* cur_status) {
    }
    return cur_status;
 }*/
+
+void scheduler_add_task(task_t* task) {
+    if (root_task == NULL) {
+        loglinef(Verbose, "First task being added: %s", task->task_name);
+        root_task = task;
+    }
+}
 
 void scheduler_add_thread(thread_t* thread) {
     thread->next = thread_list;    

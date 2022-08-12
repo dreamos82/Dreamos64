@@ -7,9 +7,11 @@
 task_t* create_task(char *name, void (*_entry_point)(void *), void *args) {
     task_t* new_task = (task_t*) kmalloc(sizeof(task_t));
     strcpy(new_task->task_name, name);
-    loglinef(Verbose, "Task created with name: %s", new_task->task_name);
     thread_t* thread = create_thread(name, _entry_point, args);
     new_task->threads = thread;
     new_task->parent = NULL;
+    new_task->task_id = next_task_id++;
+    loglinef(Verbose, "Task created with name: %s - Task id: %d", new_task->task_name, new_task->task_id);
+    scheduler_add_task(new_task);
     return new_task;
 }

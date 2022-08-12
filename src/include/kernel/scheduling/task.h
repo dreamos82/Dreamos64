@@ -17,5 +17,7 @@ struct task_t {
     task_t* next;
 };
 
+extern size_t next_task_id;
+
 task_t* create_task(char *name, void (*_entry_point)(void *), void *args);
 #endif
