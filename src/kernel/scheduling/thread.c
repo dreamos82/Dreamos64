@@ -7,10 +7,10 @@
 #include <logging.h>
 #include <kernel.h>
 
-thread_t* create_thread(char* thread_name, void (*_entry_point)(void *), void* arg) {
+thread_t* create_thread(char* thread_name, void (*_entry_point)(void *), void* arg, task_t* parent_task) {
     thread_t *new_thread = kmalloc(sizeof(thread_t));
     new_thread->tid = next_thread_id++;
-    new_thread->parent = NULL;
+    new_thread->parent_task = NULL;
     new_thread->status = NEW;
     new_thread->wakeup_time = 0;
     strcpy(new_thread->thread_name, thread_name);
@@ -35,6 +35,10 @@ thread_t* create_thread(char* thread_name, void (*_entry_point)(void *), void* a
     // The stack grow backward, so the pointer will be the end of the stack
     new_thread->stack = stack_pointer + THREAD_DEFAULT_STACK_SIZE;
     new_thread->execution_frame->rsp = (uint64_t) new_thread->stack;
+
+    if (parent_task != NULL) {
+        new_thread->parent_task = parent_task;
+    }
     
     scheduler_add_thread(new_thread);
     return new_thread;

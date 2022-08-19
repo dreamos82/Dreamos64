@@ -140,6 +140,8 @@ cpu_status_t* schedule(cpu_status_t* cur_status) {
 }*/
 
 void scheduler_add_task(task_t* task) {
+    task->next = root_task;
+    root_task = task;
     if (root_task == NULL) {
         loglinef(Verbose, "First task being added: %s", task->task_name);
         root_task = task;
