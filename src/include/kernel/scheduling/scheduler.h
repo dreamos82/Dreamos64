@@ -13,6 +13,7 @@ extern uint16_t scheduler_ticks;
 extern thread_t* current_executing_thread;
 extern thread_t* idle_thread;
 extern task_t* current_executing_task;
+extern task_t* root_task;
 
 void init_scheduler();
 cpu_status_t* schedule(cpu_status_t* cur_status);

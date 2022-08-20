@@ -1,4 +1,5 @@
 #include <task.h>
+#include <scheduler.h>
 #include <kheap.h>
 #include <string.h>
 #include <logging.h>
@@ -16,6 +17,26 @@ task_t* create_task(char *name, void (*_entry_point)(void *), void *args) {
     return new_task;
 }
 
-bool add_thread_to_task(thread_t* thread) {
+bool add_thread_to_task(size_t task_id, thread_t* thread) {
+    task_t* task = get_task(task_id);
+    if (task_id > next_task_id || task == NULL) {
+        return false;
+    }
+    thread->next = task->next_sibling;
+    task->next_sibling = thread;
+}
 
+task_t* get_task(size_t task_id) {
+    if (task_id > next_task_id) {
+        return NULL;
+    }
+    task_t* cur_task = root_task;
+    while ( cur_task != NULL ) {
+        loglinef(Verbose, "Searching task: %d", cur_task->task_id);
+        if ( cur_task->task_id == task_id ) {
+            return cur_task;
+        }
+        cur_task = cur_task->next;
+    }
+    return NULL;
 }

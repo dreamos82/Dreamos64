@@ -33,8 +33,8 @@ struct thread_t {
     size_t ticks;
     cpu_status_t *execution_frame;
     size_t wakeup_time;
+    thread_t* next_sibling;
     thread_t* next;
-    thread_t* scheduler_next;
 };
 
 

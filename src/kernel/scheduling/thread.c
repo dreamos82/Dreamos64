@@ -15,7 +15,7 @@ thread_t* create_thread(char* thread_name, void (*_entry_point)(void *), void* a
     new_thread->wakeup_time = 0;
     strcpy(new_thread->thread_name, thread_name);
     new_thread->next = NULL;
-    new_thread->scheduler_next = NULL;
+    new_thread->next_sibling = NULL;
     new_thread->ticks = 0;
     loglinef(Verbose, "Creating thread with arg: %c - arg: %x - name: %s", (char) *((char*) arg), arg, thread_name);
 

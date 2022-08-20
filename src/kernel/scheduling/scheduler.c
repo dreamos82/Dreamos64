@@ -144,7 +144,6 @@ void scheduler_add_task(task_t* task) {
     root_task = task;
     if (root_task == NULL) {
         loglinef(Verbose, "First task being added: %s", task->task_name);
-        root_task = task;
     }
 }
 
