@@ -17,13 +17,23 @@ task_t* create_task(char *name, void (*_entry_point)(void *), void *args) {
     return new_task;
 }
 
-bool add_thread_to_task(size_t task_id, thread_t* thread) {
+bool add_thread_to_task_by_id(size_t task_id, thread_t* thread) {
     task_t* task = get_task(task_id);
     if (task_id > next_task_id || task == NULL) {
         return false;
     }
-    thread->next = task->next_sibling;
-    task->next_sibling = thread;
+    thread->next = task->threads;
+    thread->next_sibling = thread;
+    return true;
+}
+
+bool add_thread_to_task(task_t* task, thread_t* thread) {
+    if (task == NULL) {
+        return false;
+    }
+    thread->next = task->threads;
+    thread->next_sibling = thread;
+    return true;
 }
 
 task_t* get_task(size_t task_id) {
@@ -39,4 +49,15 @@ task_t* get_task(size_t task_id) {
         cur_task = cur_task->next;
     }
     return NULL;
+}
+
+void print_thread_list(size_t task_id) {
+    task_t* task = get_task(task_id);
+    if (task != NULL) {
+        thread_t* thread = task->threads;
+        while(thread != NULL) {
+            loglinef(Verbose, "\tThread; %d - %s", thread->tid, thread->thread_name);
+            thread = thread->next;
+        }
+    }
 }

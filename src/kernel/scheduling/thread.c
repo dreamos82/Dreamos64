@@ -38,6 +38,7 @@ thread_t* create_thread(char* thread_name, void (*_entry_point)(void *), void* a
 
     if (parent_task != NULL) {
         new_thread->parent_task = parent_task;
+        add_thread_to_task(parent_task, new_thread);
     }
     
     scheduler_add_thread(new_thread);
