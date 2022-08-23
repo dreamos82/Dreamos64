@@ -199,11 +199,13 @@ void kernel_start(unsigned long addr, unsigned long magic){
     char b = 'b';
     char c = 'c';
     char d = 'd';
-    idle_thread = create_thread("idle", noop,  &a);
-    create_task("eldi", noop2, &b);
-    create_task("ledi", noop2, &c);
+    idle_thread = create_thread("idle", noop,  &a, NULL);
+    task_t* eldi_task = create_task("eldi", noop2, &b);
+    create_thread("ledi", noop2, &c, eldi_task);
     create_task("sleeper", noop3, &d);
+    print_thread_list(eldi_task->task_id);
     //execute_runtime_tests();
+    //test_get_task();
     start_apic_timer(kernel_settings.apic_timer.timer_ticks_base, APIC_TIMER_SET_PERIODIC, kernel_settings.apic_timer.timer_divisor);
     while(1);
 }
