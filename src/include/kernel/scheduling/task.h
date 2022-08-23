@@ -21,7 +21,6 @@ struct task_t {
 extern size_t next_task_id;
 
 task_t* create_task(char *name, void (*_entry_point)(void *), void *args);
-void task_add_thread(thread_t* thread);
 task_t* get_task(size_t task_id);
 
 bool add_thread_to_task_by_id(size_t task_id, thread_t* thread);

@@ -19,16 +19,17 @@ task_t* create_task(char *name, void (*_entry_point)(void *), void *args) {
 
 bool add_thread_to_task_by_id(size_t task_id, thread_t* thread) {
     task_t* task = get_task(task_id);
-    if (task_id > next_task_id || task == NULL) {
+    if (task == NULL) {
         return false;
     }
+    thread->parent_task = task;
     thread->next = task->threads;
     thread->next_sibling = thread;
     return true;
 }
 
 bool add_thread_to_task(task_t* task, thread_t* thread) {
-    if (task == NULL) {
+    if (task == NULL || thread == NULL) {
         return false;
     }
     thread->next = task->threads;
