@@ -35,6 +35,7 @@ But at kernel level several things have been implemented:
 * Suppoort for PSF v1 and v2 fonts in framebuffer mode
 * Basic keyboard driver and keyboard map (most of the keys are mapped)
 * It prints the Epoch time! :) 
+* Extremely basic multi-task/multi-thread support
 * Thread switching, thread_sleep and basic spinlock implementation
 
 ## Prerequisites: 

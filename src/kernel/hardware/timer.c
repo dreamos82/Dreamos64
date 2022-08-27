@@ -72,10 +72,10 @@ void timer_handler() {
 #if USE_FRAMEBUFFER == 1
     if(pit_timer_counter == 0) {
         pit_timer_counter = 1;
-        //_fb_printStr("*", 0, 12, 0x000000, 0xE169CD);
+        //_fb_printStr("*", 0, 14, 0x000000, 0xE169CD);
     } else {
         pit_timer_counter = 0;
-        //_fb_printStr("/", 0, 12, 0x000000, 0xE169CD);
+        //_fb_printStr("/", 0, 14, 0x000000, 0xE169CD);
     }
 #endif
 
