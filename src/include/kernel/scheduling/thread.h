@@ -1,7 +1,6 @@
 #ifndef _THREAD_H_
 #define _THREAD_H_
 
-#include <task.h>
 #include <stdint.h>
 #include <stddef.h>
 #include <cpu.h>
@@ -23,22 +22,26 @@ typedef enum {
 
 typedef struct thread_t thread_t;
 
+#include <task.h> 
+
 struct thread_t {
     uint16_t tid;
     char thread_name[THREAD_NAME_MAX_LEN];
     uintptr_t stack;
-    struct task_t* parent;
+    struct task_t* parent_task;
     thread_status status;
     size_t ticks;
     cpu_status_t *execution_frame;
     size_t wakeup_time;
+    thread_t* next_sibling;
     thread_t* next;
 };
 
 
 extern size_t next_thread_id;
 
-thread_t* create_thread(char*, void (*)(void *), void*);
+
+thread_t* create_thread(char* thread_name, void (*_entry_point)(void *) , void* arg, struct task_t* parent_task);
 void thread_execution_wrapper( void (*)(void *), void*);
 void thread_suicide_trap();
 void thread_sleep(size_t millis);
