@@ -35,6 +35,7 @@
 #include <rtc.h>
 #include <spinlock.h>
 #include <task.h>
+#include <vfs.h>
 
 //#include <runtime_tests.h>
 
@@ -189,6 +190,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
     kernel_settings.apic_timer.timer_ticks_base = apic_ticks;
     loglinef(Verbose, "Calibrated apic value: %u", apic_ticks); 
     loglinef(Verbose, "(END of Mapped memory: 0x%x)", end_of_mapped_memory);
+    vfs_init();
     logline(Info, "Init end!! Starting infinite loop");
     uint64_t unix_timestamp = read_rtc_time();
     #if USE_FRAMEBUFFER == 1
