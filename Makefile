@@ -13,6 +13,7 @@ CFLAGS := -std=gnu99 \
         -I src/include/kernel/hardware \
         -I src/include/kernel/scheduling \
         -I src/include/libc \
+        -I src/include/fs \
         -I src/include/sys \
         -mno-red-zone \
         -mno-sse \
