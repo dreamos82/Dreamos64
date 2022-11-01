@@ -7,21 +7,21 @@
 #define FILESYSTEM_NAME_LEN 32
 #define MAX_MOUNTPOINT_LEN  64
 
-struct fs_operations_t{ 
+struct fs_file_operations_t{ 
 	int (*open)(const char *, int, ... );
 	int (*close)(int);
 	ssize_t (*read)(int, char*, size_t);
 	ssize_t (*write)(int,const void*, size_t);
 };
 
-typedef struct fs_operations_t fs_operations_t;
+typedef struct fs_file_operations_t fs_file_operations_t;
 
 typedef struct {
     char name[FILESYSTEM_NAME_LEN];  // The filesystem name 
 
     char mountpoint[MAX_MOUNTPOINT_LEN];
     
-    fs_operations_t operations;
+    fs_file_operations_t file_operations;
 
 } mountpoint_t;
 
