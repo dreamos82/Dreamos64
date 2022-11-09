@@ -209,6 +209,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
     //execute_runtime_tests();
     //test_get_task();
     start_apic_timer(kernel_settings.apic_timer.timer_ticks_base, APIC_TIMER_SET_PERIODIC, kernel_settings.apic_timer.timer_divisor);
+    get_mountpoint_id("/home/dreamos82");
     while(1);
 }
 

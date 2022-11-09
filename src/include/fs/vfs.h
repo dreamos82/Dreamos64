@@ -27,5 +27,7 @@ typedef struct {
 
 
 extern mountpoint_t mountpoints[MOUNTPOINTS_MAX];
+
 void vfs_init();
+int get_mountpoint_id(char *path);
 #endif
