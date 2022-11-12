@@ -209,7 +209,17 @@ void kernel_start(unsigned long addr, unsigned long magic){
     //execute_runtime_tests();
     //test_get_task();
     start_apic_timer(kernel_settings.apic_timer.timer_ticks_base, APIC_TIMER_SET_PERIODIC, kernel_settings.apic_timer.timer_divisor);
-    get_mountpoint_id("/home/dreamos82");
+    int last = get_mountpoint_id("/home/dreamos82");
+    loglinef(Verbose, "Filesystem /home/dreamos82 found at position: %d", last);
+    last = get_mountpoint_id("/home/mount/dreamos82");
+    loglinef(Verbose, "Filesystem /home/mount/dreamos82 found at position: %d", last);
+    last = get_mountpoint_id("/usr");
+    loglinef(Verbose, "Filesystem /usr found at position: %d", last);
+    last = get_mountpoint_id("/");
+    loglinef(Verbose, "Filesystem / found at position: %d", last);
+    last = get_mountpoint_id("/usr/asd");
+    loglinef(Verbose, "Filesystem /usr/asd found at position: %d", last);
+
     while(1);
 }
 
