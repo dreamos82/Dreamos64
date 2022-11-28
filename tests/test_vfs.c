@@ -1,5 +1,5 @@
 #include <vfs.h>
-#include <test_common.c>
+#include <test_common.h>
 
 int main() {
     int last = get_mountpoint_id("/home/dreamos82");

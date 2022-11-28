@@ -2,10 +2,7 @@
 #define _VFS_H
 
 #include <stddef.h>
-
-#ifndef _TEST_
 #include <sys/types.h>
-#endif
 
 #define MOUNTPOINTS_MAX 5
 #define FILESYSTEM_NAME_LEN 32
