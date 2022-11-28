@@ -13,20 +13,17 @@ void vfs_init() {
 
     // The first item will always be the root!
     strcpy(mountpoints[0].name, "ArrayFS");
-    strcpy(mountpoints[0].mountpoint, "/");
-    
-    // Adding some fake fs
-    strcpy(mountpoints[3].name, "ArrayFS");
-    strcpy(mountpoints[3].mountpoint, "/home");
-    // Adding some fake fs
-    strcpy(mountpoints[2].name, "ArrayFS");
-    strcpy(mountpoints[2].mountpoint, "/usr");
+    strcpy(mountpoints[0].mountpoint, "/");   
     // Adding some fake fs
     strcpy(mountpoints[1].name, "ArrayFS");
     strcpy(mountpoints[1].mountpoint, "/home/mount");
     // Adding some fake fs
     strcpy(mountpoints[2].name, "ArrayFS");
     strcpy(mountpoints[2].mountpoint, "/usr");
+    // Adding some fake fs
+    strcpy(mountpoints[3].name, "ArrayFS");
+    strcpy(mountpoints[3].mountpoint, "/home");
+
 
 
 
