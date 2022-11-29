@@ -35,6 +35,7 @@
 #include <rtc.h>
 #include <spinlock.h>
 #include <task.h>
+#include <vfs.h>
 
 //#include <runtime_tests.h>
 
@@ -189,6 +190,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
     kernel_settings.apic_timer.timer_ticks_base = apic_ticks;
     loglinef(Verbose, "Calibrated apic value: %u", apic_ticks); 
     loglinef(Verbose, "(END of Mapped memory: 0x%x)", end_of_mapped_memory);
+    vfs_init();
     logline(Info, "Init end!! Starting infinite loop");
     uint64_t unix_timestamp = read_rtc_time();
     #if USE_FRAMEBUFFER == 1
@@ -207,6 +209,17 @@ void kernel_start(unsigned long addr, unsigned long magic){
     //execute_runtime_tests();
     //test_get_task();
     start_apic_timer(kernel_settings.apic_timer.timer_ticks_base, APIC_TIMER_SET_PERIODIC, kernel_settings.apic_timer.timer_divisor);
+    int last = get_mountpoint_id("/home/dreamos82");
+    loglinef(Verbose, "Filesystem /home/dreamos82 found at position: %d", last);
+    last = get_mountpoint_id("/home/mount/dreamos82");
+    loglinef(Verbose, "Filesystem /home/mount/dreamos82 found at position: %d", last);
+    last = get_mountpoint_id("/usr");
+    loglinef(Verbose, "Filesystem /usr found at position: %d", last);
+    last = get_mountpoint_id("/");
+    loglinef(Verbose, "Filesystem / found at position: %d", last);
+    last = get_mountpoint_id("/usr/asd");
+    loglinef(Verbose, "Filesystem /usr/asd found at position: %d", last);
+
     while(1);
 }
 

@@ -13,6 +13,7 @@ CFLAGS := -std=gnu99 \
         -I src/include/kernel/hardware \
         -I src/include/kernel/scheduling \
         -I src/include/libc \
+        -I src/include/fs \
         -I src/include/sys \
         -mno-red-zone \
         -mno-sse \
@@ -25,6 +26,7 @@ TESTFLAGS := -std=gnu99 \
         -I src/include \
         -I src/include/base \
         -I src/include/kernel/mem \
+        -I src/include/fs \
         -I src/include/kernel \
         -I src/include/kernel/x86_64 \
         -DSMALL_PAGES=$(SMALL_PAGES) \
@@ -108,12 +110,13 @@ build/kernel.bin: $(OBJ_ASM_FILE) $(OBJ_C_FILE) $(OBJ_FONT_FILE) src/linker.ld
 
 gdb: DEBUG=1
 gdb: build/os.iso
-	qemu-system-x86_64 -cdrom build/DreamOs64.iso -serial file:dreamos64.log -m 1G -d int -no-reboot -s -S
+	qemu-system-x86_64 -cdrom build/DreamOs64.iso -serial file:dreamos64.log -m 1G -d int -no-reboot -no-shutdown -s -S
 
 tests:
 	gcc ${TESTFLAGS} tests/test_mem.c tests/test_common.c src/kernel/mem/bitmap.c src/kernel/mem/pmm.c src/kernel/mem/mmap.c -o tests/test_mem.o
 	gcc ${TESTFLAGS} tests/test_number_conversion.c tests/test_common.c src//base/numbers.c -o tests/test_number_conversion.o
 	gcc ${TESTFLAGS} tests/test_kheap.c src/kernel/mem/kheap.c tests/test_common.c -o tests/test_kheap.o
 	gcc ${TESTFLAGS} tests/test_vm.c tests/test_common.c src/kernel/arch/x86_64/system/vm.c -o tests/test_vm.o
-	./tests/test_mem.o && ./tests/test_kheap.o && ./tests/test_number_conversion.o && ./tests/test_vm.o
+	gcc ${TESTFLAGS} tests/test_vfs.c tests/test_common.c src/fs/vfs.c -o tests/test_vfs.o
+	./tests/test_mem.o && ./tests/test_kheap.o && ./tests/test_number_conversion.o && ./tests/test_vm.o && ./tests/test_vfs.o
 
