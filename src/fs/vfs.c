@@ -23,10 +23,6 @@ void vfs_init() {
     // Adding some fake fs
     strcpy(mountpoints[3].name, "ArrayFS");
     strcpy(mountpoints[3].mountpoint, "/home");
-
-
-
-
 }
 
 int get_mountpoint_id(char *path) {
