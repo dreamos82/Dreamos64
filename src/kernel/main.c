@@ -36,7 +36,7 @@
 #include <spinlock.h>
 #include <task.h>
 #include <vfs.h>
-
+#include <fcntl.h>
 //#include <runtime_tests.h>
 
 extern uint32_t FRAMEBUFFER_MEMORY_SIZE;
@@ -206,6 +206,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
     create_thread("ledi", noop2, &c, eldi_task);
     create_task("sleeper", noop3, &d);
     print_thread_list(eldi_task->task_id);
+    int fd_id = open("/home/ivan/testfile.txt", 0);
     //execute_runtime_tests();
     //test_get_task();
     start_apic_timer(kernel_settings.apic_timer.timer_ticks_base, APIC_TIMER_SET_PERIODIC, kernel_settings.apic_timer.timer_divisor);
