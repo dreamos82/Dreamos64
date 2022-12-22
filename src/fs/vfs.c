@@ -1,4 +1,5 @@
 #include <vfs.h>
+#include <ustar.h>
 #include <logging.h>
 #include <string.h>
 
@@ -9,6 +10,7 @@ void vfs_init() {
     for (int i=0; i < MOUNTPOINTS_MAX; i++) {
         strcpy(mountpoints[i].name, "");
         strcpy(mountpoints[i].mountpoint, "");
+        mountpoints[i].file_operations.open = NULL;
     }
 
     // The first item will always be the root!
@@ -21,8 +23,10 @@ void vfs_init() {
     strcpy(mountpoints[2].name, "ArrayFS");
     strcpy(mountpoints[2].mountpoint, "/usr");
     // Adding some fake fs
-    strcpy(mountpoints[3].name, "ArrayFS");
+    strcpy(mountpoints[3].name, "ustar");
     strcpy(mountpoints[3].mountpoint, "/home");
+    mountpoints[3].file_operations.open = ustar_open;
+    
 }
 
 int get_mountpoint_id(char *path) {
