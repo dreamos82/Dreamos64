@@ -20,6 +20,7 @@ struct fs_file_operations_t{
 struct vfs_file_descriptor_t {
     
     int fs_specific_id;
+    int mountpoint_id;
     char filename[MAX_FILENAME_LEN];
 
     int buffer_read_pos;
@@ -42,6 +43,8 @@ typedef struct {
 
 extern mountpoint_t mountpoints[MOUNTPOINTS_MAX];
 extern vfs_file_descriptor_t vfs_opened_files[OPENEDFILES_MAX];
+
+extern unsigned int vfs_fd_index;
 
 void vfs_init();
 int get_mountpoint_id(char *path);

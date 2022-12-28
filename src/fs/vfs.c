@@ -4,6 +4,8 @@
 #include <string.h>
 
 mountpoint_t mountpoints[MOUNTPOINTS_MAX];
+unsigned int vfs_fd_index;
+
 
 void vfs_init() {
     logline(Verbose, "Initializiing VFS layer");
@@ -12,6 +14,8 @@ void vfs_init() {
         strcpy(mountpoints[i].mountpoint, "");
         mountpoints[i].file_operations.open = NULL;
     }
+
+    vfs_fd_index=0;    
 
     // The first item will always be the root!
     strcpy(mountpoints[0].name, "ArrayFS");
