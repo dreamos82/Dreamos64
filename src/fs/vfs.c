@@ -55,6 +55,6 @@ int get_mountpoint_id(char *path) {
 
 char *get_relative_path (char *root_prefix, char *absolute_path) {
     int root_len = strlen(root_prefix);
-    loglinef(Verbose, "Removing prefix: %s (len: %d) from absolute path: %s it should be: %s", root_prefix, root_len, absolute_path, &absolute_path[root_len]);
+    loglinef(Verbose, "(get_relative_path) Removing prefix: %s (len: %d) from absolute path: %s it should be: %s", root_prefix, root_len, absolute_path, &absolute_path[root_len]);
     return &absolute_path[root_len];
 }

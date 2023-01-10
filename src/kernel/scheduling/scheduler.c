@@ -160,7 +160,7 @@ void scheduler_add_thread(thread_t* thread) {
 }
 
 void scheduler_delete_thread(size_t thread_id) {
-    loglinef(Verbose, "(schreduler_delete_thread) Called with thread id: %d", thread_id);
+    loglinef(Verbose, "(scheduler_delete_thread) Called with thread id: %d", thread_id);
     thread_t *thread_item = thread_list;
     thread_t *prev_item = NULL;
     
