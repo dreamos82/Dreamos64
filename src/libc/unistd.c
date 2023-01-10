@@ -1,10 +1,11 @@
 #include <unistd.h>
 #include <vfs.h>
-
+#include <logging.h>
 
 int close (int fildes) {
     if (fildes < OPENEDFILES_MAX) {
         //TODO: it should check for opened files by all threads.
+        loglinef(Verbose, "(close) called with fildes: %d", fildes);       
         if (vfs_opened_files[fildes].fs_specific_id > 0) {
             int fs_specific_id = vfs_opened_files[fildes].fs_specific_id;
             int mountpoint_id = vfs_opened_files[fildes].mountpoint_id;

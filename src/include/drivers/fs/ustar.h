@@ -16,4 +16,5 @@ struct ustar_item {
 
 typedef struct ustar_item ustar_item;
 int ustar_open(char *path, int flags);
+int ustar_close(int fldes);
 #endif

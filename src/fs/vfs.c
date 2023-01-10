@@ -8,11 +8,12 @@ unsigned int vfs_fd_index;
 
 
 void vfs_init() {
-    logline(Verbose, "Initializiing VFS layer");
+    logline(Verbose, "(vfs_init) Initializiing VFS layer");
     for (int i=0; i < MOUNTPOINTS_MAX; i++) {
         strcpy(mountpoints[i].name, "");
         strcpy(mountpoints[i].mountpoint, "");
         mountpoints[i].file_operations.open = NULL;
+        mountpoints[i].file_operations.close = NULL;
     }
 
     vfs_fd_index=0;    
@@ -30,7 +31,7 @@ void vfs_init() {
     strcpy(mountpoints[3].name, "ustar");
     strcpy(mountpoints[3].mountpoint, "/home");
     mountpoints[3].file_operations.open = ustar_open;
-    
+    mountpoints[3].file_operations.close = ustar_close;
 }
 
 int get_mountpoint_id(char *path) {

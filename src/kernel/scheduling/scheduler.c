@@ -141,7 +141,7 @@ cpu_status_t* schedule(cpu_status_t* cur_status) {
 
 void scheduler_add_task(task_t* task) {
     if (root_task == NULL) {
-        loglinef(Verbose, "First task being added: %s", task->task_name);
+        loglinef(Verbose, "(scheduler_add_task) First task being added: %s", task->task_name);
     }
     task->next = root_task;
     root_task = task;
@@ -151,16 +151,16 @@ void scheduler_add_thread(thread_t* thread) {
     thread->next = thread_list;    
     thread_list_size++;
     thread_list = thread;
-    loglinef(Verbose, "Adding thread: %s - %d", thread_list->thread_name, thread_list->tid);
+    loglinef(Verbose, "(scheduler_add_thread) Adding thread: %s - %d", thread_list->thread_name, thread_list->tid);
     if (current_executing_thread == NULL) {
         //This means that there are no tasks on the queue yet.
         current_executing_thread = thread;
-        loglinef(Verbose, "Selected thread is: %d", current_executing_thread->tid);
+        loglinef(Verbose, "(scheduler_add_thread) Selected thread is: %d", current_executing_thread->tid);
     }
 }
 
 void scheduler_delete_thread(size_t thread_id) {
-    loglinef(Verbose, "Called with thread id: %d", thread_id);
+    loglinef(Verbose, "(schreduler_delete_thread) Called with thread id: %d", thread_id);
     thread_t *thread_item = thread_list;
     thread_t *prev_item = NULL;
     
@@ -216,7 +216,7 @@ size_t scheduler_get_queue_size() {
 }
 
 void scheduler_yield() {
-    logline(Verbose, "Interrupting current_thread");
+    logline(Verbose, "(scheulder_yield) Interrupting current_thread");
     asm("int $0x20");
 }
 
