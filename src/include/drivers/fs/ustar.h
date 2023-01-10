@@ -1,0 +1,20 @@
+#ifndef __USTAR_H_
+#define __USTAR_H_
+
+#define HEADER_SIZE 512
+#define PADDING_BYTE    0
+#define USTAR_VERSION   "00"
+#define USTAR_FILENAME_SIZE 100
+
+struct ustar_item {
+    char filename[USTAR_FILENAME_SIZE];
+    char file_mode[8];
+    char    uid[8];
+    char    gid[8];
+    char version[2];
+};
+
+typedef struct ustar_item ustar_item;
+int ustar_open(char *path, int flags);
+int ustar_close(int fldes);
+#endif

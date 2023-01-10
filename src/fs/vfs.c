@@ -1,15 +1,22 @@
 #include <vfs.h>
+#include <ustar.h>
 #include <logging.h>
 #include <string.h>
 
 mountpoint_t mountpoints[MOUNTPOINTS_MAX];
+unsigned int vfs_fd_index;
+
 
 void vfs_init() {
-    logline(Verbose, "Initializiing VFS layer");
+    logline(Verbose, "(vfs_init) Initializiing VFS layer");
     for (int i=0; i < MOUNTPOINTS_MAX; i++) {
         strcpy(mountpoints[i].name, "");
         strcpy(mountpoints[i].mountpoint, "");
+        mountpoints[i].file_operations.open = NULL;
+        mountpoints[i].file_operations.close = NULL;
     }
+
+    vfs_fd_index=0;    
 
     // The first item will always be the root!
     strcpy(mountpoints[0].name, "ArrayFS");
@@ -21,12 +28,10 @@ void vfs_init() {
     strcpy(mountpoints[2].name, "ArrayFS");
     strcpy(mountpoints[2].mountpoint, "/usr");
     // Adding some fake fs
-    strcpy(mountpoints[3].name, "ArrayFS");
+    strcpy(mountpoints[3].name, "ustar");
     strcpy(mountpoints[3].mountpoint, "/home");
-
-
-
-
+    mountpoints[3].file_operations.open = ustar_open;
+    mountpoints[3].file_operations.close = ustar_close;
 }
 
 int get_mountpoint_id(char *path) {
@@ -46,4 +51,10 @@ int get_mountpoint_id(char *path) {
         }
     }
     return last;
+}
+
+char *get_relative_path (char *root_prefix, char *absolute_path) {
+    int root_len = strlen(root_prefix);
+    loglinef(Verbose, "(get_relative_path) Removing prefix: %s (len: %d) from absolute path: %s it should be: %s", root_prefix, root_len, absolute_path, &absolute_path[root_len]);
+    return &absolute_path[root_len];
 }
