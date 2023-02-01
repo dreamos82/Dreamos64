@@ -32,6 +32,7 @@ void vfs_init() {
     strcpy(mountpoints[3].mountpoint, "/home");
     mountpoints[3].file_operations.open = ustar_open;
     mountpoints[3].file_operations.close = ustar_close;
+    mountpoints[3].file_operations.read = ustar_read;
 }
 
 int get_mountpoint_id(char *path) {

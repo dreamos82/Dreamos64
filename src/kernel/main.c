@@ -208,6 +208,9 @@ void kernel_start(unsigned long addr, unsigned long magic){
     print_thread_list(eldi_task->task_id);
     int fd_id = open("/home/ivan/testfile.txt", 0);
     loglinef(Verbose, "(kernel_main) Obtained fd id: %d fs_fd_id: %d", fd_id, vfs_opened_files[fd_id].fs_specific_id);
+    char buffer[15] = "";
+    read(fd_id, buffer, 15);
+    loglinef(Verbose, "(kernel_main) Output of read: %s", buffer);
     int result = close(fd_id);
     loglinef(Verbose, "(kernel_main) Closing file with id: %d", result);
     //execute_runtime_tests();
