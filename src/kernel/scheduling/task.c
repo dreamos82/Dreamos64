@@ -10,11 +10,21 @@ task_t* create_task(char *name, void (*_entry_point)(void *), void *args) {
     strcpy(new_task->task_name, name);
     new_task->parent = NULL;
     new_task->task_id = next_task_id++;
-    loglinef(Verbose, "Task created with name: %s - Task id: %d", new_task->task_name, new_task->task_id);
+    loglinef(Verbose, "(create_task) Task created with name: %s - Task id: %d", new_task->task_name, new_task->task_id);
     thread_t* thread = create_thread(name, _entry_point, args, new_task);
     new_task->threads = thread;
+    prepare_virtual_memory_environment(new_task);
     scheduler_add_task(new_task);
     return new_task;
+}
+
+void prepare_virtual_memory_environment(task_t* task) {
+    loglinef(Verbose, "(prepare_virtual_memory_environment) Placeholder for virtual_memory");
+    // Steps:
+    // 1. Prepare resources
+    // 2. Map the kernel
+    // 3. Switch pdbr
+    // 4. Keep finger crossed 
 }
 
 bool add_thread_to_task_by_id(size_t task_id, thread_t* thread) {
