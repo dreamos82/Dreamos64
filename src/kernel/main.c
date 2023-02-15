@@ -63,36 +63,34 @@ void _init_basic_system(unsigned long addr){
     tagmmap = (struct multiboot_tag_mmap *) (multiboot_mmap_data + _HIGHER_HALF_KERNEL_MEM_START);
     tagfb   = (struct multiboot_tag_framebuffer *) (multiboot_framebuffer_data + _HIGHER_HALF_KERNEL_MEM_START);
     //Print basic mem Info data
-    loglinef(Verbose, "Found basic mem Mem info type: 0x%x", tagmem->type);
-    loglinef(Verbose, "Memory lower (in kb): %d - upper (in kb): %d", tagmem->mem_lower, tagmem->mem_upper);
+    loglinef(Verbose, "(kernel_main) init_basic_system: Found basic mem Mem info type: 0x%x", tagmem->type);
+    loglinef(Verbose, "(kernel_main) init_basic_system: Memory lower (in kb): %d - upper (in kb): %d", tagmem->mem_lower, tagmem->mem_upper);
     memory_size_in_bytes = (tagmem->mem_upper + 1024) * 1024;
     //Print mmap_info
-    loglinef(Verbose, "Memory map entry: 0x%x",  tagmmap->type);
-    loglinef(Verbose, "---Size: 0x%x, Entry size: 0x%x", tagmmap->size, tagmmap->entry_size);
-    loglinef(Verbose,"---EntryVersion: 0x%x", tagmmap->entry_version);
+    loglinef(Verbose, "(kernel_main) init_basic_system: Memory map entry: 0x%x",  tagmmap->type);
+    loglinef(Verbose, "(kernel_main) init_basic_system: ---Size: 0x%x, Entry size: 0x%x", tagmmap->size, tagmmap->entry_size);
+    loglinef(Verbose,"(kernel_main) init_basic_system: ---EntryVersion: 0x%x", tagmmap->entry_version);
     _mmap_parse(tagmmap);
     pmm_setup(addr, mbi_size);
 
     //Print framebuffer info
-    loglinef(Verbose, "---framebuffer-type: 0x%x - address: 0x%x", tagfb->common.framebuffer_type, tagfb->common.framebuffer_addr);
-    loglinef(Verbose, "---framebuffer-width: 0x%x - height: 0x%x", tagfb->common.framebuffer_width, tagfb->common.framebuffer_height);
-    loglinef(Verbose, "---framebuffer-bpp: 0x%x - framebuffer-pitch: 0x%x", tagfb->common.framebuffer_bpp, tagfb->common.framebuffer_pitch);
-    loglinef(Verbose, "---Virtual Address: 0x%x", tagfb + _HIGHER_HALF_KERNEL_MEM_START);
+    loglinef(Verbose, "(kernel_main) init_basic_system: ---framebuffer-type: 0x%x - address: 0x%x", tagfb->common.framebuffer_type, tagfb->common.framebuffer_addr);
+    loglinef(Verbose, "(kernel_main) init_basic_system: ---framebuffer-width: 0x%x - height: 0x%x", tagfb->common.framebuffer_width, tagfb->common.framebuffer_height);
+    loglinef(Verbose, "(kernel_main) init_basic_system: ---framebuffer-bpp: 0x%x - framebuffer-pitch: 0x%x", tagfb->common.framebuffer_bpp, tagfb->common.framebuffer_pitch);
+    loglinef(Verbose, "(kernel_main) init_basic_system: ---Virtual Address: 0x%x", tagfb + _HIGHER_HALF_KERNEL_MEM_START);
     set_fb_data(tagfb);
-    loglinef(Verbose, "---Total framebuffer size is: 0x%x", framebuffer_data.memory_size);
+    loglinef(Verbose, "(kernel_main) init_basic_system: ---Total framebuffer size is: 0x%x", framebuffer_data.memory_size);
     
     tagacpi = (struct multiboot_tag *) (multiboot_acpi_info + _HIGHER_HALF_KERNEL_MEM_START);
     if(tagacpi->type == MULTIBOOT_TAG_TYPE_ACPI_OLD){
         tagold_acpi = (struct multiboot_tag_old_acpi *)tagacpi;
-        loglinef(Verbose, "Found acpi RSDP: %x", tagold_acpi->type);
-        loglinef(Verbose, "Found acpi RSDP address: 0x%x", (unsigned long) &tagold_acpi);
+        loglinef(Verbose, "(kernel_main) init_basic_system: Found acpi RSDP: %x - Address: 0x%x", tagold_acpi->type, (unsigned long) &tagold_acpi);
         RSDPDescriptor *descriptor = (RSDPDescriptor *)(tagacpi+1);
         parse_SDT((uint64_t) descriptor, MULTIBOOT_TAG_TYPE_ACPI_OLD);
         validate_SDT((char *) descriptor, sizeof(RSDPDescriptor));
     } else if(tagacpi->type == MULTIBOOT_TAG_TYPE_ACPI_NEW){
         tagnew_acpi = (struct multiboot_tag_new_acpi *)tagacpi;
-        loglinef(Verbose, "Found acpi RSDPv2: %x", tagnew_acpi->type);
-        loglinef(Verbose, "Found acpi RSDP address: 0x%x", (unsigned long) &tagnew_acpi);
+        loglinef(Verbose, "(kernel_main) init_basic_system: Found acpi RSDPv2: %x - Address: 0x%x", tagnew_acpi->type, (unsigned long) &tagnew_acpi);
         RSDPDescriptor20 *descriptor = (RSDPDescriptor20 *) (tagacpi+1);
         parse_SDT((uint64_t) descriptor, MULTIBOOT_TAG_TYPE_ACPI_NEW);
         validate_SDT((char *) descriptor, sizeof(RSDPDescriptor20));
@@ -104,7 +102,7 @@ void _init_basic_system(unsigned long addr){
 										+ ((tag->size + 7) & ~7))){
         switch(tag->type){
             default:
-                loglinef(Verbose, "--Tag 0x%x - Size: 0x%x", tag->type, tag->size);
+                loglinef(Verbose, "(kernel_main) init_basic_system: ---Tag 0x%x - Size: 0x%x", tag->type, tag->size);
                 break;
         }
     }
@@ -188,10 +186,10 @@ void kernel_start(unsigned long addr, unsigned long magic){
 
     uint32_t apic_ticks = calibrate_apic();
     kernel_settings.apic_timer.timer_ticks_base = apic_ticks;
-    loglinef(Verbose, "Calibrated apic value: %u", apic_ticks); 
-    loglinef(Verbose, "(END of Mapped memory: 0x%x)", end_of_mapped_memory);
+    loglinef(Verbose, "(kernel_main) Calibrated apic value: %u", apic_ticks); 
+    loglinef(Verbose, "(kernel_main) (END of Mapped memory: 0x%x)", end_of_mapped_memory);
     vfs_init();
-    logline(Info, "Init end!! Starting infinite loop");
+    logline(Info, "(kernel_main) Init end!! Starting infinite loop");
     uint64_t unix_timestamp = read_rtc_time();
     #if USE_FRAMEBUFFER == 1
     _fb_printStrAndNumber("Epoch time: ", unix_timestamp, 0, 5, 0xf5c4f1, 0x000000);
