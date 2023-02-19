@@ -47,6 +47,7 @@ extern uint64_t multiboot_acpi_info;
 extern uint64_t end_of_mapped_memory;
 extern uint8_t psf_font_version;
 extern struct framebuffer_info framebuffer_data;
+extern uint64_t p4_table[];
 struct multiboot_tag_framebuffer *tagfb = NULL;
 struct multiboot_tag_basic_meminfo *tagmem = NULL;
 struct multiboot_tag_old_acpi *tagold_acpi = NULL;
@@ -171,6 +172,8 @@ void kernel_start(unsigned long addr, unsigned long magic){
 
     initialize_kheap();
     kernel_settings.kernel_uptime = 0;
+    kernel_settings.paging.page_root_address = p4_table;
+    kernel_settings.paging.page_generation = 0;
     //The table containing the IOAPIC information is called MADT    
     MADT* madt_table = (MADT*) get_SDT_item(MADT_ID);
     loglinef(Verbose, "Madt ADDRESS: %x", madt_table);

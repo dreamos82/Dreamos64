@@ -3,9 +3,13 @@
 #include <kheap.h>
 #include <string.h>
 #include <logging.h>
+#include <vm.h>
+#include <kernel.h>
 
-
+extern uint64_t p4_table[];
 task_t* create_task(char *name, void (*_entry_point)(void *), void *args) {
+    //disable interrupts while creating a task
+    asm("cli");
     task_t* new_task = (task_t*) kmalloc(sizeof(task_t));
     strcpy(new_task->task_name, name);
     new_task->parent = NULL;
@@ -15,14 +19,29 @@ task_t* create_task(char *name, void (*_entry_point)(void *), void *args) {
     new_task->threads = thread;
     prepare_virtual_memory_environment(new_task);
     scheduler_add_task(new_task);
+    //load_cr3(new_task->vm_root_page_table);
+    //re-enable interrupts
+    asm("sti");
     return new_task;
 }
 
 void prepare_virtual_memory_environment(task_t* task) {
     loglinef(Verbose, "(prepare_virtual_memory_environment) Placeholder for virtual_memory");
     // Steps:
-    // 1. Prepare resources
-    // 2. Map the kernel
+    // 1. Prepare resources: allocatin an array of VM_PAGES_PER_TABLE
+    task->vm_root_page_table = kmalloc(VM_PAGES_PER_TABLE * sizeof(uint64_t));
+
+    // 2. We will map the whole higher half of the kernel, this means from pml4 item 256 to 511
+    for(int i = 256; i < VM_PAGES_PER_TABLE; i++) {
+        //uint64_t *task_p4_table 
+        ((uint64_t *)task->vm_root_page_table)[i] = p4_table[i];
+        if(p4_table[i] != 0) {
+            loglinef(Verbose, "(prepare_virtual_memory_environment): %d: o:%u - c:%u", i, p4_table[i], kernel_settings.paging.page_root_address[i]);
+            
+        }
+    }
+    logline(Verbose, "(prepare_virtual_memory_environment): root cleanup done");
+    //loglinef(Verbose, "(prepare_virtual_memory_environment): %l", p4_table[0]);
     // 3. Switch pdbr
     // 4. Keep finger crossed 
 }

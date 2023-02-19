@@ -37,13 +37,21 @@ void page_fault_handler(uint64_t error_code) {
     asm("hlt");
 }
 
-void clean_new_table(uint64_t *table_to_clean){
+void clean_new_table( uint64_t *table_to_clean ) {
     for(int i = 0; i < VM_PAGES_PER_TABLE; i++){
         table_to_clean[i] = 0x00l;
     }
 }
 
-void invalidate_page_table(uint64_t *table_address){
+void load_cr3( void* cr3_value ) {
+    //This function is used only when the kernel needs to load a new pml4 table (paging root for x86_64)
+    //I should add support for the flags
+    if( cr3_value != NULL) {
+        asm volatile("mov %0, %%cr3" :: "r"((uint64_t)cr3_value) : "memory");
+    }
+}
+
+void invalidate_page_table( uint64_t *table_address ) {
 	asm volatile("invlpg (%0)"
     	:
     	: "r"((uint64_t)table_address)

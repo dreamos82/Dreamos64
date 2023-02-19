@@ -60,6 +60,7 @@ start:
     mov dword[(p3_table_hh - KERNEL_VIRTUAL_ADDR) + 510 * 8], eax
 
     %if SMALL_PAGES == 1
+    ; If we are using 4k pages we have an extra level of tables to map
     mov ebx, 0
     mov eax, pt_tables - KERNEL_VIRTUAL_ADDR
     .map_pd_table:
@@ -76,7 +77,7 @@ start:
     .map_p2_table:
         mov eax, PAGE_SIZE  ; Size of the page
         mul ecx             ; Multiply by counter
-        or eax, PAGE_TABLE_ENTRY ; We set: huge page bit, writable and present 
+        or eax, PAGE_TABLE_ENTRY ; We set: huge page bit (if on 2M pages), writable and present 
 
         ; Moving the computed value into p2_table entry defined by ecx * 8
         ; ecx is the counter, 8 is the size of a single entry
@@ -121,7 +122,7 @@ start:
     ; write back the value
     wrmsr
     
-    ; Now is tiem to enable paging
+    ; Now is time to enable paging
     mov eax, cr0    ;cr0 contains the values we want to change
     or eax, 1 << 31 ; Paging bit
     or eax, 1 << 16 ; Write protect, cpu  can't write to read-only pages when

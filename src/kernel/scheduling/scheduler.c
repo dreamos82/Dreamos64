@@ -86,6 +86,8 @@ cpu_status_t* schedule(cpu_status_t* cur_status) {
     thread_to_execute->status = RUN;
     thread_to_execute->ticks = 0;
     current_executing_thread = thread_to_execute;
+    task_t *current_task = current_executing_thread->parent_task;
+    load_cr3(current_task->vm_root_page_table);
     return current_executing_thread->execution_frame;
 }
 

@@ -119,7 +119,7 @@ void noop3(char *c) {
     }
     loglinef(Verbose, "Going to sleep %d", get_kernel_uptime());
     thread_sleep(5000);
-    loglinef(Verbose, "Wakeup %d - %d", get_kernel_uptime(), current_executing_thread->wakeup_time);
+    loglinef(Verbose, "(test_task noop3): Wakeup %d - %d", get_kernel_uptime(), current_executing_thread->wakeup_time);
     i = 0;
     while(i < 1000) {
         i++;
