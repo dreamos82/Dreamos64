@@ -10,7 +10,7 @@
 thread_t* create_thread(char* thread_name, void (*_entry_point)(void *), void* arg, task_t* parent_task) {
     thread_t *new_thread = kmalloc(sizeof(thread_t));
     new_thread->tid = next_thread_id++;
-    new_thread->parent_task = NULL;
+    new_thread->parent_task = parent_task;
     new_thread->status = NEW;
     new_thread->wakeup_time = 0;
     strcpy(new_thread->thread_name, thread_name);

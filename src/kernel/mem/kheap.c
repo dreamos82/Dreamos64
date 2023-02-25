@@ -37,6 +37,7 @@ void *kmalloc(size_t size) {
         // The size of a node contains also the size of the header, so when creating nodes we add headers
         // We need to take it into account
         size_t real_size = size + sizeof(KHeapMemoryNode);
+        //We also need to align it!
         real_size = align(real_size);
         if( current_node->is_free) {
             if( current_node->size >= real_size ) {

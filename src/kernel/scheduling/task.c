@@ -5,6 +5,8 @@
 #include <logging.h>
 #include <vm.h>
 #include <kernel.h>
+#include <vmm.h>
+#include <pmm.h>
 
 extern uint64_t p4_table[];
 task_t* create_task(char *name, void (*_entry_point)(void *), void *args) {
@@ -15,8 +17,10 @@ task_t* create_task(char *name, void (*_entry_point)(void *), void *args) {
     new_task->parent = NULL;
     new_task->task_id = next_task_id++;
     loglinef(Verbose, "(create_task) Task created with name: %s - Task id: %d", new_task->task_name, new_task->task_id);
-    thread_t* thread = create_thread(name, _entry_point, args, new_task);
-    new_task->threads = thread;
+    if( _entry_point != NULL) {
+        thread_t* thread = create_thread(name, _entry_point, args, new_task);
+        new_task->threads = thread;
+    }
     prepare_virtual_memory_environment(new_task);
     scheduler_add_task(new_task);
     //load_cr3(new_task->vm_root_page_table);
@@ -29,14 +33,17 @@ void prepare_virtual_memory_environment(task_t* task) {
     loglinef(Verbose, "(prepare_virtual_memory_environment) Placeholder for virtual_memory");
     // Steps:
     // 1. Prepare resources: allocatin an array of VM_PAGES_PER_TABLE
-    task->vm_root_page_table = kmalloc(VM_PAGES_PER_TABLE * sizeof(uint64_t));
+    // Make sure this address is physical, then it needs to be mapped to a virtual one.a
+    //Replace kmalloc with phys_alloc
+    //task->vm_root_page_table = kmalloc(VM_PAGES_PER_TABLE * sizeof(uint64_t));
+    task->vm_root_page_table = pmm_alloc_frame();
+    identity_map_phys_address(task->vm_root_page_table, 0);
 
     // 2. We will map the whole higher half of the kernel, this means from pml4 item 256 to 511
-    for(int i = 256; i < VM_PAGES_PER_TABLE; i++) {
-        //uint64_t *task_p4_table 
+    for(int i = 255; i < VM_PAGES_PER_TABLE; i++) {
         ((uint64_t *)task->vm_root_page_table)[i] = p4_table[i];
         if(p4_table[i] != 0) {
-            loglinef(Verbose, "(prepare_virtual_memory_environment): %d: o:%u - c:%u", i, p4_table[i], kernel_settings.paging.page_root_address[i]);
+            loglinef(Verbose, "(prepare_virtual_memory_environment): %d: o:%u - c:%u - t:%u", i, p4_table[i], kernel_settings.paging.page_root_address[i], ((uint64_t*)task->vm_root_page_table)[i]);
             
         }
     }

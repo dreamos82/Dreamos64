@@ -89,6 +89,10 @@ int unmap_vaddress(void *address){
 	return 0;
 }
 
+void identity_map_phys_address(void *physical_address, unsigned int flags) {
+    map_phys_to_virt_addr(physical_address, physical_address, flags);
+}
+
 
 void *map_phys_to_virt_addr(void* physical_address, void* address, unsigned int flags){
     uint16_t pml4_e = PML4_ENTRY((uint64_t) address);

@@ -37,6 +37,7 @@ cpu_status_t* schedule(cpu_status_t* cur_status) {
     thread_t* prev_executing_thread;
     thread_t* thread_to_execute = idle_thread;
     uint16_t prev_thread_tid = -1;
+    //loglinef(Verbose, "Cur thread: %u %s", current_thread->tid, current_thread->thread_name);
     
     // First let's check if the current task need to be scheduled or not;
     if (current_executing_thread->status == SLEEP) {
@@ -87,6 +88,7 @@ cpu_status_t* schedule(cpu_status_t* cur_status) {
     thread_to_execute->ticks = 0;
     current_executing_thread = thread_to_execute;
     task_t *current_task = current_executing_thread->parent_task;
+    loglinef(Verbose, "task_id: %d Task name: %s thread name: %s", current_task->task_id, current_task->task_name, current_executing_thread->thread_name);
     load_cr3(current_task->vm_root_page_table);
     return current_executing_thread->execution_frame;
 }

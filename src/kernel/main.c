@@ -202,7 +202,9 @@ void kernel_start(unsigned long addr, unsigned long magic){
     char b = 'b';
     char c = 'c';
     char d = 'd';
-    idle_thread = create_thread("idle", noop,  &a, NULL);
+    task_t* idle_task = create_task("idle", noop, &a);
+    idle_thread = idle_task->threads;
+    //idle_thread = create_thread("idle", noop,  &a, NULL);
     task_t* eldi_task = create_task("eldi", noop2, &b);
     create_thread("ledi", noop2, &c, eldi_task);
     create_task("sleeper", noop3, &d);

@@ -8,7 +8,7 @@ int ustar_open(char *path, int flags) {
 }
 
 int ustar_close(int ustar_fildes) {
-    loglinef(Verbose, "(ustar_close) called with fildes: %d", ustar_close);
+    loglinef(Verbose, "(ustar_close) called with fildes: %d", ustar_fildes);
     return 0;
 }
 

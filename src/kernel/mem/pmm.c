@@ -56,6 +56,11 @@ void _map_pmm()
     loglinef(Verbose, "PMM bitmap successfully mapped.");
 }
 
+/**
+ * This function allocate a physical frame of memory.
+ * 
+ * @return The physical address of the allocated frame of memory of PAGE_SIZE_IN_BYTES
+ */
 void *pmm_alloc_frame(){
     if( ! pmm_check_frame_availability() ) {
         return 0; // No more frames to allocate

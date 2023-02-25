@@ -16,7 +16,8 @@
 void *map_vaddress(void *, unsigned int);
 int unmap_vaddress(void *);
 
-void *map_phys_to_virt_addr(void *, void *, unsigned int);
+void *map_phys_to_virt_addr(void* physical_address, void* address, unsigned int flags);
+void identity_map_phys_address(void *pyhysical_address, unsigned int flags);
 void map_vaddress_range(void *, unsigned int, size_t);
 uint8_t is_phyisical_address_mapped(uint64_t, uint64_t);
 #endif
