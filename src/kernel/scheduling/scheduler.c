@@ -83,12 +83,12 @@ cpu_status_t* schedule(cpu_status_t* cur_status) {
         current_thread = scheduler_get_next_thread();        
     }
 
-    //loglinef(Verbose, "Picked thread: %d - %s list size: %d", thread_to_execute->tid, thread_to_execute->thread_name, thread_list_size);
+    loglinef(Verbose, "(schedule) Picked thread: %d - %s list size: %d", thread_to_execute->tid, thread_to_execute->thread_name, thread_list_size);
     thread_to_execute->status = RUN;
     thread_to_execute->ticks = 0;
     current_executing_thread = thread_to_execute;
     task_t *current_task = current_executing_thread->parent_task;
-    loglinef(Verbose, "task_id: %d Task name: %s thread name: %s", current_task->task_id, current_task->task_name, current_executing_thread->thread_name);
+    loglinef(Verbose, "(schedule) task_id: %d Task name: %s thread name: %s", current_task->task_id, current_task->task_name, current_executing_thread->thread_name);
     load_cr3(current_task->vm_root_page_table);
     return current_executing_thread->execution_frame;
 }
