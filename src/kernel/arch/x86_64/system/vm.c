@@ -47,6 +47,7 @@ void load_cr3( void* cr3_value ) {
     //This function is used only when the kernel needs to load a new pml4 table (paging root for x86_64)
     //I should add support for the flags
     //invalidate_page_table((uint64_t) cr3_value);
+    //loglinef(Verbose, "(load_cr3) Loading pml4 table at address: %u", cr3_value);
     asm volatile("mov %0, %%cr3" :: "r"((uint64_t)cr3_value) : "memory");
 }
 

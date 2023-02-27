@@ -176,10 +176,10 @@ void kernel_start(unsigned long addr, unsigned long magic){
     kernel_settings.paging.page_generation = 0;
     //The table containing the IOAPIC information is called MADT    
     MADT* madt_table = (MADT*) get_SDT_item(MADT_ID);
-    loglinef(Verbose, "Madt ADDRESS: %x", madt_table);
-    loglinef(Verbose, "Madt SIGNATURE: %.4s", madt_table->header.Signature);
-    loglinef(Verbose, "Madt Length: %d", madt_table->header.Length);
-    loglinef(Verbose, "MADT local apic base: %x", madt_table->local_apic_base);
+    loglinef(Verbose, "(kernel_main) Madt ADDRESS: %x", madt_table);
+    loglinef(Verbose, "(kernel_main) Madt SIGNATURE: %.4s", madt_table->header.Signature);
+    loglinef(Verbose, "(kernel_main) Madt Length: %d", madt_table->header.Length);
+    loglinef(Verbose, "(kernel_main) MADT local apic base: %x", madt_table->local_apic_base);
     print_madt_table(madt_table);
     init_ioapic(madt_table);
     init_keyboard();

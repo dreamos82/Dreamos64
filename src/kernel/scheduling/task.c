@@ -37,10 +37,11 @@ void prepare_virtual_memory_environment(task_t* task) {
     //Replace kmalloc with phys_alloc
     //task->vm_root_page_table = kmalloc(VM_PAGES_PER_TABLE * sizeof(uint64_t));
     task->vm_root_page_table = pmm_alloc_frame();
+    loglinef(Verbose, "(prepare_virtual_memory_environment) vm_root_page_table address: %u", task->vm_root_page_table);
     identity_map_phys_address(task->vm_root_page_table, 0);
 
     // 2. We will map the whole higher half of the kernel, this means from pml4 item 256 to 511
-    for(int i = 255; i < VM_PAGES_PER_TABLE; i++) {
+    for(int i = 0; i < VM_PAGES_PER_TABLE; i++) {
         ((uint64_t *)task->vm_root_page_table)[i] = p4_table[i];
         if(p4_table[i] != 0) {
             loglinef(Verbose, "(prepare_virtual_memory_environment): %d: o:%u - c:%u - t:%u", i, p4_table[i], kernel_settings.paging.page_root_address[i], ((uint64_t*)task->vm_root_page_table)[i]);
@@ -93,7 +94,7 @@ void print_thread_list(size_t task_id) {
     if (task != NULL) {
         thread_t* thread = task->threads;
         while(thread != NULL) {
-            loglinef(Verbose, "\tThread; %d - %s", thread->tid, thread->thread_name);
+            loglinef(Verbose, "(print_thread_list)\tThread; %d - %s", thread->tid, thread->thread_name);
             thread = thread->next;
         }
     }
