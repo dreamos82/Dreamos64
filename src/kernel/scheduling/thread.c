@@ -17,7 +17,7 @@ thread_t* create_thread(char* thread_name, void (*_entry_point)(void *), void* a
     new_thread->next = NULL;
     new_thread->next_sibling = NULL;
     new_thread->ticks = 0;
-    loglinef(Verbose, "Creating thread with arg: %c - arg: %x - name: %s", (char) *((char*) arg), arg, thread_name);
+    loglinef(Verbose, "Creating thread with arg: %c - arg: %x - name: %s - rip: %u", (char) *((char*) arg), arg, thread_name, _entry_point);
 
     //Here we create a new execution frame to be used when switching to a newly created task
     new_thread->execution_frame = kmalloc(sizeof(cpu_status_t));
@@ -48,7 +48,7 @@ void thread_sleep(size_t millis) {
     current_executing_thread->status = SLEEP;
     uint64_t kernel_uptime = get_kernel_uptime();
     current_executing_thread->wakeup_time = kernel_uptime + millis; // To change with millis since boot + millis
-    //loglinef(Verbose, "Kernel uptime is: %u - wakeup time is: %u", kernel_uptime, current_executing_thread->wakeup_time);
+    loglinef(Verbose, "(thread_sleep) Kernel uptime is: %u - wakeup time is: %u", kernel_uptime, current_executing_thread->wakeup_time);
     scheduler_yield();
 }
 
@@ -57,8 +57,8 @@ void thread_wakeup(thread_t* thread) {
 }
 
 void thread_suicide_trap() {
-    //loglinef(Verbose, "Suicide function called on thread: %d", current_executing_thread->tid);
     current_executing_thread->status = DEAD;
+    loglinef(Verbose, "(thread_suicide_trap) Suicide function called on thread: %d task id: %d - Status: %s", current_executing_thread->tid, current_executing_thread->parent_task->task_id, get_thread_status(current_executing_thread));
     while(1);
 }
 
@@ -108,7 +108,7 @@ void noop3(char *c) {
     char str[4];
     str[0] = (char) *c;
     str[1] = 'b';
-    str[2] = 'b';
+    str[2] = 'f';
     str[3] = '\0';
     while(i < 10000) {
         i++;
@@ -117,7 +117,7 @@ void noop3(char *c) {
         _fb_printStr(str, 0, 12, 0x000000, 0xE169CD);
         #endif
     }
-    loglinef(Verbose, "Going to sleep %d", get_kernel_uptime());
+    loglinef(Verbose, "(noop3) Going to sleep %d", get_kernel_uptime());
     thread_sleep(5000);
     loglinef(Verbose, "(test_task noop3): Wakeup %d - %d", get_kernel_uptime(), current_executing_thread->wakeup_time);
     i = 0;
@@ -128,6 +128,27 @@ void noop3(char *c) {
         _fb_printStr("r", 1, 12, 0x000000, 0xE169CD);
         #endif
 
+    }
+}
+
+char *get_thread_status(thread_t *thread) {
+    switch(thread->status) {
+        case NEW:
+            return "NEW";
+        case INIT:
+            return "INIT";
+        case RUN:
+            return "RUN";
+        case READY:
+            return "READY";
+        case SLEEP:
+            return "SLEEP";
+        case WAIT:
+            return "WAIT";
+        case DEAD:
+            return "DEAD";
+        default:
+            return "ERROR";
     }
 }
 

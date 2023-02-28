@@ -46,7 +46,7 @@ void thread_execution_wrapper( void (*)(void *), void*);
 void thread_suicide_trap();
 void thread_sleep(size_t millis);
 void thread_wakeup(thread_t* thread);
-
+char *get_thread_status(thread_t *thread);
 // Functions below are for tests purposes
 void noop(char *c);
 void noop2(char *c);
