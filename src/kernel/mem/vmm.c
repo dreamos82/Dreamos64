@@ -104,6 +104,7 @@ void *map_phys_to_virt_addr(void* physical_address, void* address, unsigned int 
     uint64_t *pd_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l,510l, (uint64_t) pml4_e, (uint64_t) pdpr_e));
     uint16_t pd_e = PD_ENTRY((uint64_t) address);
 
+    //loglinef(Verbose, "(map_phys_to_virt_addr) Pml4: %u - pdpr: %u - pd: %u", pml4_e, pdpr_e, pd_e);
     uint8_t user_mode_status = 0;
     
     #if SMALL_PAGES == 1

@@ -11,6 +11,7 @@
 //#endif
 
 #include <dreamcatcher.h>
+#include <logging.h>
 
 #define PIXEL uint32_t
 
@@ -40,7 +41,6 @@ void map_framebuffer(struct framebuffer_info fbdata) {
     uint32_t pd = PD_ENTRY(_FRAMEBUFFER_MEM_START); 
     uint32_t pdpr = PDPR_ENTRY(_FRAMEBUFFER_MEM_START);
     uint32_t pml4 = PML4_ENTRY(_FRAMEBUFFER_MEM_START);
-
 #if SMALL_PAGES == 1
     uint32_t fb_pd_entries = fb_entries / VM_PAGES_PER_TABLE;
     uint32_t pt = PT_ENTRY(_FRAMEBUFFER_MEM_START);
@@ -49,7 +49,7 @@ void map_framebuffer(struct framebuffer_info fbdata) {
     uint32_t counter = 0;
 
     if(p4_table[pml4] == 0x00l || p3_table_hh[pdpr] == 0x00l){
-        printf("PANIC - PML4 or PDPR Empty - not supported for now\n");
+        loglinef(Verbose, "PANIC - PML4 or PDPR Empty - not supported for now\n");
         asm("hlt");
     }
 

@@ -5,6 +5,7 @@
 #include <logging.h>
 #include <kheap.h>
 #include <kernel.h>
+#include <vm.h>
 
 uint16_t scheduler_ticks;
 size_t next_thread_id;
@@ -38,7 +39,7 @@ cpu_status_t* schedule(cpu_status_t* cur_status) {
     thread_t* thread_to_execute = idle_thread;
     uint16_t prev_thread_tid = -1;
     //loglinef(Verbose, "Cur thread: %u %s", current_thread->tid, current_thread->thread_name);
-    
+    //loglinef(Verbose, "(schedule) ---Cur stack: 0x%x", cur_status->rsp);
     // First let's check if the current task need to be scheduled or not;
     if (current_executing_thread->status == SLEEP) {
         // If the task has been placed to sleep it needs to be scheduled
@@ -65,6 +66,7 @@ cpu_status_t* schedule(cpu_status_t* cur_status) {
 
     while (current_thread->tid != prev_thread_tid) {
         if (current_thread->status == SLEEP) {
+            loglinef(Verbose, "(schedule) This thread %d is sleeping", current_thread->tid); 
             //loglinef(Verbose, "Current uptime: %d - wakeup: %d", get_kernel_uptime(), current_thread->wakeup_time);
             if ( get_kernel_uptime() > current_thread->wakeup_time) {
                 //loglinef(Verbose, "(schedule) --->WAKING UP: %d - thread_name: %s", current_thread->tid, current_thread->thread_name);
@@ -84,14 +86,12 @@ cpu_status_t* schedule(cpu_status_t* cur_status) {
         current_thread = scheduler_get_next_thread();        
     }
 
-    //loglinef(Verbose, "(schedule) Picked thread: %d - %s - status: %d list size: %d", thread_to_execute->tid, thread_to_execute->thread_name, thread_to_execute->status, thread_list_size);
     thread_to_execute->status = RUN;
     thread_to_execute->ticks = 0;
     current_executing_thread = thread_to_execute;
     task_t *current_task = current_executing_thread->parent_task;
-    //loglinef(Verbose, "(schedule) task_id: %d Task name: %s thread name: %s new status: %s", current_task->task_id, current_task->task_name, current_executing_thread->thread_name, get_thread_status(thread_to_execute));
     load_cr3(current_task->vm_root_page_table); 
-    //loglinef(Verbose, "(schedule) loaded_rip: %u rdi: %u", current_executing_thread->execution_frame->rip, current_executing_thread->execution_frame->rdi);
+    //loglinef(Verbose, "(schedule) leaving schedule...");
     return current_executing_thread->execution_frame;
 }
 
@@ -111,7 +111,6 @@ void scheduler_add_thread(thread_t* thread) {
     if (current_executing_thread == NULL) {
         //This means that there are no tasks on the queue yet.
         current_executing_thread = thread;
-        loglinef(Verbose, "(scheduler_add_thread) Selected thread is: %d", current_executing_thread->tid);
     }
 }
 

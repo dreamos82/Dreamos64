@@ -9,6 +9,9 @@
 #include <pmm.h>
 
 extern uint64_t p4_table[];
+extern uint64_t p3_table[];
+extern uint64_t p3_table_hh[];
+
 task_t* create_task(char *name, void (*_entry_point)(void *), void *args) {
     //disable interrupts while creating a task
     asm("cli");
@@ -35,23 +38,19 @@ void prepare_virtual_memory_environment(task_t* task) {
     // 1. Prepare resources: allocatin an array of VM_PAGES_PER_TABLE
     // Make sure this address is physical, then it needs to be mapped to a virtual one.a
     //Replace kmalloc with phys_alloc
-    //task->vm_root_page_table = kmalloc(VM_PAGES_PER_TABLE * sizeof(uint64_t));
     task->vm_root_page_table = pmm_alloc_frame();
-    loglinef(Verbose, "(prepare_virtual_memory_environment) vm_root_page_table address: %u", task->vm_root_page_table);
+    loglinef(Verbose, "(prepare_virtual_memory_environment) vm_root_page_table address: %x", task->vm_root_page_table);
     identity_map_phys_address(task->vm_root_page_table, 0);
 
     // 2. We will map the whole higher half of the kernel, this means from pml4 item 256 to 511
-    for(int i = 0; i < VM_PAGES_PER_TABLE; i++) {
+    //    ((uint64_t *)task->vm_root_page_table)[0] = p4_table[0];
+    for(int i = 255; i < VM_PAGES_PER_TABLE; i++) {
         ((uint64_t *)task->vm_root_page_table)[i] = p4_table[i];
         if(p4_table[i] != 0) {
-            loglinef(Verbose, "(prepare_virtual_memory_environment): %d: o:%u - c:%u - t:%u", i, p4_table[i], kernel_settings.paging.page_root_address[i], ((uint64_t*)task->vm_root_page_table)[i]);
+            loglinef(Verbose, "(prepare_virtual_memory_environment): %d: o:0x%x - c:0x%x - t:0x%x", i, p4_table[i], kernel_settings.paging.page_root_address[i], ((uint64_t*)task->vm_root_page_table)[i]);
             
         }
     }
-    logline(Verbose, "(prepare_virtual_memory_environment): root cleanup done");
-    //loglinef(Verbose, "(prepare_virtual_memory_environment): %l", p4_table[0]);
-    // 3. Switch pdbr
-    // 4. Keep finger crossed 
 }
 
 bool add_thread_to_task_by_id(size_t task_id, thread_t* thread) {
@@ -80,7 +79,7 @@ task_t* get_task(size_t task_id) {
     }
     task_t* cur_task = root_task;
     while ( cur_task != NULL ) {
-        loglinef(Verbose, "Searching task: %d", cur_task->task_id);
+        loglinef(Verbose, "(get_task) Searching task: %d", cur_task->task_id);
         if ( cur_task->task_id == task_id ) {
             return cur_task;
         }

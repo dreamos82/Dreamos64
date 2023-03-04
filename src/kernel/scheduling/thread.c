@@ -31,10 +31,15 @@ thread_t* create_thread(char* thread_name, void (*_entry_point)(void *), void* a
     new_thread->execution_frame->cs = 0x8;
     // We need to allocate a new stack for each thread
     uintptr_t stack_pointer = (uintptr_t) kmalloc(THREAD_DEFAULT_STACK_SIZE);
+    if(stack_pointer == NULL) {
+        loglinef(Verbose, "(create_thread) rsp is null - PANIC!");
+        while(1);
+    }
     
     // The stack grow backward, so the pointer will be the end of the stack
     new_thread->stack = stack_pointer + THREAD_DEFAULT_STACK_SIZE;
     new_thread->execution_frame->rsp = (uint64_t) new_thread->stack;
+    new_thread->execution_frame->rbp = 0;
 
     if (parent_task != NULL) {
         add_thread_to_task(parent_task, new_thread);
@@ -58,7 +63,7 @@ void thread_wakeup(thread_t* thread) {
 
 void thread_suicide_trap() {
     current_executing_thread->status = DEAD;
-    loglinef(Verbose, "(thread_suicide_trap) Suicide function called on thread: %d task id: %d - Status: %s", current_executing_thread->tid, current_executing_thread->parent_task->task_id, get_thread_status(current_executing_thread));
+    loglinef(Verbose, "(thread_suicide_trap) Suicide function called on thread: %d name: %s - Status: %s", current_executing_thread->tid, current_executing_thread->thread_name, get_thread_status(current_executing_thread));
     while(1);
 }
 
