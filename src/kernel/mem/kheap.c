@@ -30,13 +30,17 @@ void *kmalloc(size_t size) {
     KHeapMemoryNode *current_node = kernel_heap_start;
     // If size is 0 we don't need to do anything 
     if( size == 0 ) {
+        loglinef(Verbose, "(kmalloc) Size is null");
         return NULL;
     }
+
+    //loglinef(Verbose, "(kmalloc) Current heap free size: 0x%x - Required: 0x%x", current_node->size, align(size + sizeof(KHeapMemoryNode))); 
 
     while( current_node != NULL ) {
         // The size of a node contains also the size of the header, so when creating nodes we add headers
         // We need to take it into account
         size_t real_size = size + sizeof(KHeapMemoryNode);
+        //We also need to align it!
         real_size = align(real_size);
         if( current_node->is_free) {
             if( current_node->size >= real_size ) {
@@ -58,13 +62,18 @@ void *kmalloc(size_t size) {
             }
         }
 
-        if(current_node == kernel_heap_end) {
+        if( current_node == kernel_heap_end ) {
             expand_heap(real_size);
+            if( current_node->prev != NULL) {
+                // If we are here it means that we were at the end of the heap and needed an expansion
+                // So after the expansion there are chances that we reach the end of the heap, and the 
+                // loop will end here. So let's move back of one item in the list, so we are sure the next item to be picked
+                // will be the new one.
+                current_node = current_node->prev;
+            }
         }
-
         current_node = current_node->next;
     }
-
     return NULL;
 }
 

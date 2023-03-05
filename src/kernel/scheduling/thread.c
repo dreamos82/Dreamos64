@@ -10,14 +10,14 @@
 thread_t* create_thread(char* thread_name, void (*_entry_point)(void *), void* arg, task_t* parent_task) {
     thread_t *new_thread = kmalloc(sizeof(thread_t));
     new_thread->tid = next_thread_id++;
-    new_thread->parent_task = NULL;
+    new_thread->parent_task = parent_task;
     new_thread->status = NEW;
     new_thread->wakeup_time = 0;
     strcpy(new_thread->thread_name, thread_name);
     new_thread->next = NULL;
     new_thread->next_sibling = NULL;
     new_thread->ticks = 0;
-    loglinef(Verbose, "Creating thread with arg: %c - arg: %x - name: %s", (char) *((char*) arg), arg, thread_name);
+    loglinef(Verbose, "Creating thread with arg: %c - arg: %x - name: %s - rip: %u", (char) *((char*) arg), arg, thread_name, _entry_point);
 
     //Here we create a new execution frame to be used when switching to a newly created task
     new_thread->execution_frame = kmalloc(sizeof(cpu_status_t));
@@ -31,10 +31,15 @@ thread_t* create_thread(char* thread_name, void (*_entry_point)(void *), void* a
     new_thread->execution_frame->cs = 0x8;
     // We need to allocate a new stack for each thread
     uintptr_t stack_pointer = (uintptr_t) kmalloc(THREAD_DEFAULT_STACK_SIZE);
+    if(stack_pointer == NULL) {
+        loglinef(Verbose, "(create_thread) rsp is null - PANIC!");
+        while(1);
+    }
     
     // The stack grow backward, so the pointer will be the end of the stack
     new_thread->stack = stack_pointer + THREAD_DEFAULT_STACK_SIZE;
     new_thread->execution_frame->rsp = (uint64_t) new_thread->stack;
+    new_thread->execution_frame->rbp = 0;
 
     if (parent_task != NULL) {
         add_thread_to_task(parent_task, new_thread);
@@ -48,7 +53,7 @@ void thread_sleep(size_t millis) {
     current_executing_thread->status = SLEEP;
     uint64_t kernel_uptime = get_kernel_uptime();
     current_executing_thread->wakeup_time = kernel_uptime + millis; // To change with millis since boot + millis
-    //loglinef(Verbose, "Kernel uptime is: %u - wakeup time is: %u", kernel_uptime, current_executing_thread->wakeup_time);
+    loglinef(Verbose, "(thread_sleep) Kernel uptime is: %u - wakeup time is: %u", kernel_uptime, current_executing_thread->wakeup_time);
     scheduler_yield();
 }
 
@@ -57,8 +62,8 @@ void thread_wakeup(thread_t* thread) {
 }
 
 void thread_suicide_trap() {
-    //loglinef(Verbose, "Suicide function called on thread: %d", current_executing_thread->tid);
     current_executing_thread->status = DEAD;
+    loglinef(Verbose, "(thread_suicide_trap) Suicide function called on thread: %d name: %s - Status: %s", current_executing_thread->tid, current_executing_thread->thread_name, get_thread_status(current_executing_thread));
     while(1);
 }
 
@@ -108,7 +113,7 @@ void noop3(char *c) {
     char str[4];
     str[0] = (char) *c;
     str[1] = 'b';
-    str[2] = 'b';
+    str[2] = 'f';
     str[3] = '\0';
     while(i < 10000) {
         i++;
@@ -117,9 +122,9 @@ void noop3(char *c) {
         _fb_printStr(str, 0, 12, 0x000000, 0xE169CD);
         #endif
     }
-    loglinef(Verbose, "Going to sleep %d", get_kernel_uptime());
+    loglinef(Verbose, "(noop3) Going to sleep %d", get_kernel_uptime());
     thread_sleep(5000);
-    loglinef(Verbose, "Wakeup %d - %d", get_kernel_uptime(), current_executing_thread->wakeup_time);
+    loglinef(Verbose, "(test_task noop3): Wakeup %d - %d", get_kernel_uptime(), current_executing_thread->wakeup_time);
     i = 0;
     while(i < 1000) {
         i++;
@@ -128,6 +133,27 @@ void noop3(char *c) {
         _fb_printStr("r", 1, 12, 0x000000, 0xE169CD);
         #endif
 
+    }
+}
+
+char *get_thread_status(thread_t *thread) {
+    switch(thread->status) {
+        case NEW:
+            return "NEW";
+        case INIT:
+            return "INIT";
+        case RUN:
+            return "RUN";
+        case READY:
+            return "READY";
+        case SLEEP:
+            return "SLEEP";
+        case WAIT:
+            return "WAIT";
+        case DEAD:
+            return "DEAD";
+        default:
+            return "ERROR";
     }
 }
 

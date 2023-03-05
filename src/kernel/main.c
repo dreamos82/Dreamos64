@@ -47,6 +47,7 @@ extern uint64_t multiboot_acpi_info;
 extern uint64_t end_of_mapped_memory;
 extern uint8_t psf_font_version;
 extern struct framebuffer_info framebuffer_data;
+extern uint64_t p4_table[];
 struct multiboot_tag_framebuffer *tagfb = NULL;
 struct multiboot_tag_basic_meminfo *tagmem = NULL;
 struct multiboot_tag_old_acpi *tagold_acpi = NULL;
@@ -171,12 +172,14 @@ void kernel_start(unsigned long addr, unsigned long magic){
 
     initialize_kheap();
     kernel_settings.kernel_uptime = 0;
+    kernel_settings.paging.page_root_address = p4_table;
+    kernel_settings.paging.page_generation = 0;
     //The table containing the IOAPIC information is called MADT    
     MADT* madt_table = (MADT*) get_SDT_item(MADT_ID);
-    loglinef(Verbose, "Madt ADDRESS: %x", madt_table);
-    loglinef(Verbose, "Madt SIGNATURE: %.4s", madt_table->header.Signature);
-    loglinef(Verbose, "Madt Length: %d", madt_table->header.Length);
-    loglinef(Verbose, "MADT local apic base: %x", madt_table->local_apic_base);
+    loglinef(Verbose, "(kernel_main) Madt ADDRESS: %x", madt_table);
+    loglinef(Verbose, "(kernel_main) Madt SIGNATURE: %.4s", madt_table->header.Signature);
+    loglinef(Verbose, "(kernel_main) Madt Length: %d", madt_table->header.Length);
+    loglinef(Verbose, "(kernel_main) MADT local apic base: %x", madt_table->local_apic_base);
     print_madt_table(madt_table);
     init_ioapic(madt_table);
     init_keyboard();
@@ -199,7 +202,9 @@ void kernel_start(unsigned long addr, unsigned long magic){
     char b = 'b';
     char c = 'c';
     char d = 'd';
-    idle_thread = create_thread("idle", noop,  &a, NULL);
+    task_t* idle_task = create_task("idle", noop, &a);
+    idle_thread = idle_task->threads;
+    //idle_thread = create_thread("idle", noop,  &a, NULL);
     task_t* eldi_task = create_task("eldi", noop2, &b);
     create_thread("ledi", noop2, &c, eldi_task);
     create_task("sleeper", noop3, &d);

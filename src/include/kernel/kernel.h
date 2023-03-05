@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stddef.h>
 
 struct keyboard_status_t {
     uint8_t scancode_set;
@@ -14,9 +15,15 @@ struct apic_timer_parameters {
     uint8_t timer_divisor;
 };
 
+struct paging_status_t {
+    uint64_t *page_root_address;
+    size_t page_generation;
+};
+
 typedef struct kernel_status_t {
     struct keyboard_status_t keyboard;
     struct apic_timer_parameters apic_timer;
+    struct paging_status_t paging;
     bool use_x2_apic;
 
     uint64_t kernel_uptime; // Kernel uptime in millisec.

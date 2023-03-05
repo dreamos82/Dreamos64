@@ -87,14 +87,20 @@ void init_apic() {
 }
 
 void disable_pic() {
+    //We need to disable the IRQs because we are going to use the more modern APIC
+    //ICW_1 tells the PIC that we are are going to send initialization commands
     outportb(PIC_COMMAND_MASTER, ICW_1);
     outportb(PIC_COMMAND_SLAVE, ICW_1);
+    //ICW_2 tells the PIC where the IRQ should be placed in the IDT (but we are not going to use them
     outportb(PIC_DATA_MASTER, ICW_2_M);
     outportb(PIC_DATA_SLAVE, ICW_2_S);
+    //ICW_3 Indicates if there is a slave connected (when is the master pic) or the slave id 
     outportb(PIC_DATA_MASTER, ICW_3_M);
     outportb(PIC_DATA_SLAVE, ICW_3_S);
+    //Set the modes of operation (we are just oging to set the 8086 mode bit.
     outportb(PIC_DATA_MASTER, ICW_4);
     outportb(PIC_DATA_SLAVE, ICW_4);
+    // Clear all IRQs
     outportb(PIC_DATA_MASTER, 0xFF);
     outportb(PIC_DATA_SLAVE, 0xFF);
 }
