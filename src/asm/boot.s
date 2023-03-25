@@ -23,7 +23,7 @@ global p3_table_hh
 %if SMALL_PAGES == 1 
 global pt_tables
 %endif
-global end_of_mapped_memory
+global end_of_mapped_memory ;this variable will containt the virtual address of the last virtual addres mapped after bootstrap
 global multiboot_framebuffer_data
 global multiboot_mmap_data
 global multiboot_basic_meminfo
