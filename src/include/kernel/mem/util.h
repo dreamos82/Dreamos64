@@ -16,4 +16,6 @@
 #define WRITEMEM64(addr, u64) \
 (*(volatile uint64_t*)((uintptr_t)addr)) = u64
 
+size_t get_number_of_pages_from_size(size_t size);
+
 #endif

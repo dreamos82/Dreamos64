@@ -37,6 +37,7 @@
 #include <task.h>
 #include <vfs.h>
 #include <fcntl.h>
+#include <unistd.h>
 //#include <runtime_tests.h>
 
 extern uint32_t FRAMEBUFFER_MEMORY_SIZE;
@@ -169,7 +170,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
     loglinef(Verbose, "Cpu info result: 0x%x", cpu_info);
     init_apic();
     _mmap_setup();
-
+    vmm_init();
     initialize_kheap();
     kernel_settings.kernel_uptime = 0;
     kernel_settings.paging.page_root_address = p4_table;

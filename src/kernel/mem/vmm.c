@@ -3,12 +3,59 @@
 #include <vm.h>
 #include <video.h>
 #include <pmm.h>
-#include <logging.h> 
+#include <logging.h>
+#include <kernel.h>
+#include <bitmap.h>
 
 extern uint64_t p4_table[];
 extern uint64_t p3_table_hh[];
 extern uint64_t p2_table[];
 extern uint64_t pt_tables[];
+
+VmmItem *vmm_root;
+VmmItem *cur_item;
+
+uint64_t end_of_vmm_space;
+
+/**
+ * When initialized the VM Manager should reserve a portion of the virtual memory space for itself.
+ */
+void vmm_init() {
+
+    vmm_root = ((uint64_t) HIGHER_HALF_ADDRESS_OFFSET + VM_KERNEL_MEMORY_PADDING);
+    end_of_vmm_space = (uint64_t) vmm_root + VMM_RESERVED_SPACE_SIZE;
+
+    loglinef(Verbose, "(vmm_init) Vmm root comparison: (vmm_root) %x - %x (end_of_vmm_space)", vmm_root, end_of_vmm_space);
+    //I need to compute the size of the VMM address space
+    uint64_t vmm_root_phys = pmm_alloc_frame();
+    if (vmm_root_phys == NULL) {
+        loglinef(Verbose, "(vmm_init)  vmm_root_phys should not be null");
+    }
+    
+    loglinef(Verbose, "(vmm_init) Got vmm_root_phys address: %x", vmm_root_phys); 
+
+    map_phys_to_virt_addr(vmm_root_phys, vmm_root, 0);
+    loglinef(Verbose, "(vmm_init) Testing the just mapped address");
+    vmm_root->flags = 0;
+    vmm_root->size = 5;
+    loglinef(Verbose, "(vmm_init) flags should be 0: %d size should be 5: %d", vmm_root->flags, vmm_root->size);
+    
+}
+
+void *vmm_alloc(size_t length, size_t flags) {
+    // Flags are: NONE, PRESENT, WRITE_ENABLED and USER_LEVEL
+    if (length < 0) {
+        return NULL;
+    }
+
+    if ( cur_item + sizeof(VmmItem) + length > end_of_vmm_space ) {
+        // This case should never Happen, since the VMM space size is much bigger than the maximum ram that can be installed on a pc
+        return NULL;
+    }
+    
+    // Now i need to compute how many pages are needed
+    return NULL;   
+}
 
 uint8_t is_phyisical_address_mapped(uint64_t physical_address, uint64_t virtual_address) {
     uint16_t pml4_e = PML4_ENTRY((uint64_t) virtual_address); 
@@ -93,7 +140,15 @@ void identity_map_phys_address(void *physical_address, unsigned int flags) {
     map_phys_to_virt_addr(physical_address, physical_address, flags);
 }
 
-
+/**
+ * This function map a phyisical address into a virtual one. Both of them needs to already defined. 
+ *
+ *
+ * @param physical_address the physical address we want to map
+ * @param address the virtual address being mapped
+ * @param flags the flags for the mapped page.
+ * @return address the virtual address specified in input, or NULL in case of error.
+ */
 void *map_phys_to_virt_addr(void* physical_address, void* address, unsigned int flags){
     uint16_t pml4_e = PML4_ENTRY((uint64_t) address);
     uint64_t *pml4_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l,510l,510l,510l));
@@ -168,6 +223,10 @@ void map_vaddress_range(void *virtual_address, unsigned int flags, size_t requir
     for(size_t i = 0; i < required_pages; i++) {
         map_vaddress(virtual_address + (i * PAGE_SIZE_IN_BYTES), flags);
     }
+}
+
+uint8_t check_virt_address_status(uint64_t virtual_address) {
+    return VIRT_ADDRESS_NOT_PRESENT;
 }
 
 
