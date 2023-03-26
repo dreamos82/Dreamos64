@@ -1,11 +1,11 @@
 #include <numbers.h>
 
 int _getDecString(char *buffer, long number) {
-    int size = 0;  
+    int size = 0;
     if(number < 0) {
         *buffer++ = '-';
         size = 1 + _getUnsignedDecString(buffer, ((unsigned long) number * -1));
-        
+
     } else {
         size = _getUnsignedDecString(buffer, number);
     }
@@ -51,10 +51,10 @@ int _getHexString(char *buffer, unsigned long hexnumber, bool use_capital) {
         shift++;
     }
     size = shift + 1;
-    /* Now i can print the digits masking every single digit with 0xF 
+    /* Now i can print the digits masking every single digit with 0xF
      * Each hex digit is 4 bytes long. So if i mask number&0xF
      * I obtain exactly the number identified by the digit
-     * i.e. number is 0xA3 0XA3&0xF=3  
+     * i.e. number is 0xA3 0XA3&0xF=3
      **/
     char hex_base = 'a';
     if(use_capital == true) {
@@ -73,4 +73,43 @@ int _getHexString(char *buffer, unsigned long hexnumber, bool use_capital) {
         *hexstring = '\0';
     }
     return size;
+}
+
+// Unsigned
+int itoa(char *buffer, unsigned long number, int base, bool use_capital) {
+	if (base < 1 || base > 36) return 0;
+	char *pointer, *pointerbase;
+	int mod;
+	int size = 0;
+	char letter_base = 'a';
+	if (use_capital) {
+		letter_base = 'A';
+	}
+	pointer = buffer;
+	pointerbase = buffer;
+	if(number == 0) {
+		*pointer = '0';
+		return 1;
+	}
+	while (number > 0) {
+		mod = number % base;
+		if (mod < 10) {
+			*pointer++ = '0' + mod;
+		} else {
+			*pointer++ = letter_base + mod - 10;
+		}
+		number = number / base;
+		size++;
+	}
+	*pointer--=0;
+	while(pointer > pointerbase){
+		char swap;
+		swap = *pointer;
+		*pointer = *pointerbase;
+		*pointerbase = swap;
+		pointerbase++;
+		pointer--;
+	}
+
+	return size;
 }

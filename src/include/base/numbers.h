@@ -6,4 +6,5 @@
 int _getHexString(char*, unsigned long, bool);
 int _getDecString(char*, long);
 int _getUnsignedDecString(char *, unsigned long);
+int _itoa(char *, unsigned long, int, bool);
 #endif
