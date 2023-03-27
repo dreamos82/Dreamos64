@@ -72,12 +72,12 @@ int vsprintf(char *buffer, const char *fmt, va_list args){
                 str+= string_size;
                 break;
             }
-	    case 'o': {
-		unsigned long number = va_arg(args, unsigned long);
-		int string_size = _itoa(str, number, 8, false);
-		str+= string_size;
-		break;
-	    }
+            case 'o': {
+                unsigned long number = va_arg(args, unsigned long);
+                int string_size = _itoa(str, number, 8, false);
+                str+= string_size;
+                break;
+            }
             case 'c':
                 unsigned char character = va_arg(args, int);
                 *str++ = character;

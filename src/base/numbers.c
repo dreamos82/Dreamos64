@@ -76,8 +76,9 @@ int _getHexString(char *buffer, unsigned long hexnumber, bool use_capital) {
 }
 
 // Unsigned
-int itoa(char *buffer, unsigned long number, int base, bool use_capital) {
-	if (base < 1 || base > 36) return 0;
+int _getNumericString(char *buffer, unsigned long number, int base, bool use_capital) {
+	if (base < 1 || base > 36)
+		return 0;
 	char *pointer, *pointerbase;
 	int mod;
 	int size = 0;
@@ -87,6 +88,7 @@ int itoa(char *buffer, unsigned long number, int base, bool use_capital) {
 	}
 	pointer = buffer;
 	pointerbase = buffer;
+
 	if(number == 0) {
 		*pointer = '0';
 		return 1;
@@ -101,7 +103,7 @@ int itoa(char *buffer, unsigned long number, int base, bool use_capital) {
 		number = number / base;
 		size++;
 	}
-	*pointer--=0;
+	*pointer-- = 0;
 	while(pointer > pointerbase){
 		char swap;
 		swap = *pointer;
