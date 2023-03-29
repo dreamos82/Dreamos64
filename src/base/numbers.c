@@ -13,7 +13,7 @@ int _getDecString(char *buffer, long number) {
 }
 
 int _getUnsignedDecString(char *buffer, unsigned long number) {
-    char *pointer
+    char *pointer;
     char *pointerbase;
     int mod;
     int size = 0;
@@ -80,7 +80,7 @@ int _getHexString(char *buffer, unsigned long hexnumber, bool use_capital) {
 int _getNumericString(char *buffer, unsigned long number, int base, bool use_capital) {
 	if (base < 1 || base > 36)
 		return 0;
-	char *pointer
+	char *pointer;
 	char *pointerbase;
 	int mod;
 	int size = 0;
