@@ -74,7 +74,7 @@ int vsprintf(char *buffer, const char *fmt, va_list args){
             }
             case 'o': {
                 unsigned long number = va_arg(args, unsigned long);
-                int string_size = _itoa(str, number, 8, false);
+                int string_size = _getNumericString(str, number, 8, false);
                 str+= string_size;
                 break;
             }
