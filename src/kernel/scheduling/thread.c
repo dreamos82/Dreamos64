@@ -6,6 +6,7 @@
 #include <kheap.h>
 #include <logging.h>
 #include <kernel.h>
+#include <vmm.h>
 
 thread_t* create_thread(char* thread_name, void (*_entry_point)(void *), void* arg, task_t* parent_task) {
     thread_t *new_thread = kmalloc(sizeof(thread_t));
@@ -134,6 +135,8 @@ void noop3(char *c) {
         #endif
 
     }
+    
+    vmm_alloc(100);
 }
 
 char *get_thread_status(thread_t *thread) {

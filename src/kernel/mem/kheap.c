@@ -11,15 +11,17 @@ KHeapMemoryNode *kernel_heap_end;
 extern unsigned int end_of_mapped_memory;
 
 void initialize_kheap(){
-    //That should be mapped? 
+    //That should be mapped?
+    kernel_heap_start = (KHeapMemoryNode *) ((uint64_t) end_of_vmm_space + KERNEL_MEMORY_PADDING);
     kernel_heap_start = (KHeapMemoryNode *) ((uint64_t)&_kernel_end + KERNEL_MEMORY_PADDING);
     kernel_heap_current_pos = kernel_heap_start;
     kernel_heap_end = kernel_heap_start;
-    loglinef(Verbose, "Kheap memory end: 0x%x", kernel_heap_end);
+    loglinef(Verbose, "(initialize_kheap) Kheap memory end: 0x%x", kernel_heap_end);
     kernel_heap_current_pos->size = 0x1000;
     kernel_heap_current_pos->is_free = true;
     kernel_heap_current_pos->next = NULL;
     kernel_heap_current_pos->prev = NULL;
+    loglinef(Verbose, "(initialize_kheap) Vmm (end_of_vmm_space): %x", end_of_vmm_space);
 }
 
 size_t align(size_t size) {

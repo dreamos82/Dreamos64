@@ -2,6 +2,7 @@
 #define __VMM_H
 
 #include <stddef.h>
+#include <bitmap.h>
 
 #define NONE 0
 #define PRESENT 0b1
@@ -25,8 +26,12 @@ typedef struct VmmItem{
     uintptr_t base;
     size_t size;
     size_t flags;
-    struct VmmItem* next;
 } VmmItem;
+
+typedef struct VmmContainer {
+    VmmItem vmm_root[(PAGE_SIZE_IN_BYTES/sizeof(VmmItem)) - 1];
+    struct VmmContainer *next;
+} VmmContainer;
 
 extern uint64_t end_of_vmm_space;
 

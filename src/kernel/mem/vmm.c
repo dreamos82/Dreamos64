@@ -12,20 +12,32 @@ extern uint64_t p3_table_hh[];
 extern uint64_t p2_table[];
 extern uint64_t pt_tables[];
 
-VmmItem *vmm_root;
-VmmItem *cur_item;
+VmmContainer *vmm_container_root;
+VmmContainer *vmm_cur_container;
+VmmItem *vmm_head;
 
+size_t vmm_items_per_page;
+size_t vmm_cur_index;
+
+//TODO find better naming and probably one of them is not needed
+size_t start_of_vmm_area;
+size_t next_available_address;
 uint64_t end_of_vmm_space;
-
 /**
  * When initialized the VM Manager should reserve a portion of the virtual memory space for itself.
  */
 void vmm_init() {
 
-    vmm_root = ((uint64_t) HIGHER_HALF_ADDRESS_OFFSET + VM_KERNEL_MEMORY_PADDING);
-    end_of_vmm_space = (uint64_t) vmm_root + VMM_RESERVED_SPACE_SIZE;
+    vmm_container_root = ((uint64_t) HIGHER_HALF_ADDRESS_OFFSET + VM_KERNEL_MEMORY_PADDING);
+    end_of_vmm_space = (uint64_t) vmm_container_root + VMM_RESERVED_SPACE_SIZE;
+    start_of_vmm_area = (size_t) vmm_container_root + VMM_RESERVED_SPACE_SIZE + VM_KERNEL_MEMORY_PADDING;
+    next_available_address = start_of_vmm_area;
+    vmm_items_per_page = (PAGE_SIZE_IN_BYTES / sizeof(VmmItem)) - 1;
+    vmm_cur_index = 0;
 
-    loglinef(Verbose, "(vmm_init) Vmm root comparison: (vmm_root) %x - %x (end_of_vmm_space)", vmm_root, end_of_vmm_space);
+    loglinef(Verbose, "(vmm_init) Vmm root comparison: (vmm_root) %x - %x (end_of_vmm_space)", vmm_container_root, end_of_vmm_space);
+    loglinef(Verbose, "(vmm_init) Number of items in one page: %x", vmm_items_per_page);
+    loglinef(Verbose, "(vmm_init) size of VmmContainer: : %x", sizeof(VmmContainer));
     //I need to compute the size of the VMM address space
     uint64_t vmm_root_phys = pmm_alloc_frame();
     if (vmm_root_phys == NULL) {
@@ -34,26 +46,84 @@ void vmm_init() {
     
     loglinef(Verbose, "(vmm_init) Got vmm_root_phys address: %x", vmm_root_phys); 
 
-    map_phys_to_virt_addr(vmm_root_phys, vmm_root, 0);
+    map_phys_to_virt_addr(vmm_root_phys, vmm_container_root, 0);    
     loglinef(Verbose, "(vmm_init) Testing the just mapped address");
-    vmm_root->flags = 0;
-    vmm_root->size = 5;
-    loglinef(Verbose, "(vmm_init) flags should be 0: %d size should be 5: %d", vmm_root->flags, vmm_root->size);
-    
+    vmm_container_root->vmm_root[0].base = 0;
+    vmm_container_root->vmm_root[0].flags = 5;
+    vmm_container_root->vmm_root[0].size = 0;
+    //vmm_container_root->next = NULL;
+    //loglinef(Verbose, "(vmm_init) flags should be 0: %d size should be 5: %d", vmm_container_root->vmm_root[0].flags, vmm_container_root->vmm_root[0].size);
+    //loglinef(Verbose, "(vmm_init) size of VmmItem: : %x", sizeof(VmmItem));
+    vmm_cur_container = vmm_container_root;
+    vmm_head = NULL;
 }
 
 void *vmm_alloc(size_t length, size_t flags) {
-    // Flags are: NONE, PRESENT, WRITE_ENABLED and USER_LEVEL
     if (length < 0) {
         return NULL;
     }
 
-    if ( cur_item + sizeof(VmmItem) + length > end_of_vmm_space ) {
+    if ( vmm_head + sizeof(VmmItem) + length > end_of_vmm_space ) {
         // This case should never Happen, since the VMM space size is much bigger than the maximum ram that can be installed on a pc
         return NULL;
     }
-    
+        
     // Now i need to compute how many pages are needed
+    size_t number_of_pages_required = get_number_of_pages_from_size(length);
+
+    if (vmm_cur_index == vmm_items_per_page) {
+        logline(Verbose, "(vmm_init) Max number of pages reached, expansion to be implemented");
+    }
+
+    uintptr_t address_to_return = next_available_address;
+    vmm_cur_container->vmm_root[vmm_cur_index].base = address_to_return;
+    vmm_cur_container->vmm_root[vmm_cur_index].flags = flags;
+    vmm_cur_container->vmm_root[vmm_cur_index].size = number_of_pages_required * PAGE_SIZE_IN_BYTES;
+    next_available_address += number_of_pages_required * PAGE_SIZE_IN_BYTES;
+    loglinef(Verbose, "(vmm_alloc) newly allocated item base: %x, next available address: %x", vmm_cur_container->vmm_root[vmm_cur_index].base, next_available_address);
+    vmm_cur_index++;
+
+    return (void *) address_to_return;
+
+   /*VmmItem *vmm_cur_item = vmm_root;
+
+    while( vmm_cur_item != NULL && vmm_cur_item->size != 0 ) {
+        loglinef(Verbose, "(vmm_alloc) loop size: %d", vmm_cur_item->size);
+        vmm_cur_item = vmm_cur_item->next;
+    } 
+
+    vmm_cur_item->base = next_available_address;
+    next_available_address += number_of_pages_required * PAGE_SIZE_IN_BYTES;
+    vmm_cur_item->flags = flags;    
+    vmm_cur_item->next = NULL;
+
+    */
+    // Flags are: NONE, PRESENT, WRITE_ENABLED and USER_LEVEL
+    /*VmmItem *vmm_prev_item = NULL;
+    VmmItem *vmm_cur_item = NULL;
+
+    vmm_cur_item = vmm_head;
+
+    VmmItem *cur_item = vmm_root;
+
+    while ( cur_item != NULL ) {
+        //TODO: once the free will be implemented the freed list item should be reused
+        vmm_prev_item = vmm_cur_item;
+        vmm_cur_item =  vmm_cur_item->next
+    }
+
+    if ( vmm_prev_item == NULL) {
+        // This mean that we are inserting the first element of the list
+        vmm_cur_item = vmm_head;
+    } else {
+
+    }*/
+
+//        vmm_cur_item->base = number_of_pages_required * PAGE_SIZE_IN_BYTES;
+//        vmm_cur_item->flags = flags;
+//        vmm_cur_item->next = NULL;
+
+    
     return NULL;   
 }
 
