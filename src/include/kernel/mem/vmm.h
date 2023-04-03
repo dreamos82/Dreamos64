@@ -16,7 +16,7 @@
 #define VIRT_ADDRESS_PRESENT 1
 #define VIRT_ADDRESS_NOT_PRESENT 0
 
-#define VM_KERNEL_MEMORY_PADDING 0x1000
+#define VM_KERNEL_MEMORY_PADDING PAGE_SIZE_IN_BYTES
 
 #define VMM_RESERVED_SPACE_SIZE 0x14480000000
 
@@ -31,7 +31,7 @@ typedef struct VmmItem{
 typedef struct VmmContainer {
     VmmItem vmm_root[(PAGE_SIZE_IN_BYTES/sizeof(VmmItem)) - 1];
     struct VmmContainer *next;
-} VmmContainer;
+} __attribute__((__packed__)) VmmContainer;
 
 extern uint64_t end_of_vmm_space;
 

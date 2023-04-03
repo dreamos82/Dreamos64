@@ -51,8 +51,10 @@ void vmm_init() {
     vmm_container_root->vmm_root[0].base = 0;
     vmm_container_root->vmm_root[0].flags = 5;
     vmm_container_root->vmm_root[0].size = 0;
-    //vmm_container_root->next = NULL;
-    //loglinef(Verbose, "(vmm_init) flags should be 0: %d size should be 5: %d", vmm_container_root->vmm_root[0].flags, vmm_container_root->vmm_root[0].size);
+    loglinef(Verbose, "(vmm_init) flags should be 0: %d size should be 5: %d", vmm_container_root->vmm_root[0].flags, vmm_container_root->vmm_root[0].size);
+    loglinef(Verbose, "(vmm_init) where does the container  start? %x", &vmm_container_root);
+    loglinef(Verbose, "(vmm_init) where does the next end? %x", &(vmm_container_root->next));
+    vmm_container_root->next = NULL;
     //loglinef(Verbose, "(vmm_init) size of VmmItem: : %x", sizeof(VmmItem));
     vmm_cur_container = vmm_container_root;
     vmm_head = NULL;
