@@ -26,7 +26,14 @@ extern uint32_t mmap_number_of_entries;
 extern multiboot_memory_map_t *mmap_entries;
 size_t memory_size_in_bytes;
 
-int main(){
+int main() {
+    test_pmm_initialize();
+    test_pmm();
+    test_mmap();
+    return 0;
+}
+
+void test_pmm_initialize(){
     uint32_t bitmap_entries = _compute_kernel_entries(_kernel_end);
     memory_size_in_bytes = 20 * sizeof(uint64_t);
     memory_map = (uint64_t *) malloc(20 * sizeof(uint64_t)); 
@@ -71,9 +78,6 @@ int main(){
 
     _mmap_setup();
     printf("Testing physical memory manager\n");
-    test_pmm();
-    test_mmap();
-    return 0;
 }
 
 void test_pmm(){
