@@ -55,12 +55,14 @@ void vmm_init() {
     loglinef(Verbose, "(vmm_init) where does the container  start? %x", &vmm_container_root);
     loglinef(Verbose, "(vmm_init) where does the next end? %x", &(vmm_container_root->next));
     vmm_container_root->next = NULL;
-    //loglinef(Verbose, "(vmm_init) size of VmmItem: : %x", sizeof(VmmItem));
     vmm_cur_container = vmm_container_root;
     vmm_head = NULL;
 }
 
 void *vmm_alloc(size_t length, size_t flags) {
+
+    //TODO When the space inside this page is finished we need to allocate a new page
+    //     at vmm_cur_container + sizeof(VmmItem)
     if (length < 0) {
         return NULL;
     }
@@ -69,13 +71,11 @@ void *vmm_alloc(size_t length, size_t flags) {
         // This case should never Happen, since the VMM space size is much bigger than the maximum ram that can be installed on a pc
         return NULL;
     }
-    // Now i need to compute how many pages are needed
-    //size_t number_of_pages_required = get_number_of_pages_from_size(length);
-
-    if (vmm_cur_index == vmm_items_per_page) {
+    if (vmm_cur_index >= vmm_items_per_page) {
         logline(Verbose, "(vmm_init) Max number of pages reached, expansion to be implemented");
     }
 
+    // Now i need to align the requested length to a page
     size_t new_length = align_value_to_page(length);
     loglinef(Verbose, "(vmm_alloc) length: %d - aligned: %d", length, new_length);
 
@@ -88,6 +88,16 @@ void *vmm_alloc(size_t length, size_t flags) {
     vmm_cur_index++;
 
     return (void *) address_to_return;
+}
+
+void vmm_free(void *address) {
+    loglinef(Verbose, "(vmm_free) To Be implemented address provided is: 0x%x", address);
+    // Need to compute:
+    // Page directories/table entries for the address
+    // Search the base address inside the vmm objects arrays
+    // Remove that object
+    // Mark the entry as not present at least if it is mapped
+    return;
 }
 
 uint8_t is_phyisical_address_mapped(uint64_t physical_address, uint64_t virtual_address) {

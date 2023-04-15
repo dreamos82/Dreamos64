@@ -137,6 +137,7 @@ void noop3(char *c) {
     }
     
     vmm_alloc(100);
+    vmm_alloc(2097253);
 }
 
 char *get_thread_status(thread_t *thread) {
