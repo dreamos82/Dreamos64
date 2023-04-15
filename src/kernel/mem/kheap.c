@@ -11,12 +11,17 @@ KHeapMemoryNode *kernel_heap_end;
 extern unsigned int end_of_mapped_memory;
 
 void initialize_kheap(){
-    //That should be mapped?
-    //kernel_heap_start = (KHeapMemoryNode *) ((uint64_t) end_of_vmm_space + KERNEL_MEMORY_PADDING);
-    kernel_heap_start = (KHeapMemoryNode *) ((uint64_t)&_kernel_end + KERNEL_MEMORY_PADDING);
+    uint64_t *kheap_vaddress = vmm_alloc(PAGE_SIZE_IN_BYTES);
+    uint64_t phys_address = pmm_alloc_frame();
+    map_phys_to_virt_addr((void*) phys_address, (void *)kheap_vaddress, PRESENT);
+    kernel_heap_start = (KHeapMemoryNode *) ((uint64_t) kheap_vaddress);
+    kernel_heap_start->size = 500;
+    loglinef(Verbose, "(initialize_kheap) Start address using vmm_alloc: %x, and using end of vmm_space: %x", kheap_vaddress, kernel_heap_start);
+    loglinef(Verbose, "(initialize_kheap) PAGESIZE: 0x%x - val: %x", PAGE_SIZE_IN_BYTES, kernel_heap_start->size);
+    //kernel_heap_start = (KHeapMemoryNode *) ((uint64_t)&_kernel_end + KERNEL_MEMORY_PADDING);
     kernel_heap_current_pos = kernel_heap_start;
     kernel_heap_end = kernel_heap_start;
-    loglinef(Verbose, "(initialize_kheap) Kheap memory end: 0x%x", kernel_heap_end);
+    //TODO: Should we use PAGE_SIZE for the initial heap size?
     kernel_heap_current_pos->size = 0x1000;
     kernel_heap_current_pos->is_free = true;
     kernel_heap_current_pos->next = NULL;

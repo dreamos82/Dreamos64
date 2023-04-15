@@ -12,6 +12,6 @@ int main() {
     assert(align_value_to_page(0x100) == 0x200000);
     printf("--- Testing alignment for 0x100, should be 0x200000: %x\n", align_value_to_page(0x100));
     assert(align_value_to_page(0x200015) == 0x400000);
-    printf("--- Testing alignment for 0x100, should be 0x400000: %x\n", align_value_to_page(0x400000));
+    printf("--- Testing alignment for 0x100, should be 0x200015: %x\n", align_value_to_page(0x200015));
 
 }

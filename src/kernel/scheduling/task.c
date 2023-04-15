@@ -37,9 +37,9 @@ void prepare_virtual_memory_environment(task_t* task) {
     // Steps:
     // 1. Prepare resources: allocatin an array of VM_PAGES_PER_TABLE
     // Make sure this address is physical, then it needs to be mapped to a virtual one.a
-    //Replace kmalloc with phys_alloc
     task->vm_root_page_table = pmm_alloc_frame();
     loglinef(Verbose, "(prepare_virtual_memory_environment) vm_root_page_table address: %x", task->vm_root_page_table);
+    // This part will be changed using vmm_alloc
     identity_map_phys_address(task->vm_root_page_table, 0);
 
     // 2. We will map the whole higher half of the kernel, this means from pml4 item 256 to 511
