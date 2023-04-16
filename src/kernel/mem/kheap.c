@@ -20,6 +20,7 @@ void initialize_kheap(){
     loglinef(Verbose, "(initialize_kheap) Start address using vmm_alloc: %x, and using end of vmm_space: %x", kheap_vaddress, kernel_heap_start);
     loglinef(Verbose, "(initialize_kheap) PAGESIZE: 0x%x - val: %x", PAGE_SIZE_IN_BYTES, kernel_heap_start->size);
     #else
+    #pragma message "(initialize_kheap) Using test specific initialization"
     loglinef(Verbose, "(initialize_kheap) Test suite initialization");
     kernel_heap_start = (KHeapMemoryNode *) ((uint64_t)&_kernel_end + KERNEL_MEMORY_PADDING);
     #endif
