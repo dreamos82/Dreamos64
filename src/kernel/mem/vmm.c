@@ -24,6 +24,7 @@ size_t vmm_cur_index;
 size_t start_of_vmm_area;
 size_t next_available_address;
 uint64_t end_of_vmm_space;
+
 /**
  * When initialized the VM Manager should reserve a portion of the virtual memory space for itself.
  */
@@ -68,12 +69,10 @@ void *vmm_alloc(size_t length, size_t flags) {
         return NULL;
     }
 
-    if ( vmm_head + sizeof(VmmItem) + length > end_of_vmm_space ) {
-        // This case should never Happen, since the VMM space size is much bigger than the maximum ram that can be installed on a pc
-        return NULL;
-    }
     if (vmm_cur_index >= vmm_items_per_page) {
         logline(Verbose, "(vmm_init) Max number of pages reached, expansion to be implemented");
+        // Returning null for now
+        return NULL;
     }
 
     // Now i need to align the requested length to a page
@@ -93,6 +92,20 @@ void *vmm_alloc(size_t length, size_t flags) {
 
 void vmm_free(void *address) {
     loglinef(Verbose, "(vmm_free) To Be implemented address provided is: 0x%x", address);
+    VmmContainer *selected_container = vmm_container_root;
+    
+    if (vmm_items_per_page <= 0) {
+        logline(Verbose, "(vmm_free) Error: vmm_items_per_page can't be equal or less than 0)");
+        return;
+    }
+
+    while(selected_container != NULL) {
+
+        selected_container = selected_container->next;
+
+    }
+    
+    
     // Need to compute:
     // Page directories/table entries for the address
     // Search the base address inside the vmm objects arrays
@@ -101,7 +114,7 @@ void vmm_free(void *address) {
     return;
 }
 
-uint8_t is_phyisical_address_mapped(uint64_t physical_address, uint64_t virtual_address) {
+uint8_t is_phyisical_address_mapped(uintptr_t physical_address, uintptr_t virtual_address) {
     uint16_t pml4_e = PML4_ENTRY((uint64_t) virtual_address); 
     uint64_t *pml4_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l, 510l, 510l, 510l));
     if ( !pml4_table[pml4_e] & PRESENT_BIT ) {
@@ -180,7 +193,7 @@ int unmap_vaddress(void *address){
 	return 0;
 }
 
-void identity_map_phys_address(void *physical_address, unsigned int flags) {
+void identity_map_phys_address(void *physical_address, paging_flags_t flags) {
     map_phys_to_virt_addr(physical_address, physical_address, flags);
 }
 
@@ -193,7 +206,7 @@ void identity_map_phys_address(void *physical_address, unsigned int flags) {
  * @param flags the flags for the mapped page.
  * @return address the virtual address specified in input, or NULL in case of error.
  */
-void *map_phys_to_virt_addr(void* physical_address, void* address, unsigned int flags){
+void *map_phys_to_virt_addr(void* physical_address, void* address, paging_flags_t flags){
     uint16_t pml4_e = PML4_ENTRY((uint64_t) address);
     uint64_t *pml4_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l,510l,510l,510l));
     
@@ -258,12 +271,12 @@ void *map_phys_to_virt_addr(void* physical_address, void* address, unsigned int 
     return address;
 }
 
-void *map_vaddress(void *virtual_address, unsigned int flags){
+void *map_vaddress(void *virtual_address, paging_flags_t flags){
     void *new_addr = pmm_alloc_frame();
     return map_phys_to_virt_addr(new_addr, virtual_address, flags);
 }
 
-void map_vaddress_range(void *virtual_address, unsigned int flags, size_t required_pages) {
+void map_vaddress_range(void *virtual_address, paging_flags_t flags, size_t required_pages) {
     for(size_t i = 0; i < required_pages; i++) {
         map_vaddress(virtual_address + (i * PAGE_SIZE_IN_BYTES), flags);
     }
