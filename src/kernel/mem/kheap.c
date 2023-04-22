@@ -12,9 +12,15 @@ extern unsigned int end_of_mapped_memory;
 
 void initialize_kheap(){
     #ifndef _TEST_
+
+    // This part should be handled in total by vmm_alloc, 
+    // But the function is not completed yet, so for now i get first the phys address
+    // And then map it manually
     uint64_t *kheap_vaddress = vmm_alloc(PAGE_SIZE_IN_BYTES);
     uint64_t phys_address = pmm_alloc_frame();    
     map_phys_to_virt_addr((void*) phys_address, (void *)kheap_vaddress, PRESENT);
+    // End of temporary part
+
     kernel_heap_start = (KHeapMemoryNode *) ((uint64_t) kheap_vaddress);
     kernel_heap_start->size = 500;
     loglinef(Verbose, "(initialize_kheap) Start address using vmm_alloc: %x, and using end of vmm_space: %x", kheap_vaddress, kernel_heap_start);

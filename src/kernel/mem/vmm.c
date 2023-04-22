@@ -15,7 +15,6 @@ extern uint64_t pt_tables[];
 
 VmmContainer *vmm_container_root;
 VmmContainer *vmm_cur_container;
-VmmItem *vmm_head;
 
 size_t vmm_items_per_page;
 size_t vmm_cur_index;
@@ -58,14 +57,13 @@ void vmm_init() {
     loglinef(Verbose, "(vmm_init) start of vmm_area %x", start_of_vmm_area);
     vmm_container_root->next = NULL;
     vmm_cur_container = vmm_container_root;
-    vmm_head = NULL;
 }
 
 void *vmm_alloc(size_t length, size_t flags) {
 
     //TODO When the space inside this page is finished we need to allocate a new page
     //     at vmm_cur_container + sizeof(VmmItem)
-    if (length < 0) {
+    if (length == 0) {
         return NULL;
     }
 
@@ -104,7 +102,6 @@ void vmm_free(void *address) {
         selected_container = selected_container->next;
 
     }
-    
     
     // Need to compute:
     // Page directories/table entries for the address
