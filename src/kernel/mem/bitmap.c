@@ -16,8 +16,8 @@
 extern struct multiboot_tag_basic_meminfo *tagmem;
 extern uint64_t _kernel_physical_end;
 extern uint64_t _kernel_end;
-extern size_t memory_size_in_bytes;
 
+size_t memory_size_in_bytes;
 uint64_t *memory_map = (uint64_t *) &_kernel_end;
 uint32_t number_of_entries = 0;
 uint32_t bitmap_size = 0;
@@ -48,10 +48,11 @@ void _initialize_bitmap(unsigned long end_of_reserved_area){
     //used_frames = kernel_entries;
     //used_frames = 0x09; // Is the number of currently used frames - 1 (since the count starts from 0)
     used_frames = kernel_entries;
-    loglinef(Verbose, "Page size: %d", PAGE_SIZE_IN_BYTES);
-    loglinef(Verbose, "Actual size in bytes: %d", memory_size_in_bytes);
-    loglinef(Verbose, "Number of bit entries: %d - %d", bitmap_size, number_of_entries);
-    loglinef(Verbose, "Used frames: 0x%x", used_frames);
+    loglinef(Verbose, "(_initialize_bitmap) Page size: %d", PAGE_SIZE_IN_BYTES);
+    loglinef(Verbose, "(_initialize_bitmap) Actual size in bytes: %d", memory_size_in_bytes);
+    loglinef(Verbose, "(_initialize_bitmap) Number of bit entries: %d - %d", bitmap_size, number_of_entries);
+    loglinef(Verbose, "(_initialize_bitmap) Used frames: 0x%x", used_frames);
+    loglinef(Verbose, "(_initialize_bitmap) memory_map: 0x%x", memory_map);
     //_bitmap_request_frame();
     //pmm_alloc_frame();
 }

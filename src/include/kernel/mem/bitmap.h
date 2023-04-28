@@ -19,6 +19,8 @@
 
 #define ADDRESS_TO_BITMAP_ENTRY(address)(address / PAGE_SIZE_IN_BYTES)
 
+extern size_t memory_size_in_bytes;
+
 void _initialize_bitmap(unsigned long);
 void _bitmap_get_region(uint64_t* base_address, size_t* length_in_bytes);
 

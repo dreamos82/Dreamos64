@@ -23,10 +23,10 @@
 #define VPTR(x) (void*)((uint64_t)(x))
 
 typedef enum {
-    NONE,
-    PRESENT,
-    WRITE_ENABLE,
-    USER_LEVEL
+    NONE = 0,
+    PRESENT = (1 << 0),
+    WRITE_ENABLE = (1 << 1),
+    USER_LEVEL = (1 << 2)
 } paging_flags_t;
 
 typedef struct VmmItem{
@@ -35,12 +35,19 @@ typedef struct VmmItem{
     size_t flags;
 } VmmItem;
 
+typedef struct VmmInfo {
+    uintptr_t higherHalfDirectMapBase;
+    uintptr_t vmmDataStart;
+    uintptr_t vmmSpaceStart;
+} VmmInfo;
+
 typedef struct VmmContainer {
     VmmItem vmm_root[(PAGE_SIZE_IN_BYTES/sizeof(VmmItem)) - 1];
     struct VmmContainer *next;
 } __attribute__((__packed__)) VmmContainer;
 
 extern uint64_t end_of_vmm_space;
+extern VmmInfo vmm_info;
 
 void vmm_init();
 
@@ -55,4 +62,5 @@ void identity_map_phys_address(void *pyhysical_address, paging_flags_t flags);
 void map_vaddress_range(void *virtual_address, paging_flags_t flags, size_t required_pages);
 uint8_t is_phyisical_address_mapped(uintptr_t physical_address, uintptr_t virtual_address);
 uint8_t check_virt_address_status(uint64_t virtual_address);
+void direct_map_physical_memory();
 #endif

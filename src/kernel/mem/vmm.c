@@ -7,6 +7,7 @@
 #include <kernel.h>
 #include <bitmap.h>
 #include <util.h>
+#include <main.h>
 
 extern uint64_t p4_table[];
 extern uint64_t p3_table_hh[];
@@ -23,6 +24,9 @@ size_t vmm_cur_index;
 size_t start_of_vmm_area;
 size_t next_available_address;
 uint64_t end_of_vmm_space;
+VmmInfo vmm_info;
+//uint64_t memory_size_in_bytes;
+extern uint64_t end_of_mapped_memory;
 
 /**
  * When initialized the VM Manager should reserve a portion of the virtual memory space for itself.
@@ -30,13 +34,19 @@ uint64_t end_of_vmm_space;
 void vmm_init() {
 
     vmm_container_root = ((uint64_t) HIGHER_HALF_ADDRESS_OFFSET + VM_KERNEL_MEMORY_PADDING);
+    vmm_info.higherHalfDirectMapBase = vmm_container_root;
+    vmm_info.vmmDataStart = vmm_info.higherHalfDirectMapBase + memory_size_in_bytes + PAGE_SIZE_IN_BYTES;
+
     end_of_vmm_space = (uint64_t) vmm_container_root + VMM_RESERVED_SPACE_SIZE;
     start_of_vmm_area = (size_t) vmm_container_root + VMM_RESERVED_SPACE_SIZE + VM_KERNEL_MEMORY_PADDING;
+    vmm_info.vmmSpaceStart = vmm_info.vmmDataStart + VMM_RESERVED_SPACE_SIZE + VM_KERNEL_MEMORY_PADDING;
+
     next_available_address = start_of_vmm_area;
     vmm_items_per_page = (PAGE_SIZE_IN_BYTES / sizeof(VmmItem)) - 1;
     vmm_cur_index = 0;
 
     loglinef(Verbose, "(vmm_init) Vmm root comparison: (vmm_root) %x - %x (end_of_vmm_space)", vmm_container_root, end_of_vmm_space);
+    loglinef(Verbose, "(vmm_init) Vmm root comparison: (vmm_root) %x - %x (end_of_vmm_space) - NEXT", vmm_info.vmmDataStart, end_of_vmm_space);
     //I need to compute the size of the VMM address space
     uint64_t vmm_root_phys = pmm_alloc_frame();
     if (vmm_root_phys == NULL) {
@@ -55,6 +65,8 @@ void vmm_init() {
     loglinef(Verbose, "(vmm_init) where does the container  start? %x", &vmm_container_root);
     loglinef(Verbose, "(vmm_init) where does the next end? %x", &(vmm_container_root->next));
     loglinef(Verbose, "(vmm_init) start of vmm_area %x", start_of_vmm_area);
+    loglinef(Verbose, "(vmm_init) start of vmm_area %x", end_of_mapped_memory);
+    direct_map_physical_memory();
     vmm_container_root->next = NULL;
     vmm_cur_container = vmm_container_root;
 }
@@ -109,6 +121,29 @@ void vmm_free(void *address) {
     // Remove that object
     // Mark the entry as not present at least if it is mapped
     return;
+}
+
+void direct_map_physical_memory() {
+    // This function needs to map the entire phyisical memory inside the virtual memory enironment.
+    // The starting address is _HIGHER_HALF_KERNEL_MEM_START
+    loglinef(Verbose, "(direct_map_physical_memory) End of memory_mapping phys: 0x%x, memory_size: 0x%x", end_of_mapped_memory - _HIGHER_HALF_KERNEL_MEM_START, memory_size_in_bytes);    
+    uint64_t end_of_mapped_physical_memory = end_of_mapped_memory - _HIGHER_HALF_KERNEL_MEM_START;
+    if (is_phyisical_address_mapped(end_of_mapped_physical_memory, end_of_mapped_physical_memory)) {
+        end_of_mapped_memory = end_of_mapped_memory + PAGE_SIZE_IN_BYTES;
+        end_of_mapped_physical_memory = end_of_mapped_physical_memory + PAGE_SIZE_IN_BYTES;
+        logline(Verbose, "(direct_map_physical_memory) yes");
+    }
+
+    uint64_t address_to_map = 0;
+    uint64_t virtual_address = vmm_info.higherHalfDirectMapBase;
+
+    while ( address_to_map < memory_size_in_bytes) {
+        map_phys_to_virt_addr(address_to_map, virtual_address, PRESENT | WRITE_ENABLE);
+        address_to_map += PAGE_SIZE_IN_BYTES;
+        virtual_address += PAGE_SIZE_IN_BYTES;
+        loglinef(Verbose, "(direct_map_physical_memory) Mapping physical address: 0x%x - To virtual: 0x%x", address_to_map, virtual_address);
+    }
+    loglinef(Verbose, "(direct_map_physical_memory) Physical memory mapped end: 0x%x - Virtual memory direct end: 0x%x", end_of_mapped_physical_memory, end_of_mapped_memory);
 }
 
 uint8_t is_phyisical_address_mapped(uintptr_t physical_address, uintptr_t virtual_address) {
@@ -269,6 +304,7 @@ void *map_phys_to_virt_addr(void* physical_address, void* address, paging_flags_
 }
 
 void *map_vaddress(void *virtual_address, paging_flags_t flags){
+    loglinef(Verbose, "(map_vaddress) address: 0x%x", virtual_address);
     void *new_addr = pmm_alloc_frame();
     return map_phys_to_virt_addr(new_addr, virtual_address, flags);
 }

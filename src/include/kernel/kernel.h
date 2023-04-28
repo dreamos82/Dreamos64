@@ -5,6 +5,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+#define _HIGHER_HALF_KERNEL_MEM_START   0xffffffff80000000
+
 struct keyboard_status_t {
     uint8_t scancode_set;
     bool    translation_enabled;

@@ -55,7 +55,6 @@ struct multiboot_tag_old_acpi *tagold_acpi = NULL;
 struct multiboot_tag_new_acpi *tagnew_acpi = NULL;
 struct multiboot_tag_mmap *tagmmap = NULL;
 struct multiboot_tag *tagacpi = NULL;
-uint64_t memory_size_in_bytes;
 
 void _init_basic_system(unsigned long addr){
     struct multiboot_tag* tag;
@@ -71,7 +70,7 @@ void _init_basic_system(unsigned long addr){
     //Print mmap_info
     loglinef(Verbose, "(kernel_main) init_basic_system: Memory map entry: 0x%x",  tagmmap->type);
     loglinef(Verbose, "(kernel_main) init_basic_system: ---Size: 0x%x, Entry size: 0x%x", tagmmap->size, tagmmap->entry_size);
-    loglinef(Verbose,"(kernel_main) init_basic_system: ---EntryVersion: 0x%x", tagmmap->entry_version);
+    loglinef(Verbose, "(kernel_main) init_basic_system: ---EntryVersion: 0x%x", tagmmap->entry_version);
     _mmap_parse(tagmmap);
     pmm_setup(addr, mbi_size);
 
@@ -220,6 +219,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
     //execute_runtime_tests();
     //test_get_task();
     start_apic_timer(kernel_settings.apic_timer.timer_ticks_base, APIC_TIMER_SET_PERIODIC, kernel_settings.apic_timer.timer_divisor);
+    loglinef(Verbose, "(kernel_main) (END of Mapped memory: 0x%x)", end_of_mapped_memory);
     while(1);
 }
 

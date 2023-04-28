@@ -8,7 +8,7 @@ KHeapMemoryNode *kernel_heap_start;
 KHeapMemoryNode *kernel_heap_current_pos;
 KHeapMemoryNode *kernel_heap_end;
     
-extern unsigned int end_of_mapped_memory;
+extern uint64_t end_of_mapped_memory;
 
 void initialize_kheap(){
     #ifndef _TEST_
@@ -26,7 +26,7 @@ void initialize_kheap(){
     loglinef(Verbose, "(initialize_kheap) Start address using vmm_alloc: %x, and using end of vmm_space: %x", kheap_vaddress, kernel_heap_start);
     loglinef(Verbose, "(initialize_kheap) PAGESIZE: 0x%x - val: %x", PAGE_SIZE_IN_BYTES, kernel_heap_start->size);
     #else
-    #pragma message "(initialize_kheap) Using test specific initialization"
+        #pragma message "(initialize_kheap) Using test specific initialization"
     loglinef(Verbose, "(initialize_kheap) Test suite initialization");
     kernel_heap_start = (KHeapMemoryNode *) ((uint64_t)&_kernel_end + KERNEL_MEMORY_PADDING);
     #endif
@@ -96,12 +96,14 @@ void *kmalloc(size_t size) {
 }
 
 void expand_heap(size_t required_size) {
+    loglinef(Verbose, "(expand_heap) called size: %d current_end: 0x%x - end_of_mapped_memory: 0x%x", required_size, kernel_heap_end, end_of_mapped_memory);
     size_t number_of_pages = required_size / KERNEL_PAGE_SIZE + 1;
     uint64_t heap_end = compute_kheap_end();
     if( heap_end > end_of_mapped_memory ) {
         //end_of_mapped memory marks the end of the memory mapped by the kernel loader.
         //if the new heap address is above that, we need to map a new one, otherwise we can just mark it as used.
         //That part temporary, it needs to be reviewed when the memory mapping will be reviewed.
+        // This function no longer need to use end_of_mapped_memory, since now the hepa reside somewhere else.
         map_vaddress_range((uint64_t *) heap_end, 0, number_of_pages);
     }
     KHeapMemoryNode *new_tail = (KHeapMemoryNode *) heap_end;
