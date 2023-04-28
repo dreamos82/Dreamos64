@@ -24,7 +24,6 @@ extern uint32_t bitmap_size;
 extern uint32_t used_frames;
 extern uint32_t mmap_number_of_entries;
 extern multiboot_memory_map_t *mmap_entries;
-size_t memory_size_in_bytes;
 
 int main() {
     test_pmm_initialize();
