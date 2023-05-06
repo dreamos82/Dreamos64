@@ -25,6 +25,7 @@ size_t start_of_vmm_area;
 size_t next_available_address;
 uint64_t end_of_vmm_space;
 VmmInfo vmm_info;
+
 //uint64_t memory_size_in_bytes;
 extern uint64_t end_of_mapped_memory;
 
@@ -32,10 +33,11 @@ extern uint64_t end_of_mapped_memory;
  * When initialized the VM Manager should reserve a portion of the virtual memory space for itself.
  */
 void vmm_init() {
+    VmmContainer *vmm_start_address = ((uint64_t) HIGHER_HALF_ADDRESS_OFFSET + VM_KERNEL_MEMORY_PADDING);
 
-    vmm_container_root = ((uint64_t) HIGHER_HALF_ADDRESS_OFFSET + VM_KERNEL_MEMORY_PADDING);
     vmm_info.higherHalfDirectMapBase = vmm_container_root;
     vmm_info.vmmDataStart = vmm_info.higherHalfDirectMapBase + memory_size_in_bytes + PAGE_SIZE_IN_BYTES;
+    vmm_container_root = ((uint64_t) HIGHER_HALF_ADDRESS_OFFSET + VM_KERNEL_MEMORY_PADDING);
 
     end_of_vmm_space = (uint64_t) vmm_container_root + VMM_RESERVED_SPACE_SIZE;
     start_of_vmm_area = (size_t) vmm_container_root + VMM_RESERVED_SPACE_SIZE + VM_KERNEL_MEMORY_PADDING;
@@ -45,8 +47,9 @@ void vmm_init() {
     vmm_items_per_page = (PAGE_SIZE_IN_BYTES / sizeof(VmmItem)) - 1;
     vmm_cur_index = 0;
 
-    loglinef(Verbose, "(vmm_init) Vmm root comparison: (vmm_root) %x - %x (end_of_vmm_space)", vmm_container_root, end_of_vmm_space);
-    loglinef(Verbose, "(vmm_init) Vmm root comparison: (vmm_root) %x - %x (end_of_vmm_space) - NEXT", vmm_info.vmmDataStart, end_of_vmm_space);
+    loglinef(Verbose, "(vmm_init) Vmm data space start: (vmm_container_root) %x - %x (end_of_vmm_space)", vmm_container_root, end_of_vmm_space);
+    loglinef(Verbose, "(vmm_init) vm higher_half start: %x - %x (end_of_vmm_space)", (uint64_t) vmm_info.vmmDataStart, end_of_vmm_space);
+
     //I need to compute the size of the VMM address space
     uint64_t vmm_root_phys = pmm_alloc_frame();
     if (vmm_root_phys == NULL) {
@@ -62,10 +65,8 @@ void vmm_init() {
     vmm_container_root->vmm_root[0].size = 5;
     vmm_container_root->vmm_root[0].flags = 0;
     loglinef(Verbose, "(vmm_init) flags should be 0: %d size should be 5: %d", vmm_container_root->vmm_root[0].flags, vmm_container_root->vmm_root[0].size);
-    loglinef(Verbose, "(vmm_init) where does the container  start? %x", &vmm_container_root);
-    loglinef(Verbose, "(vmm_init) where does the next end? %x", &(vmm_container_root->next));
-    loglinef(Verbose, "(vmm_init) start of vmm_area %x", start_of_vmm_area);
-    loglinef(Verbose, "(vmm_init) start of vmm_area %x", end_of_mapped_memory);
+    loglinef(Verbose, "(vmm_init) where does the container  start? %x and end: %x", &vmm_container_root, &(vmm_container_root->next));
+    loglinef(Verbose, "(vmm_init) start of vmm_area %x - end of mapped memory: ", start_of_vmm_area, end_of_mapped_memory);
     direct_map_physical_memory();
     vmm_container_root->next = NULL;
     vmm_cur_container = vmm_container_root;
@@ -110,9 +111,7 @@ void vmm_free(void *address) {
     }
 
     while(selected_container != NULL) {
-
         selected_container = selected_container->next;
-
     }
     
     // Need to compute:
@@ -141,7 +140,7 @@ void direct_map_physical_memory() {
         map_phys_to_virt_addr(address_to_map, virtual_address, PRESENT | WRITE_ENABLE);
         address_to_map += PAGE_SIZE_IN_BYTES;
         virtual_address += PAGE_SIZE_IN_BYTES;
-        loglinef(Verbose, "(direct_map_physical_memory) Mapping physical address: 0x%x - To virtual: 0x%x", address_to_map, virtual_address);
+        //loglinef(Verbose, "(direct_map_physical_memory) Mapping physical address: 0x%x - To virtual: 0x%x", address_to_map, virtual_address);
     }
     loglinef(Verbose, "(direct_map_physical_memory) Physical memory mapped end: 0x%x - Virtual memory direct end: 0x%x", end_of_mapped_physical_memory, end_of_mapped_memory);
 }
