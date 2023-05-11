@@ -51,7 +51,7 @@ extern VmmInfo vmm_info;
 
 void vmm_init();
 
-void *vmm_alloc();
+void *vmm_alloc(size_t size, size_t flags);
 void vmm_free(void *address);
 
 void *map_vaddress(void *address, paging_flags_t flags);

@@ -72,11 +72,11 @@ void vmm_init() {
     vmm_cur_container = vmm_container_root;
 }
 
-void *vmm_alloc(size_t length, size_t flags) {
+void *vmm_alloc(size_t size, size_t flags) {
 
     //TODO When the space inside this page is finished we need to allocate a new page
     //     at vmm_cur_container + sizeof(VmmItem)
-    if (length == 0) {
+    if (size == 0) {
         return NULL;
     }
 
@@ -87,14 +87,14 @@ void *vmm_alloc(size_t length, size_t flags) {
     }
 
     // Now i need to align the requested length to a page
-    size_t new_length = align_value_to_page(length);
-    loglinef(Verbose, "(vmm_alloc) length: %d - aligned: %d", length, new_length);
+    size_t new_size = align_value_to_page(size);
+    loglinef(Verbose, "(vmm_alloc) size: %d - aligned: %d", size, new_size);
 
     uintptr_t address_to_return = next_available_address;
     vmm_cur_container->vmm_root[vmm_cur_index].base = address_to_return;
     vmm_cur_container->vmm_root[vmm_cur_index].flags = flags;
-    vmm_cur_container->vmm_root[vmm_cur_index].size = new_length;
-    next_available_address += new_length;
+    vmm_cur_container->vmm_root[vmm_cur_index].size = new_size;
+    next_available_address += new_size;
     loglinef(Verbose, "(vmm_alloc) newly allocated item base: %x, next available address: %x", vmm_cur_container->vmm_root[vmm_cur_index].base, next_available_address);
     vmm_cur_index++;
 
