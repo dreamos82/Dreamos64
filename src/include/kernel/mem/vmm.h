@@ -26,7 +26,8 @@ typedef enum {
     NONE = 0,
     PRESENT = (1 << 0),
     WRITE_ENABLE = (1 << 1),
-    USER_LEVEL = (1 << 2)
+    USER_LEVEL = (1 << 2),
+    ADDRESS_ONLY = (1 << 7)
 } paging_flags_t;
 
 typedef struct VmmItem{
@@ -63,4 +64,7 @@ void map_vaddress_range(void *virtual_address, paging_flags_t flags, size_t requ
 uint8_t is_phyisical_address_mapped(uintptr_t physical_address, uintptr_t virtual_address);
 uint8_t check_virt_address_status(uint64_t virtual_address);
 void direct_map_physical_memory();
+
+bool is_address_only(paging_flags_t flags);
+
 #endif

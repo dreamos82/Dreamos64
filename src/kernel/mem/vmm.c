@@ -95,10 +95,23 @@ void *vmm_alloc(size_t size, size_t flags) {
     vmm_cur_container->vmm_root[vmm_cur_index].flags = flags;
     vmm_cur_container->vmm_root[vmm_cur_index].size = new_size;
     next_available_address += new_size;
+
+    if  (!is_address_only(flags) ) {
+        logline(Verbose, "(vmm_alloc) This means that we want the address to be mapped directly with physical memory.");
+
+    }
+
     loglinef(Verbose, "(vmm_alloc) newly allocated item base: %x, next available address: %x", vmm_cur_container->vmm_root[vmm_cur_index].base, next_available_address);
     vmm_cur_index++;
 
     return (void *) address_to_return;
+}
+
+bool is_address_only(paging_flags_t flags) {
+    if(flags & ADDRESS_ONLY) {
+        return true;
+    }
+    return false;
 }
 
 void vmm_free(void *address) {

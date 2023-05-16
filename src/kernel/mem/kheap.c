@@ -18,7 +18,7 @@ void initialize_kheap(){
     // This part should be handled in total by vmm_alloc, 
     // But the function is not completed yet, so for now i get first the phys address
     // And then map it manually
-    uint64_t *kheap_vaddress = vmm_alloc(PAGE_SIZE_IN_BYTES);
+    uint64_t *kheap_vaddress = vmm_alloc(PAGE_SIZE_IN_BYTES, ADDRESS_ONLY);
     uint64_t phys_address = (uint64_t)pmm_alloc_frame();
     map_phys_to_virt_addr((void*) phys_address, (void *)kheap_vaddress, PRESENT);
     // End of temporary part

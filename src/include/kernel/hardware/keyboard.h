@@ -17,7 +17,9 @@
 
 #define ASCII_DIGIT_OFFSET  0x10
 #define BUF_STEP(x) ((x < MAX_KEYB_BUFFER_SIZE -1) ? x+1 : 0  )
+
 typedef enum {
+    // This enum contain the value of the kernel scancodes
     //Row 1
     ESCAPE=0x01,
     F1=0x3B,
