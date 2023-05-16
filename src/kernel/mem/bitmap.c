@@ -88,13 +88,34 @@ int64_t _bitmap_request_frame(){
             for (column = 0; column < BITMAP_ROW_BITS; column++){
                 uint64_t bit = 1 << column;
                 if((memory_map[row] & bit) == 0){
-                    //Found a location
-/*#if !defined(_TEST_) && defined(DEBUG)
-                    _printStringAndNumber("Found something at row: ", row);
-                    _printStringAndNumber("---column: ", column);
-                    _printStringAndNumber("---Address: ", (row * 64 + column) * PAGE_SIZE_IN_BYTES); 
-#endif*/
                     return row * BITMAP_ROW_BITS + column;
+                }
+            }
+        }
+    }
+    return -1;
+}
+
+int64_t _bitmap_request_frames(size_t number_of_frames) {
+    uint16_t row = 0;
+    uint16_t column = 0;
+    size_t adjacents_found = 0;
+    uint16_t start_row =0;
+    uint16_t start_column = 0;
+
+    for (row = 0; row < number_of_entries; row++){
+        if(memory_map[row] != BITMAP_ENTRY_FULL){
+            for (column = 0; column < BITMAP_ROW_BITS; column++){
+                uint64_t bit = 1 << column;
+                if((memory_map[row] & bit) == 0){
+                    if(adjacents_found == 0) {
+                        start_row = row;
+                        start_column = column;
+                    }
+                    adjacents_found++;
+                    if(adjacents_found == number_of_frames) {
+                        return start_row * BITMAP_ROW_BITS + start_column;
+                    }
                 }
             }
         }

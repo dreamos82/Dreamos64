@@ -25,6 +25,7 @@ void _initialize_bitmap(unsigned long);
 void _bitmap_get_region(uint64_t* base_address, size_t* length_in_bytes);
 
 int64_t _bitmap_request_frame();
+int64_t _bitmap_request_frames(size_t number_of_frames);
 void _bitmap_set_bit(uint64_t);
 void _bitmap_free_bit(uint64_t);
 bool _bitmap_test_bit(uint64_t);
