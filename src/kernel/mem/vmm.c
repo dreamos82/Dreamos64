@@ -98,7 +98,13 @@ void *vmm_alloc(size_t size, size_t flags) {
 
     if  (!is_address_only(flags) ) {
         logline(Verbose, "(vmm_alloc) This means that we want the address to be mapped directly with physical memory.");
-
+        
+        size_t required_pages = get_number_of_pages_from_size(size);
+        
+        for  ( int i = 0; i < required_pages; i++ )  {
+            void * frame = pmm_alloc_frame();
+            map_phys_to_virt_addr((void*) frame, (void *)address_to_return + (i * PAGE_SIZE_IN_BYTES), PRESENT);
+        }
     }
 
     loglinef(Verbose, "(vmm_alloc) newly allocated item base: %x, next available address: %x", vmm_cur_container->vmm_root[vmm_cur_index].base, next_available_address);

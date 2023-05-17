@@ -116,6 +116,8 @@ int64_t _bitmap_request_frames(size_t number_of_frames) {
                     if(adjacents_found == number_of_frames) {
                         return start_row * BITMAP_ROW_BITS + start_column;
                     }
+                } else {
+                    adjacents_found = 0;
                 }
             }
         }

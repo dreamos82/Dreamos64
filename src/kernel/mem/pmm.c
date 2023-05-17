@@ -82,7 +82,7 @@ void *pmm_alloc_area(size_t size) {
     uint64_t frames = _bitmap_request_frames(requested_frames);
     
     for (int i =0; i < requested_frames; i++) {
-        _bitmap_set_bit( frames +i );
+        _bitmap_set_bit( frames + i );
     }
     
     used_frames += requested_frames;

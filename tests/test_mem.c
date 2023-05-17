@@ -149,6 +149,10 @@ void test_pmm(){
     printf("\t [test_mem] (bitmap): Changing memory_map[0] value to 75, and used frames to 4\n");
     memory_map[0] = 75;
     used_frames = 4;
+    frame_2 = pmm_alloc_area(0x500000);
+    printf("\t [test_mem] (bitmap): memory_map[0]=0x%x and used_frames=0x%x\n", memory_map[0], used_frames);
+    assert(memory_map[0] == 0x3CB);
+    assert(used_frames == 0x7);
     printf("Finished\n");
 }
 
