@@ -51,7 +51,7 @@ IDT_descriptor idt_table[IDT_SIZE];
 cpu_status_t* interrupts_handler(cpu_status_t *status){
     switch(status->interrupt_number){
         case PAGE_FAULT:
-            logline(Verbose, "(interrupt_handler) Page fault");
+            logline(Verbose, "(interrupt_handler): Page fault");
             page_fault_handler(status->error_code);
             break;
         case GENERAL_PROTECTION:
