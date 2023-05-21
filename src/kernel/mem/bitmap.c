@@ -55,7 +55,7 @@ void _initialize_bitmap(unsigned long end_of_reserved_area){
     //used_frames = kernel_entries;
     //used_frames = 0x09; // Is the number of currently used frames - 1 (since the count starts from 0)
     used_frames = kernel_entries;
-    loglinef(Verbose, "(_initialize_bitmap) Page size: %d", PAGE_SIZE_IN_BYTES);
+    loglinef(Info, "(_initialize_bitmap)Page size used by the kernel: %d", PAGE_SIZE_IN_BYTES);
     loglinef(Verbose, "(_initialize_bitmap) Actual size in bytes: %d", memory_size_in_bytes);
     loglinef(Verbose, "(_initialize_bitmap) _kernel_end: %x", &_kernel_end);
     loglinef(Verbose, "(_initialize_bitmap) Number of bit entries: %d - %d", bitmap_size, number_of_entries);
@@ -154,8 +154,6 @@ void _bitmap_free_bit(uint64_t location){
 }
 
 bool _bitmap_test_bit(uint64_t location){
-    loglinef(Verbose, "(_bitmap_test_bit): computed item: 0x%x", (location / BITMAP_ROW_BITS));
-    loglinef(Verbose, "(_bitmap_test_bit): location: 0x%x", location);
     return memory_map[location / BITMAP_ROW_BITS] & (1 << (location % BITMAP_ROW_BITS));
 }
 

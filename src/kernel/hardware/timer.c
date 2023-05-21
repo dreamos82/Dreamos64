@@ -56,10 +56,10 @@ uint32_t calibrate_apic() {
 void start_apic_timer(uint32_t initial_count, uint32_t flags, uint8_t divider) {
 
     if(apic_base_address == 0) {
-        logline(Error, "Apic_base_address not found, or apic not initialized");
+        logline(Error, "(start_apic_timer): Apic_base_address not found, or apic not initialized");
     }
 
-    loglinef(Verbose, "Read apic_register: 0x%x", read_apic_register(APIC_TIMER_LVT_OFFSET));
+    loglinef(Verbose, "(start_apic_timer): Read apic_register: 0x%x", read_apic_register(APIC_TIMER_LVT_OFFSET));
 
     write_apic_register(APIC_TIMER_INITIAL_COUNT_REGISTER_OFFSET, initial_count);
     write_apic_register(APIC_TIMER_CONFIGURATION_OFFSET, divider);
