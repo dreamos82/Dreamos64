@@ -20,11 +20,11 @@ void pmm_setup(unsigned long addr, uint32_t size){
     _initialize_bitmap(addr + size);
     uint64_t bitmap_start_addr;
     size_t bitmap_size;
-    _bitmap_get_region(&bitmap_start_addr, &bitmap_size);
+    _bitmap_get_region(&bitmap_start_addr, &bitmap_size, ADDRESS_TYPE_PHYSICAL);
 #ifndef _TEST_
     //we cant reserve the bitmap in testing scenarios, as malloc() can return any address, usually leading to a super high index when we try to reserve it.
     //this usually results in a seg fault as we try to access entries in the bitmap waaaay too large.
-    //we could probably get around this hack by asking the host os to map the bitmap as it's expected address via it's vmm.
+    //we could probably get around this hack by asking the host os to map the bitmap as it's expected address via it's vmm.    
     pmm_reserve_area(bitmap_start_addr, bitmap_size);
 #endif
 
@@ -41,14 +41,14 @@ void _map_pmm()
 
     uint64_t bitmap_start;
     size_t bitmap_size_bytes;
-    _bitmap_get_region(&bitmap_start, &bitmap_size_bytes);
-
-    //now we have the real addresses, we need to round the start down, and the size up to the nearest page
+    _bitmap_get_region(&bitmap_start, &bitmap_size_bytes, ADDRESS_TYPE_PHYSICAL);
+    //now we have the real addresses, we need to round the start down, and the size up to the nearest page    
     bitmap_start = (bitmap_start / PAGE_SIZE_IN_BYTES) * PAGE_SIZE_IN_BYTES;
+    
     const size_t pages_required = bitmap_size_bytes / PAGE_SIZE_IN_BYTES + 1;
 
     loglinef(Verbose, "(_map_pmm): Identity mapping PMM bitmap, addr(virt & phys)= 0x%x", bitmap_start);
-    loglinef(Verbose, "    \\- Pages required=%d", pages_required);
+    loglinef(Verbose, "(_map_pmm):   \\- Pages required=%d", pages_required);
 
     for (size_t i = 0; i < pages_required; i++)
         map_vaddress((void*)(bitmap_start + i * PAGE_SIZE_IN_BYTES), 0); //0 as no extra flags required

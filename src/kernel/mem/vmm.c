@@ -280,6 +280,7 @@ void *map_phys_to_virt_addr(void* physical_address, void* address, paging_flags_
         flags = flags | USER_LEVEL;
         user_mode_status = USER_LEVEL;
     }
+    
     // If the pml4_e item in the pml4 table is not present, we need to create a new one.
     // Every entry in pml4 table points to a pdpr table
     if( !(pml4_table[pml4_e] & 0b1) ) {
@@ -287,6 +288,7 @@ void *map_phys_to_virt_addr(void* physical_address, void* address, paging_flags_
         pml4_table[pml4_e] = (uint64_t) new_table | user_mode_status | WRITE_BIT | PRESENT_BIT;
         clean_new_table(pdpr_table);
     }
+    
 
 
     // If the pdpr_e item in the pdpr table is not present, we need to create a new one.

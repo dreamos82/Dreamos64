@@ -29,13 +29,13 @@ void _mmap_parse(struct multiboot_tag_mmap *mmap_root){
 
 #ifndef _TEST_
     while(i<mmap_number_of_entries){
-        loglinef(Verbose, "Address: 0x%x - Len: 0x%x", mmap_entries[i].addr, mmap_entries[i].len);
-        loglinef(Verbose, "---Type:: %d - %s", mmap_entries[i].type, (char *) mmap_types[mmap_entries[i].type]);
-        logline(Verbose,  "---END OF MMAP ITEM");
+        loglinef(Verbose, "(_mmap_parse): Address: 0x%x - Len: 0x%x", mmap_entries[i].addr, mmap_entries[i].len);
+        loglinef(Verbose, "(_mmap_parse): ---Type:: %d - %s", mmap_entries[i].type, (char *) mmap_types[mmap_entries[i].type]);
+        logline(Verbose,  "(_mmap_parse): ---END OF MMAP ITEM");
         total_entries++;
         i++;
     }
-    loglinef(Verbose, "Total entries: %d", total_entries);
+    loglinef(Verbose, "(_mmap_parse): Total entries: %d", total_entries);
 #endif
 }
 
@@ -47,9 +47,9 @@ void _mmap_setup(){
         while(counter < mmap_number_of_entries){
             if(mmap_entries[counter].addr < mem_limit &&
                     mmap_entries[counter].type > 1){
-               loglinef(Verbose, "Found entry at addr: %x", mmap_entries[counter].addr);
-               pmm_reserve_area(mmap_entries[counter].addr, mmap_entries[counter].len);
-               count_physical_reserved++;
+                loglinef(Verbose, "(_mmap_setup): Found entry at addr: %x", mmap_entries[counter].addr);
+                pmm_reserve_area(mmap_entries[counter].addr, mmap_entries[counter].len);
+                count_physical_reserved++;
             }
             counter++;
         }
@@ -76,12 +76,12 @@ void* _mmap_determine_bitmap_region(uint64_t lower_limit, size_t bytes_needed){
         
         if (actual_available_space >= bytes_needed)
         {
-            loglinef(Verbose, "Found space for bitnmap at address: 0x%x", current_entry->addr + entry_offset);
+            loglinef(Verbose, "(_mmap_determine_bitmap_region): Found space for bitmap at address: 0x%x", current_entry->addr + entry_offset);
             return (void*)(current_entry->addr + entry_offset);
         }
     }
 
     //BOOM! D:
-    logline(Verbose, "Could not find a space big enough to hold the pmm bitmap! This should not happen.");
+    logline(Verbose, "(_mmap_determine_bitmap_region): Could not find a space big enough to hold the pmm bitmap! This should not happen.");
     return NULL;
 }

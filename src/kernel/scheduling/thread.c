@@ -18,7 +18,7 @@ thread_t* create_thread(char* thread_name, void (*_entry_point)(void *), void* a
     new_thread->next = NULL;
     new_thread->next_sibling = NULL;
     new_thread->ticks = 0;
-    loglinef(Verbose, "Creating thread with arg: %c - arg: %x - name: %s - rip: %u", (char) *((char*) arg), arg, thread_name, _entry_point);
+    loglinef(Verbose, "(create_thread): Creating thread with arg: %c - arg: %x - name: %s - rip: %u", (char) *((char*) arg), arg, thread_name, _entry_point);
 
     //Here we create a new execution frame to be used when switching to a newly created task
     new_thread->execution_frame = kmalloc(sizeof(cpu_status_t));
@@ -33,7 +33,7 @@ thread_t* create_thread(char* thread_name, void (*_entry_point)(void *), void* a
     // We need to allocate a new stack for each thread
     uintptr_t stack_pointer = (uintptr_t) kmalloc(THREAD_DEFAULT_STACK_SIZE);
     if(stack_pointer == NULL) {
-        loglinef(Verbose, "(create_thread) rsp is null - PANIC!");
+        loglinef(Fatal, "(create_thread): rsp is null - PANIC!");
         while(1);
     }
     
@@ -138,6 +138,7 @@ void noop3(char *c) {
     
     vmm_alloc(100, 0);
     vmm_alloc(2097253, 0);
+    loglinef(Verbose, "(noop3): empty line");     
 }
 
 char *get_thread_status(thread_t *thread) {
