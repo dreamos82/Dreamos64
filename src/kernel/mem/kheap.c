@@ -15,14 +15,8 @@ extern uint64_t end_of_mapped_memory;
 void initialize_kheap(){
     #ifndef _TEST_
 
-    // This part should be handled in total by vmm_alloc, 
-    // But the function is not completed yet, so for now i get first the phys address
-    // It should be enough to only call vmm_alloc, without the address_only flag. 
-    // And then map it manually
-    uint64_t *kheap_vaddress = vmm_alloc(PAGE_SIZE_IN_BYTES, ADDRESS_ONLY);
-    uint64_t phys_address = (uint64_t)pmm_alloc_frame();
-    map_phys_to_virt_addr((void*) phys_address, (void *)kheap_vaddress, PRESENT);
-    // End of temporary part
+    // Let's allocate the new heap, we rely on the vmm_alloc function for this part.
+    uint64_t *kheap_vaddress = vmm_alloc(PAGE_SIZE_IN_BYTES, NONE);
 
     kernel_heap_start = (KHeapMemoryNode *) ((uint64_t) kheap_vaddress);
     loglinef(Verbose, "(initialize_kheap) Start address using vmm_alloc: %x, and using end of vmm_space: %x", kheap_vaddress, kernel_heap_start);
