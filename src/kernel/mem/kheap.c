@@ -1,21 +1,36 @@
 #include <kheap.h>
 #include <bitmap.h>
+#include <pmm.h>
 #include <vmm.h>
 #include <kernel.h>
 #include <logging.h>
+#include <util.h>
 
 KHeapMemoryNode *kernel_heap_start;
 KHeapMemoryNode *kernel_heap_current_pos;
 KHeapMemoryNode *kernel_heap_end;
     
-extern unsigned int end_of_mapped_memory;
+extern uint64_t end_of_mapped_memory;
 
 void initialize_kheap(){
-    //That should be mapped? 
-    kernel_heap_start = (KHeapMemoryNode *) ((uint64_t)&_kernel_end + KERNEL_MEMORY_PADDING);
+    #ifndef _TEST_
+
+    // Let's allocate the new heap, we rely on the vmm_alloc function for this part.
+    uint64_t *kheap_vaddress = vmm_alloc(PAGE_SIZE_IN_BYTES, NONE);
+
+    kernel_heap_start = (KHeapMemoryNode *) ((uint64_t) kheap_vaddress);
+    loglinef(Verbose, "(initialize_kheap) Start address using vmm_alloc: %x, and using end of vmm_space: %x", kheap_vaddress, kernel_heap_start);
+    loglinef(Verbose, "(initialize_kheap) PAGESIZE: 0x%x - val: %x", PAGE_SIZE_IN_BYTES, kernel_heap_start->size);
+
+    #else
+        #pragma message "(initialize_kheap) Using test specific initialization"
+        loglinef(Verbose, "(initialize_kheap) Test suite initialization");
+        kernel_heap_start = (KHeapMemoryNode *) ((uint64_t)&_kernel_end + KERNEL_MEMORY_PADDING);
+    #endif
+
     kernel_heap_current_pos = kernel_heap_start;
     kernel_heap_end = kernel_heap_start;
-    loglinef(Verbose, "Kheap memory end: 0x%x", kernel_heap_end);
+    //TODO: Should we use PAGE_SIZE for the initial heap size?
     kernel_heap_current_pos->size = 0x1000;
     kernel_heap_current_pos->is_free = true;
     kernel_heap_current_pos->next = NULL;
@@ -78,14 +93,19 @@ void *kmalloc(size_t size) {
 }
 
 void expand_heap(size_t required_size) {
-    size_t number_of_pages = required_size / KERNEL_PAGE_SIZE + 1;
+    loglinef(Verbose, "(expand_heap) called size: %d current_end: 0x%x - end_of_mapped_memory: 0x%x", required_size, kernel_heap_end, end_of_mapped_memory);
+    //size_t number_of_pages = required_size / KERNEL_PAGE_SIZE + 1;
+    size_t number_of_pages = get_number_of_pages_from_size(required_size);
     uint64_t heap_end = compute_kheap_end();
-    if( heap_end > end_of_mapped_memory ) {
+        if ( heap_end > end_of_mapped_memory ) {
         //end_of_mapped memory marks the end of the memory mapped by the kernel loader.
         //if the new heap address is above that, we need to map a new one, otherwise we can just mark it as used.
         //That part temporary, it needs to be reviewed when the memory mapping will be reviewed.
+        // This function no longer need to use end_of_mapped_memory, since now the heap reside somewhere else.
         map_vaddress_range((uint64_t *) heap_end, 0, number_of_pages);
     }
+    // We need to update the tail first
+    // It starts at the end of the current heap
     KHeapMemoryNode *new_tail = (KHeapMemoryNode *) heap_end;
     new_tail->next = NULL;
     new_tail->prev = kernel_heap_end;
@@ -93,6 +113,7 @@ void expand_heap(size_t required_size) {
     new_tail->is_free = true;
     kernel_heap_end->next = new_tail;
     kernel_heap_end = new_tail;
+    // After updating the new tail, we check if it can be merged with previous node
     uint8_t available_merges = can_merge(new_tail);
     if ( available_merges & MERGE_LEFT) {
         merge_memory_nodes(new_tail->prev, new_tail);

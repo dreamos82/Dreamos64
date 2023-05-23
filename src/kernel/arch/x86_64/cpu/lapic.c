@@ -29,7 +29,7 @@ void init_apic() {
     apic_base_address = (msr_output&APIC_BASE_ADDRESS_MASK);
     apic_hh_base_address = ensure_address_in_higher_half(apic_base_address);
     if(apic_base_address == 0) {
-        logline(Verbose, "ERROR: cannot determine apic base address");
+        logline(Error, "ERROR: cannot determine apic base address");
     }
 
     //determine if x2apic is available, if so, enable it. It's cpuid leaf 1, ecx bit 21.
@@ -40,7 +40,7 @@ void init_apic() {
     (void)ignored;
     
     if (x2ApicLeaf & (1 << 21)) {
-        logline(Verbose, "X2APIC available!");
+        logline(Info, "X2APIC available!");
         apicInX2Mode = true;
         kernel_settings.use_x2_apic = true;
         //no need to map mmio registers as we'll be accessing apic via MSRs
@@ -49,7 +49,7 @@ void init_apic() {
         wrmsr(IA32_APIC_BASE, msr_output);
     }
     else if (xApicLeaf & (1 << 9)) {
-        logline(Verbose, "APIC available!");
+        logline(Info, "APIC available!");
         apicInX2Mode = false;
         kernel_settings.use_x2_apic = false;
 

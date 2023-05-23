@@ -6,6 +6,7 @@
 #include <kheap.h>
 #include <logging.h>
 #include <kernel.h>
+#include <vmm.h>
 
 thread_t* create_thread(char* thread_name, void (*_entry_point)(void *), void* arg, task_t* parent_task) {
     thread_t *new_thread = kmalloc(sizeof(thread_t));
@@ -17,7 +18,7 @@ thread_t* create_thread(char* thread_name, void (*_entry_point)(void *), void* a
     new_thread->next = NULL;
     new_thread->next_sibling = NULL;
     new_thread->ticks = 0;
-    loglinef(Verbose, "Creating thread with arg: %c - arg: %x - name: %s - rip: %u", (char) *((char*) arg), arg, thread_name, _entry_point);
+    loglinef(Verbose, "(create_thread): Creating thread with arg: %c - arg: %x - name: %s - rip: %u", (char) *((char*) arg), arg, thread_name, _entry_point);
 
     //Here we create a new execution frame to be used when switching to a newly created task
     new_thread->execution_frame = kmalloc(sizeof(cpu_status_t));
@@ -32,7 +33,7 @@ thread_t* create_thread(char* thread_name, void (*_entry_point)(void *), void* a
     // We need to allocate a new stack for each thread
     uintptr_t stack_pointer = (uintptr_t) kmalloc(THREAD_DEFAULT_STACK_SIZE);
     if(stack_pointer == NULL) {
-        loglinef(Verbose, "(create_thread) rsp is null - PANIC!");
+        loglinef(Fatal, "(create_thread): rsp is null - PANIC!");
         while(1);
     }
     
@@ -134,6 +135,11 @@ void noop3(char *c) {
         #endif
 
     }
+    
+    vmm_alloc(100, 0);
+    uint64_t *test_addr = (uint64_t  *) vmm_alloc(2097253, 0);
+    test_addr[0] = 5;
+    loglinef(Verbose, "(noop3): test_addr[0] = %d", test_addr[0]);
 }
 
 char *get_thread_status(thread_t *thread) {

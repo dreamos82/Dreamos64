@@ -35,6 +35,9 @@ void map_vaddress_range(void *virtual_address, unsigned int flags, size_t requir
     return;
 }
 
+void *map_phys_to_virt_addr(void* physical_address, void* address, unsigned int flags) {
+    return NULL;
+}
 void init_log(size_t defaultOutputs, log_level_t trimBelowLevel, bool useVgaVideo) {
     return;
 }

@@ -37,6 +37,7 @@
 #include <task.h>
 #include <vfs.h>
 #include <fcntl.h>
+#include <unistd.h>
 //#include <runtime_tests.h>
 
 extern uint32_t FRAMEBUFFER_MEMORY_SIZE;
@@ -54,7 +55,6 @@ struct multiboot_tag_old_acpi *tagold_acpi = NULL;
 struct multiboot_tag_new_acpi *tagnew_acpi = NULL;
 struct multiboot_tag_mmap *tagmmap = NULL;
 struct multiboot_tag *tagacpi = NULL;
-uint64_t memory_size_in_bytes;
 
 void _init_basic_system(unsigned long addr){
     struct multiboot_tag* tag;
@@ -70,7 +70,7 @@ void _init_basic_system(unsigned long addr){
     //Print mmap_info
     loglinef(Verbose, "(kernel_main) init_basic_system: Memory map entry: 0x%x",  tagmmap->type);
     loglinef(Verbose, "(kernel_main) init_basic_system: ---Size: 0x%x, Entry size: 0x%x", tagmmap->size, tagmmap->entry_size);
-    loglinef(Verbose,"(kernel_main) init_basic_system: ---EntryVersion: 0x%x", tagmmap->entry_version);
+    loglinef(Verbose, "(kernel_main) init_basic_system: ---EntryVersion: 0x%x", tagmmap->entry_version);
     _mmap_parse(tagmmap);
     pmm_setup(addr, mbi_size);
 
@@ -85,13 +85,13 @@ void _init_basic_system(unsigned long addr){
     tagacpi = (struct multiboot_tag *) (multiboot_acpi_info + _HIGHER_HALF_KERNEL_MEM_START);
     if(tagacpi->type == MULTIBOOT_TAG_TYPE_ACPI_OLD){
         tagold_acpi = (struct multiboot_tag_old_acpi *)tagacpi;
-        loglinef(Verbose, "(kernel_main) init_basic_system: Found acpi RSDP: %x - Address: 0x%x", tagold_acpi->type, (unsigned long) &tagold_acpi);
+        loglinef(Info, "(kernel_main) init_basic_system: Found acpi RSDP: %x - Address: 0x%x", tagold_acpi->type, (unsigned long) &tagold_acpi);
         RSDPDescriptor *descriptor = (RSDPDescriptor *)(tagacpi+1);
         parse_SDT((uint64_t) descriptor, MULTIBOOT_TAG_TYPE_ACPI_OLD);
         validate_SDT((char *) descriptor, sizeof(RSDPDescriptor));
     } else if(tagacpi->type == MULTIBOOT_TAG_TYPE_ACPI_NEW){
         tagnew_acpi = (struct multiboot_tag_new_acpi *)tagacpi;
-        loglinef(Verbose, "(kernel_main) init_basic_system: Found acpi RSDPv2: %x - Address: 0x%x", tagnew_acpi->type, (unsigned long) &tagnew_acpi);
+        loglinef(Info, "(kernel_main) init_basic_system: Found acpi RSDPv2: %x - Address: 0x%x", tagnew_acpi->type, (unsigned long) &tagnew_acpi);
         RSDPDescriptor20 *descriptor = (RSDPDescriptor20 *) (tagacpi+1);
         parse_SDT((uint64_t) descriptor, MULTIBOOT_TAG_TYPE_ACPI_NEW);
         validate_SDT((char *) descriptor, sizeof(RSDPDescriptor20));
@@ -116,42 +116,42 @@ void kernel_start(unsigned long addr, unsigned long magic){
     load_idt();
     init_log(LOG_OUTPUT_SERIAL, Verbose, false);
     _init_basic_system(addr);
-    loglinef(Verbose, "Kernel End: 0x%x - Physical: %x", (unsigned long)&_kernel_end, (unsigned long)&_kernel_physical_end);
+    loglinef(Verbose, "(kernel_start): Kernel End: 0x%x - Physical: %x", (unsigned long)&_kernel_end, (unsigned long)&_kernel_physical_end);
     // Reminder here: The first 8 bytes have a fixed structure in the multiboot info:
     // They are: 0-4: size of the boot information in bytes
     //           4-8: Reserved (0) 
     unsigned size = *(unsigned*)addr;
-    loglinef(Verbose, "Size:  %x - Magic: %x", size, magic);
+    loglinef(Verbose, "(kernel_start): Size:  %x - Magic: %x", size, magic);
 	if(magic == 0x36d76289){
-        logline(Verbose, "Magic number verified");
+        logline(Verbose, "(kernel_start): Magic number verified");
 	} else {
-		logline(Verbose, "Failed to verify magic number. Something is wrong");
+		logline(Verbose, "(kernel_start): Failed to verify magic number. Something is wrong");
 	}
     #if USE_FRAMEBUFFER == 1 
         if(get_PSF_version(_binary_fonts_default_psf_start) == 1){
-            logline(Verbose, "PSF v1 found");
+            logline(Verbose, "(kernel_start): PSF v1 found");
             PSFv1_Font *font = (PSFv1_Font*)_binary_fonts_default_psf_start;
-            loglinef(Verbose, "Magic: [%x %x]", font->magic[1], font->magic[0]);
-            loglinef(Verbose, "Flags: 0x%x", font->mode);
-            loglinef(Verbose, "Charsize: 0x%x", font->charsize);
+            loglinef(Verbose, "(kernel_start): Magic: [%x %x]", font->magic[1], font->magic[0]);
+            loglinef(Verbose, "(kernel_start): Flags: 0x%x", font->mode);
+            loglinef(Verbose, "(kernel_start): Charsize: 0x%x", font->charsize);
         }  else {
             PSF_font *font = (PSF_font*)&_binary_fonts_default_psf_start;
-            logline(Verbose, "PSF v2 found");
-            loglinef(Verbose, "Magic: 0x%x", font->magic);
-            loglinef(Verbose, "Number of glyphs: 0x%x", font->numglyph);
-            loglinef(Verbose, "Header size: 0x%x", font->headersize);
-            loglinef(Verbose, "Bytes per glyphs: 0x%x", font->bytesperglyph);
-            loglinef(Verbose, "Flags: 0x%x", font->flags);
-            loglinef(Verbose, "Version: 0x%x", font->version);
-            loglinef(Verbose, "Width: 0x%x", font->width);
-            loglinef(Verbose, "Height: 0x%x", font->height);
-            loglinef(Verbose, "Get Width test: %x", get_width(psf_font_version));
-            loglinef(Verbose, "Get Height test: %x", get_height(psf_font_version));
+            logline(Verbose, "(kernel_start): PSF v2 found");
+            loglinef(Verbose, "(kernel_start): Magic: 0x%x", font->magic);
+            loglinef(Verbose, "(kernel_start): Number of glyphs: 0x%x", font->numglyph);
+            loglinef(Verbose, "(kernel_start): Header size: 0x%x", font->headersize);
+            loglinef(Verbose, "(kernel_start): Bytes per glyphs: 0x%x", font->bytesperglyph);
+            loglinef(Verbose, "(kernel_start): Flags: 0x%x", font->flags);
+            loglinef(Verbose, "(kernel_start): Version: 0x%x", font->version);
+            loglinef(Verbose, "(kernel_start):Width: 0x%x", font->width);
+            loglinef(Verbose, "(kernel_start): Height: 0x%x", font->height);
+            loglinef(Verbose, "(kernel_start): Get Width test: %x", get_width(psf_font_version));
+            loglinef(Verbose, "(kernel_start): Get Height test: %x", get_height(psf_font_version));
         }
-        loglinef(Verbose, "PSF stored version: %d", psf_font_version);
+        loglinef(Verbose, "(kernel_start): PSF stored version: %d", psf_font_version);
         uint32_t pw, ph, cw, ch;
         get_framebuffer_mode(&pw, &ph, &cw, &ch);
-        loglinef(Verbose, "Number of lines: %d", ch);
+        loglinef(Verbose, "(kernel_start): Number of lines: %d", ch);
 
         _fb_printStr("Ciao!", 1, 0, 0x000000, 0xFFFFFF);
         _fb_printStr("Dreamos64", 0, 1, 0xFFFFFF, 0x3333ff);
@@ -162,14 +162,14 @@ void kernel_start(unsigned long addr, unsigned long magic){
     #endif
     
     char *cpuid_model = _cpuid_model();
-    loglinef(Verbose, "Cpuid model: %s", cpuid_model);
+    loglinef(Verbose, "(kernel_start): Cpuid model: %s", cpuid_model);
     
     uint32_t cpu_info = 0;
     cpu_info = _cpuid_feature_apic();
-    loglinef(Verbose, "Cpu info result: 0x%x", cpu_info);
+    loglinef(Verbose, "(kernel_start): Cpu info result: 0x%x", cpu_info);
     init_apic();
     _mmap_setup();
-
+    vmm_init();
     initialize_kheap();
     kernel_settings.kernel_uptime = 0;
     kernel_settings.paging.page_root_address = p4_table;
@@ -219,6 +219,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
     //execute_runtime_tests();
     //test_get_task();
     start_apic_timer(kernel_settings.apic_timer.timer_ticks_base, APIC_TIMER_SET_PERIODIC, kernel_settings.apic_timer.timer_divisor);
+    loglinef(Verbose, "(kernel_main) (END of Mapped memory: 0x%x)", end_of_mapped_memory);
     while(1);
 }
 

@@ -9,7 +9,9 @@ extern KHeapMemoryNode* kernel_heap_start;
 extern KHeapMemoryNode* kernel_heap_current_pos;
 extern KHeapMemoryNode* kernel_heap_end;
 
-unsigned int end_of_mapped_memory;;
+unsigned int end_of_mapped_memory;
+struct multiboot_tag_basic_meminfo *tagmem;
+struct multiboot_tag_mmap *mmap_root;
 
 uint64_t _kernel_end = 0x1190AC;
 uint64_t kheap_size = 8 * PAGE_SIZE;

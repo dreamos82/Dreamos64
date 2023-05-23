@@ -9,6 +9,9 @@
 //extern kernel_status_t kernel_settings;
 
 key_status keyboard_buffer[MAX_KEYB_BUFFER_SIZE];
+
+// The array below contains the mappins of the hardware scancode into the kernel one.
+// The kernel scancodes for now are the same of the scancode set 1 (but they can change in future)
 key_codes scancode_mappings[] = {
 0, ESCAPE, D1, D2, D3, D4, D5, D6, D7, D8, D9, D0, MINUS, EQUALS, BACKSPACE,
 TAB, Q, W, E, R, T, Y, U, I, O, P, SQBRACKET_OPEN, SQBRACKET_CLOSE, ENTER,
@@ -20,6 +23,7 @@ F11, F12, NUM_LOCK, SCROLL_LOCK,
 KEYPAD_D7, KEYPAD_D8, KEYPAD_D9, KEYPAD_MINUS, KEYPAD_D4, KEYPAD_D5, KEYPAD_D6, KEYPAD_PLUS, KEYPAD_D1, KEYPAD_D2, KEYPAD_D3, KEYPAD_D0, KEYPAD_DOT,
 };
 
+// We are mapping the ascii symbols to the kernel scancodes
 char keymap[] = {
 0, ESCAPE, '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', '\b',
 '\t', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\n',
