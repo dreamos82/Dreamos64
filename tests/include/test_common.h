@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+
 typedef enum {
     Debug = 0,
     Verbose = 1,
@@ -11,6 +12,15 @@ typedef enum {
     Error = 3,
     Fatal = 4,
 } log_level_t;
+
+typedef struct {
+    bool    locked;
+} spinlock_t;
+
+
+void spinlock_acquire(spinlock_t *lock);
+void spinlock_release(spinlock_t *lock);
+void spinlock_free(spinlock_t *lock);
 
 void _printStringAndNumber(char *, unsigned long);
 void _printStr(const char *);

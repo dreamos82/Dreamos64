@@ -52,3 +52,14 @@ void loglinef(log_level_t level, const char* msg, ...){
     return;
 }
 
+void spinlock_acquire(spinlock_t *lock) {
+    return;
+}
+
+void spinlock_release(spinlock_t *lock) {
+    return;
+}
+
+void spinlock_free(spinlock_t* spinlock) {
+    return;
+}
