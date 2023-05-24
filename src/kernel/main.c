@@ -78,7 +78,6 @@ void _init_basic_system(unsigned long addr){
     loglinef(Verbose, "(kernel_main) init_basic_system: ---framebuffer-type: 0x%x - address: 0x%x", tagfb->common.framebuffer_type, tagfb->common.framebuffer_addr);
     loglinef(Verbose, "(kernel_main) init_basic_system: ---framebuffer-width: 0x%x - height: 0x%x", tagfb->common.framebuffer_width, tagfb->common.framebuffer_height);
     loglinef(Verbose, "(kernel_main) init_basic_system: ---framebuffer-bpp: 0x%x - framebuffer-pitch: 0x%x", tagfb->common.framebuffer_bpp, tagfb->common.framebuffer_pitch);
-    loglinef(Verbose, "(kernel_main) init_basic_system: ---Virtual Address: 0x%x", tagfb + _HIGHER_HALF_KERNEL_MEM_START);
     set_fb_data(tagfb);
     loglinef(Verbose, "(kernel_main) init_basic_system: ---Total framebuffer size is: 0x%x", framebuffer_data.memory_size);
     
