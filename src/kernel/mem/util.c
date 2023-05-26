@@ -13,3 +13,10 @@ size_t align_up(size_t value, size_t alignment) {
     return ((value + alignment - 1) / alignment) * alignment;
 }
 
+bool is_address_aligned(size_t value, size_t alignment) {
+    if (value % alignment == 0) {
+        return true;
+    }
+    return false;
+}
+

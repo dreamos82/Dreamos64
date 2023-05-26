@@ -73,10 +73,9 @@ void parse_RSDTv2(RSDPDescriptor20 *descriptor){
     size_t required_extra_pages = (header.Length / KERNEL_PAGE_SIZE) + 1;
 
     if (required_extra_pages > 1) {
-        //loglinef(Verbose, "(parse_RSDTv2): - XSDT_PAGES_NEEDED: %d", required_extra_pages);
         for (size_t j = 1; j < required_extra_pages; j++) {
             uint64_t new_physical_address = descriptor->XsdtAddress + (j * KERNEL_PAGE_SIZE);
-            map_phys_to_virt_addr((uint64_t *) new_physical_address, (uint64_t *) ensure_address_in_higher_half(new_physical_address), 0);
+            map_phys_to_virt_addr((uint64_t *) new_physical_address, (uint64_t *) ensure_address_in_higher_half(new_physical_address), WRITE_BIT | PRESENT_BIT);
             _bitmap_set_bit_from_address(ALIGN_PHYSADDRESS(new_physical_address));
         }
     }

@@ -36,14 +36,17 @@ typedef struct VmmItem{
     size_t flags;
 } VmmItem;
 
+/**
+ * This struct contains the base addresses used by the Virtual Memory Manager
+ */
 typedef struct VmmInfo {
-    uintptr_t higherHalfDirectMapBase;
-    uintptr_t vmmDataStart;
-    uintptr_t vmmSpaceStart;
+    uintptr_t higherHalfDirectMapBase; /**< The startr of the physical memory direct mapping */
+    uintptr_t vmmDataStart; /**< The start of the VMM reserved area for it's own data structures */
+    uintptr_t vmmSpaceStart; /**< The start of the VMM space, where all allocation will be placed */
 } VmmInfo;
 
 typedef struct VmmContainer {
-    VmmItem vmm_root[(PAGE_SIZE_IN_BYTES/sizeof(VmmItem)) - 1];
+    VmmItem vmm_root[(PAGE_SIZE_IN_BYTES/sizeof(VmmItem) - 1)];
     struct VmmContainer *next;
 } __attribute__((__packed__)) VmmContainer;
 
