@@ -31,6 +31,7 @@ TESTFLAGS := -std=gnu99 \
         -I src/include/drivers/fs \
         -I src/include/kernel \
         -I src/include/kernel/x86_64 \
+        -I src/include/sys \
         -DSMALL_PAGES=$(SMALL_PAGES) \
         -D_TEST_=1
 
