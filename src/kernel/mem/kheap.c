@@ -16,7 +16,7 @@ void initialize_kheap(){
     #ifndef _TEST_
 
     // Let's allocate the new heap, we rely on the vmm_alloc function for this part.
-    uint64_t *kheap_vaddress = vmm_alloc(PAGE_SIZE_IN_BYTES, NONE);
+    uint64_t *kheap_vaddress = vmm_alloc(PAGE_SIZE_IN_BYTES, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE);
 
     kernel_heap_start = (KHeapMemoryNode *) ((uint64_t) kheap_vaddress);
     loglinef(Verbose, "(initialize_kheap) Start address using vmm_alloc: %x, and using end of vmm_space: %x", kheap_vaddress, kernel_heap_start);
@@ -102,7 +102,7 @@ void expand_heap(size_t required_size) {
         //if the new heap address is above that, we need to map a new one, otherwise we can just mark it as used.
         //That part temporary, it needs to be reviewed when the memory mapping will be reviewed.
         // This function no longer need to use end_of_mapped_memory, since now the heap reside somewhere else.
-        map_vaddress_range((uint64_t *) heap_end, 0, number_of_pages);
+        map_vaddress_range((uint64_t *) heap_end, VMM_FLAGS_WRITE_ENABLE | VMM_FLAGS_PRESENT, number_of_pages);
     }
     // We need to update the tail first
     // It starts at the end of the current heap

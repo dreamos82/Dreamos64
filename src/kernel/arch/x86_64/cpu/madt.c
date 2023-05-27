@@ -18,7 +18,7 @@ void map_madt(MADT* table){
     }
     
     uint64_t madt_address = ((uint64_t) table + sizeof(MADT));
-    map_phys_to_virt_addr((void *) ALIGN_PHYSADDRESS(madt_address), (void *) ensure_address_in_higher_half(madt_address), 0);
+    map_phys_to_virt_addr((void *) ALIGN_PHYSADDRESS(madt_address), (void *) ensure_address_in_higher_half(madt_address), VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE);
     _bitmap_set_bit_from_address(ALIGN_PHYSADDRESS(madt_address));
     loglinef(Verbose, "(map_madt): Sizeof MADT struct: 0x%x", sizeof(MADT));
     madt_base = (MADT_Item *) ensure_address_in_higher_half((uint64_t)madt_address);

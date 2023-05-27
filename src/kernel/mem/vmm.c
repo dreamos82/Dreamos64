@@ -60,7 +60,7 @@ void vmm_init() {
     loglinef(Verbose, "(vmm_init): Got vmm_root_phys address: %x", vmm_root_phys);
     loglinef(Verbose, "(vmm_init): Sizeof VmmContainer: %x", sizeof(VmmContainer)); 
     // Mapping the phyiscal address for the vmm structures
-    map_phys_to_virt_addr(vmm_root_phys, vmm_container_root, PRESENT | WRITE_ENABLE);
+    map_phys_to_virt_addr(vmm_root_phys, vmm_container_root, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE);
     //vmm_container_root->vmm_root[0].size = 5;
     //loglinef(Verbose, "(vmm_init): flags should be 0: %d size should be 5: %d", vmm_container_root->vmm_root[0].flags, vmm_container_root->vmm_root[0].size);
     loglinef(Verbose, "(vmm_init): where does the container  start? %x and the address of vmm_container_root variable: %x", vmm_container_root, &vmm_container_root);
@@ -103,7 +103,7 @@ void *vmm_alloc(size_t size, size_t flags) {
         
         for  ( int i = 0; i < required_pages; i++ )  {
             void * frame = pmm_alloc_frame();
-            map_phys_to_virt_addr((void*) frame, (void *)address_to_return + (i * PAGE_SIZE_IN_BYTES), PRESENT);
+            map_phys_to_virt_addr((void*) frame, (void *)address_to_return + (i * PAGE_SIZE_IN_BYTES), VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE);
         }
     }
 
@@ -114,7 +114,7 @@ void *vmm_alloc(size_t size, size_t flags) {
 }
 
 bool is_address_only(paging_flags_t flags) {
-    if(flags & ADDRESS_ONLY) {
+    if(flags & VMM_FLAGS_ADDRESS_ONLY) {
         return true;
     }
     return false;
@@ -155,7 +155,7 @@ void direct_map_physical_memory() {
     uint64_t virtual_address = vmm_info.higherHalfDirectMapBase;
 
     while ( address_to_map < memory_size_in_bytes) {
-        map_phys_to_virt_addr(address_to_map, virtual_address, PRESENT | WRITE_ENABLE);
+        map_phys_to_virt_addr(address_to_map, virtual_address, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE);
         address_to_map += PAGE_SIZE_IN_BYTES;
         virtual_address += PAGE_SIZE_IN_BYTES;
         //loglinef(Verbose, "(direct_map_physical_memory) Mapping physical address: 0x%x - To virtual: 0x%x", address_to_map, virtual_address);
@@ -276,8 +276,8 @@ void *map_phys_to_virt_addr(void* physical_address, void* address, paging_flags_
     #endif
 
     if ( !is_address_higher_half((uint64_t) address) ) {
-        flags = flags | USER_LEVEL;
-        user_mode_status = USER_LEVEL;
+        flags = flags | VMM_FLAGS_USER_LEVEL;
+        user_mode_status = VMM_FLAGS_USER_LEVEL;
     }
     
     // If the pml4_e item in the pml4 table is not present, we need to create a new one.
