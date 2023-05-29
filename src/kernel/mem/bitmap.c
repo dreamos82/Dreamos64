@@ -55,13 +55,10 @@ void _initialize_bitmap(unsigned long end_of_reserved_area){
     //used_frames = kernel_entries;
     //used_frames = 0x09; // Is the number of currently used frames - 1 (since the count starts from 0)
     used_frames = kernel_entries;
-    loglinef(Info, "(_initialize_bitmap)Page size used by the kernel: %d", PAGE_SIZE_IN_BYTES);
-    loglinef(Verbose, "(_initialize_bitmap) Actual size in bytes: %d", memory_size_in_bytes);
+    loglinef(Info, "(_initialize_bitmap) Page size used by the kernel: %d", PAGE_SIZE_IN_BYTES);
+    loglinef(Verbose, "(_initialize_bitmap) Physical size in bytes: %d", memory_size_in_bytes);
     loglinef(Verbose, "(_initialize_bitmap) _kernel_end: %x", &_kernel_end);
-    loglinef(Verbose, "(_initialize_bitmap) Number of bit entries: %d - %d", bitmap_size, number_of_entries);
-    loglinef(Verbose, "(_initialize_bitmap) Used frames: 0x%x", used_frames);
-    //_bitmap_request_frame();
-    //pmm_alloc_frame();
+    loglinef(Verbose, "(_initialize_bitmap) Number of bit entries: %d - %d", bitmap_size, number_of_entries); 
 }
 
 void _bitmap_get_region(uint64_t* base_address, size_t* length_in_bytes, address_type_t type)

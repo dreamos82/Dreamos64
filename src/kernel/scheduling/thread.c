@@ -140,6 +140,7 @@ void noop3(char *c) {
     uint64_t *test_addr = (uint64_t  *) vmm_alloc(2097253, 0);
     test_addr[0] = 5;
     loglinef(Verbose, "(noop3): test_addr[0] = %d", test_addr[0]);
+    loglinef(Verbose, "(noop3): __FUNCTION__ = %s", __FUNCTION__);
 }
 
 char *get_thread_status(thread_t *thread) {

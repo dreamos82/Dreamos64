@@ -69,17 +69,15 @@ void _init_basic_system(unsigned long addr){
     memory_size_in_bytes = (tagmem->mem_upper + 1024) * 1024;
     //Print mmap_info
     loglinef(Verbose, "(kernel_main) init_basic_system: Memory map entry: 0x%x",  tagmmap->type);
-    loglinef(Verbose, "(kernel_main) init_basic_system: ---Size: 0x%x, Entry size: 0x%x", tagmmap->size, tagmmap->entry_size);
-    loglinef(Verbose, "(kernel_main) init_basic_system: ---EntryVersion: 0x%x", tagmmap->entry_version);
+    loglinef(Verbose, "(kernel_main) init_basic_system: Mmap Size: 0x%x, Entry size: 0x%x, EntryVersion: 0x%x", tagmmap->size, tagmmap->entry_size, tagmmap->entry_version);
     _mmap_parse(tagmmap);
     pmm_setup(addr, mbi_size);
 
     //Print framebuffer info
-    loglinef(Verbose, "(kernel_main) init_basic_system: ---framebuffer-type: 0x%x - address: 0x%x", tagfb->common.framebuffer_type, tagfb->common.framebuffer_addr);
-    loglinef(Verbose, "(kernel_main) init_basic_system: ---framebuffer-width: 0x%x - height: 0x%x", tagfb->common.framebuffer_width, tagfb->common.framebuffer_height);
-    loglinef(Verbose, "(kernel_main) init_basic_system: ---framebuffer-bpp: 0x%x - framebuffer-pitch: 0x%x", tagfb->common.framebuffer_bpp, tagfb->common.framebuffer_pitch);
+    loglinef(Verbose, "(kernel_main) init_basic_system: Frambueffer info: (type: 0x%x) Address: 0x%x", tagfb->common.framebuffer_type, tagfb->common.framebuffer_addr);
+    loglinef(Verbose, "(kernel_main) init_basic_system: width: 0x%x - height: 0x%x - bpp: 0x%x - pitch: 0x%x", tagfb->common.framebuffer_width, tagfb->common.framebuffer_height, tagfb->common.framebuffer_bpp, tagfb->common.framebuffer_pitch);
     set_fb_data(tagfb);
-    loglinef(Verbose, "(kernel_main) init_basic_system: ---Total framebuffer size is: 0x%x", framebuffer_data.memory_size);
+    loglinef(Verbose, "(kernel_main) init_basic_system: Total framebuffer size is: 0x%x", framebuffer_data.memory_size);
     
     tagacpi = (struct multiboot_tag *) (multiboot_acpi_info + _HIGHER_HALF_KERNEL_MEM_START);
     if(tagacpi->type == MULTIBOOT_TAG_TYPE_ACPI_OLD){
@@ -102,7 +100,7 @@ void _init_basic_system(unsigned long addr){
 										+ ((tag->size + 7) & ~7))){
         switch(tag->type){
             default:
-                loglinef(Verbose, "(kernel_main) init_basic_system: ---Tag 0x%x - Size: 0x%x", tag->type, tag->size);
+                loglinef(Verbose, "(kernel_main) init_basic_system: [Tag 0x%x] Size: 0x%x", tag->type, tag->size);
                 break;
         }
     }
@@ -130,22 +128,17 @@ void kernel_start(unsigned long addr, unsigned long magic){
         if(get_PSF_version(_binary_fonts_default_psf_start) == 1){
             logline(Verbose, "(kernel_start): PSF v1 found");
             PSFv1_Font *font = (PSFv1_Font*)_binary_fonts_default_psf_start;
-            loglinef(Verbose, "(kernel_start): Magic: [%x %x]", font->magic[1], font->magic[0]);
-            loglinef(Verbose, "(kernel_start): Flags: 0x%x", font->mode);
+            loglinef(Verbose, "(kernel_start): PSF v1: Magic: [%x %x] - Flags: 0x%x", font->magic[1], font->magic[0], font->mode);
             loglinef(Verbose, "(kernel_start): Charsize: 0x%x", font->charsize);
         }  else {
             PSF_font *font = (PSF_font*)&_binary_fonts_default_psf_start;
             logline(Verbose, "(kernel_start): PSF v2 found");
-            loglinef(Verbose, "(kernel_start): Magic: 0x%x", font->magic);
-            loglinef(Verbose, "(kernel_start): Number of glyphs: 0x%x", font->numglyph);
+            loglinef(Verbose, "(kernel_start): Version: 0x%x - Magic: 0x%x", font->magic, font->version);
+            loglinef(Verbose, "(kernel_start): Number of glyphs: 0x%x - Bytes per glyphs: 0x%x", font->numglyph, font->bytesperglyph);
             loglinef(Verbose, "(kernel_start): Header size: 0x%x", font->headersize);
-            loglinef(Verbose, "(kernel_start): Bytes per glyphs: 0x%x", font->bytesperglyph);
             loglinef(Verbose, "(kernel_start): Flags: 0x%x", font->flags);
-            loglinef(Verbose, "(kernel_start): Version: 0x%x", font->version);
-            loglinef(Verbose, "(kernel_start):Width: 0x%x", font->width);
-            loglinef(Verbose, "(kernel_start): Height: 0x%x", font->height);
-            loglinef(Verbose, "(kernel_start): Get Width test: %x", get_width(psf_font_version));
-            loglinef(Verbose, "(kernel_start): Get Height test: %x", get_height(psf_font_version));
+            loglinef(Verbose, "(kernel_start): Width: 0x%x - Height: 0x%x", font->width, font->height);
+            loglinef(Verbose, "(kernel_start): Get Width test: %x Get Height test: %x", get_width(psf_font_version), get_height(psf_font_version));
         }
         loglinef(Verbose, "(kernel_start): PSF stored version: %d", psf_font_version);
         uint32_t pw, ph, cw, ch;

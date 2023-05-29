@@ -53,6 +53,7 @@ void _map_pmm()
     loglinef(Verbose, "(_map_pmm): Identity mapping PMM bitmap, addr(virt & phys)= 0x%x", bitmap_start);
     loglinef(Verbose, "(_map_pmm):   \\- Pages required=%d", pages_required);
 
+    // This shouldn't be identity mapped, it will be accessed by the DirectMap
     for (size_t i = 0; i < pages_required; i++)
         map_vaddress((void*)(bitmap_start + i * PAGE_SIZE_IN_BYTES), VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE); //0 as no extra flags required
 

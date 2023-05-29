@@ -38,8 +38,7 @@ void vmm_init() {
     vmm_info.vmmDataStart = align_value_to_page(vmm_info.higherHalfDirectMapBase + memory_size_in_bytes + VM_KERNEL_MEMORY_PADDING);
     //vmm_container_root = ((uint64_t) HIGHER_HALF_ADDRESS_OFFSET + VM_KERNEL_MEMORY_PADDING);
     vmm_container_root = (VmmContainer *) vmm_info.vmmDataStart;
-    loglinef(Verbose, "(vmm_init): The vmm_container_root starts at: 0x%x - %d", vmm_container_root, is_address_aligned(vmm_info.vmmDataStart, PAGE_SIZE_IN_BYTES));
-
+    loglinef(Verbose, "(%s): Vmm Data:", __FUNCTION__);
     end_of_vmm_data = (uint64_t) vmm_container_root + VMM_RESERVED_SPACE_SIZE;
     start_of_vmm_space = (size_t) vmm_container_root + VMM_RESERVED_SPACE_SIZE + VM_KERNEL_MEMORY_PADDING;
     vmm_info.vmmSpaceStart = vmm_info.vmmDataStart + VMM_RESERVED_SPACE_SIZE + VM_KERNEL_MEMORY_PADDING;
@@ -47,8 +46,10 @@ void vmm_init() {
     next_available_address = start_of_vmm_space;
     vmm_items_per_page = (PAGE_SIZE_IN_BYTES / sizeof(VmmItem)) - 1;
     vmm_cur_index = 0;
-    loglinef(Verbose, "(vmm_init): The vmmDataStart  starts at: 0x%x - %x (end_of_vmm_data)", vmm_info.vmmDataStart, end_of_vmm_data);    
-    loglinef(Verbose, "(vmm_init): vm higher_half start: %x", (uint64_t) vmm_info.higherHalfDirectMapBase);
+    loglinef(Verbose, "(vmm_init): vmm_container_root starts at: 0x%x - %d", vmm_container_root, is_address_aligned(vmm_info.vmmDataStart, PAGE_SIZE_IN_BYTES));
+    loglinef(Verbose, "(vmm_init): vmmDataStart  starts at: 0x%x - %x (end_of_vmm_data)", vmm_info.vmmDataStart, end_of_vmm_data);
+    loglinef(Verbose, "(vmm_init): higherHalfDirectMapBase: %x", (uint64_t) vmm_info.higherHalfDirectMapBase);
+    loglinef(Verbose, "(vmm_init): vmmSpaceStart: %x", (uint64_t) vmm_info.vmmSpaceStart);
 
     //I need to compute the size of the VMM address space
     uint64_t vmm_root_phys = pmm_alloc_frame();
@@ -56,20 +57,12 @@ void vmm_init() {
         loglinef(Verbose, "(vmm_init):  vmm_root_phys should not be null");
         return;
     }
-    
-    loglinef(Verbose, "(vmm_init): Got vmm_root_phys address: %x", vmm_root_phys);
-    loglinef(Verbose, "(vmm_init): Sizeof VmmContainer: %x", sizeof(VmmContainer)); 
+
     // Mapping the phyiscal address for the vmm structures
     map_phys_to_virt_addr(vmm_root_phys, vmm_container_root, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE);
-    //vmm_container_root->vmm_root[0].size = 5;
-    //loglinef(Verbose, "(vmm_init): flags should be 0: %d size should be 5: %d", vmm_container_root->vmm_root[0].flags, vmm_container_root->vmm_root[0].size);
-    loglinef(Verbose, "(vmm_init): where does the container  start? %x and the address of vmm_container_root variable: %x", vmm_container_root, &vmm_container_root);
-    loglinef(Verbose, "(vmm_init): start of vmm_area %x - end of mapped memory: %x ", start_of_vmm_space, end_of_mapped_memory);
     direct_map_physical_memory();
-    loglinef(Verbose, "(vmm_init): should fault here, size of next: 0x%x", sizeof(vmm_container_root->next));
     vmm_container_root->next = NULL;
     vmm_cur_container = vmm_container_root;
-    loglinef(Verbose, "(vmm_init): should fault here");
 }
 
 void *vmm_alloc(size_t size, size_t flags) {
@@ -307,7 +300,7 @@ void *map_phys_to_virt_addr(void* physical_address, void* address, paging_flags_
         pd_table[pd_e] = (uint64_t) new_table | user_mode_status | WRITE_BIT | PRESENT_BIT;
         clean_new_table(pt_table);
 #elif SMALL_PAGES == 0
-        pd_table[pd_e] = (uint64_t) (physical_address) | WRITE_BIT | PRESENT_BIT | HUGEPAGE_BIT | flags;
+        pd_table[pd_e] = (uint64_t) (physical_address) | HUGEPAGE_BIT | flags;
 #endif
     }
 
@@ -316,7 +309,7 @@ void *map_phys_to_virt_addr(void* physical_address, void* address, paging_flags_
     // This case apply only for 4kb pages, if the pt_e entry is not present in the page table we need to allocate a new 4k page
     // Every entry in the page table is a 4kb page of physical memory
     if( !(pt_table[pt_e] & 0b1)) {
-        pt_table[pt_e] = (uint64_t) physical_address | flags | WRITE_BIT | PRESENT_BIT;
+        pt_table[pt_e] = (uint64_t) physical_address | flags;
     }
 #endif
     return address;
