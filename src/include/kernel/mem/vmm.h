@@ -23,11 +23,11 @@
 #define VPTR(x) (void*)((uint64_t)(x))
 
 typedef enum {
-    NONE = 0,
-    PRESENT = (1 << 0),
-    WRITE_ENABLE = (1 << 1),
-    USER_LEVEL = (1 << 2),
-    ADDRESS_ONLY = (1 << 7)
+    VMM_FLAGS_NONE = 0,
+    VMM_FLAGS_PRESENT = (1 << 0),
+    VMM_FLAGS_WRITE_ENABLE = (1 << 1),
+    VMM_FLAGS_USER_LEVEL = (1 << 2),
+    VMM_FLAGS_ADDRESS_ONLY = (1 << 7)
 } paging_flags_t;
 
 typedef struct VmmItem{

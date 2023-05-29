@@ -54,7 +54,7 @@ void init_apic() {
         kernel_settings.use_x2_apic = false;
 
         //registers are accessed via mmio, make sure they're identity mapped
-        map_phys_to_virt_addr(VPTR(apic_base_address), VPTR(apic_hh_base_address), 0);
+        map_phys_to_virt_addr(VPTR(apic_base_address), VPTR(apic_hh_base_address), VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE);
     }
     else {
         kernel_settings.use_x2_apic = false;

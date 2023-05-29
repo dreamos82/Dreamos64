@@ -38,7 +38,7 @@ void _initialize_bitmap(unsigned long end_of_reserved_area){
 #else
     memory_map_phys_addr = _mmap_determine_bitmap_region(end_of_reserved_area, bitmap_size / 8 + 1);
     //memory_map = memory_map_phys_addr;
-    map_phys_to_virt_addr(ALIGN_PHYSADDRESS(memory_map_phys_addr), ensure_address_in_higher_half(memory_map_phys_addr), 0);
+    map_phys_to_virt_addr(ALIGN_PHYSADDRESS(memory_map_phys_addr), ensure_address_in_higher_half(memory_map_phys_addr), VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE);
     memory_map = (uint64_t *) ensure_address_in_higher_half(memory_map_phys_addr);
 #endif
     for (uint32_t i=0; i<number_of_entries; i++){
