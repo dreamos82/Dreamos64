@@ -33,8 +33,8 @@ typedef struct kernel_status_t {
 
 extern kernel_status_t kernel_settings;
 
-extern unsigned int _kernel_end;
-extern unsigned int _kernel_physical_end;
+extern uint64_t _kernel_end;
+extern uint64_t _kernel_physical_end;
 
 void init_kernel_settings();
 uint64_t get_kernel_uptime();

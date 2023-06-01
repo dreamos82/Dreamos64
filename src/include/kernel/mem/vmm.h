@@ -66,8 +66,10 @@ void identity_map_phys_address(void *pyhysical_address, paging_flags_t flags);
 void map_vaddress_range(void *virtual_address, paging_flags_t flags, size_t required_pages);
 uint8_t is_phyisical_address_mapped(uintptr_t physical_address, uintptr_t virtual_address);
 uint8_t check_virt_address_status(uint64_t virtual_address);
-void direct_map_physical_memory();
+void vmm_direct_map_physical_memory();
 
 bool is_address_only(paging_flags_t flags);
+
+void *vmm_get_variable_from_direct_map ( size_t phys_address );
 
 #endif

@@ -55,8 +55,7 @@ void _mmap_setup(){
 }
 
 void* _mmap_determine_bitmap_region(uint64_t lower_limit, size_t bytes_needed){
-    //NOTE: lower_limit can be used to place the bitmap after the kernel, or after anything if need be. 
-
+    //NOTE: lower_limit can be used to place the bitmap after the kernel, or after anything if need be.
     for (size_t i = 0; i < mmap_number_of_entries; i++){
         multiboot_memory_map_t* current_entry = &mmap_entries[i];
 

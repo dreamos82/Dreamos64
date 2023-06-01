@@ -58,6 +58,13 @@ void invalidate_page_table( uint64_t *table_address ) {
     	: "memory");
 }
 
+/**
+ * This function given an address if it is not in the higher half, it return the same address + HIGHER_HALF_ADDRESS_OFFSET already defined. 
+ *
+ *
+ * @param address the physical address we want to map
+ * @return virtuial address in the higher half
+ */
 uint64_t ensure_address_in_higher_half( uint64_t address ) {
     if ( address > HIGHER_HALF_ADDRESS_OFFSET ) {
         return address;

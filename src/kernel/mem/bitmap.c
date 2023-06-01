@@ -9,6 +9,7 @@
 #include <main.h>
 #include <vm.h>
 #include <vmm.h>
+#include <kernel.h>
 #endif
 
 #ifdef _TEST_
@@ -16,8 +17,10 @@
 #endif
 
 extern struct multiboot_tag_basic_meminfo *tagmem;
+extern uint64_t end_of_mapped_memory;
 extern uint64_t _kernel_physical_end;
 extern uint64_t _kernel_end;
+extern uint64_t p4_table[];
 
 size_t memory_size_in_bytes;
 uint64_t *memory_map = (uint64_t *) &_kernel_end;
@@ -27,7 +30,7 @@ uint32_t used_frames;
 uint64_t memory_map_phys_addr;
 
 
-void _initialize_bitmap(unsigned long end_of_reserved_area){
+void _initialize_bitmap ( unsigned long end_of_reserved_area ) {
     uint64_t memory_size = (tagmem->mem_upper + 1024) * 1024;    
     bitmap_size = memory_size / PAGE_SIZE_IN_BYTES + 1;
     used_frames = 0;
@@ -38,8 +41,17 @@ void _initialize_bitmap(unsigned long end_of_reserved_area){
 #else
     memory_map_phys_addr = _mmap_determine_bitmap_region(end_of_reserved_area, bitmap_size / 8 + 1);
     //memory_map = memory_map_phys_addr;
-    map_phys_to_virt_addr(ALIGN_PHYSADDRESS(memory_map_phys_addr), ensure_address_in_higher_half(memory_map_phys_addr), VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE);
-    memory_map = (uint64_t *) ensure_address_in_higher_half(memory_map_phys_addr);
+    uint64_t end_of_mapped_physical_memory = end_of_mapped_memory - _HIGHER_HALF_KERNEL_MEM_START;
+    if(memory_map_phys_addr > end_of_mapped_physical_memory) {
+        loglinef(Verbose, "(%s): The address 0x%x is above the initally mapped memory: 0x%x", __FUNCTION__, memory_map_phys_addr, end_of_mapped_physical_memory);
+        //This need to be fixed
+        map_phys_to_virt_addr(ALIGN_PHYSADDRESS(memory_map_phys_addr), ensure_address_in_higher_half(memory_map_phys_addr), VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE);
+        //map_phys_to_virt_addr(ALIGN_PHYSADDRESS(memory_map_phys_addr), memory_map_phys_addr + _HIGHER_HALF_KERNEL_MEM_START, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE);
+    } else {
+        loglinef(Verbose, "(%s): The address 0x%x is NOT above the initally mapped memory: 0x%x", __FUNCTION__, memory_map_phys_addr, end_of_mapped_physical_memory);
+    }
+    memory_map = (uint64_t *) (memory_map_phys_addr + _HIGHER_HALF_KERNEL_MEM_START);
+
 #endif
     for (uint32_t i=0; i<number_of_entries; i++){
         memory_map[i] = 0x0;
