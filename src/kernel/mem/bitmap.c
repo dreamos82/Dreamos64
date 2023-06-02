@@ -44,11 +44,10 @@ void _initialize_bitmap ( unsigned long end_of_reserved_area ) {
     uint64_t end_of_mapped_physical_memory = end_of_mapped_memory - _HIGHER_HALF_KERNEL_MEM_START;
     if(memory_map_phys_addr > end_of_mapped_physical_memory) {
         loglinef(Verbose, "(%s): The address 0x%x is above the initally mapped memory: 0x%x", __FUNCTION__, memory_map_phys_addr, end_of_mapped_physical_memory);
-        //This need to be fixed
-        map_phys_to_virt_addr(ALIGN_PHYSADDRESS(memory_map_phys_addr), ensure_address_in_higher_half(memory_map_phys_addr), VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE);
-        //map_phys_to_virt_addr(ALIGN_PHYSADDRESS(memory_map_phys_addr), memory_map_phys_addr + _HIGHER_HALF_KERNEL_MEM_START, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE);
+        //This need to be fixed map_phys_to_virt_addr can't be used here since it relies on the bitmap, and it is not initialized yet.
+        map_phys_to_virt_addr(ALIGN_PHYSADDRESS(memory_map_phys_addr), (memory_map_phys_addr + _HIGHER_HALF_KERNEL_MEM_START), VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE);
     } else {
-        loglinef(Verbose, "(%s): The address 0x%x is NOT above the initally mapped memory: 0x%x", __FUNCTION__, memory_map_phys_addr, end_of_mapped_physical_memory);
+        loglinef(Verbose, "(%s): The address 0x%x is not above the initally mapped memory: 0x%x", __FUNCTION__, memory_map_phys_addr, end_of_mapped_physical_memory);
     }
     memory_map = (uint64_t *) (memory_map_phys_addr + _HIGHER_HALF_KERNEL_MEM_START);
 
@@ -64,8 +63,6 @@ void _initialize_bitmap ( unsigned long end_of_reserved_area ) {
         memory_map[j] = ~(0);
     }
     memory_map[j] = ~(~(0ul) << (kernel_entries - (number_of_bitmap_rows*64)));
-    //used_frames = kernel_entries;
-    //used_frames = 0x09; // Is the number of currently used frames - 1 (since the count starts from 0)
     used_frames = kernel_entries;
     loglinef(Info, "(_initialize_bitmap) Page size used by the kernel: %d", PAGE_SIZE_IN_BYTES);
     loglinef(Verbose, "(_initialize_bitmap) Physical size in bytes: %d", memory_size_in_bytes);

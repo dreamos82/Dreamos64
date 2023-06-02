@@ -6,7 +6,7 @@
 #include <logging.h>
 #include <kernel.h>
 #include <bitmap.h>
-#include <util.h>
+#include <vmm_util.h>
 #include <main.h>
 
 extern uint64_t p4_table[];

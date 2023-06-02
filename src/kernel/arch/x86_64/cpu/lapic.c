@@ -6,7 +6,7 @@
 #include <idt.h>
 #include <pic8259.h>
 #include <stdio.h>
-#include <util.h>
+#include <vmm_util.h>
 #include <cpuid.h>
 #include <io.h>
 #include <vmm.h>
