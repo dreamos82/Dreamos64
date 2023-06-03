@@ -1,4 +1,4 @@
-#include <util.h>
+#include <vmm_util.h>
 #include <bitmap.h>
 
 size_t get_number_of_pages_from_size(size_t length) {

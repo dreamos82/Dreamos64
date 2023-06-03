@@ -119,39 +119,43 @@ void kernel_start(unsigned long addr, unsigned long magic){
     //           4-8: Reserved (0) 
     unsigned size = *(unsigned*)addr;
     loglinef(Verbose, "(kernel_start): Size:  %x - Magic: %x", size, magic);
-	if(magic == 0x36d76289){
+    
+    if(magic == 0x36d76289){
         logline(Verbose, "(kernel_start): Magic number verified");
-	} else {
-		logline(Verbose, "(kernel_start): Failed to verify magic number. Something is wrong");
-	}
-    #if USE_FRAMEBUFFER == 1 
-        if(get_PSF_version(_binary_fonts_default_psf_start) == 1){
-            logline(Verbose, "(kernel_start): PSF v1 found");
-            PSFv1_Font *font = (PSFv1_Font*)_binary_fonts_default_psf_start;
-            loglinef(Verbose, "(kernel_start): PSF v1: Magic: [%x %x] - Flags: 0x%x", font->magic[1], font->magic[0], font->mode);
-            loglinef(Verbose, "(kernel_start): Charsize: 0x%x", font->charsize);
-        }  else {
-            PSF_font *font = (PSF_font*)&_binary_fonts_default_psf_start;
-            logline(Verbose, "(kernel_start): PSF v2 found");
-            loglinef(Verbose, "(kernel_start): Version: 0x%x - Magic: 0x%x", font->magic, font->version);
-            loglinef(Verbose, "(kernel_start): Number of glyphs: 0x%x - Bytes per glyphs: 0x%x", font->numglyph, font->bytesperglyph);
-            loglinef(Verbose, "(kernel_start): Header size: 0x%x", font->headersize);
-            loglinef(Verbose, "(kernel_start): Flags: 0x%x", font->flags);
-            loglinef(Verbose, "(kernel_start): Width: 0x%x - Height: 0x%x", font->width, font->height);
-            loglinef(Verbose, "(kernel_start): Get Width test: %x Get Height test: %x", get_width(psf_font_version), get_height(psf_font_version));
-        }
-        loglinef(Verbose, "(kernel_start): PSF stored version: %d", psf_font_version);
-        uint32_t pw, ph, cw, ch;
-        get_framebuffer_mode(&pw, &ph, &cw, &ch);
-        loglinef(Verbose, "(kernel_start): Number of lines: %d", ch);
+    } else {
+        logline(Verbose, "(kernel_start): Failed to verify magic number. Something is wrong");
+    }
+    
+#if USE_FRAMEBUFFER == 1
 
-        _fb_printStr("Ciao!", 1, 0, 0x000000, 0xFFFFFF);
-        _fb_printStr("Dreamos64", 0, 1, 0xFFFFFF, 0x3333ff);
-        _fb_printStr("Thanks\nfor\n using it", 0, 7, 0xFFFFFF, 0x3333ff);
-        _fb_printStr(" -- Welcome --", 0, 3, 0xFFFFFF, 0x3333ff);
+    if(get_PSF_version(_binary_fonts_default_psf_start) == 1){
+        logline(Verbose, "(kernel_start): PSF v1 found");
+        PSFv1_Font *font = (PSFv1_Font*)_binary_fonts_default_psf_start;
+        loglinef(Verbose, "(kernel_start): PSF v1: Magic: [%x %x] - Flags: 0x%x", font->magic[1], font->magic[0], font->mode);
+        loglinef(Verbose, "(kernel_start): Charsize: 0x%x", font->charsize);
+    }  else {
+        PSF_font *font = (PSF_font*)&_binary_fonts_default_psf_start;
+        logline(Verbose, "(kernel_start): PSF v2 found");
+        loglinef(Verbose, "(kernel_start): Version: 0x%x - Magic: 0x%x", font->magic, font->version);
+        loglinef(Verbose, "(kernel_start): Number of glyphs: 0x%x - Bytes per glyphs: 0x%x", font->numglyph, font->bytesperglyph);
+        loglinef(Verbose, "(kernel_start): Header size: 0x%x", font->headersize);
+        loglinef(Verbose, "(kernel_start): Flags: 0x%x", font->flags);
+        loglinef(Verbose, "(kernel_start): Width: 0x%x - Height: 0x%x", font->width, font->height);
+        loglinef(Verbose, "(kernel_start): Get Width test: %x Get Height test: %x", get_width(psf_font_version), get_height(psf_font_version));
+    }
+    
+    loglinef(Verbose, "(kernel_start): PSF stored version: %d", psf_font_version);
+    uint32_t pw, ph, cw, ch;
+    get_framebuffer_mode(&pw, &ph, &cw, &ch);
+    loglinef(Verbose, "(kernel_start): Number of lines: %d", ch);
 
-        draw_logo(0, 400);
-    #endif
+    _fb_printStr("Ciao!", 1, 0, 0x000000, 0xFFFFFF);
+    _fb_printStr("Dreamos64", 0, 1, 0xFFFFFF, 0x3333ff);
+    _fb_printStr("Thanks\nfor\n using it", 0, 7, 0xFFFFFF, 0x3333ff);
+    _fb_printStr(" -- Welcome --", 0, 3, 0xFFFFFF, 0x3333ff);
+
+    draw_logo(0, 400);
+#endif
     
     char *cpuid_model = _cpuid_model();
     loglinef(Verbose, "(kernel_start): Cpuid model: %s", cpuid_model);
@@ -212,6 +216,9 @@ void kernel_start(unsigned long addr, unsigned long magic){
     //test_get_task();
     start_apic_timer(kernel_settings.apic_timer.timer_ticks_base, APIC_TIMER_SET_PERIODIC, kernel_settings.apic_timer.timer_divisor);
     loglinef(Verbose, "(kernel_main) (END of Mapped memory: 0x%x)", end_of_mapped_memory);
+    loglinef(Verbose, "(kernel_main) init_basic_system: Memory lower (in kb): %d - upper (in kb): %d", tagmem->mem_lower, tagmem->mem_upper);
+    struct multiboot_tag_basic_meminfo *virt_phys_addr = (struct multiboot_tag_basic_meminfo *) vmm_get_variable_from_direct_map ( (size_t) multiboot_basic_meminfo );
+    loglinef(Verbose, "(kernel_main) init_basic_system: Memory lower (in kb): %d - upper (in kb): %d", virt_phys_addr->mem_lower, virt_phys_addr->mem_upper);
     while(1);
 }
 

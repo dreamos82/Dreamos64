@@ -32,32 +32,7 @@ void pmm_setup(unsigned long addr, uint32_t size){
     pmm_reserve_area(bitmap_start_addr, bitmap_size);
 #endif
 
-    _map_pmm();
-}
-
-void _map_pmm()
-{
-    //late init after vmm has been initialized, we can do all sorts of wizardry now.
-#ifdef _TEST_
-    #pragma message "map_pmm() does nothing in testing scenarios, see notes about hack in pmm.c::pmm_setup()"
-    return;
-#endif
-    uint64_t bitmap_start;
-    size_t bitmap_size_bytes;
-    _bitmap_get_region(&bitmap_start, &bitmap_size_bytes, ADDRESS_TYPE_PHYSICAL);
-    //now we have the real addresses, we need to round the start down, and the size up to the nearest page    
-    bitmap_start = (bitmap_start / PAGE_SIZE_IN_BYTES) * PAGE_SIZE_IN_BYTES;
-    
-    const size_t pages_required = bitmap_size_bytes / PAGE_SIZE_IN_BYTES + 1;
-
-    loglinef(Verbose, "(_map_pmm): Identity mapping PMM bitmap, addr(virt & phys)= 0x%x", bitmap_start);
-    loglinef(Verbose, "(_map_pmm):   \\- Pages required=%d", pages_required);
-
-    // This shouldn't be identity mapped, it will be accessed by the DirectMap
-    for (size_t i = 0; i < pages_required; i++)
-        map_vaddress((void*)(bitmap_start + i * PAGE_SIZE_IN_BYTES), VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE); //0 as no extra flags required
-
-    loglinef(Verbose, "(_map_pmm): PMM bitmap successfully mapped.");
+    //_map_pmm();
 }
 
 /**
@@ -150,3 +125,29 @@ void pmm_free_area(uint64_t starting_address, size_t size){
     }
     spinlock_release(&memory_spinlock);
 }
+
+
+/*void _map_pmm()
+{
+    //late init after vmm has been initialized, we can do all sorts of wizardry now.
+#ifdef _TEST_
+    #pragma message "map_pmm() does nothing in testing scenarios, see notes about hack in pmm.c::pmm_setup()"
+    return;
+#endif
+    uint64_t bitmap_start;
+    size_t bitmap_size_bytes;
+    _bitmap_get_region(&bitmap_start, &bitmap_size_bytes, ADDRESS_TYPE_PHYSICAL);
+    //now we have the real addresses, we need to round the start down, and the size up to the nearest page    
+    bitmap_start = (bitmap_start / PAGE_SIZE_IN_BYTES) * PAGE_SIZE_IN_BYTES;
+    
+    const size_t pages_required = bitmap_size_bytes / PAGE_SIZE_IN_BYTES + 1;
+
+    loglinef(Verbose, "(_map_pmm): Identity mapping PMM bitmap, addr(virt & phys)= 0x%x", bitmap_start);
+    loglinef(Verbose, "(_map_pmm):   \\- Pages required=%d", pages_required);
+
+    // This shouldn't be identity mapped, it will be accessed by the DirectMap
+    //for (size_t i = 0; i < pages_required; i++)
+    //    map_vaddress((void*)(bitmap_start + i * PAGE_SIZE_IN_BYTES), VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE); //0 as no extra flags required
+
+    loglinef(Verbose, "(_map_pmm): PMM bitmap successfully mapped.");
+}*/

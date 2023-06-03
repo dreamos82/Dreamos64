@@ -6,7 +6,7 @@
 #include <logging.h>
 #include <kernel.h>
 #include <bitmap.h>
-#include <util.h>
+#include <vmm_util.h>
 #include <main.h>
 
 extern uint64_t p4_table[];
@@ -48,7 +48,7 @@ void vmm_init() {
     vmm_cur_index = 0;
     loglinef(Verbose, "(vmm_init): vmm_container_root starts at: 0x%x - %d", vmm_container_root, is_address_aligned(vmm_info.vmmDataStart, PAGE_SIZE_IN_BYTES));
     loglinef(Verbose, "(vmm_init): vmmDataStart  starts at: 0x%x - %x (end_of_vmm_data)", vmm_info.vmmDataStart, end_of_vmm_data);
-    loglinef(Verbose, "(vmm_init): higherHalfDirectMapBase: %x", (uint64_t) vmm_info.higherHalfDirectMapBase);
+    loglinef(Verbose, "(vmm_init): higherHalfDirectMapBase: %x, is_aligned: %d", (uint64_t) vmm_info.higherHalfDirectMapBase, is_address_aligned(vmm_info.higherHalfDirectMapBase, PAGE_SIZE_IN_BYTES));
     loglinef(Verbose, "(vmm_init): vmmSpaceStart: %x", (uint64_t) vmm_info.vmmSpaceStart);
 
     //I need to compute the size of the VMM address space
@@ -60,7 +60,7 @@ void vmm_init() {
 
     // Mapping the phyiscal address for the vmm structures
     map_phys_to_virt_addr(vmm_root_phys, vmm_container_root, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE);
-    direct_map_physical_memory();
+    vmm_direct_map_physical_memory();
     vmm_container_root->next = NULL;
     vmm_cur_container = vmm_container_root;
 }
@@ -134,7 +134,7 @@ void vmm_free(void *address) {
     return;
 }
 
-void direct_map_physical_memory() {
+void vmm_direct_map_physical_memory() {
     // This function needs to map the entire phyisical memory inside the virtual memory enironment.
     // The starting address is _HIGHER_HALF_KERNEL_MEM_START
     loglinef(Verbose, "(direct_map_physical_memory) End of memory_mapping phys: 0x%x, memory_size: 0x%x", end_of_mapped_memory - _HIGHER_HALF_KERNEL_MEM_START, memory_size_in_bytes);    
@@ -257,7 +257,6 @@ void *map_phys_to_virt_addr(void* physical_address, void* address, paging_flags_
 
     uint64_t *pd_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l,510l, (uint64_t) pml4_e, (uint64_t) pdpr_e));
     uint16_t pd_e = PD_ENTRY((uint64_t) address);
-
     //loglinef(Verbose, "(map_phys_to_virt_addr) Pml4: %u - pdpr: %u - pd: %u", pml4_e, pdpr_e, pd_e);
     uint8_t user_mode_status = 0;
     
@@ -276,11 +275,12 @@ void *map_phys_to_virt_addr(void* physical_address, void* address, paging_flags_
     // If the pml4_e item in the pml4 table is not present, we need to create a new one.
     // Every entry in pml4 table points to a pdpr table
     if( !(pml4_table[pml4_e] & 0b1) ) {
+        //loglinef(Verbose, "(%s): need to allocate pml4 for address: 0x%x", __FUNCTION__, (uint64_t) address);
         uint64_t *new_table = pmm_alloc_frame();
         pml4_table[pml4_e] = (uint64_t) new_table | user_mode_status | WRITE_BIT | PRESENT_BIT;
         clean_new_table(pdpr_table);
     }
-    
+
 
 
     // If the pdpr_e item in the pdpr table is not present, we need to create a new one.
@@ -290,7 +290,6 @@ void *map_phys_to_virt_addr(void* physical_address, void* address, paging_flags_
         pdpr_table[pdpr_e] = (uint64_t) new_table | user_mode_status | WRITE_BIT | PRESENT_BIT;
         clean_new_table(pd_table);
     }
-
 
     // If the pd_e item in the pd table is not present, we need to create a new one.
     // Every entry in pdpr table points to a page table if using 4k pages, or to a 2mb memory area if using 2mb pages
@@ -331,3 +330,10 @@ uint8_t check_virt_address_status(uint64_t virtual_address) {
     return VIRT_ADDRESS_NOT_PRESENT;
 }
 
+void *vmm_get_variable_from_direct_map ( size_t phys_address ) {
+    if ( phys_address < memory_size_in_bytes) {
+        return phys_address + vmm_info.higherHalfDirectMapBase;
+    }
+    loglinef(Verbose, "(%s): Not in physical memory", __FUNCTION__);
+    return NULL;
+}

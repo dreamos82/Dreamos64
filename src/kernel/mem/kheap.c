@@ -4,7 +4,7 @@
 #include <vmm.h>
 #include <kernel.h>
 #include <logging.h>
-#include <util.h>
+#include <vmm_util.h>
 
 KHeapMemoryNode *kernel_heap_start;
 KHeapMemoryNode *kernel_heap_current_pos;
