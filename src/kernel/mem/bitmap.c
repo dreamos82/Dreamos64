@@ -44,10 +44,10 @@ void _initialize_bitmap ( unsigned long end_of_reserved_area ) {
     uint64_t end_of_mapped_physical_memory = end_of_mapped_memory - _HIGHER_HALF_KERNEL_MEM_START;
     if(memory_map_phys_addr > end_of_mapped_physical_memory) {
         loglinef(Verbose, "(%s): The address 0x%x is above the initally mapped memory: 0x%x", __FUNCTION__, memory_map_phys_addr, end_of_mapped_physical_memory);
-        //This need to be fixed map_phys_to_virt_addr can't be used here since it relies on the bitmap, and it is not initialized yet.
+        //TODO: This need to be fixed map_phys_to_virt_addr can't be used here since it relies on the bitmap, and it is not initialized yet.
         map_phys_to_virt_addr(ALIGN_PHYSADDRESS(memory_map_phys_addr), (memory_map_phys_addr + _HIGHER_HALF_KERNEL_MEM_START), VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE);
     } else {
-        loglinef(Verbose, "(%s): The address 0x%x is not above the initally mapped memory: 0x%x", __FUNCTION__, memory_map_phys_addr, end_of_mapped_physical_memory);
+        loglinef(Verbose, "(%s): The address 0x%x is not above the initially mapped memory: 0x%x", __FUNCTION__, memory_map_phys_addr, end_of_mapped_physical_memory);
     }
     memory_map = (uint64_t *) (memory_map_phys_addr + _HIGHER_HALF_KERNEL_MEM_START);
 
@@ -64,10 +64,9 @@ void _initialize_bitmap ( unsigned long end_of_reserved_area ) {
     }
     memory_map[j] = ~(~(0ul) << (kernel_entries - (number_of_bitmap_rows*64)));
     used_frames = kernel_entries;
-    loglinef(Info, "(_initialize_bitmap) Page size used by the kernel: %d", PAGE_SIZE_IN_BYTES);
-    loglinef(Verbose, "(_initialize_bitmap) Physical size in bytes: %d", memory_size_in_bytes);
-    loglinef(Verbose, "(_initialize_bitmap) _kernel_end: %x", &_kernel_end);
-    loglinef(Verbose, "(_initialize_bitmap) Number of bit entries: %d - %d", bitmap_size, number_of_entries); 
+    loglinef(Info, "(_initialize_bitmap): Page size used by the kernel: %d", PAGE_SIZE_IN_BYTES);
+    loglinef(Verbose, "(_initialize_bitmap): Physical size in bytes: %d", memory_size_in_bytes);    
+    loglinef(Verbose, "(_initialize_bitmap): Number of bit entries: %d - %d", bitmap_size, number_of_entries); 
 }
 
 void _bitmap_get_region(uint64_t* base_address, size_t* length_in_bytes, address_type_t type)
