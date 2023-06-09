@@ -19,4 +19,3 @@ bool is_address_aligned(size_t value, size_t alignment) {
     }
     return false;
 }
-
