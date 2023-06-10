@@ -94,7 +94,7 @@ void *vmm_alloc(size_t size, size_t flags) {
             // Step 4: make the new container as the current
             vmm_cur_container = new_container;
         } else {
-            loglinef(Panic, "(%s): pmm_alloc_frame for new container has returned null, this should not happen!", __FUNCTION__);
+            loglinef(Fatal, "(%s): pmm_alloc_frame for new container has returned null, this should not happen!", __FUNCTION__);
             return NULL;
         }
     }
