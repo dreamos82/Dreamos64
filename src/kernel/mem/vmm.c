@@ -76,7 +76,6 @@ void *vmm_alloc(size_t size, size_t flags) {
 
     if (vmm_cur_index >= vmm_items_per_page) {
         logline(Verbose, "(vmm_init) Max number of pages reached, expansion to be implemented");
-        // Returning null for now
         // Step 1: We need to create another VmmContainer
         void *new_container_phys_address = pmm_alloc_frame();
         VmmContainer *new_container = NULL;
