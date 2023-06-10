@@ -82,7 +82,7 @@ void *vmm_alloc(size_t size, size_t flags) {
         VmmContainer *new_container = NULL;
         if ( new_container_phys_address != NULL) {
             // 1.a We need to get the virtual address for the new structure
-            new_container = align_value_to_page(new_container + sizeof(VmmContainer));
+            new_container = align_value_to_page((uint64_t))vmm_cur_container + sizeof(VmmContainer) + PAGE_SIZE_IN_BYTES);
             loglinef(Verbose, "(%s): new address 0x%x is aligned: %d", __FUNCTION__, new_container, is_address_aligned(new_container, PAGE_SIZE_IN_BYTES));
             map_phys_to_virt_addr(new_container_phys_address, new_container, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE);
             // Step 2: Reset vmm_cur_index
