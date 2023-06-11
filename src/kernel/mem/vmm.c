@@ -50,6 +50,7 @@ void vmm_init() {
     loglinef(Verbose, "(vmm_init): vmmDataStart  starts at: 0x%x - %x (end_of_vmm_data)", vmm_info.vmmDataStart, end_of_vmm_data);
     loglinef(Verbose, "(vmm_init): higherHalfDirectMapBase: %x, is_aligned: %d", (uint64_t) vmm_info.higherHalfDirectMapBase, is_address_aligned(vmm_info.higherHalfDirectMapBase, PAGE_SIZE_IN_BYTES));
     loglinef(Verbose, "(vmm_init): vmmSpaceStart: %x", (uint64_t) vmm_info.vmmSpaceStart);
+    loglinef(Verbose, "(%s): sizeof VmmContainer: 0x%x", __FUNCTION__, sizeof(VmmContainer));
 
     //I need to compute the size of the VMM address space
     uint64_t vmm_root_phys = pmm_alloc_frame();
@@ -75,8 +76,26 @@ void *vmm_alloc(size_t size, size_t flags) {
 
     if (vmm_cur_index >= vmm_items_per_page) {
         logline(Verbose, "(vmm_init) Max number of pages reached, expansion to be implemented");
-        // Returning null for now
-        return NULL;
+        // Step 1: We need to create another VmmContainer
+        void *new_container_phys_address = pmm_alloc_frame();
+        VmmContainer *new_container = NULL;
+        if ( new_container_phys_address != NULL) {
+            // 1.a We need to get the virtual address for the new structure
+            new_container = align_value_to_page((uint64_t)vmm_cur_container + sizeof(VmmContainer) + PAGE_SIZE_IN_BYTES);
+            loglinef(Verbose, "(%s): new address 0x%x is aligned: %d", __FUNCTION__, new_container, is_address_aligned(new_container, PAGE_SIZE_IN_BYTES));
+            map_phys_to_virt_addr(new_container_phys_address, new_container, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE);
+            // Step 2: Reset vmm_cur_index
+            vmm_cur_index = 0;
+            // Step 2.a: Set next as null for new_container;
+            new_container->next = NULL;
+            // Step 3: Add the new container as next item in the current one
+            vmm_cur_container->next = new_container;
+            // Step 4: make the new container as the current
+            vmm_cur_container = new_container;
+        } else {
+            loglinef(Fatal, "(%s): pmm_alloc_frame for new container has returned null, this should not happen!", __FUNCTION__);
+            return NULL;
+        }
     }
 
     // Now i need to align the requested length to a page
