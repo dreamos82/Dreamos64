@@ -73,8 +73,7 @@ bool remove_thread_from_task(size_t thread_id, task_t *task) {
     thread_t *cur_thread = task->threads;
     thread_t *prev_thread = cur_thread;
     loglinef( Verbose, "(%s) Removing thread with thread id: %d, from task: %d with name: %s", __FUNCTION__, thread_id, task->task_id, task->task_name);
-    while ( cur_thread != NULL ) {
-        //loglinef( Verbose, "(%s) Searching for thread to remove with tid: %d - current: %d", __FUNCTION__, thread_id, cur_thread->tid);
+    while ( cur_thread != NULL ) {        
         if ( cur_thread->tid == thread_id ) {
             loglinef( Verbose, "(%s) Found thread to remove", __FUNCTION__);
             if ( cur_thread == task->threads) {
