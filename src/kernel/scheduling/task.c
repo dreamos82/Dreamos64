@@ -75,11 +75,11 @@ bool remove_thread_from_task(size_t thread_id, task_t *task) {
     loglinef( Verbose, "(%s) Removing thread with thread id: %d, from task: %d with name: %s", __FUNCTION__, thread_id, task->task_id, task->task_name);
     while ( cur_thread != NULL ) {        
         if ( cur_thread->tid == thread_id ) {
-            loglinef( Verbose, "(%s) Found thread to remove", __FUNCTION__);
+            loglinef( Verbose, "(%s) Found thread to remove thread name: %s", __FUNCTION__, cur_thread->thread_name);
             if ( cur_thread == task->threads) {
-                loglinef( Verbose, "(%s), Is the first thread in the queue", __FUNCTION__);
-                cur_thread = cur_thread->next_sibling;
-                return false;
+                loglinef( Verbose, "(%s), Is the first thread in the queue addr_value: 0x%x", __FUNCTION__, cur_thread->next_sibling);
+                task->threads = cur_thread->next_sibling;
+                return true;;
             } else {
                 loglinef( Verbose, "(%s), Is in the middle, mergin prev and cur->next_sibling", __FUNCTION__);
                 prev_thread->next_sibling = cur_thread->next_sibling;
