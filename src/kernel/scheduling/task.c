@@ -57,7 +57,7 @@ void prepare_virtual_memory_environment(task_t* task) {
     }
 }
 
-bool add_thread_to_task_by_id(size_t task_id, thread_t* thread) {
+bool add_thread_to_task_by_id( size_t task_id, thread_t* thread ) {
     task_t* task = get_task(task_id);
     if (task == NULL) {
         return false;
@@ -66,6 +66,30 @@ bool add_thread_to_task_by_id(size_t task_id, thread_t* thread) {
     thread->next = task->threads;
     thread->next_sibling = thread;
     return true;
+}
+
+bool remove_thread_from_task(size_t thread_id, task_t *task) {
+    // We don't freethe thread here, because is the scheduler in charge of deleting DEAD threads    
+    thread_t *cur_thread = task->threads;
+    thread_t *prev_thread = cur_thread;
+    loglinef( Verbose, "(%s) Removing thread with thread id: %d, from task: %d with name: %s", __FUNCTION__, thread_id, task->task_id, task->task_name);
+    while ( cur_thread != NULL ) {        
+        if ( cur_thread->tid == thread_id ) {
+            loglinef( Verbose, "(%s) Found thread to remove thread name: %s", __FUNCTION__, cur_thread->thread_name);
+            if ( cur_thread == task->threads) {
+                loglinef( Verbose, "(%s), Is the first thread in the queue addr_value: 0x%x", __FUNCTION__, cur_thread->next_sibling);
+                task->threads = cur_thread->next_sibling;
+                return true;;
+            } else {
+                loglinef( Verbose, "(%s), Is in the middle, mergin prev and cur->next_sibling", __FUNCTION__);
+                prev_thread->next_sibling = cur_thread->next_sibling;
+            }
+        }
+        prev_thread = cur_thread;
+        cur_thread = cur_thread->next_sibling;
+        return true;
+    }
+    return false;
 }
 
 bool add_thread_to_task(task_t* task, thread_t* thread) {

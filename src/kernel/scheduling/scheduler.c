@@ -6,6 +6,7 @@
 #include <kheap.h>
 #include <kernel.h>
 #include <vm.h>
+#include <task.h>
 
 uint16_t scheduler_ticks;
 size_t next_thread_id;
@@ -77,6 +78,7 @@ cpu_status_t* schedule(cpu_status_t* cur_status) {
         }
         
         if (current_thread->status == DEAD) {
+            remove_thread_from_task(current_thread->tid, current_thread->parent_task);
             scheduler_delete_thread(current_thread->tid);
         } else if (current_thread->status == READY || current_thread->status == NEW) {
             thread_to_execute = current_thread;
