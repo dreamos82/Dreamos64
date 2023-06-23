@@ -43,7 +43,7 @@ NASM_DEBUG_FLAGS := -g \
 NASMFLAGS := -f elf64 \
 		-D USE_FRAMEBUFFER=$(USE_FRAMEBUFFER) \
 		-D SMALL_PAGES=$(SMALL_PAGES)
-BUILD := build
+BUILD := dist
 PRJ_FOLDERS := src
 FONT_FOLDERS := fonts
 DEBUG := 0
@@ -53,35 +53,35 @@ SRC_C_FILES := $(shell find $(PRJ_FOLDERS) -type f -name "*.c")
 SRC_H_FILES := $(shell find $(PRJ_FOLDERS) -type f -name "*.h")
 SRC_ASM_FILES := $(shell find $(PRJ_FOLDERS) -type f -name "*.s")
 SRC_FONT_FILES := $(shell find $(FONT_FOLDERS) -type f -name "*.psf")
-OBJ_ASM_FILE := $(patsubst src/%.s, build/%.o, $(SRC_ASM_FILES))
-OBJ_C_FILE := $(patsubst src/%.c, build/%.o, $(SRC_C_FILES))
-OBJ_FONT_FILE := $(patsubst fonts/%.psf, build/%.o, $(SRC_FONT_FILES))
+OBJ_ASM_FILE := $(patsubst src/%.s, $(BUILD)/%.o, $(SRC_ASM_FILES))
+OBJ_C_FILE := $(patsubst src/%.c, $(BUILD)/%.o, $(SRC_C_FILES))
+OBJ_FONT_FILE := $(patsubst fonts/%.psf, $(BUILD)/%.o, $(SRC_FONT_FILES))
 default: build
 
 .PHONY: default build run clean debug tests gdb
 
-build: build/os.iso
+build: $(BUILD)/os.iso
 
 clean:
-	rm -rf build
+	rm -rf $(BUILD)
 	find -name *.o -type f -delete
 
-run: build/os.iso
-	qemu-system-x86_64 -cdrom build/DreamOs64.iso
+run: $(BUILD)/os.iso
+	qemu-system-x86_64 -cdrom $(BUILD)/DreamOs64.iso
 
 debug: DEBUG=1
-debug: build/os.iso
+debug: $(BUILD)/os.iso
 # qemu-system-x86_64 -monitor unix:qemu-monitor-socket,server,nowait -cpu qemu64,+x2apic  -cdrom build/DreamOs64.iso -serial file:dreamos64.log -m 1G -d int -no-reboot -no-shutdown
-	qemu-system-x86_64 -monitor unix:qemu-monitor-socket,server,nowait -cpu qemu64,+x2apic  -cdrom build/DreamOs64.iso -serial stdio -m 2G  -no-reboot -no-shutdown
+	qemu-system-x86_64 -monitor unix:qemu-monitor-socket,server,nowait -cpu qemu64,+x2apic  -cdrom $(BUILD)/DreamOs64.iso -serial stdio -m 2G  -no-reboot -no-shutdown
 
-build/os.iso: build/kernel.bin grub.cfg
-	mkdir -p build/isofiles/boot/grub
-	cp grub.cfg build/isofiles/boot/grub
-	cp build/kernel.bin build/isofiles/boot
-	cp build/kernel.map build/isofiles/boot
-	grub-mkrescue -o build/DreamOs64.iso build/isofiles
+$(BUILD)/os.iso: $(BUILD)/kernel.bin grub.cfg
+	mkdir -p $(BUILD)/isofiles/boot/grub
+	cp grub.cfg $(BUILD)/isofiles/boot/grub
+	cp $(BUILD)/kernel.bin $(BUILD)/isofiles/boot
+	cp $(BUILD)/kernel.map $(BUILD)/isofiles/boot
+	grub-mkrescue -o $(BUILD)/DreamOs64.iso $(BUILD)/isofiles
 
-build/%.o: src/%.s
+$(BUILD)/%.o: src/%.s
 	echo "$(<D)"
 	mkdir -p "$(@D)"
 	mkdir -p "$(@D)"
@@ -91,7 +91,7 @@ else
 	nasm ${NASM_DEBUG_FLAGS} ${NASMFLAGS} "$<" -o "$@"
 endif
 
-build/%.o: src/%.c
+$(BUILD)/%.o: src/%.c
 	echo "$(@D)"
 	mkdir -p "$(@D)"
 ifeq ($(DEBUG),'0')
@@ -101,19 +101,19 @@ else
 		x86_64-elf-gcc ${CFLAGS} ${C_DEBUG_FLAGS} -c "$<" -o "$@"
 endif
 
-build/%.o: fonts/%.psf
+$(BUILD)/%.o: fonts/%.psf
 	echo "PSF: $(@D)"
 	mkdir -p "$(@D)"
 	objcopy -O elf64-x86-64 -B i386 -I binary "$<" "$@"
 
-build/kernel.bin: $(OBJ_ASM_FILE) $(OBJ_C_FILE) $(OBJ_FONT_FILE) src/linker.ld
+$(BUILD)/kernel.bin: $(OBJ_ASM_FILE) $(OBJ_C_FILE) $(OBJ_FONT_FILE) src/linker.ld
 	echo $(OBJ_ASM_FILE)
 	echo $(OBJ_FONT_FILE)
-	ld -n -o build/kernel.bin -T src/linker.ld $(OBJ_ASM_FILE) $(OBJ_C_FILE) $(OBJ_FONT_FILE) -Map build/kernel.map
+	ld -n -o $(BUILD)/kernel.bin -T src/linker.ld $(OBJ_ASM_FILE) $(OBJ_C_FILE) $(OBJ_FONT_FILE) -Map $(BUILD)/kernel.map
 
 gdb: DEBUG=1
-gdb: build/os.iso
-	qemu-system-x86_64 -cdrom build/DreamOs64.iso -monitor unix:qemu-monitor-socket,server,nowait -serial file:dreamos64.log -m 1G -d int -no-reboot -no-shutdown -s -S 
+gdb: $(BUILD)/os.iso
+	qemu-system-x86_64 -cdrom $(BUILD)/DreamOs64.iso -monitor unix:qemu-monitor-socket,server,nowait -serial file:dreamos64.log -m 1G -d int -no-reboot -no-shutdown -s -S 
 
 tests:
 	gcc ${TESTFLAGS} tests/test_mem.c tests/test_common.c src/kernel/mem/bitmap.c src/kernel/mem/vmm_util.c src/kernel/mem/pmm.c src/kernel/mem/mmap.c -o tests/test_mem.o
