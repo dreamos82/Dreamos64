@@ -1,5 +1,10 @@
 USE_FRAMEBUFFER := 1
 SMALL_PAGES := 0
+
+C_COMPILER := x86_64-elf-gcc
+ASM_COMPILER := nasm
+LINKER := ld
+QEMU_SYSTEM := qemu-system-x86_64
 CFLAGS := -std=gnu99 \
         -ffreestanding \
         -O2 \
@@ -67,12 +72,12 @@ clean:
 	find -name *.o -type f -delete
 
 run: $(BUILD)/os.iso
-	qemu-system-x86_64 -cdrom $(BUILD)/DreamOs64.iso
+	$(QEMU_SYSTEM) -cdrom $(BUILD)/DreamOs64.iso
 
 debug: DEBUG=1
 debug: $(BUILD)/os.iso
 # qemu-system-x86_64 -monitor unix:qemu-monitor-socket,server,nowait -cpu qemu64,+x2apic  -cdrom build/DreamOs64.iso -serial file:dreamos64.log -m 1G -d int -no-reboot -no-shutdown
-	qemu-system-x86_64 -monitor unix:qemu-monitor-socket,server,nowait -cpu qemu64,+x2apic  -cdrom $(BUILD)/DreamOs64.iso -serial stdio -m 2G  -no-reboot -no-shutdown
+	$(QEMU_SYSTEM) -monitor unix:qemu-monitor-socket,server,nowait -cpu qemu64,+x2apic  -cdrom $(BUILD)/DreamOs64.iso -serial stdio -m 2G  -no-reboot -no-shutdown
 
 $(BUILD)/os.iso: $(BUILD)/kernel.bin grub.cfg
 	mkdir -p $(BUILD)/isofiles/boot/grub
@@ -113,7 +118,7 @@ $(BUILD)/kernel.bin: $(OBJ_ASM_FILE) $(OBJ_C_FILE) $(OBJ_FONT_FILE) src/linker.l
 
 gdb: DEBUG=1
 gdb: $(BUILD)/os.iso
-	qemu-system-x86_64 -cdrom $(BUILD)/DreamOs64.iso -monitor unix:qemu-monitor-socket,server,nowait -serial file:dreamos64.log -m 1G -d int -no-reboot -no-shutdown -s -S 
+	$(QEMU_SYSTEM) -cdrom $(BUILD)/DreamOs64.iso -monitor unix:qemu-monitor-socket,server,nowait -serial file:dreamos64.log -m 1G -d int -no-reboot -no-shutdown -s -S 
 
 tests:
 	gcc ${TESTFLAGS} tests/test_mem.c tests/test_common.c src/kernel/mem/bitmap.c src/kernel/mem/vmm_util.c src/kernel/mem/pmm.c src/kernel/mem/mmap.c -o tests/test_mem.o
