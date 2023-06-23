@@ -1,10 +1,11 @@
 USE_FRAMEBUFFER := 1
 SMALL_PAGES := 0
 
-C_COMPILER := x86_64-elf-gcc
+# arch dependant
+ARCH_PREFIX := x86_64-elf
 ASM_COMPILER := nasm
-LINKER := ld
 QEMU_SYSTEM := qemu-system-x86_64
+
 CFLAGS := -std=gnu99 \
         -ffreestanding \
         -O2 \
@@ -48,9 +49,11 @@ NASM_DEBUG_FLAGS := -g \
 NASMFLAGS := -f elf64 \
 		-D USE_FRAMEBUFFER=$(USE_FRAMEBUFFER) \
 		-D SMALL_PAGES=$(SMALL_PAGES)
+
 BUILD := dist
 PRJ_FOLDERS := src
 FONT_FOLDERS := fonts
+
 DEBUG := 0
 VERBOSE_OUTPUT :=0
 
@@ -61,6 +64,7 @@ SRC_FONT_FILES := $(shell find $(FONT_FOLDERS) -type f -name "*.psf")
 OBJ_ASM_FILE := $(patsubst src/%.s, $(BUILD)/%.o, $(SRC_ASM_FILES))
 OBJ_C_FILE := $(patsubst src/%.c, $(BUILD)/%.o, $(SRC_C_FILES))
 OBJ_FONT_FILE := $(patsubst fonts/%.psf, $(BUILD)/%.o, $(SRC_FONT_FILES))
+
 default: build
 
 .PHONY: default build run clean debug tests gdb
@@ -100,10 +104,10 @@ $(BUILD)/%.o: src/%.c
 	echo "$(@D)"
 	mkdir -p "$(@D)"
 ifeq ($(DEBUG),'0')
-		x86_64-elf-gcc ${CFLAGS} -c "$<" -o "$@"
+		$(ARCH_PREFIX)-gcc ${CFLAGS} -c "$<" -o "$@"
 else
 		@echo "Compiling with DEBUG flag"
-		x86_64-elf-gcc ${CFLAGS} ${C_DEBUG_FLAGS} -c "$<" -o "$@"
+		$(ARCH_PREFIX)-gcc ${CFLAGS} ${C_DEBUG_FLAGS} -c "$<" -o "$@"
 endif
 
 $(BUILD)/%.o: fonts/%.psf
@@ -114,7 +118,7 @@ $(BUILD)/%.o: fonts/%.psf
 $(BUILD)/kernel.bin: $(OBJ_ASM_FILE) $(OBJ_C_FILE) $(OBJ_FONT_FILE) src/linker.ld
 	echo $(OBJ_ASM_FILE)
 	echo $(OBJ_FONT_FILE)
-	ld -n -o $(BUILD)/kernel.bin -T src/linker.ld $(OBJ_ASM_FILE) $(OBJ_C_FILE) $(OBJ_FONT_FILE) -Map $(BUILD)/kernel.map
+	$(ARCH_PREFIX)-ld -n -o $(BUILD)/kernel.bin -T src/linker.ld $(OBJ_ASM_FILE) $(OBJ_C_FILE) $(OBJ_FONT_FILE) -Map $(BUILD)/kernel.map
 
 gdb: DEBUG=1
 gdb: $(BUILD)/os.iso
