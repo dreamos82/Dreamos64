@@ -50,7 +50,7 @@ NASMFLAGS := -f elf64 \
 		-D USE_FRAMEBUFFER=$(USE_FRAMEBUFFER) \
 		-D SMALL_PAGES=$(SMALL_PAGES)
 
-BUILD := dist
+BUILD_FOLDER := dist
 PRJ_FOLDERS := src
 FONT_FOLDERS := fonts
 
@@ -61,36 +61,36 @@ SRC_C_FILES := $(shell find $(PRJ_FOLDERS) -type f -name "*.c")
 SRC_H_FILES := $(shell find $(PRJ_FOLDERS) -type f -name "*.h")
 SRC_ASM_FILES := $(shell find $(PRJ_FOLDERS) -type f -name "*.s")
 SRC_FONT_FILES := $(shell find $(FONT_FOLDERS) -type f -name "*.psf")
-OBJ_ASM_FILE := $(patsubst src/%.s, $(BUILD)/%.o, $(SRC_ASM_FILES))
-OBJ_C_FILE := $(patsubst src/%.c, $(BUILD)/%.o, $(SRC_C_FILES))
-OBJ_FONT_FILE := $(patsubst fonts/%.psf, $(BUILD)/%.o, $(SRC_FONT_FILES))
+OBJ_ASM_FILE := $(patsubst src/%.s, $(BUILD_FOLDER)/%.o, $(SRC_ASM_FILES))
+OBJ_C_FILE := $(patsubst src/%.c, $(BUILD_FOLDER)/%.o, $(SRC_C_FILES))
+OBJ_FONT_FILE := $(patsubst fonts/%.psf, $(BUILD_FOLDER)/%.o, $(SRC_FONT_FILES))
 
 default: build
 
 .PHONY: default build run clean debug tests gdb
 
-build: $(BUILD)/os.iso
+build: $(BUILD_FOLDER)/os.iso
 
 clean:
-	rm -rf $(BUILD)
+	rm -rf $(BUILD_FOLDER)
 	find -name *.o -type f -delete
 
-run: $(BUILD)/os.iso
-	$(QEMU_SYSTEM) -cdrom $(BUILD)/DreamOs64.iso
+run: $(BUILD_FOLDER)/os.iso
+	$(QEMU_SYSTEM) -cdrom $(BUILD_FOLDER)/DreamOs64.iso
 
 debug: DEBUG=1
-debug: $(BUILD)/os.iso
+debug: $(BUILD_FOLDER)/os.iso
 # qemu-system-x86_64 -monitor unix:qemu-monitor-socket,server,nowait -cpu qemu64,+x2apic  -cdrom build/DreamOs64.iso -serial file:dreamos64.log -m 1G -d int -no-reboot -no-shutdown
-	$(QEMU_SYSTEM) -monitor unix:qemu-monitor-socket,server,nowait -cpu qemu64,+x2apic  -cdrom $(BUILD)/DreamOs64.iso -serial stdio -m 2G  -no-reboot -no-shutdown
+	$(QEMU_SYSTEM) -monitor unix:qemu-monitor-socket,server,nowait -cpu qemu64,+x2apic  -cdrom $(BUILD_FOLDER)/DreamOs64.iso -serial stdio -m 2G  -no-reboot -no-shutdown
 
-$(BUILD)/os.iso: $(BUILD)/kernel.bin grub.cfg
-	mkdir -p $(BUILD)/isofiles/boot/grub
-	cp grub.cfg $(BUILD)/isofiles/boot/grub
-	cp $(BUILD)/kernel.bin $(BUILD)/isofiles/boot
-	cp $(BUILD)/kernel.map $(BUILD)/isofiles/boot
-	grub-mkrescue -o $(BUILD)/DreamOs64.iso $(BUILD)/isofiles
+$(BUILD_FOLDER)/os.iso: $(BUILD_FOLDER)/kernel.bin grub.cfg
+	mkdir -p $(BUILD_FOLDER)/isofiles/boot/grub
+	cp grub.cfg $(BUILD_FOLDER)/isofiles/boot/grub
+	cp $(BUILD_FOLDER)/kernel.bin $(BUILD_FOLDER)/isofiles/boot
+	cp $(BUILD_FOLDER)/kernel.map $(BUILD_FOLDER)/isofiles/boot
+	grub-mkrescue -o $(BUILD_FOLDER)/DreamOs64.iso $(BUILD_FOLDER)/isofiles
 
-$(BUILD)/%.o: src/%.s
+$(BUILD_FOLDER)/%.o: src/%.s
 	echo "$(<D)"
 	mkdir -p "$(@D)"
 	mkdir -p "$(@D)"
@@ -100,7 +100,7 @@ else
 	nasm ${NASM_DEBUG_FLAGS} ${NASMFLAGS} "$<" -o "$@"
 endif
 
-$(BUILD)/%.o: src/%.c
+$(BUILD_FOLDER)/%.o: src/%.c
 	echo "$(@D)"
 	mkdir -p "$(@D)"
 ifeq ($(DEBUG),'0')
@@ -110,19 +110,19 @@ else
 		$(ARCH_PREFIX)-gcc ${CFLAGS} ${C_DEBUG_FLAGS} -c "$<" -o "$@"
 endif
 
-$(BUILD)/%.o: fonts/%.psf
+$(BUILD_FOLDER)/%.o: fonts/%.psf
 	echo "PSF: $(@D)"
 	mkdir -p "$(@D)"
 	objcopy -O elf64-x86-64 -B i386 -I binary "$<" "$@"
 
-$(BUILD)/kernel.bin: $(OBJ_ASM_FILE) $(OBJ_C_FILE) $(OBJ_FONT_FILE) src/linker.ld
+$(BUILD_FOLDER)/kernel.bin: $(OBJ_ASM_FILE) $(OBJ_C_FILE) $(OBJ_FONT_FILE) src/linker.ld
 	echo $(OBJ_ASM_FILE)
 	echo $(OBJ_FONT_FILE)
-	$(ARCH_PREFIX)-ld -n -o $(BUILD)/kernel.bin -T src/linker.ld $(OBJ_ASM_FILE) $(OBJ_C_FILE) $(OBJ_FONT_FILE) -Map $(BUILD)/kernel.map
+	$(ARCH_PREFIX)-ld -n -o $(BUILD_FOLDER)/kernel.bin -T src/linker.ld $(OBJ_ASM_FILE) $(OBJ_C_FILE) $(OBJ_FONT_FILE) -Map $(BUILD_FOLDER)/kernel.map
 
 gdb: DEBUG=1
-gdb: $(BUILD)/os.iso
-	$(QEMU_SYSTEM) -cdrom $(BUILD)/DreamOs64.iso -monitor unix:qemu-monitor-socket,server,nowait -serial file:dreamos64.log -m 1G -d int -no-reboot -no-shutdown -s -S 
+gdb: $(BUILD_FOLDER)/os.iso
+	$(QEMU_SYSTEM) -cdrom $(BUILD_FOLDER)/DreamOs64.iso -monitor unix:qemu-monitor-socket,server,nowait -serial file:dreamos64.log -m 1G -d int -no-reboot -no-shutdown -s -S 
 
 tests:
 	gcc ${TESTFLAGS} tests/test_mem.c tests/test_common.c src/kernel/mem/bitmap.c src/kernel/mem/vmm_util.c src/kernel/mem/pmm.c src/kernel/mem/mmap.c -o tests/test_mem.o
