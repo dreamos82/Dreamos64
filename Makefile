@@ -12,8 +12,6 @@ ASM_FLAGS := -f elf64 \
 		-D USE_FRAMEBUFFER=$(USE_FRAMEBUFFER) \
 		-D SMALL_PAGES=$(SMALL_PAGES)
 
-PRJ_FOLDERS := src
-TEST_FOLDER := tests
 DEBUG := 0
 
 SRC_C_FILES := $(shell find $(PRJ_FOLDERS) -type f -name "*.c")
@@ -83,7 +81,7 @@ gdb: DEBUG=1
 gdb: $(BUILD_FOLDER)/os.iso
 	$(QEMU_SYSTEM) -cdrom $(BUILD_FOLDER)/DreamOs64.iso -monitor unix:qemu-monitor-socket,server,nowait -serial file:dreamos64.log -m 1G -d int -no-reboot -no-shutdown -s -S 
 
-tests:j
+tests:
 	gcc ${TESTFLAGS} tests/test_mem.c tests/test_common.c src/kernel/mem/bitmap.c src/kernel/mem/vmm_util.c src/kernel/mem/pmm.c src/kernel/mem/mmap.c -o tests/test_mem.o
 	gcc ${TESTFLAGS} tests/test_number_conversion.c tests/test_common.c src/base/numbers.c -o tests/test_number_conversion.o
 	gcc ${TESTFLAGS} tests/test_kheap.c tests/test_common.c src/kernel/mem/kheap.c src/kernel/mem/bitmap.c src/kernel/mem/pmm.c src/kernel/mem/mmap.c src/kernel/mem/vmm_util.c -o tests/test_kheap.o

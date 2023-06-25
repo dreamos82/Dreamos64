@@ -35,3 +35,6 @@ TESTFLAGS := -std=gnu99 \
 
 C_DEBUG_FLAGS := -g \
 				-DDEBUG=1
+				
+PRJ_FOLDERS := src
+TEST_FOLDER := tests
