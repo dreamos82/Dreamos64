@@ -1,61 +1,20 @@
-USE_FRAMEBUFFER := 1
-SMALL_PAGES := 0
+include build/Config.mk
+include build/Common.mk
 
 # arch dependant
 ARCH_PREFIX := x86_64-elf
 ASM_COMPILER := nasm
 QEMU_SYSTEM := qemu-system-x86_64
 
-CFLAGS := -std=gnu99 \
-        -ffreestanding \
-        -O2 \
-        -Wall \
-        -Wextra \
-        -I src/include \
-        -I src/include/base \
-        -I src/include/kernel \
-        -I src/include/kernel/mem \
-        -I src/include/kernel/x86_64 \
-        -I src/include/kernel/hardware \
-        -I src/include/kernel/scheduling \
-        -I src/include/libc \
-        -I src/include/fs \
-        -I src/include/drivers/fs \
-        -I src/include/sys \
-        -mno-red-zone \
-        -mno-sse \
-        -mcmodel=large \
-        -DUSE_FRAMEBUFFER=$(USE_FRAMEBUFFER) \
-        -DSMALL_PAGES=$(SMALL_PAGES)
-
-TESTFLAGS := -std=gnu99 \
-        -I tests/include \
-        -I src/include \
-        -I src/include/base \
-        -I src/include/kernel/mem \
-        -I src/include/fs \
-        -I src/include/drivers/fs \
-        -I src/include/kernel \
-        -I src/include/kernel/x86_64 \
-        -I src/include/sys \
-        -DSMALL_PAGES=$(SMALL_PAGES) \
-        -D_TEST_=1
-
-TEST_FOLDER := tests
-C_DEBUG_FLAGS := -g \
-				-DDEBUG=1
-NASM_DEBUG_FLAGS := -g \
+ASM_DEBUG_FLAGS := -g \
 					-F dwarf
-NASMFLAGS := -f elf64 \
+ASM_FLAGS := -f elf64 \
 		-D USE_FRAMEBUFFER=$(USE_FRAMEBUFFER) \
 		-D SMALL_PAGES=$(SMALL_PAGES)
 
-BUILD_FOLDER := dist
 PRJ_FOLDERS := src
-FONT_FOLDERS := fonts
-
+TEST_FOLDER := tests
 DEBUG := 0
-VERBOSE_OUTPUT :=0
 
 SRC_C_FILES := $(shell find $(PRJ_FOLDERS) -type f -name "*.c")
 SRC_H_FILES := $(shell find $(PRJ_FOLDERS) -type f -name "*.h")
@@ -95,9 +54,9 @@ $(BUILD_FOLDER)/%.o: src/%.s
 	mkdir -p "$(@D)"
 	mkdir -p "$(@D)"
 ifeq ($(DEBUG),'0')
-	nasm ${NASMFLAGS} "$<" -o "$@"
+	nasm ${ASM_FLAGS} "$<" -o "$@"
 else
-	nasm ${NASM_DEBUG_FLAGS} ${NASMFLAGS} "$<" -o "$@"
+	nasm ${ASM_DEBUG_FLAGS} ${ASM_FLAGS} "$<" -o "$@"
 endif
 
 $(BUILD_FOLDER)/%.o: src/%.c
@@ -124,7 +83,7 @@ gdb: DEBUG=1
 gdb: $(BUILD_FOLDER)/os.iso
 	$(QEMU_SYSTEM) -cdrom $(BUILD_FOLDER)/DreamOs64.iso -monitor unix:qemu-monitor-socket,server,nowait -serial file:dreamos64.log -m 1G -d int -no-reboot -no-shutdown -s -S 
 
-tests:
+tests:j
 	gcc ${TESTFLAGS} tests/test_mem.c tests/test_common.c src/kernel/mem/bitmap.c src/kernel/mem/vmm_util.c src/kernel/mem/pmm.c src/kernel/mem/mmap.c -o tests/test_mem.o
 	gcc ${TESTFLAGS} tests/test_number_conversion.c tests/test_common.c src/base/numbers.c -o tests/test_number_conversion.o
 	gcc ${TESTFLAGS} tests/test_kheap.c tests/test_common.c src/kernel/mem/kheap.c src/kernel/mem/bitmap.c src/kernel/mem/pmm.c src/kernel/mem/mmap.c src/kernel/mem/vmm_util.c -o tests/test_kheap.o
