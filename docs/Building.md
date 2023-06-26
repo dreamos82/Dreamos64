@@ -7,7 +7,7 @@ The following flags have to be properly set before building the os:
 * `BUILD`: this control the folder where all the output files from the build are placed. Default value is: `dist`
 * `ARCH_PREFIX`: for now it only supports `x86_64-elf`, this will be used as prefix for the compiler and the linker.
 * `FONTS`: specify the folder where the font is stored.
-
+* `IMAGE_BASE_NAME`: the base name of the image (the full name will have also the `ARCH_PREFIX` variable, and a version number.
 
 ## Kernel related flags
 

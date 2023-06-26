@@ -10,3 +10,6 @@ SMALL_PAGES := 0
 BUILD_FOLDER := dist
 FONT_FOLDERS := fonts
 
+# Image Base Name
+
+IMAGE_BASE_NAME := DreamOs64

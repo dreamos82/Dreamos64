@@ -1,6 +1,8 @@
 include build/Config.mk
 include build/Common.mk
 
+VERSION := 0.0
+
 # arch dependant
 ARCH_PREFIX := x86_64-elf
 ASM_COMPILER := nasm
@@ -8,9 +10,8 @@ QEMU_SYSTEM := qemu-system-x86_64
 
 ASM_DEBUG_FLAGS := -g \
 					-F dwarf
-ASM_FLAGS := -f elf64 \
-		-D USE_FRAMEBUFFER=$(USE_FRAMEBUFFER) \
-		-D SMALL_PAGES=$(SMALL_PAGES)
+ASM_FLAGS := -f elf64
+ASM_FLAGS += $(DEF_FLAGS)
 
 DEBUG := 0
 
@@ -26,26 +27,26 @@ default: build
 
 .PHONY: default build run clean debug tests gdb
 
-build: $(BUILD_FOLDER)/os.iso
+build: $(BUILD_FOLDER)/$(IMAGE_BASE_NAME)-$(ARCH_PREFIX)-$(VERSION).iso
 
 clean:
-	rm -rf $(BUILD_FOLDER)
-	find -name *.o -type f -delete
+	-rm -rf $(BUILD_FOLDER)
+	-find -name *.o -type f -delete
 
-run: $(BUILD_FOLDER)/os.iso
-	$(QEMU_SYSTEM) -cdrom $(BUILD_FOLDER)/DreamOs64.iso
+run: $(BUILD_FOLDER)/$(IMAGE_BASE_NAME)-$(ARCH_PREFIX)-$(VERSION).iso
+	$(QEMU_SYSTEM) -cdrom $(BUILD_FOLDER)/$(IMAGE_BASE_NAME)-$(ARCH_PREFIX)-$(VERSION).iso
 
 debug: DEBUG=1
-debug: $(BUILD_FOLDER)/os.iso
+debug: $(BUILD_FOLDER)/$(IMAGE_BASE_NAME)-$(ARCH_PREFIX)-$(VERSION).iso
 # qemu-system-x86_64 -monitor unix:qemu-monitor-socket,server,nowait -cpu qemu64,+x2apic  -cdrom build/DreamOs64.iso -serial file:dreamos64.log -m 1G -d int -no-reboot -no-shutdown
-	$(QEMU_SYSTEM) -monitor unix:qemu-monitor-socket,server,nowait -cpu qemu64,+x2apic  -cdrom $(BUILD_FOLDER)/DreamOs64.iso -serial stdio -m 2G  -no-reboot -no-shutdown
+	$(QEMU_SYSTEM) -monitor unix:qemu-monitor-socket,server,nowait -cpu qemu64,+x2apic  -cdrom $(BUILD_FOLDER)/$(IMAGE_BASE_NAME)-$(ARCH_PREFIX)-$(VERSION).iso -serial stdio -m 2G  -no-reboot -no-shutdown
 
-$(BUILD_FOLDER)/os.iso: $(BUILD_FOLDER)/kernel.bin grub.cfg
+$(BUILD_FOLDER)/$(IMAGE_BASE_NAME)-$(ARCH_PREFIX)-$(VERSION).iso: $(BUILD_FOLDER)/kernel.bin grub.cfg
 	mkdir -p $(BUILD_FOLDER)/isofiles/boot/grub
 	cp grub.cfg $(BUILD_FOLDER)/isofiles/boot/grub
 	cp $(BUILD_FOLDER)/kernel.bin $(BUILD_FOLDER)/isofiles/boot
 	cp $(BUILD_FOLDER)/kernel.map $(BUILD_FOLDER)/isofiles/boot
-	grub-mkrescue -o $(BUILD_FOLDER)/DreamOs64.iso $(BUILD_FOLDER)/isofiles
+	grub-mkrescue -o $(BUILD_FOLDER)/$(IMAGE_BASE_NAME)-$(ARCH_PREFIX)-$(VERSION).iso $(BUILD_FOLDER)/isofiles
 
 $(BUILD_FOLDER)/%.o: src/%.s
 	echo "$(<D)"
@@ -79,7 +80,7 @@ $(BUILD_FOLDER)/kernel.bin: $(OBJ_ASM_FILE) $(OBJ_C_FILE) $(OBJ_FONT_FILE) src/l
 
 gdb: DEBUG=1
 gdb: $(BUILD_FOLDER)/os.iso
-	$(QEMU_SYSTEM) -cdrom $(BUILD_FOLDER)/DreamOs64.iso -monitor unix:qemu-monitor-socket,server,nowait -serial file:dreamos64.log -m 1G -d int -no-reboot -no-shutdown -s -S 
+	$(QEMU_SYSTEM) -cdrom $(BUILD_FOLDER)/$(IMAGE_BASE_NAME)-$(ARCH_PREFIX)-$(VERSION).iso -monitor unix:qemu-monitor-socket,server,nowait -serial file:dreamos64.log -m 1G -d int -no-reboot -no-shutdown -s -S 
 
 tests:
 	gcc ${TESTFLAGS} tests/test_mem.c tests/test_common.c src/kernel/mem/bitmap.c src/kernel/mem/vmm_util.c src/kernel/mem/pmm.c src/kernel/mem/mmap.c -o tests/test_mem.o

@@ -1,3 +1,5 @@
+DEF_FLAGS := -D USE_FRAMEBUFFER=$(USE_FRAMEBUFFER)  -D SMALL_PAGES=$(SMALL_PAGES)
+
 CFLAGS := -std=gnu99 \
         -ffreestanding \
         -O2 \
@@ -16,9 +18,9 @@ CFLAGS := -std=gnu99 \
         -I src/include/sys \
         -mno-red-zone \
         -mno-sse \
-        -mcmodel=large \
-        -DUSE_FRAMEBUFFER=$(USE_FRAMEBUFFER) \
-        -DSMALL_PAGES=$(SMALL_PAGES)
+        -mcmodel=large
+        
+CFLAGS += $(DEF_FLAGS)
 
 TESTFLAGS := -std=gnu99 \
         -I tests/include \
