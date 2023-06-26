@@ -79,7 +79,7 @@ $(BUILD_FOLDER)/kernel.bin: $(OBJ_ASM_FILE) $(OBJ_C_FILE) $(OBJ_FONT_FILE) src/l
 	$(ARCH_PREFIX)-ld -n -o $(BUILD_FOLDER)/kernel.bin -T src/linker.ld $(OBJ_ASM_FILE) $(OBJ_C_FILE) $(OBJ_FONT_FILE) -Map $(BUILD_FOLDER)/kernel.map
 
 gdb: DEBUG=1
-gdb: $(BUILD_FOLDER)/os.iso
+gdb: $(BUILD_FOLDER)/$(IMAGE_BASE_NAME)-$(ARCH_PREFIX)-$(VERSION).iso
 	$(QEMU_SYSTEM) -cdrom $(BUILD_FOLDER)/$(IMAGE_BASE_NAME)-$(ARCH_PREFIX)-$(VERSION).iso -monitor unix:qemu-monitor-socket,server,nowait -serial file:dreamos64.log -m 1G -d int -no-reboot -no-shutdown -s -S 
 
 tests:
