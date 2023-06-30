@@ -1,119 +1,88 @@
-USE_FRAMEBUFFER := 1
-SMALL_PAGES := 0
-CFLAGS := -std=gnu99 \
-        -ffreestanding \
-        -O2 \
-        -Wall \
-        -Wextra \
-        -I src/include \
-        -I src/include/base \
-        -I src/include/kernel \
-        -I src/include/kernel/mem \
-        -I src/include/kernel/x86_64 \
-        -I src/include/kernel/hardware \
-        -I src/include/kernel/scheduling \
-        -I src/include/libc \
-        -I src/include/fs \
-        -I src/include/drivers/fs \
-        -I src/include/sys \
-        -mno-red-zone \
-        -mno-sse \
-        -mcmodel=large \
-        -DUSE_FRAMEBUFFER=$(USE_FRAMEBUFFER) \
-        -DSMALL_PAGES=$(SMALL_PAGES)
+include build/Config.mk
+include build/Common.mk
 
-TESTFLAGS := -std=gnu99 \
-        -I tests/include \
-        -I src/include \
-        -I src/include/base \
-        -I src/include/kernel/mem \
-        -I src/include/fs \
-        -I src/include/drivers/fs \
-        -I src/include/kernel \
-        -I src/include/kernel/x86_64 \
-        -I src/include/sys \
-        -DSMALL_PAGES=$(SMALL_PAGES) \
-        -D_TEST_=1
+VERSION := 0.0.0
 
-TEST_FOLDER := tests
-C_DEBUG_FLAGS := -g \
-				-DDEBUG=1
-NASM_DEBUG_FLAGS := -g \
+# arch dependant
+ARCH_PREFIX := x86_64-elf
+ASM_COMPILER := nasm
+QEMU_SYSTEM := qemu-system-x86_64
+
+ASM_DEBUG_FLAGS := -g \
 					-F dwarf
-NASMFLAGS := -f elf64 \
-		-D USE_FRAMEBUFFER=$(USE_FRAMEBUFFER) \
-		-D SMALL_PAGES=$(SMALL_PAGES)
-BUILD := build
-PRJ_FOLDERS := src
-FONT_FOLDERS := fonts
+ASM_FLAGS := -f elf64
+ASM_FLAGS += $(DEF_FLAGS)
+
 DEBUG := 0
-VERBOSE_OUTPUT :=0
 
 SRC_C_FILES := $(shell find $(PRJ_FOLDERS) -type f -name "*.c")
 SRC_H_FILES := $(shell find $(PRJ_FOLDERS) -type f -name "*.h")
 SRC_ASM_FILES := $(shell find $(PRJ_FOLDERS) -type f -name "*.s")
 SRC_FONT_FILES := $(shell find $(FONT_FOLDERS) -type f -name "*.psf")
-OBJ_ASM_FILE := $(patsubst src/%.s, build/%.o, $(SRC_ASM_FILES))
-OBJ_C_FILE := $(patsubst src/%.c, build/%.o, $(SRC_C_FILES))
-OBJ_FONT_FILE := $(patsubst fonts/%.psf, build/%.o, $(SRC_FONT_FILES))
+OBJ_ASM_FILE := $(patsubst src/%.s, $(BUILD_FOLDER)/%.o, $(SRC_ASM_FILES))
+OBJ_C_FILE := $(patsubst src/%.c, $(BUILD_FOLDER)/%.o, $(SRC_C_FILES))
+OBJ_FONT_FILE := $(patsubst fonts/%.psf, $(BUILD_FOLDER)/%.o, $(SRC_FONT_FILES))
+
+ISO_IMAGE_FILENAME := $(IMAGE_BASE_NAME)-$(ARCH_PREFIX)-$(VERSION).iso
+
 default: build
 
 .PHONY: default build run clean debug tests gdb
 
-build: build/os.iso
+build: $(BUILD_FOLDER)/$ISO_IMAGE_FILENAME
 
 clean:
-	rm -rf build
-	find -name *.o -type f -delete
+	-rm -rf $(BUILD_FOLDER)
+	-find -name *.o -type f -delete
 
-run: build/os.iso
-	qemu-system-x86_64 -cdrom build/DreamOs64.iso
+run: $(BUILD_FOLDER)/$ISO_IMAGE_FILENAME
+	$(QEMU_SYSTEM) -cdrom $(BUILD_FOLDER)/$ISO_IMAGE_FILENAME
 
 debug: DEBUG=1
-debug: build/os.iso
+debug: $(BUILD_FOLDER)/$ISO_IMAGE_FILENAME
 # qemu-system-x86_64 -monitor unix:qemu-monitor-socket,server,nowait -cpu qemu64,+x2apic  -cdrom build/DreamOs64.iso -serial file:dreamos64.log -m 1G -d int -no-reboot -no-shutdown
-	qemu-system-x86_64 -monitor unix:qemu-monitor-socket,server,nowait -cpu qemu64,+x2apic  -cdrom build/DreamOs64.iso -serial stdio -m 2G  -no-reboot -no-shutdown
+	$(QEMU_SYSTEM) -monitor unix:qemu-monitor-socket,server,nowait -cpu qemu64,+x2apic  -cdrom $(BUILD_FOLDER)/$ISO_IMAGE_FILENAME -serial stdio -m 2G  -no-reboot -no-shutdown
 
-build/os.iso: build/kernel.bin grub.cfg
-	mkdir -p build/isofiles/boot/grub
-	cp grub.cfg build/isofiles/boot/grub
-	cp build/kernel.bin build/isofiles/boot
-	cp build/kernel.map build/isofiles/boot
-	grub-mkrescue -o build/DreamOs64.iso build/isofiles
+$(BUILD_FOLDER)/$ISO_IMAGE_FILENAME: $(BUILD_FOLDER)/kernel.bin grub.cfg
+	mkdir -p $(BUILD_FOLDER)/isofiles/boot/grub
+	cp grub.cfg $(BUILD_FOLDER)/isofiles/boot/grub
+	cp $(BUILD_FOLDER)/kernel.bin $(BUILD_FOLDER)/isofiles/boot
+	cp $(BUILD_FOLDER)/kernel.map $(BUILD_FOLDER)/isofiles/boot
+	grub-mkrescue -o $(BUILD_FOLDER)/$ISO_IMAGE_FILENAME $(BUILD_FOLDER)/isofiles
 
-build/%.o: src/%.s
+$(BUILD_FOLDER)/%.o: src/%.s
 	echo "$(<D)"
 	mkdir -p "$(@D)"
 	mkdir -p "$(@D)"
 ifeq ($(DEBUG),'0')
-	nasm ${NASMFLAGS} "$<" -o "$@"
+	${ASM_COMPILER} ${ASM_FLAGS} "$<" -o "$@"
 else
-	nasm ${NASM_DEBUG_FLAGS} ${NASMFLAGS} "$<" -o "$@"
+	${ASM_COMPILER} ${ASM_DEBUG_FLAGS} ${ASM_FLAGS} "$<" -o "$@"
 endif
 
-build/%.o: src/%.c
+$(BUILD_FOLDER)/%.o: src/%.c
 	echo "$(@D)"
 	mkdir -p "$(@D)"
 ifeq ($(DEBUG),'0')
-		x86_64-elf-gcc ${CFLAGS} -c "$<" -o "$@"
+		$(ARCH_PREFIX)-gcc ${CFLAGS} -c "$<" -o "$@"
 else
 		@echo "Compiling with DEBUG flag"
-		x86_64-elf-gcc ${CFLAGS} ${C_DEBUG_FLAGS} -c "$<" -o "$@"
+		$(ARCH_PREFIX)-gcc ${CFLAGS} ${C_DEBUG_FLAGS} -c "$<" -o "$@"
 endif
 
-build/%.o: fonts/%.psf
+$(BUILD_FOLDER)/%.o: fonts/%.psf
 	echo "PSF: $(@D)"
 	mkdir -p "$(@D)"
 	objcopy -O elf64-x86-64 -B i386 -I binary "$<" "$@"
 
-build/kernel.bin: $(OBJ_ASM_FILE) $(OBJ_C_FILE) $(OBJ_FONT_FILE) src/linker.ld
+$(BUILD_FOLDER)/kernel.bin: $(OBJ_ASM_FILE) $(OBJ_C_FILE) $(OBJ_FONT_FILE) src/linker.ld
 	echo $(OBJ_ASM_FILE)
 	echo $(OBJ_FONT_FILE)
-	ld -n -o build/kernel.bin -T src/linker.ld $(OBJ_ASM_FILE) $(OBJ_C_FILE) $(OBJ_FONT_FILE) -Map build/kernel.map
+	$(ARCH_PREFIX)-ld -n -o $(BUILD_FOLDER)/kernel.bin -T src/linker.ld $(OBJ_ASM_FILE) $(OBJ_C_FILE) $(OBJ_FONT_FILE) -Map $(BUILD_FOLDER)/kernel.map
 
 gdb: DEBUG=1
-gdb: build/os.iso
-	qemu-system-x86_64 -cdrom build/DreamOs64.iso -monitor unix:qemu-monitor-socket,server,nowait -serial file:dreamos64.log -m 1G -d int -no-reboot -no-shutdown -s -S 
+gdb: $(BUILD_FOLDER)/$ISO_IMAGE_FILENAME
+	$(QEMU_SYSTEM) -cdrom $(BUILD_FOLDER)/$ISO_IMAGE_FILENAME -monitor unix:qemu-monitor-socket,server,nowait -serial file:dreamos64.log -m 1G -d int -no-reboot -no-shutdown -s -S 
 
 tests:
 	gcc ${TESTFLAGS} tests/test_mem.c tests/test_common.c src/kernel/mem/bitmap.c src/kernel/mem/vmm_util.c src/kernel/mem/pmm.c src/kernel/mem/mmap.c -o tests/test_mem.o
