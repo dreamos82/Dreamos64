@@ -29,26 +29,26 @@ default: build
 
 .PHONY: default build run clean debug tests gdb
 
-build: $(BUILD_FOLDER)/$ISO_IMAGE_FILENAME
+build: $(BUILD_FOLDER)/$(ISO_IMAGE_FILENAME)
 
 clean:
 	-rm -rf $(BUILD_FOLDER)
 	-find -name *.o -type f -delete
 
-run: $(BUILD_FOLDER)/$ISO_IMAGE_FILENAME
-	$(QEMU_SYSTEM) -cdrom $(BUILD_FOLDER)/$ISO_IMAGE_FILENAME
+run: $(BUILD_FOLDER)/$(ISO_IMAGE_FILENAME)
+	$(QEMU_SYSTEM) -cdrom $(BUILD_FOLDER)/$(ISO_IMAGE_FILENAME)
 
 debug: DEBUG=1
-debug: $(BUILD_FOLDER)/$ISO_IMAGE_FILENAME
+debug: $(BUILD_FOLDER)/$(ISO_IMAGE_FILENAME)
 # qemu-system-x86_64 -monitor unix:qemu-monitor-socket,server,nowait -cpu qemu64,+x2apic  -cdrom build/DreamOs64.iso -serial file:dreamos64.log -m 1G -d int -no-reboot -no-shutdown
-	$(QEMU_SYSTEM) -monitor unix:qemu-monitor-socket,server,nowait -cpu qemu64,+x2apic  -cdrom $(BUILD_FOLDER)/$ISO_IMAGE_FILENAME -serial stdio -m 2G  -no-reboot -no-shutdown
+	$(QEMU_SYSTEM) -monitor unix:qemu-monitor-socket,server,nowait -cpu qemu64,+x2apic  -cdrom $(BUILD_FOLDER)/$(ISO_IMAGE_FILENAME) -serial stdio -m 2G  -no-reboot -no-shutdown
 
-$(BUILD_FOLDER)/$ISO_IMAGE_FILENAME: $(BUILD_FOLDER)/kernel.bin grub.cfg
+$(BUILD_FOLDER)/$(ISO_IMAGE_FILENAME): $(BUILD_FOLDER)/kernel.bin grub.cfg
 	mkdir -p $(BUILD_FOLDER)/isofiles/boot/grub
 	cp grub.cfg $(BUILD_FOLDER)/isofiles/boot/grub
 	cp $(BUILD_FOLDER)/kernel.bin $(BUILD_FOLDER)/isofiles/boot
 	cp $(BUILD_FOLDER)/kernel.map $(BUILD_FOLDER)/isofiles/boot
-	grub-mkrescue -o $(BUILD_FOLDER)/$ISO_IMAGE_FILENAME $(BUILD_FOLDER)/isofiles
+	grub-mkrescue -o $(BUILD_FOLDER)/$(ISO_IMAGE_FILENAME) $(BUILD_FOLDER)/isofiles
 
 $(BUILD_FOLDER)/%.o: src/%.s
 	echo "$(<D)"
@@ -81,8 +81,8 @@ $(BUILD_FOLDER)/kernel.bin: $(OBJ_ASM_FILE) $(OBJ_C_FILE) $(OBJ_FONT_FILE) src/l
 	$(ARCH_PREFIX)-ld -n -o $(BUILD_FOLDER)/kernel.bin -T src/linker.ld $(OBJ_ASM_FILE) $(OBJ_C_FILE) $(OBJ_FONT_FILE) -Map $(BUILD_FOLDER)/kernel.map
 
 gdb: DEBUG=1
-gdb: $(BUILD_FOLDER)/$ISO_IMAGE_FILENAME
-	$(QEMU_SYSTEM) -cdrom $(BUILD_FOLDER)/$ISO_IMAGE_FILENAME -monitor unix:qemu-monitor-socket,server,nowait -serial file:dreamos64.log -m 1G -d int -no-reboot -no-shutdown -s -S 
+gdb: $(BUILD_FOLDER)/$(ISO_IMAGE_FILENAME)
+	$(QEMU_SYSTEM) -cdrom $(BUILD_FOLDER)/$(ISO_IMAGE_FILENAME) -monitor unix:qemu-monitor-socket,server,nowait -serial file:dreamos64.log -m 1G -d int -no-reboot -no-shutdown -s -S 
 
 tests:
 	gcc ${TESTFLAGS} tests/test_mem.c tests/test_common.c src/kernel/mem/bitmap.c src/kernel/mem/vmm_util.c src/kernel/mem/pmm.c src/kernel/mem/mmap.c -o tests/test_mem.o
