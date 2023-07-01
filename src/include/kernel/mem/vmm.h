@@ -30,6 +30,11 @@ typedef enum {
     VMM_FLAGS_ADDRESS_ONLY = (1 << 7)
 } paging_flags_t;
 
+typedef enum {
+    VMM_LEVEL_USER,
+    VMM_LEVEL_SUPERVISOR
+} vmm_level_t;
+
 typedef struct VmmItem{
     uintptr_t base;
     size_t size;
@@ -53,7 +58,7 @@ typedef struct VmmContainer {
 extern uint64_t end_of_vmm_space;
 extern VmmInfo vmm_info;
 
-void vmm_init();
+void vmm_init(vmm_level_t vmm_level);
 
 void *vmm_alloc(size_t size, size_t flags);
 void vmm_free(void *address);

@@ -58,6 +58,12 @@ void invalidate_page_table( uint64_t *table_address ) {
     	: "memory");
 }
 
+size_t vm_parse_flags( size_t flags) {
+    // This function return the vmm_alloc flags parsed to be used with the x86_64 architectture page tables.
+    flags = flags & ~(1 << 7); 
+    return flags;
+}
+
 /**
  * This function given an address if it is not in the higher half, it return the same address + HIGHER_HALF_ADDRESS_OFFSET already defined. 
  *

@@ -15,3 +15,13 @@ They can change at any moment, or can be removed in the future
 
 * `USE_FRAMEBUFFER`   if set to 1 it use the framebuffer video mode, if set to 0 it use the legacy VGA driver. 
 * `SMALL_PAGES` if set to 1 the virtual memory will use 4k pages if set to 0 it will use 2mb pages 
+
+
+## Makefile Goals
+
+* `build`: TBD
+* `run`: 
+* `clean`: 
+* `debug`:
+* `gdb`: 
+

@@ -32,7 +32,7 @@ extern uint64_t end_of_mapped_memory;
 /**
  * When initialized the VM Manager should reserve a portion of the virtual memory space for itself.
  */
-void vmm_init() {
+void vmm_init(vmm_level_t vmm_level) {
     //vmm_info.higherHalfDirectMapBase is where we will the Direct Mapping of physical memory will start.
     vmm_info.higherHalfDirectMapBase = ((uint64_t) HIGHER_HALF_ADDRESS_OFFSET + VM_KERNEL_MEMORY_PADDING);
     vmm_info.vmmDataStart = align_value_to_page(vmm_info.higherHalfDirectMapBase + memory_size_in_bytes + VM_KERNEL_MEMORY_PADDING);
@@ -41,7 +41,15 @@ void vmm_init() {
     loglinef(Verbose, "(%s): Vmm Data:", __FUNCTION__);
     end_of_vmm_data = (uint64_t) vmm_container_root + VMM_RESERVED_SPACE_SIZE;
     start_of_vmm_space = (size_t) vmm_container_root + VMM_RESERVED_SPACE_SIZE + VM_KERNEL_MEMORY_PADDING;
-    vmm_info.vmmSpaceStart = vmm_info.vmmDataStart + VMM_RESERVED_SPACE_SIZE + VM_KERNEL_MEMORY_PADDING;
+    
+    if (vmm_level == VMM_LEVEL_SUPERVISOR) {        
+        vmm_info.vmmSpaceStart = vmm_info.vmmDataStart + VMM_RESERVED_SPACE_SIZE + VM_KERNEL_MEMORY_PADDING;
+    } else if ( vmm_level == VMM_LEVEL_USER) {
+        loglinef(Fatal, "(%s): not implemented", __FUNCTION__);
+        vmm_info.vmmSpaceStart = 0x0l + VM_KERNEL_MEMORY_PADDING;
+    } else {
+        loglinef(Fatal, "(%s): Unknown level", __FUNCTION__);
+    }
 
     next_available_address = start_of_vmm_space;
     vmm_items_per_page = (PAGE_SIZE_IN_BYTES / sizeof(VmmItem)) - 1;
@@ -66,10 +74,7 @@ void vmm_init() {
     vmm_cur_container = vmm_container_root;
 }
 
-void *vmm_alloc(size_t size, size_t flags) {
-
-    //TODO When the space inside this page is finished we need to allocate a new page
-    //     at vmm_cur_container + sizeof(VmmItem)
+void *vmm_alloc(size_t size, size_t flags) {    
     if (size == 0) {
         return NULL;
     }
