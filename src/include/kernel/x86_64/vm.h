@@ -38,19 +38,19 @@
 #define PAGE_ENTRY_FLAGS PRESENT_BIT | WRITE_BIT
 #endif
 
-void page_fault_handler(uint64_t);
+void page_fault_handler(uint64_t error_code);
 
 void initialize_vm();
 
-void clean_new_table(uint64_t *);
+void clean_new_table(uint64_t *table_to_clean);
 
-void invalidate_page_table(uint64_t *);
+void invalidate_page_table(uint64_t *table_address);
 
-void load_cr3(void*);
+void load_cr3(void *cr3_value);
 
-uint64_t ensure_address_in_higher_half( uint64_t );
+uint64_t ensure_address_in_higher_half( uint64_t address);
 
-size_t vm_parse_flags( size_t flags)
+size_t vm_parse_flags( size_t flags);
 
-bool is_address_higher_half(uint64_t);
+bool is_address_higher_half(uint64_t address);
 #endif
