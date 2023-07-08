@@ -74,7 +74,7 @@ void vmm_init(vmm_level_t vmm_level) {
     vmm_cur_container = vmm_container_root;
 }
 
-void *vmm_alloc(size_t size, size_t flags) {    
+void *vmm_alloc(size_t size, paging_flags_t flags) {    
     if (size == 0) {
         return NULL;
     }

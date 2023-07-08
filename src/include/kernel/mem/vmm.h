@@ -3,11 +3,7 @@
 
 #include <stddef.h>
 #include <bitmap.h>
-
-//#define NONE 0
-//#define PRESENT 0b1
-//#define WRITE_ENABLE 2
-//#define USER_LEVEL 4
+#include <task.h>
 
 #define PHYS_ADDRESS_NOT_MAPPED  0 // Address is not mapped 
 #define PHYS_ADDRESS_MAPPED 0b1
@@ -60,7 +56,7 @@ extern VmmInfo vmm_info;
 
 void vmm_init(vmm_level_t vmm_level);
 
-void *vmm_alloc(size_t size, size_t flags);
+void *vmm_alloc(size_t size, paging_flags_t flags);
 void vmm_free(void *address);
 
 void *map_vaddress(void *address, paging_flags_t flags);

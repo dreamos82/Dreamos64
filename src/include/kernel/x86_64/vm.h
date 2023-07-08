@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <bitmap.h>
+#include <vmm.h>
 
 #define PML4_ENTRY(address)((address>>39) & 0x1ff)
 #define PDPR_ENTRY(address)((address>>30) & 0x1ff)
@@ -50,7 +51,7 @@ void load_cr3(void *cr3_value);
 
 uint64_t ensure_address_in_higher_half( uint64_t address);
 
-size_t vm_parse_flags( size_t flags);
+size_t vm_parse_flags( paging_flags_t flags);
 
 bool is_address_higher_half(uint64_t address);
 #endif
