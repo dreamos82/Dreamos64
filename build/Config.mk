@@ -8,7 +8,7 @@ SMALL_PAGES := 0
 # Build Configuration
 
 BUILD_FOLDER := dist
-FONT_FOLDERS := fonts
+FONT_FOLDER := fonts
 
 # Image Base Name
 
