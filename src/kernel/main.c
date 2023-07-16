@@ -165,7 +165,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
     loglinef(Verbose, "(kernel_start): Cpu info result: 0x%x", cpu_info);
     init_apic();
     _mmap_setup();
-    vmm_init(VMM_LEVEL_SUPERVISOR);
+    vmm_init(VMM_LEVEL_SUPERVISOR, NULL);
     initialize_kheap();
     kernel_settings.kernel_uptime = 0;
     kernel_settings.paging.page_root_address = p4_table;

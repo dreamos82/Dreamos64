@@ -1,6 +1,7 @@
 #ifndef _TASK_H
 #define _TASK_H
 
+#include <vmm.h>
 #include <stddef.h>
 #include <stdbool.h>
 #include <thread.h>
@@ -15,6 +16,8 @@ struct task_t {
 
     // It will contain the virtual memory base address for the process
     void* vm_root_page_table;
+    
+    VmmInfo vmm_info;
 
     //List of threads 
     struct thread_t* threads;

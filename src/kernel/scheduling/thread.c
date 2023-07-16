@@ -9,6 +9,7 @@
 #include <vmm.h>
 
 thread_t* create_thread(char* thread_name, void (*_entry_point)(void *), void* arg, task_t* parent_task) {
+    asm("cli");
     thread_t *new_thread = kmalloc(sizeof(thread_t));
     new_thread->tid = next_thread_id++;
     new_thread->parent_task = parent_task;
@@ -47,6 +48,7 @@ thread_t* create_thread(char* thread_name, void (*_entry_point)(void *), void* a
     }
     
     scheduler_add_thread(new_thread);
+    asm("sti");
     return new_thread;
 }
 

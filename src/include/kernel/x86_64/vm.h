@@ -51,7 +51,7 @@ void load_cr3(void *cr3_value);
 
 uint64_t ensure_address_in_higher_half( uint64_t address);
 
-size_t vm_parse_flags( paging_flags_t flags);
+size_t vm_parse_flags( size_t flags);
 
 bool is_address_higher_half(uint64_t address);
 #endif
