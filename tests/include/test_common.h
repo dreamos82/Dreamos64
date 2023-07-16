@@ -29,7 +29,7 @@ void init_log(size_t defaultOutputs, log_level_t trimBelowLevel, bool useVgaVide
 void set_log_trim_level(size_t newTrim);
 void logline(log_level_t level, const char* msg);
 void loglinef(log_level_t level, const char* msg, ...);
-void *map_phys_to_virt_addr(void* physical_address, void* address, unsigned int flags);
+void *map_phys_to_virt_addr(void* physical_address, void* address, size_t flags);
 
 uint32_t _compute_kernel_entries(uint64_t);
 #endif
