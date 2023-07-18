@@ -47,6 +47,7 @@ void vmm_init(vmm_level_t vmm_level, VmmInfo *task_vmm_info) {
     task_vmm_info->status.vmm_container_root = (VmmContainer *) task_vmm_info->vmmDataStart;        
     
     end_of_vmm_data = (uint64_t) task_vmm_info->status.vmm_container_root + VMM_RESERVED_SPACE_SIZE;
+    task_vmm_info->status.end_of_vmm_data = (uint64_t) task_vmm_info->status.vmm_container_root + VMM_RESERVED_SPACE_SIZE;
     
     start_of_vmm_space = (size_t) task_vmm_info->status.vmm_container_root + VMM_RESERVED_SPACE_SIZE + VM_KERNEL_MEMORY_PADDING;
     task_vmm_info->start_of_vmm_space = (size_t) task_vmm_info->status.vmm_container_root + VMM_RESERVED_SPACE_SIZE + VM_KERNEL_MEMORY_PADDING;
@@ -73,6 +74,7 @@ void vmm_init(vmm_level_t vmm_level, VmmInfo *task_vmm_info) {
     
     loglinef(Verbose, "(vmm_init): vmm_container_root starts at: 0x%x - %d", vmm_container_root, is_address_aligned(task_vmm_info->vmmDataStart, PAGE_SIZE_IN_BYTES));
     loglinef(Verbose, "(vmm_init): vmmDataStart  starts at: 0x%x - %x (end_of_vmm_data)", task_vmm_info->vmmDataStart, end_of_vmm_data);
+    loglinef(Verbose, "(vmm_init): vmmDataStart  starts at: 0x%x - %x (end_of_vmm_data)", task_vmm_info->vmmDataStart, task_vmm_info->status.end_of_vmm_data);
     loglinef(Verbose, "(vmm_init): higherHalfDirectMapBase: %x, is_aligned: %d", (uint64_t) task_vmm_info->higherHalfDirectMapBase, is_address_aligned(task_vmm_info->higherHalfDirectMapBase, PAGE_SIZE_IN_BYTES));
     loglinef(Verbose, "(vmm_init): vmmSpaceStart: %x", (uint64_t) task_vmm_info->vmmSpaceStart);
     loglinef(Verbose, "(%s): sizeof VmmContainer: 0x%x", __FUNCTION__, sizeof(VmmContainer));
@@ -86,7 +88,8 @@ void vmm_init(vmm_level_t vmm_level, VmmInfo *task_vmm_info) {
     }
 
     // Mapping the phyiscal address for the vmm structures
-    map_phys_to_virt_addr(vmm_root_phys, vmm_container_root, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE);
+    loglinef(Verbose, "(%s): vmm_container_root: 0x%x - status.vmm_container_root: 0x%x", __FUNCTION__,  vmm_container_root, task_vmm_info->status.vmm_container_root);
+    map_phys_to_virt_addr(vmm_root_phys, task_vmm_info->status.vmm_container_root, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE);
     vmm_direct_map_physical_memory();
     vmm_container_root->next = NULL;
     task_vmm_info->status.vmm_container_root->next = NULL;
@@ -181,11 +184,12 @@ void vmm_free(void *address) {
 void vmm_direct_map_physical_memory() {
     // This function needs to map the entire phyisical memory inside the virtual memory enironment.
     // The starting address is _HIGHER_HALF_KERNEL_MEM_START
-    loglinef(Verbose, "(direct_map_physical_memory) End of memory_mapping phys: 0x%x, memory_size: 0x%x", end_of_mapped_memory - _HIGHER_HALF_KERNEL_MEM_START, memory_size_in_bytes);    
+    // It should take the vmm as parameter
+    loglinef(Verbose, "(direct_map_physical_memory) End of memory_mapping phys: 0x%x, memory_size: 0x%x", end_of_mapped_memory - _HIGHER_HALF_KERNEL_MEM_START, memory_size_in_bytes);
     uint64_t end_of_mapped_physical_memory = end_of_mapped_memory - _HIGHER_HALF_KERNEL_MEM_START;
     if (is_phyisical_address_mapped(end_of_mapped_physical_memory, end_of_mapped_physical_memory)) {
         end_of_mapped_memory = end_of_mapped_memory + PAGE_SIZE_IN_BYTES;
-        end_of_mapped_physical_memory = end_of_mapped_physical_memory + PAGE_SIZE_IN_BYTES;        
+        end_of_mapped_physical_memory = end_of_mapped_physical_memory + PAGE_SIZE_IN_BYTES;
     }
 
     uint64_t address_to_map = 0;

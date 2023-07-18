@@ -68,6 +68,8 @@ typedef struct VmmInfo {
         size_t vmm_cur_index;
                 
         size_t next_available_address;
+        
+        uint64_t end_of_vmm_data;
     } status;
     
 } VmmInfo;
