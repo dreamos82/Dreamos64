@@ -89,11 +89,11 @@ void vmm_init(vmm_level_t vmm_level, VmmInfo *task_vmm_info) {
 
     // Mapping the phyiscal address for the vmm structures
     loglinef(Verbose, "(%s): vmm_container_root: 0x%x - status.vmm_container_root: 0x%x", __FUNCTION__,  vmm_container_root, task_vmm_info->status.vmm_container_root);
-    map_phys_to_virt_addr(vmm_root_phys, task_vmm_info->status.vmm_container_root, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE);
-    vmm_direct_map_physical_memory();
+    map_phys_to_virt_addr(vmm_root_phys, task_vmm_info->status.vmm_container_root, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE);    
     vmm_container_root->next = NULL;
     task_vmm_info->status.vmm_container_root->next = NULL;
     vmm_cur_container = vmm_container_root;
+    task_vmm_info->status.vmm_cur_container = task_vmm_info->status.vmm_container_root;
 }
 
 void *vmm_alloc(size_t size, size_t flags) {
@@ -181,7 +181,7 @@ void vmm_free(void *address) {
     return;
 }
 
-void vmm_direct_map_physical_memory() {
+void vmm_direct_map_physical_memory(VmmInfo *task_vmm_info) {
     // This function needs to map the entire phyisical memory inside the virtual memory enironment.
     // The starting address is _HIGHER_HALF_KERNEL_MEM_START
     // It should take the vmm as parameter
