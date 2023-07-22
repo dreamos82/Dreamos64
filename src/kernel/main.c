@@ -38,6 +38,7 @@
 #include <vfs.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <vm.h>
 //#include <runtime_tests.h>
 
 extern uint32_t FRAMEBUFFER_MEMORY_SIZE;
@@ -165,8 +166,10 @@ void kernel_start(unsigned long addr, unsigned long magic){
     loglinef(Verbose, "(kernel_start): Cpu info result: 0x%x", cpu_info);
     init_apic();
     _mmap_setup();
+    higherHalfDirectMapBase = ((uint64_t) HIGHER_HALF_ADDRESS_OFFSET + VM_KERNEL_MEMORY_PADDING);
     vmm_init(VMM_LEVEL_SUPERVISOR, NULL);
     vmm_direct_map_physical_memory();
+    loglinef(Verbose, "(%s): higherHalfDirectMapBase val: 0x%x", __FUNCTION__, higherHalfDirectMapBase);
     initialize_kheap();
     kernel_settings.kernel_uptime = 0;
     kernel_settings.paging.page_root_address = p4_table;

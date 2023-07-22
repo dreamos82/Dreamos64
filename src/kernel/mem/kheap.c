@@ -16,7 +16,7 @@ void initialize_kheap(){
     #ifndef _TEST_
 
     // Let's allocate the new heap, we rely on the vmm_alloc function for this part.
-    uint64_t *kheap_vaddress = vmm_alloc(PAGE_SIZE_IN_BYTES, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE);
+    uint64_t *kheap_vaddress = vmm_alloc(PAGE_SIZE_IN_BYTES, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE, NULL);
 
     kernel_heap_start = (KHeapMemoryNode *) ((uint64_t) kheap_vaddress);
     loglinef(Verbose, "(initialize_kheap) Start address using vmm_alloc: %x, and using end of vmm_space: %x", kheap_vaddress, kernel_heap_start);

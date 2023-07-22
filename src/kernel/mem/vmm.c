@@ -28,9 +28,11 @@ VmmInfo vmm_info;
 
 //uint64_t memory_size_in_bytes;
 extern uint64_t end_of_mapped_memory;
+uintptr_t higherHalfDirectMapBase;
 
 /**
  * When initialized the VM Manager should reserve a portion of the virtual memory space for itself.
+ * If NULL is passed it will initialize the kernel vmm data structure
  */
 void vmm_init(vmm_level_t vmm_level, VmmInfo *task_vmm_info) {
     
@@ -96,8 +98,13 @@ void vmm_init(vmm_level_t vmm_level, VmmInfo *task_vmm_info) {
     task_vmm_info->status.vmm_cur_container = task_vmm_info->status.vmm_container_root;
 }
 
-void *vmm_alloc(size_t size, size_t flags) {
-    size_t arch_flags = vm_parse_flags(flags);        
+void *vmm_alloc(size_t size, size_t flags, VmmInfo*vmm_task_info) {
+    
+    if ( vmm_task_info == NULL) {
+        vmm_task_info = &vmm_info;
+    }
+        
+    size_t arch_flags = vm_parse_flags(flags);
     if ( size == 0 ) {
         return NULL;
     }
@@ -109,17 +116,20 @@ void *vmm_alloc(size_t size, size_t flags) {
         VmmContainer *new_container = NULL;
         if ( new_container_phys_address != NULL) {
             // 1.a We need to get the virtual address for the new structure
-            new_container = align_value_to_page((uint64_t)vmm_cur_container + sizeof(VmmContainer) + PAGE_SIZE_IN_BYTES);
+            new_container = align_value_to_page((uint64_t)vmm_cur_container + sizeof(VmmContainer) + PAGE_SIZE_IN_BYTES);            
             loglinef(Verbose, "(%s): new address 0x%x is aligned: %d", __FUNCTION__, new_container, is_address_aligned(new_container, PAGE_SIZE_IN_BYTES));
             map_phys_to_virt_addr(new_container_phys_address, new_container, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE);
             // Step 2: Reset vmm_cur_index
             vmm_cur_index = 0;
+            vmm_task_info->status.vmm_cur_index = 0;
             // Step 2.a: Set next as null for new_container;
             new_container->next = NULL;
             // Step 3: Add the new container as next item in the current one
             vmm_cur_container->next = new_container;
+            vmm_task_info->status.vmm_cur_container->next = new_container;
             // Step 4: make the new container as the current
             vmm_cur_container = new_container;
+            vmm_task_info->status.vmm_cur_container = new_container;
         } else {
             loglinef(Fatal, "(%s): pmm_alloc_frame for new container has returned null, this should not happen!", __FUNCTION__);
             return NULL;
@@ -132,9 +142,13 @@ void *vmm_alloc(size_t size, size_t flags) {
 
     uintptr_t address_to_return = next_available_address;
     vmm_cur_container->vmm_root[vmm_cur_index].base = address_to_return;
+    vmm_task_info->status.vmm_cur_container->vmm_root[vmm_cur_index].base = address_to_return;
     vmm_cur_container->vmm_root[vmm_cur_index].flags = flags;
+    vmm_task_info->status.vmm_cur_container->vmm_root[vmm_cur_index].flags = flags;
     vmm_cur_container->vmm_root[vmm_cur_index].size = new_size;
+    vmm_task_info->status.vmm_cur_container->vmm_root[vmm_cur_index].size = new_size; 
     next_available_address += new_size;
+    vmm_task_info->status.next_available_address += new_size;
 
     if  (!is_address_only(flags) ) {
         logline(Verbose, "(vmm_alloc) This means that we want the address to be mapped directly with physical memory.");
@@ -184,8 +198,8 @@ void vmm_free(void *address) {
 void vmm_direct_map_physical_memory(VmmInfo *task_vmm_info) {
     // This function needs to map the entire phyisical memory inside the virtual memory enironment.
     // The starting address is _HIGHER_HALF_KERNEL_MEM_START
-    // It should take the vmm as parameter
-    loglinef(Verbose, "(direct_map_physical_memory) End of memory_mapping phys: 0x%x, memory_size: 0x%x", end_of_mapped_memory - _HIGHER_HALF_KERNEL_MEM_START, memory_size_in_bytes);
+    // This function should  be called only once and map the physical memory in the kernel vm. 
+    loglinef(Verbose, "(%s): End of memory_mapping phys: 0x%x, memory_size: 0x%x", __FUNCTION__,  end_of_mapped_memory - _HIGHER_HALF_KERNEL_MEM_START, memory_size_in_bytes);
     uint64_t end_of_mapped_physical_memory = end_of_mapped_memory - _HIGHER_HALF_KERNEL_MEM_START;
     if (is_phyisical_address_mapped(end_of_mapped_physical_memory, end_of_mapped_physical_memory)) {
         end_of_mapped_memory = end_of_mapped_memory + PAGE_SIZE_IN_BYTES;
@@ -193,7 +207,7 @@ void vmm_direct_map_physical_memory(VmmInfo *task_vmm_info) {
     }
 
     uint64_t address_to_map = 0;
-    uint64_t virtual_address = vmm_info.higherHalfDirectMapBase;
+    uint64_t virtual_address = higherHalfDirectMapBase;
 
     while ( address_to_map < memory_size_in_bytes) {
         map_phys_to_virt_addr(address_to_map, virtual_address, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE);
@@ -201,7 +215,7 @@ void vmm_direct_map_physical_memory(VmmInfo *task_vmm_info) {
         virtual_address += PAGE_SIZE_IN_BYTES;
         //loglinef(Verbose, "(direct_map_physical_memory) Mapping physical address: 0x%x - To virtual: 0x%x", address_to_map, virtual_address);
     }
-    loglinef(Verbose, "(direct_map_physical_memory) Physical memory mapped end: 0x%x - Virtual memory direct end: 0x%x", end_of_mapped_physical_memory, end_of_mapped_memory);
+    loglinef(Verbose, "(%s): Virtual address last: 0x%x", __FUNCTION__, virtual_address);
 }
 
 uint8_t is_phyisical_address_mapped(uintptr_t physical_address, uintptr_t virtual_address) {

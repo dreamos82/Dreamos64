@@ -50,10 +50,10 @@ typedef struct VmmContainer {
 /**
  * This struct contains the base addresses used by the Virtual Memory Manager
  */
-typedef struct VmmInfo {
-    uintptr_t higherHalfDirectMapBase; /**< The startr of the physical memory direct mapping */
+typedef struct VmmInfo {    
     uintptr_t vmmDataStart; /**< The start of the VMM reserved area for it's own data structures */
     uintptr_t vmmSpaceStart; /**< The start of the VMM space, where all allocation will be placed */
+    uintptr_t higherHalfDirectMapBase;
     
     size_t start_of_vmm_space;
     
@@ -77,9 +77,11 @@ typedef struct VmmInfo {
 extern uint64_t end_of_vmm_space;
 extern VmmInfo vmm_info;
 
+extern uintptr_t higherHalfDirectMapBase; /* The start of the physical memory direct mapping */
+
 void vmm_init(vmm_level_t vmm_level, VmmInfo *task_vmm_info);
 
-void *vmm_alloc(size_t size, size_t flags);
+void *vmm_alloc(size_t size, size_t flags, VmmInfo*vmm_task_info);
 void vmm_free(void *address);
 
 void *map_vaddress(void *address, size_t flags);
