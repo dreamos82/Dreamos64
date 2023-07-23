@@ -43,7 +43,7 @@ void vmm_init(vmm_level_t vmm_level, VmmInfo *task_vmm_info) {
     //vmm_info.higherHalfDirectMapBase is where we will the Direct Mapping of physical memory will start.
     //higherHalfDirectMapBase can be made a global variable.
     task_vmm_info->higherHalfDirectMapBase = ((uint64_t) HIGHER_HALF_ADDRESS_OFFSET + VM_KERNEL_MEMORY_PADDING);
-    task_vmm_info->vmmDataStart = align_value_to_page(task_vmm_info->higherHalfDirectMapBase + memory_size_in_bytes + VM_KERNEL_MEMORY_PADDING);
+    task_vmm_info->vmmDataStart = align_value_to_page(higherHalfDirectMapBase + memory_size_in_bytes + VM_KERNEL_MEMORY_PADDING);
     
     vmm_container_root = (VmmContainer *) task_vmm_info->vmmDataStart;
     task_vmm_info->status.vmm_container_root = (VmmContainer *) task_vmm_info->vmmDataStart;        
@@ -163,6 +163,7 @@ void *vmm_alloc(size_t size, size_t flags, VmmInfo*vmm_task_info) {
 
     loglinef(Verbose, "(vmm_alloc) newly allocated item base: %x, next available address: %x", vmm_cur_container->vmm_root[vmm_cur_index].base, next_available_address);
     vmm_cur_index++;
+    vmm_task_info->status.vmm_cur_index++;
 
     return (void *) address_to_return;
 }
