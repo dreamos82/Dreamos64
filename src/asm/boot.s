@@ -233,6 +233,8 @@ higher_half:
     ; to be changed and some addresses need to be updated (i.e. multiboot stuff)
     mov eax, 0x0
     mov dword [(p4_table - KERNEL_VIRTUAL_ADDR) + 0], eax
+    mov rax, cr3
+    mov cr3, rax
     call kernel_start
 
 section .bss

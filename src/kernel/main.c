@@ -58,13 +58,13 @@ struct multiboot_tag *tagacpi = NULL;
 
 void _init_basic_system(unsigned long addr){
     struct multiboot_tag* tag;
-    uint32_t mbi_size = *(uint32_t *) addr;
+    uint32_t mbi_size = *(uint32_t *) (addr + _HIGHER_HALF_KERNEL_MEM_START);
     //These data structure are initialized durinig the boot process.
     tagmem  = (struct multiboot_tag_basic_meminfo *)(multiboot_basic_meminfo + _HIGHER_HALF_KERNEL_MEM_START);
     tagmmap = (struct multiboot_tag_mmap *) (multiboot_mmap_data + _HIGHER_HALF_KERNEL_MEM_START);
     tagfb   = (struct multiboot_tag_framebuffer *) (multiboot_framebuffer_data + _HIGHER_HALF_KERNEL_MEM_START);
     //Print basic mem Info data
-    loglinef(Verbose, "(kernel_main) init_basic_system: Found basic mem Mem info type: 0x%x", tagmem->type);
+    loglinef(Verbose, "(kernel_main) init_basic_system: Found basic mem Mem info type: 0x%x", tagmem->type);    
     loglinef(Verbose, "(kernel_main) init_basic_system: Memory lower (in kb): %d - upper (in kb): %d", tagmem->mem_lower, tagmem->mem_upper);
     memory_size_in_bytes = (tagmem->mem_upper + 1024) * 1024;
     //Print mmap_info
@@ -117,7 +117,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
     // Reminder here: The first 8 bytes have a fixed structure in the multiboot info:
     // They are: 0-4: size of the boot information in bytes
     //           4-8: Reserved (0) 
-    unsigned size = *(unsigned*)addr;
+    unsigned size = *(unsigned*)(addr + _HIGHER_HALF_KERNEL_MEM_START);
     loglinef(Verbose, "(kernel_start): Size:  %x - Magic: %x", size, magic);
     
     if(magic == 0x36d76289){
