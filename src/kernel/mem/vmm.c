@@ -36,8 +36,9 @@ extern uint64_t end_of_mapped_memory;
 void vmm_init(vmm_level_t vmm_level) {
     //vmm_info.higherHalfDirectMapBase is where we will the Direct Mapping of physical memory will start.    
     higherHalfDirectMapBase = ((uint64_t) HIGHER_HALF_ADDRESS_OFFSET + VM_KERNEL_MEMORY_PADDING);
-    vmm_info.vmmDataStart = align_value_to_page(higherHalfDirectMapBase + memory_size_in_bytes + VM_KERNEL_MEMORY_PADDING);
-    //vmm_container_root = ((uint64_t) HIGHER_HALF_ADDRESS_OFFSET + VM_KERNEL_MEMORY_PADDING);
+    
+    vmm_info.vmmDataStart = align_value_to_page(higherHalfDirectMapBase + memory_size_in_bytes + VM_KERNEL_MEMORY_PADDING);    
+    
     vmm_container_root = (VmmContainer *) vmm_info.vmmDataStart;    
     end_of_vmm_data = (uint64_t) vmm_container_root + VMM_RESERVED_SPACE_SIZE;        
     
@@ -266,7 +267,7 @@ int unmap_vaddress(void *address){
 	return 0;
 }
 
-void identity_map_phys_address(void *physical_address, paging_flags_t flags) {
+void identity_map_phys_address(void *physical_address, size_t flags) {
     map_phys_to_virt_addr(physical_address, physical_address, flags);
 }
 
@@ -279,7 +280,7 @@ void identity_map_phys_address(void *physical_address, paging_flags_t flags) {
  * @param flags the flags for the mapped page.
  * @return address the virtual address specified in input, or NULL in case of error.
  */
-void *map_phys_to_virt_addr(void* physical_address, void* address, paging_flags_t flags){
+void *map_phys_to_virt_addr(void* physical_address, void* address, size_t flags){
     uint16_t pml4_e = PML4_ENTRY((uint64_t) address);
     uint64_t *pml4_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l,510l,510l,510l));
     
@@ -345,13 +346,13 @@ void *map_phys_to_virt_addr(void* physical_address, void* address, paging_flags_
     return address;
 }
 
-void *map_vaddress(void *virtual_address, paging_flags_t flags){
+void *map_vaddress(void *virtual_address, size_t flags){
     loglinef(Verbose, "(map_vaddress) address: 0x%x", virtual_address);
     void *new_addr = pmm_alloc_frame();
     return map_phys_to_virt_addr(new_addr, virtual_address, flags);
 }
 
-void map_vaddress_range(void *virtual_address, paging_flags_t flags, size_t required_pages) {
+void map_vaddress_range(void *virtual_address, size_t flags, size_t required_pages) {
     for(size_t i = 0; i < required_pages; i++) {
         map_vaddress(virtual_address + (i * PAGE_SIZE_IN_BYTES), flags);
     }

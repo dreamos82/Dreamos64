@@ -63,12 +63,12 @@ void vmm_init(vmm_level_t vmm_level);
 void *vmm_alloc(size_t size, size_t flags);
 void vmm_free(void *address);
 
-void *map_vaddress(void *address, paging_flags_t flags);
+void *map_vaddress(void *address, size_t flags);
 int unmap_vaddress(void *address);
 
-void *map_phys_to_virt_addr(void* physical_address, void* address, paging_flags_t flags);
-void identity_map_phys_address(void *pyhysical_address, paging_flags_t flags);
-void map_vaddress_range(void *virtual_address, paging_flags_t flags, size_t required_pages);
+void *map_phys_to_virt_addr(void* physical_address, void* address, size_t flags);
+void identity_map_phys_address(void *pyhysical_address, size_t flags);
+void map_vaddress_range(void *virtual_address, size_t flags, size_t required_pages);
 uint8_t is_phyisical_address_mapped(uintptr_t physical_address, uintptr_t virtual_address);
 uint8_t check_virt_address_status(uint64_t virtual_address);
 void vmm_direct_map_physical_memory();
