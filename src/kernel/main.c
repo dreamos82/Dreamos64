@@ -117,11 +117,10 @@ void kernel_start(unsigned long addr, unsigned long magic){
     // Reminder here: The first 8 bytes have a fixed structure in the multiboot info:
     // They are: 0-4: size of the boot information in bytes
     //           4-8: Reserved (0) 
-    unsigned size = *(unsigned*)(addr + _HIGHER_HALF_KERNEL_MEM_START);
-    loglinef(Verbose, "(kernel_start): Size:  %x - Magic: %x", size, magic);
+    unsigned size = *(unsigned*)(addr + _HIGHER_HALF_KERNEL_MEM_START);    
     
     if(magic == 0x36d76289){
-        logline(Verbose, "(kernel_start): Magic number verified");
+        loglinef(Verbose, "(kernel_start): Magic number verified Size:  %x - Magic: %x", size, magic);
     } else {
         logline(Verbose, "(kernel_start): Failed to verify magic number. Something is wrong");
     }
@@ -131,17 +130,14 @@ void kernel_start(unsigned long addr, unsigned long magic){
     if(get_PSF_version(_binary_fonts_default_psf_start) == 1){
         logline(Verbose, "(kernel_start): PSF v1 found");
         PSFv1_Font *font = (PSFv1_Font*)_binary_fonts_default_psf_start;
-        loglinef(Verbose, "(kernel_start): PSF v1: Magic: [%x %x] - Flags: 0x%x", font->magic[1], font->magic[0], font->mode);
-        loglinef(Verbose, "(kernel_start): Charsize: 0x%x", font->charsize);
+        loglinef(Verbose, "(kernel_start): PSF v1: Magic: [%x %x] - Flags: 0x%x - Charsize: 0x%x", font->magic[1], font->magic[0], font->mode, font->charsize);    
     }  else {
         PSF_font *font = (PSF_font*)&_binary_fonts_default_psf_start;
         logline(Verbose, "(kernel_start): PSF v2 found");
         loglinef(Verbose, "(kernel_start): Version: 0x%x - Magic: 0x%x", font->magic, font->version);
         loglinef(Verbose, "(kernel_start): Number of glyphs: 0x%x - Bytes per glyphs: 0x%x", font->numglyph, font->bytesperglyph);
-        loglinef(Verbose, "(kernel_start): Header size: 0x%x", font->headersize);
-        loglinef(Verbose, "(kernel_start): Flags: 0x%x", font->flags);
-        loglinef(Verbose, "(kernel_start): Width: 0x%x - Height: 0x%x", font->width, font->height);
-        loglinef(Verbose, "(kernel_start): Get Width test: %x Get Height test: %x", get_width(psf_font_version), get_height(psf_font_version));
+        loglinef(Verbose, "(kernel_start): Header size: 0x%x - flags: 0x%x", font->headersize, font->flags);
+        loglinef(Verbose, "(kernel_start): Width: 0x%x - Height: 0x%x", font->width, font->height);        
     }
     
     loglinef(Verbose, "(kernel_start): PSF stored version: %d", psf_font_version);
@@ -157,25 +153,23 @@ void kernel_start(unsigned long addr, unsigned long magic){
     draw_logo(0, 400);
 #endif
     
-    char *cpuid_model = _cpuid_model();
+    /*char *cpuid_model = _cpuid_model();
     loglinef(Verbose, "(kernel_start): Cpuid model: %s", cpuid_model);
     
     uint32_t cpu_info = 0;
     cpu_info = _cpuid_feature_apic();
-    loglinef(Verbose, "(kernel_start): Cpu info result: 0x%x", cpu_info);
+    loglinef(Verbose, "(kernel_start): Cpu info result: 0x%x", cpu_info);*/
     init_apic();
     _mmap_setup();
-    vmm_init();
+    vmm_init(VMM_LEVEL_SUPERVISOR);
     initialize_kheap();
     kernel_settings.kernel_uptime = 0;
     kernel_settings.paging.page_root_address = p4_table;
     kernel_settings.paging.page_generation = 0;
     //The table containing the IOAPIC information is called MADT    
     MADT* madt_table = (MADT*) get_SDT_item(MADT_ID);
-    loglinef(Verbose, "(kernel_main) Madt ADDRESS: %x", madt_table);
-    loglinef(Verbose, "(kernel_main) Madt SIGNATURE: %.4s", madt_table->header.Signature);
-    loglinef(Verbose, "(kernel_main) Madt Length: %d", madt_table->header.Length);
-    loglinef(Verbose, "(kernel_main) MADT local apic base: %x", madt_table->local_apic_base);
+    loglinef(Verbose, "(kernel_main) Madt SIGNATURE: %x - ADDRESS: %.4s", madt_table->header.Signature, madt_table);    
+    loglinef(Verbose, "(kernel_main) MADT local apic base: %x - Madt Length: %d", madt_table->local_apic_base, madt_table->header.Length);
     print_madt_table(madt_table);
     init_ioapic(madt_table);
     init_keyboard();

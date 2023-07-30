@@ -25,6 +25,7 @@ size_t start_of_vmm_space;
 size_t next_available_address;
 uint64_t end_of_vmm_data;
 VmmInfo vmm_info;
+uintptr_t higherHalfDirectMapBase;
 
 //uint64_t memory_size_in_bytes;
 extern uint64_t end_of_mapped_memory;
@@ -32,24 +33,33 @@ extern uint64_t end_of_mapped_memory;
 /**
  * When initialized the VM Manager should reserve a portion of the virtual memory space for itself.
  */
-void vmm_init() {
-    //vmm_info.higherHalfDirectMapBase is where we will the Direct Mapping of physical memory will start.
-    vmm_info.higherHalfDirectMapBase = ((uint64_t) HIGHER_HALF_ADDRESS_OFFSET + VM_KERNEL_MEMORY_PADDING);
-    vmm_info.vmmDataStart = align_value_to_page(vmm_info.higherHalfDirectMapBase + memory_size_in_bytes + VM_KERNEL_MEMORY_PADDING);
+void vmm_init(vmm_level_t vmm_level) {
+    //vmm_info.higherHalfDirectMapBase is where we will the Direct Mapping of physical memory will start.    
+    higherHalfDirectMapBase = ((uint64_t) HIGHER_HALF_ADDRESS_OFFSET + VM_KERNEL_MEMORY_PADDING);
+    vmm_info.vmmDataStart = align_value_to_page(higherHalfDirectMapBase + memory_size_in_bytes + VM_KERNEL_MEMORY_PADDING);
     //vmm_container_root = ((uint64_t) HIGHER_HALF_ADDRESS_OFFSET + VM_KERNEL_MEMORY_PADDING);
-    vmm_container_root = (VmmContainer *) vmm_info.vmmDataStart;
-    loglinef(Verbose, "(%s): Vmm Data:", __FUNCTION__);
-    end_of_vmm_data = (uint64_t) vmm_container_root + VMM_RESERVED_SPACE_SIZE;
-    start_of_vmm_space = (size_t) vmm_container_root + VMM_RESERVED_SPACE_SIZE + VM_KERNEL_MEMORY_PADDING;
-    vmm_info.vmmSpaceStart = vmm_info.vmmDataStart + VMM_RESERVED_SPACE_SIZE + VM_KERNEL_MEMORY_PADDING;
+    vmm_container_root = (VmmContainer *) vmm_info.vmmDataStart;    
+    end_of_vmm_data = (uint64_t) vmm_container_root + VMM_RESERVED_SPACE_SIZE;        
+    
+    if (vmm_level == VMM_LEVEL_SUPERVISOR) {
+        loglinef(Verbose, "(%s): Supervisor level initialization", __FUNCTION__);
+        vmm_info.vmmSpaceStart = vmm_info.vmmDataStart + VMM_RESERVED_SPACE_SIZE + VM_KERNEL_MEMORY_PADDING;    
+        start_of_vmm_space = (size_t) vmm_container_root + VMM_RESERVED_SPACE_SIZE + VM_KERNEL_MEMORY_PADDING;
+    } else if (vmm_level == VMM_LEVEL_USER) {                
+        vmm_info.vmmSpaceStart = 0x0l + VM_KERNEL_MEMORY_PADDING;    
+        start_of_vmm_space = 0x0l + VM_KERNEL_MEMORY_PADDING;
+        loglinef(Fatal, "(%s): Not implemented yet", __FUNCTION__);
+    } else {
+        loglinef(Fatal, "(%s): Error: unsupported vmm privilege level", __FUNCTION__);
+    }
 
     next_available_address = start_of_vmm_space;
     vmm_items_per_page = (PAGE_SIZE_IN_BYTES / sizeof(VmmItem)) - 1;
     vmm_cur_index = 0;
     loglinef(Verbose, "(vmm_init): vmm_container_root starts at: 0x%x - %d", vmm_container_root, is_address_aligned(vmm_info.vmmDataStart, PAGE_SIZE_IN_BYTES));
     loglinef(Verbose, "(vmm_init): vmmDataStart  starts at: 0x%x - %x (end_of_vmm_data)", vmm_info.vmmDataStart, end_of_vmm_data);
-    loglinef(Verbose, "(vmm_init): higherHalfDirectMapBase: %x, is_aligned: %d", (uint64_t) vmm_info.higherHalfDirectMapBase, is_address_aligned(vmm_info.higherHalfDirectMapBase, PAGE_SIZE_IN_BYTES));
-    loglinef(Verbose, "(vmm_init): vmmSpaceStart: %x", (uint64_t) vmm_info.vmmSpaceStart);
+    loglinef(Verbose, "(vmm_init): higherHalfDirectMapBase: %x, is_aligned: %d", (uint64_t) higherHalfDirectMapBase, is_address_aligned(higherHalfDirectMapBase, PAGE_SIZE_IN_BYTES));
+    loglinef(Verbose, "(%s): vmmSpaceStart: %x - start_of_vmm_space: (%x)", __FUNCTION__,  (uint64_t) vmm_info.vmmSpaceStart, start_of_vmm_space);
     loglinef(Verbose, "(%s): sizeof VmmContainer: 0x%x", __FUNCTION__, sizeof(VmmContainer));
 
     //I need to compute the size of the VMM address space
@@ -75,7 +85,7 @@ void *vmm_alloc(size_t size, size_t flags) {
     }
 
     if (vmm_cur_index >= vmm_items_per_page) {
-        logline(Verbose, "(vmm_init) Max number of pages reached, expansion to be implemented");
+        loglinef(Verbose, "(%s): Max number of pages reached, expansion to be implemented", __FUNCTION__);
         // Step 1: We need to create another VmmContainer
         void *new_container_phys_address = pmm_alloc_frame();
         VmmContainer *new_container = NULL;
@@ -100,7 +110,7 @@ void *vmm_alloc(size_t size, size_t flags) {
 
     // Now i need to align the requested length to a page
     size_t new_size = align_value_to_page(size);
-    loglinef(Verbose, "(vmm_alloc) size: %d - aligned: %d", size, new_size);
+    loglinef(Verbose, "(%s): size: %d - aligned: %d", __FUNCTION__, size, new_size);
 
     uintptr_t address_to_return = next_available_address;
     vmm_cur_container->vmm_root[vmm_cur_index].base = address_to_return;
@@ -109,9 +119,11 @@ void *vmm_alloc(size_t size, size_t flags) {
     next_available_address += new_size;
 
     if  (!is_address_only(flags) ) {
-        logline(Verbose, "(vmm_alloc) This means that we want the address to be mapped directly with physical memory.");
+        loglinef(Verbose, "(%s): This means that we want the address to be mapped directly with physical memory.", __FUNCTION__);
         
         size_t required_pages = get_number_of_pages_from_size(size);
+        size_t arch_flags = vm_parse_flags(flags);
+        loglinef(Verbose, "(%s): Testing vm_parse_flags: 0x%x", __FUNCTION__, arch_flags);
         
         for  ( int i = 0; i < required_pages; i++ )  {
             void * frame = pmm_alloc_frame();
@@ -125,7 +137,7 @@ void *vmm_alloc(size_t size, size_t flags) {
     return (void *) address_to_return;
 }
 
-bool is_address_only(paging_flags_t flags) {
+bool is_address_only(size_t  flags) {
     if(flags & VMM_FLAGS_ADDRESS_ONLY) {
         return true;
     }
@@ -164,7 +176,7 @@ void vmm_direct_map_physical_memory() {
     }
 
     uint64_t address_to_map = 0;
-    uint64_t virtual_address = vmm_info.higherHalfDirectMapBase;
+    uint64_t virtual_address = higherHalfDirectMapBase;
 
     while ( address_to_map < memory_size_in_bytes) {
         map_phys_to_virt_addr(address_to_map, virtual_address, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE);
@@ -351,7 +363,7 @@ uint8_t check_virt_address_status(uint64_t virtual_address) {
 
 void *vmm_get_variable_from_direct_map ( size_t phys_address ) {
     if ( phys_address < memory_size_in_bytes) {
-        return phys_address + vmm_info.higherHalfDirectMapBase;
+        return phys_address + higherHalfDirectMapBase;
     }
     loglinef(Verbose, "(%s): Not in physical memory", __FUNCTION__);
     return NULL;

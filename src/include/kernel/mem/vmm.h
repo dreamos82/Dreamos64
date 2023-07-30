@@ -30,6 +30,11 @@ typedef enum {
     VMM_FLAGS_ADDRESS_ONLY = (1 << 7)
 } paging_flags_t;
 
+typedef enum {
+    VMM_LEVEL_USER,
+    VMM_LEVEL_SUPERVISOR
+} vmm_level_t;
+
 typedef struct VmmItem{
     uintptr_t base;
     size_t size;
@@ -39,8 +44,7 @@ typedef struct VmmItem{
 /**
  * This struct contains the base addresses used by the Virtual Memory Manager
  */
-typedef struct VmmInfo {
-    uintptr_t higherHalfDirectMapBase; /**< The startr of the physical memory direct mapping */
+typedef struct VmmInfo {    
     uintptr_t vmmDataStart; /**< The start of the VMM reserved area for it's own data structures */
     uintptr_t vmmSpaceStart; /**< The start of the VMM space, where all allocation will be placed */
 } VmmInfo;
@@ -52,8 +56,9 @@ typedef struct VmmContainer {
 
 extern uint64_t end_of_vmm_space;
 extern VmmInfo vmm_info;
+extern uintptr_t higherHalfDirectMapBase; /**< The start of the physical memory direct mapping */
 
-void vmm_init();
+void vmm_init(vmm_level_t vmm_level);
 
 void *vmm_alloc(size_t size, size_t flags);
 void vmm_free(void *address);
@@ -68,7 +73,7 @@ uint8_t is_phyisical_address_mapped(uintptr_t physical_address, uintptr_t virtua
 uint8_t check_virt_address_status(uint64_t virtual_address);
 void vmm_direct_map_physical_memory();
 
-bool is_address_only(paging_flags_t flags);
+bool is_address_only(size_t  flags);
 
 void *vmm_get_variable_from_direct_map ( size_t phys_address );
 
