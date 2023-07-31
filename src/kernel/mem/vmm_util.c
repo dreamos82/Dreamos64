@@ -19,3 +19,16 @@ bool is_address_aligned(size_t value, size_t alignment) {
     }
     return false;
 }
+
+
+/**
+ * This function given a vmm flags variable, return the architecture dependent value
+ *
+ *
+ * @param flags vmm flags
+ * @return architecture independat flags 
+ */
+size_t vm_parse_flags( size_t flags ) {
+    flags = flags & ~(1 << 7); 
+    return flags;
+}
