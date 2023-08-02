@@ -9,7 +9,7 @@
 //#define WRITE_ENABLE 2
 //#define USER_LEVEL 4
 
-#define PHYS_ADDRESS_NOT_MAPPED  0 // Address is not mapped 
+#define PHYS_ADDRESS_NOT_MAPPED  0 // Address is not mapped
 #define PHYS_ADDRESS_MAPPED 0b1
 #define PHYS_ADDRESS_MISMATCH 0b10 // This is returned when given a phys and virt address, the virt address does not contain the phys one
 
@@ -41,18 +41,32 @@ typedef struct VmmItem{
     size_t flags;
 } VmmItem;
 
-/**
- * This struct contains the base addresses used by the Virtual Memory Manager
- */
-typedef struct VmmInfo {    
-    uintptr_t vmmDataStart; /**< The start of the VMM reserved area for it's own data structures */
-    uintptr_t vmmSpaceStart; /**< The start of the VMM space, where all allocation will be placed */
-} VmmInfo;
-
 typedef struct VmmContainer {
     VmmItem vmm_root[(PAGE_SIZE_IN_BYTES/sizeof(VmmItem) - 1)];
     struct VmmContainer *next;
 } __attribute__((__packed__)) VmmContainer;
+
+/**
+ * This struct contains the base addresses used by the Virtual Memory Manager
+ */
+typedef struct VmmInfo {
+    uintptr_t vmmDataStart; /**< The start of the VMM reserved area for it's own data structures */
+    uintptr_t vmmSpaceStart; /**< The start of the VMM space, where all allocation will be placed */
+
+    size_t start_of_vmm_space;
+
+    struct VmmStatus {
+        size_t vmm_items_per_page;
+        size_t vmm_cur_index;
+
+        size_t next_available_address;
+
+        uint64_t end_of_vmm_data;
+
+        VmmContainer *vmm_container_root;
+        VmmContainer *vmm_cur_container;
+    } status;
+} VmmInfo;
 
 extern uint64_t end_of_vmm_space;
 extern VmmInfo vmm_info;
