@@ -1,5 +1,5 @@
 /*
- * main.c 
+ * main.c
  * Kernel entry point from bootloader
  * */
 
@@ -64,7 +64,7 @@ void _init_basic_system(unsigned long addr){
     tagmmap = (struct multiboot_tag_mmap *) (multiboot_mmap_data + _HIGHER_HALF_KERNEL_MEM_START);
     tagfb   = (struct multiboot_tag_framebuffer *) (multiboot_framebuffer_data + _HIGHER_HALF_KERNEL_MEM_START);
     //Print basic mem Info data
-    loglinef(Verbose, "(kernel_main) init_basic_system: Found basic mem Mem info type: 0x%x", tagmem->type);    
+    loglinef(Verbose, "(kernel_main) init_basic_system: Found basic mem Mem info type: 0x%x", tagmem->type);
     loglinef(Verbose, "(kernel_main) init_basic_system: Memory lower (in kb): %d - upper (in kb): %d", tagmem->mem_lower, tagmem->mem_upper);
     memory_size_in_bytes = (tagmem->mem_upper + 1024) * 1024;
     //Print mmap_info
@@ -78,7 +78,7 @@ void _init_basic_system(unsigned long addr){
     loglinef(Verbose, "(kernel_main) init_basic_system: width: 0x%x - height: 0x%x - bpp: 0x%x - pitch: 0x%x", tagfb->common.framebuffer_width, tagfb->common.framebuffer_height, tagfb->common.framebuffer_bpp, tagfb->common.framebuffer_pitch);
     set_fb_data(tagfb);
     loglinef(Verbose, "(kernel_main) init_basic_system: Total framebuffer size is: 0x%x", framebuffer_data.memory_size);
-    
+
     tagacpi = (struct multiboot_tag *) (multiboot_acpi_info + _HIGHER_HALF_KERNEL_MEM_START);
     if(tagacpi->type == MULTIBOOT_TAG_TYPE_ACPI_OLD){
         tagold_acpi = (struct multiboot_tag_old_acpi *)tagacpi;
@@ -93,10 +93,10 @@ void _init_basic_system(unsigned long addr){
         parse_SDT((uint64_t) descriptor, MULTIBOOT_TAG_TYPE_ACPI_NEW);
         validate_SDT((char *) descriptor, sizeof(RSDPDescriptor20));
     }
- 
+
 	for (tag=(struct multiboot_tag *) (addr + _HIGHER_HALF_KERNEL_MEM_START + 8);
 		tag->type != MULTIBOOT_TAG_TYPE_END;
-		tag = (struct multiboot_tag *) ((multiboot_uint8_t *) tag 
+		tag = (struct multiboot_tag *) ((multiboot_uint8_t *) tag
 										+ ((tag->size + 7) & ~7))){
         switch(tag->type){
             default:
@@ -116,30 +116,30 @@ void kernel_start(unsigned long addr, unsigned long magic){
     loglinef(Verbose, "(kernel_start): Kernel End: 0x%x - Physical: %x", (unsigned long)&_kernel_end, (unsigned long)&_kernel_physical_end);
     // Reminder here: The first 8 bytes have a fixed structure in the multiboot info:
     // They are: 0-4: size of the boot information in bytes
-    //           4-8: Reserved (0) 
-    unsigned size = *(unsigned*)(addr + _HIGHER_HALF_KERNEL_MEM_START);    
-    
+    //           4-8: Reserved (0)
+    unsigned size = *(unsigned*)(addr + _HIGHER_HALF_KERNEL_MEM_START);
+
     if(magic == 0x36d76289){
         loglinef(Verbose, "(kernel_start): Magic number verified Size:  %x - Magic: %x", size, magic);
     } else {
         logline(Verbose, "(kernel_start): Failed to verify magic number. Something is wrong");
     }
-    
+
 #if USE_FRAMEBUFFER == 1
 
     if(get_PSF_version(_binary_fonts_default_psf_start) == 1){
         logline(Verbose, "(kernel_start): PSF v1 found");
         PSFv1_Font *font = (PSFv1_Font*)_binary_fonts_default_psf_start;
-        loglinef(Verbose, "(kernel_start): PSF v1: Magic: [%x %x] - Flags: 0x%x - Charsize: 0x%x", font->magic[1], font->magic[0], font->mode, font->charsize);    
+        loglinef(Verbose, "(kernel_start): PSF v1: Magic: [%x %x] - Flags: 0x%x - Charsize: 0x%x", font->magic[1], font->magic[0], font->mode, font->charsize);
     }  else {
         PSF_font *font = (PSF_font*)&_binary_fonts_default_psf_start;
         logline(Verbose, "(kernel_start): PSF v2 found");
         loglinef(Verbose, "(kernel_start): Version: 0x%x - Magic: 0x%x", font->magic, font->version);
         loglinef(Verbose, "(kernel_start): Number of glyphs: 0x%x - Bytes per glyphs: 0x%x", font->numglyph, font->bytesperglyph);
         loglinef(Verbose, "(kernel_start): Header size: 0x%x - flags: 0x%x", font->headersize, font->flags);
-        loglinef(Verbose, "(kernel_start): Width: 0x%x - Height: 0x%x", font->width, font->height);        
+        loglinef(Verbose, "(kernel_start): Width: 0x%x - Height: 0x%x", font->width, font->height);
     }
-    
+
     loglinef(Verbose, "(kernel_start): PSF stored version: %d", psf_font_version);
     uint32_t pw, ph, cw, ch;
     get_framebuffer_mode(&pw, &ph, &cw, &ch);
@@ -152,24 +152,24 @@ void kernel_start(unsigned long addr, unsigned long magic){
 
     draw_logo(0, 400);
 #endif
-    
+
     /*char *cpuid_model = _cpuid_model();
     loglinef(Verbose, "(kernel_start): Cpuid model: %s", cpuid_model);
-    
+
     uint32_t cpu_info = 0;
     cpu_info = _cpuid_feature_apic();
     loglinef(Verbose, "(kernel_start): Cpu info result: 0x%x", cpu_info);*/
     init_apic();
     _mmap_setup();
-    vmm_init(VMM_LEVEL_SUPERVISOR);
+    vmm_init(VMM_LEVEL_SUPERVISOR, NULL);
     vmm_direct_map_physical_memory();
     initialize_kheap();
     kernel_settings.kernel_uptime = 0;
     kernel_settings.paging.page_root_address = p4_table;
     kernel_settings.paging.page_generation = 0;
-    //The table containing the IOAPIC information is called MADT    
+    //The table containing the IOAPIC information is called MADT
     MADT* madt_table = (MADT*) get_SDT_item(MADT_ID);
-    loglinef(Verbose, "(kernel_main) Madt SIGNATURE: %x - ADDRESS: %.4s", madt_table->header.Signature, madt_table);    
+    loglinef(Verbose, "(kernel_main) Madt SIGNATURE: %x - ADDRESS: %.4s", madt_table->header.Signature, madt_table);
     loglinef(Verbose, "(kernel_main) MADT local apic base: %x - Madt Length: %d", madt_table->local_apic_base, madt_table->header.Length);
     print_madt_table(madt_table);
     init_ioapic(madt_table);
@@ -180,14 +180,14 @@ void kernel_start(unsigned long addr, unsigned long magic){
 
     uint32_t apic_ticks = calibrate_apic();
     kernel_settings.apic_timer.timer_ticks_base = apic_ticks;
-    loglinef(Verbose, "(kernel_main) Calibrated apic value: %u", apic_ticks); 
+    loglinef(Verbose, "(kernel_main) Calibrated apic value: %u", apic_ticks);
     loglinef(Verbose, "(kernel_main) (END of Mapped memory: 0x%x)", end_of_mapped_memory);
     vfs_init();
     logline(Info, "(kernel_main) Init end!! Starting infinite loop");
     uint64_t unix_timestamp = read_rtc_time();
     #if USE_FRAMEBUFFER == 1
     _fb_printStrAndNumber("Epoch time: ", unix_timestamp, 0, 5, 0xf5c4f1, 0x000000);
-    #endif 
+    #endif
     init_scheduler();
     char a = 'a';
     char b = 'b';

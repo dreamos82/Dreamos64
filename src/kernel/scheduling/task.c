@@ -42,8 +42,8 @@ void prepare_virtual_memory_environment(task_t* task) {
     //identity_map_phys_address(task->vm_root_page_table, 0);
     // I will get the page frame first, then get virtual address to map it to with vmm_alloc, and then do the mapping on the virtual address.
     // Tecnically the vmm_allos is not needed, since i have the direct memory map already accessible, so i just need to access it through the direct map.
-    
-    uintptr_t  vm_root_vaddress = vmm_alloc(PAGE_SIZE_IN_BYTES, VMM_FLAGS_ADDRESS_ONLY);
+
+    uintptr_t  vm_root_vaddress = vmm_alloc(PAGE_SIZE_IN_BYTES, VMM_FLAGS_ADDRESS_ONLY, NULL);
     map_phys_to_virt_addr(task->vm_root_page_table, vm_root_vaddress, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE);
 
     // 2. We will map the whole higher half of the kernel, this means from pml4 item 256 to 511
@@ -52,7 +52,7 @@ void prepare_virtual_memory_environment(task_t* task) {
         ((uint64_t *)vm_root_vaddress)[i] = p4_table[i];
         if(p4_table[i] != 0) {
             loglinef(Verbose, "(prepare_virtual_memory_environment): %d: o:0x%x - c:0x%x - t:0x%x", i, p4_table[i], kernel_settings.paging.page_root_address[i], ((uint64_t*)vm_root_vaddress)[i]);
-            
+
         }
     }
 }
@@ -69,11 +69,11 @@ bool add_thread_to_task_by_id( size_t task_id, thread_t* thread ) {
 }
 
 bool remove_thread_from_task(size_t thread_id, task_t *task) {
-    // We don't freethe thread here, because is the scheduler in charge of deleting DEAD threads    
+    // We don't freethe thread here, because is the scheduler in charge of deleting DEAD threads
     thread_t *cur_thread = task->threads;
     thread_t *prev_thread = cur_thread;
     loglinef( Verbose, "(%s) Removing thread with thread id: %d, from task: %d with name: %s", __FUNCTION__, thread_id, task->task_id, task->task_name);
-    while ( cur_thread != NULL ) {        
+    while ( cur_thread != NULL ) {
         if ( cur_thread->tid == thread_id ) {
             loglinef( Verbose, "(%s) Found thread to remove thread name: %s", __FUNCTION__, cur_thread->thread_name);
             if ( cur_thread == task->threads) {

@@ -36,7 +36,7 @@ thread_t* create_thread(char* thread_name, void (*_entry_point)(void *), void* a
         loglinef(Fatal, "(create_thread): rsp is null - PANIC!");
         while(1);
     }
-    
+
     // The stack grow backward, so the pointer will be the end of the stack
     new_thread->stack = stack_pointer + THREAD_DEFAULT_STACK_SIZE;
     new_thread->execution_frame->rsp = (uint64_t) new_thread->stack;
@@ -45,7 +45,7 @@ thread_t* create_thread(char* thread_name, void (*_entry_point)(void *), void* a
     if (parent_task != NULL) {
         add_thread_to_task(parent_task, new_thread);
     }
-    
+
     scheduler_add_thread(new_thread);
     return new_thread;
 }
@@ -135,9 +135,11 @@ void noop3(char *c) {
         #endif
 
     }
-    
-    vmm_alloc(100, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE);
-    uint64_t *test_addr = (uint64_t  *) vmm_alloc(2097253, 0);
+
+    loglinef(Verbose, "(%s): allocating 100 bytes", __FUNCTION__);
+    vmm_alloc(100, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE, NULL);
+    loglinef(Verbose, "(%s): end allocating 100 bytes", __FUNCTION__);
+    uint64_t *test_addr = (uint64_t  *) vmm_alloc(2097253, 0, NULL);
     test_addr[0] = 5;
     loglinef(Verbose, "(noop3): test_addr[0] = %d", test_addr[0]);
 }

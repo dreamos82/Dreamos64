@@ -4,6 +4,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <thread.h>
+#include <vmm.h>
 
 #define TASK_NAME_MAX_LEN 32
 
@@ -16,7 +17,9 @@ struct task_t {
     // It will contain the virtual memory base address for the process
     void* vm_root_page_table;
 
-    //List of threads 
+    VmmInfo vmm_data;
+
+    //List of threads
     struct thread_t* threads;
     task_t* parent;
     task_t* next;
