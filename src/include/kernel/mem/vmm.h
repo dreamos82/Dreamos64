@@ -72,9 +72,9 @@ extern uint64_t end_of_vmm_space;
 extern VmmInfo vmm_info;
 extern uintptr_t higherHalfDirectMapBase; /**< The start of the physical memory direct mapping */
 
-void vmm_init(vmm_level_t vmm_level);
+void vmm_init(vmm_level_t vmm_level, VmmInfo *vmm_info);
 
-void *vmm_alloc(size_t size, size_t flags);
+void *vmm_alloc(size_t size, size_t flags, VmmInfo *vmm_info);
 void vmm_free(void *address);
 
 void *map_vaddress(void *address, size_t flags);

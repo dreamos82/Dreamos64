@@ -24,7 +24,7 @@ size_t vmm_cur_index;
 size_t start_of_vmm_space;
 size_t next_available_address;
 uint64_t end_of_vmm_data;
-VmmInfo vmm_info;
+VmmInfo vmm_kernel;
 uintptr_t higherHalfDirectMapBase;
 
 //uint64_t memory_size_in_bytes;
@@ -33,39 +33,44 @@ extern uint64_t end_of_mapped_memory;
 /**
  * When initialized the VM Manager should reserve a portion of the virtual memory space for itself.
  */
-void vmm_init(vmm_level_t vmm_level) {
+void vmm_init(vmm_level_t vmm_level, VmmInfo *vmm_info) {
+
+    if (vmm_info == NULL) {
+        vmm_info = &vmm_kernel;
+    }
     //vmm_info.higherHalfDirectMapBase is where we will the Direct Mapping of physical memory will start.
     higherHalfDirectMapBase = ((uint64_t) HIGHER_HALF_ADDRESS_OFFSET + VM_KERNEL_MEMORY_PADDING);
 
-    vmm_info.vmmDataStart = align_value_to_page(higherHalfDirectMapBase + memory_size_in_bytes + VM_KERNEL_MEMORY_PADDING);
+    vmm_info->vmmDataStart = align_value_to_page(higherHalfDirectMapBase + memory_size_in_bytes + VM_KERNEL_MEMORY_PADDING);
 
-    vmm_info.status.vmm_container_root = (VmmContainer *) vmm_info.vmmDataStart;
+    vmm_info->status.vmm_container_root = (VmmContainer *) vmm_info->vmmDataStart;
 
-    vmm_info.status.end_of_vmm_data = (uint64_t) vmm_container_root + VMM_RESERVED_SPACE_SIZE;
+    vmm_info->status.end_of_vmm_data = (uint64_t) vmm_container_root + VMM_RESERVED_SPACE_SIZE;
 
     //maybe start of vmm space can be removed.
 
     if (vmm_level == VMM_LEVEL_SUPERVISOR) {
         loglinef(Verbose, "(%s): Supervisor level initialization", __FUNCTION__);
-        vmm_info.vmmSpaceStart = vmm_info.vmmDataStart + VMM_RESERVED_SPACE_SIZE + VM_KERNEL_MEMORY_PADDING;
+        vmm_info->vmmSpaceStart = vmm_info->vmmDataStart + VMM_RESERVED_SPACE_SIZE + VM_KERNEL_MEMORY_PADDING;
         //start_of_vmm_space = (size_t) vmm_container_root + VMM_RESERVED_SPACE_SIZE + VM_KERNEL_MEMORY_PADDING;
-        vmm_info.start_of_vmm_space = (size_t) vmm_info.status.vmm_container_root + VMM_RESERVED_SPACE_SIZE + VM_KERNEL_MEMORY_PADDING;
+        vmm_info->start_of_vmm_space = (size_t) vmm_info->status.vmm_container_root + VMM_RESERVED_SPACE_SIZE + VM_KERNEL_MEMORY_PADDING;
     } else if (vmm_level == VMM_LEVEL_USER) {
-        vmm_info.vmmSpaceStart = 0x0l + VM_KERNEL_MEMORY_PADDING;
+        loglinef(Verbose, "(%s): User level initialization", __FUNCTION__);
+        vmm_info->vmmSpaceStart = 0x0l + VM_KERNEL_MEMORY_PADDING;
         start_of_vmm_space = 0x0l + VM_KERNEL_MEMORY_PADDING;
-        vmm_info.start_of_vmm_space = 0x0l + VM_KERNEL_MEMORY_PADDING;
+        vmm_info->start_of_vmm_space = 0x0l + VM_KERNEL_MEMORY_PADDING;
         loglinef(Fatal, "(%s): Not implemented yet", __FUNCTION__);
     } else {
         loglinef(Fatal, "(%s): Error: unsupported vmm privilege level", __FUNCTION__);
     }
 
-    vmm_info.status.next_available_address = vmm_info.start_of_vmm_space;
-    vmm_info.status.vmm_items_per_page = (PAGE_SIZE_IN_BYTES / sizeof(VmmItem)) - 1;
-    vmm_info.status.vmm_cur_index = 0;
-    loglinef(Verbose, "(vmm_init): vmm_container_root starts at: 0x%x - %d", vmm_info.status.vmm_container_root, is_address_aligned(vmm_info.vmmDataStart, PAGE_SIZE_IN_BYTES));
-    loglinef(Verbose, "(vmm_init): vmmDataStart  starts at: 0x%x - %x (end_of_vmm_data)", vmm_info.vmmDataStart, vmm_info.status.end_of_vmm_data);
+    vmm_info->status.next_available_address = vmm_info->start_of_vmm_space;
+    vmm_info->status.vmm_items_per_page = (PAGE_SIZE_IN_BYTES / sizeof(VmmItem)) - 1;
+    vmm_info->status.vmm_cur_index = 0;
+    loglinef(Verbose, "(vmm_init): vmm_container_root starts at: 0x%x - %d", vmm_info->status.vmm_container_root, is_address_aligned(vmm_info->vmmDataStart, PAGE_SIZE_IN_BYTES));
+    loglinef(Verbose, "(vmm_init): vmmDataStart  starts at: 0x%x - %x (end_of_vmm_data)", vmm_info->vmmDataStart, vmm_info->status.end_of_vmm_data);
     loglinef(Verbose, "(vmm_init): higherHalfDirectMapBase: %x, is_aligned: %d", (uint64_t) higherHalfDirectMapBase, is_address_aligned(higherHalfDirectMapBase, PAGE_SIZE_IN_BYTES));
-    loglinef(Verbose, "(%s): vmmSpaceStart: %x - start_of_vmm_space: (%x)", __FUNCTION__,  (uint64_t) vmm_info.vmmSpaceStart, vmm_info.start_of_vmm_space);
+    loglinef(Verbose, "(%s): vmmSpaceStart: %x - start_of_vmm_space: (%x)", __FUNCTION__,  (uint64_t) vmm_info->vmmSpaceStart, vmm_info->start_of_vmm_space);
     loglinef(Verbose, "(%s): sizeof VmmContainer: 0x%x", __FUNCTION__, sizeof(VmmContainer));
 
     //I need to compute the size of the VMM address space
@@ -76,14 +81,18 @@ void vmm_init(vmm_level_t vmm_level) {
     }
 
     // Mapping the phyiscal address for the vmm structures
-    map_phys_to_virt_addr(vmm_root_phys, vmm_info.status.vmm_container_root, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE);
+    map_phys_to_virt_addr(vmm_root_phys, vmm_info->status.vmm_container_root, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE);
     //vmm_container_root->next = NULL;
-    vmm_info.status.vmm_container_root->next = NULL;
+    vmm_info->status.vmm_container_root->next = NULL;
     //vmm_cur_container = vmm_container_root;
-    vmm_info.status.vmm_cur_container = vmm_info.status.vmm_container_root;
+    vmm_info->status.vmm_cur_container = vmm_info->status.vmm_container_root;
 }
 
-void *vmm_alloc(size_t size, size_t flags) {
+void *vmm_alloc(size_t size, size_t flags, VmmInfo *vmm_info) {
+
+    if ( vmm_info == NULL ) {
+        vmm_info = &vmm_kernel;
+    }
 
     //TODO When the space inside this page is finished we need to allocate a new page
     //     at vmm_cur_container + sizeof(VmmItem)
@@ -91,24 +100,24 @@ void *vmm_alloc(size_t size, size_t flags) {
         return NULL;
     }
 
-    if (vmm_info.status.vmm_cur_index >= vmm_info.status.vmm_items_per_page) {
+    if (vmm_info->status.vmm_cur_index >= vmm_info->status.vmm_items_per_page) {
         loglinef(Verbose, "(%s): Max number of pages reached, expansion to be implemented", __FUNCTION__);
         // Step 1: We need to create another VmmContainer
         void *new_container_phys_address = pmm_alloc_frame();
         VmmContainer *new_container = NULL;
         if ( new_container_phys_address != NULL) {
             // 1.a We need to get the virtual address for the new structure
-            new_container = align_value_to_page((uint64_t)vmm_info.status.vmm_cur_container + sizeof(VmmContainer) + PAGE_SIZE_IN_BYTES);
+            new_container = align_value_to_page((uint64_t)vmm_info->status.vmm_cur_container + sizeof(VmmContainer) + PAGE_SIZE_IN_BYTES);
             loglinef(Verbose, "(%s): new address 0x%x is aligned: %d", __FUNCTION__, new_container, is_address_aligned(new_container, PAGE_SIZE_IN_BYTES));
             map_phys_to_virt_addr(new_container_phys_address, new_container, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE);
             // Step 2: Reset vmm_cur_index
-            vmm_info.status.vmm_cur_index = 0;
+            vmm_info->status.vmm_cur_index = 0;
             // Step 2.a: Set next as null for new_container;
             new_container->next = NULL;
             // Step 3: Add the new container as next item in the current one
-            vmm_info.status.vmm_cur_container->next = new_container;
+            vmm_info->status.vmm_cur_container->next = new_container;
             // Step 4: make the new container as the current
-            vmm_info.status.vmm_cur_container = new_container;
+            vmm_info->status.vmm_cur_container = new_container;
         } else {
             loglinef(Fatal, "(%s): pmm_alloc_frame for new container has returned null, this should not happen!", __FUNCTION__);
             return NULL;
@@ -119,11 +128,11 @@ void *vmm_alloc(size_t size, size_t flags) {
     size_t new_size = align_value_to_page(size);
     loglinef(Verbose, "(%s): size: %d - aligned: %d", __FUNCTION__, size, new_size);
 
-    uintptr_t address_to_return = vmm_info.status.next_available_address;
-    vmm_info.status.vmm_cur_container->vmm_root[vmm_info.status.vmm_cur_index].base = address_to_return;
-    vmm_info.status.vmm_cur_container->vmm_root[vmm_info.status.vmm_cur_index].flags = flags;
-    vmm_info.status.vmm_cur_container->vmm_root[vmm_info.status.vmm_cur_index].size = new_size;
-    vmm_info.status.next_available_address += new_size;
+    uintptr_t address_to_return = vmm_info->status.next_available_address;
+    vmm_info->status.vmm_cur_container->vmm_root[vmm_info->status.vmm_cur_index].base = address_to_return;
+    vmm_info->status.vmm_cur_container->vmm_root[vmm_info->status.vmm_cur_index].flags = flags;
+    vmm_info->status.vmm_cur_container->vmm_root[vmm_info->status.vmm_cur_index].size = new_size;
+    vmm_info->status.next_available_address += new_size;
 
     if  (!is_address_only(flags) ) {
         loglinef(Verbose, "(%s): This means that we want the address to be mapped directly with physical memory.", __FUNCTION__);
@@ -139,8 +148,8 @@ void *vmm_alloc(size_t size, size_t flags) {
     }
 
     //loglinef(Verbose, "(vmm_alloc) newly allocated item base: %x, next available address: %x", vmm_cur_container->vmm_root[vmm_cur_index].base, next_available_address);
-    loglinef(Verbose, "(vmm_alloc) newly allocated item base: %x, next available address: %x", vmm_info.status.vmm_cur_container->vmm_root[vmm_info.status.vmm_cur_index].base, vmm_info.status.next_available_address);
-    vmm_info.status.vmm_cur_index++;
+    loglinef(Verbose, "(vmm_alloc) newly allocated item base: %x, next available address: %x", vmm_info->status.vmm_cur_container->vmm_root[vmm_info->status.vmm_cur_index].base, vmm_info->status.next_available_address);
+    vmm_info->status.vmm_cur_index++;
 
     return (void *) address_to_return;
 }

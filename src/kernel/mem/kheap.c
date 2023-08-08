@@ -9,14 +9,14 @@
 KHeapMemoryNode *kernel_heap_start;
 KHeapMemoryNode *kernel_heap_current_pos;
 KHeapMemoryNode *kernel_heap_end;
-    
+
 extern uint64_t end_of_mapped_memory;
 
 void initialize_kheap(){
     #ifndef _TEST_
 
     // Let's allocate the new heap, we rely on the vmm_alloc function for this part.
-    uint64_t *kheap_vaddress = vmm_alloc(PAGE_SIZE_IN_BYTES, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE);
+    uint64_t *kheap_vaddress = vmm_alloc(PAGE_SIZE_IN_BYTES, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE, NULL);
 
     kernel_heap_start = (KHeapMemoryNode *) ((uint64_t) kheap_vaddress);
     loglinef(Verbose, "(initialize_kheap) Start address using vmm_alloc: %x, and using end of vmm_space: %x", kheap_vaddress, kernel_heap_start);
@@ -43,13 +43,13 @@ size_t align(size_t size) {
 
 void *kmalloc(size_t size) {
     KHeapMemoryNode *current_node = kernel_heap_start;
-    // If size is 0 we don't need to do anything 
+    // If size is 0 we don't need to do anything
     if( size == 0 ) {
         loglinef(Verbose, "(kmalloc) Size is null");
         return NULL;
     }
 
-    //loglinef(Verbose, "(kmalloc) Current heap free size: 0x%x - Required: 0x%x", current_node->size, align(size + sizeof(KHeapMemoryNode))); 
+    //loglinef(Verbose, "(kmalloc) Current heap free size: 0x%x - Required: 0x%x", current_node->size, align(size + sizeof(KHeapMemoryNode)));
 
     while( current_node != NULL ) {
         // The size of a node contains also the size of the header, so when creating nodes we add headers
@@ -81,7 +81,7 @@ void *kmalloc(size_t size) {
             expand_heap(real_size);
             if( current_node->prev != NULL) {
                 // If we are here it means that we were at the end of the heap and needed an expansion
-                // So after the expansion there are chances that we reach the end of the heap, and the 
+                // So after the expansion there are chances that we reach the end of the heap, and the
                 // loop will end here. So let's move back of one item in the list, so we are sure the next item to be picked
                 // will be the new one.
                 current_node = current_node->prev;
@@ -118,7 +118,7 @@ void expand_heap(size_t required_size) {
     if ( available_merges & MERGE_LEFT) {
         merge_memory_nodes(new_tail->prev, new_tail);
     }
-    
+
 }
 
 uint64_t compute_kheap_end() {
@@ -142,16 +142,16 @@ void kfree(void *ptr) {
         if( ((uint64_t) current_node + sizeof(KHeapMemoryNode)) == (uint64_t) ptr) {
             current_node->is_free = true;
             uint8_t available_merges = can_merge(current_node);
- 
+
             if( available_merges & MERGE_RIGHT ) {
                 merge_memory_nodes(current_node, current_node->next);
             }
-           
+
             if( available_merges & MERGE_LEFT ) {
                 merge_memory_nodes(current_node->prev, current_node);
             }
             return;
-            
+
         }
         current_node = current_node->next;
     }
@@ -163,7 +163,7 @@ uint8_t get_kheap_size(KHeapMemoryNode *heap_start) {
     uint8_t size = 0;
     while( cur_node != NULL ) {
         size++;
-        cur_node = cur_node->next;        
+        cur_node = cur_node->next;
     }
     return size;
 }
@@ -203,13 +203,13 @@ void merge_memory_nodes(KHeapMemoryNode *left_node, KHeapMemoryNode *right_node)
         left_node->size = left_node->size + right_node->size + sizeof(KHeapMemoryNode);
         //2. left_node next item will point to the next item of the right node (since the right node is going to disappear)
         left_node->next = right_node->next;
-        //3. Unless we reached the last item, we should also make sure that the element after the right node, will be linked 
+        //3. Unless we reached the last item, we should also make sure that the element after the right node, will be linked
         //   to the left node (via the prev field)
         if(right_node->next != NULL){
             KHeapMemoryNode *next_node = right_node->next;
             next_node->prev = left_node;
         }
-    } 
+    }
 }
 
 
@@ -224,13 +224,13 @@ KHeapMemoryNode* create_kheap_node( KHeapMemoryNode *current_node, size_t size )
     new_node->size = current_node->size - (size + header_size);
     new_node->prev = current_node;
     new_node->next = current_node->next;
-    
+
     if( current_node->next != NULL) {
         current_node->next->prev = new_node;
     }
 
     current_node->next = new_node;
-    
+
     if( current_node == kernel_heap_end) {
         kernel_heap_end = new_node;
     }
