@@ -80,7 +80,7 @@ uint32_t read_io_apic_register(uint8_t offset){
 }
 
 int read_io_apic_redirect(uint8_t index, io_apic_redirect_entry_t *redtbl_entry){
-    if (index < 0x10 && index > 0x3F) {
+    if (index < 0x10 || index > 0x3F) {
         return -1;
     }
     if ((index%2) != 0) {
@@ -96,7 +96,7 @@ int read_io_apic_redirect(uint8_t index, io_apic_redirect_entry_t *redtbl_entry)
 }
 
 int write_io_apic_redirect(uint8_t index, io_apic_redirect_entry_t redtbl_entry) {
-    if (index < 0x10 && index > 0x3F) {
+    if (index < 0x10 || index > 0x3F) {
         return -1;
     }
     if ((index%2) != 0) {

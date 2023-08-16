@@ -2,7 +2,7 @@ DEF_FLAGS := -D USE_FRAMEBUFFER=$(USE_FRAMEBUFFER)  -D SMALL_PAGES=$(SMALL_PAGES
 
 CFLAGS := -std=gnu99 \
         -ffreestanding \
-        -O2 \
+        -O0 \
         -Wall \
         -Wextra \
         -I src/include \
@@ -18,7 +18,8 @@ CFLAGS := -std=gnu99 \
         -I src/include/sys \
         -mno-red-zone \
         -mno-sse \
-        -mcmodel=large
+        -mcmodel=large \
+		-fno-stack-protector
         
 CFLAGS += $(DEF_FLAGS)
 
@@ -37,6 +38,11 @@ TESTFLAGS := -std=gnu99 \
 
 C_DEBUG_FLAGS := -g \
 				-DDEBUG=1
+
+ifeq ($(DEBUG), '0')
+	CFLAGS += ${C_DEBUG_FLAGS}
+	ASM_FLAGS += ${ASM_DEBUG_FLAGS}
+endif
 				
 PRJ_FOLDERS := src
 TEST_FOLDER := tests

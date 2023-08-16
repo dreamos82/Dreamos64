@@ -46,7 +46,6 @@ void map_framebuffer(struct framebuffer_info fbdata) {
     uint32_t pt = PT_ENTRY(_FRAMEBUFFER_MEM_START);
 #endif
     
-    uint32_t counter = 0;
 
     if(p4_table[pml4] == 0x00l || p3_table_hh[pdpr] == 0x00l){
         loglinef(Verbose, "PANIC - PML4 or PDPR Empty - not supported for now\n");
@@ -66,7 +65,6 @@ void map_framebuffer(struct framebuffer_info fbdata) {
         }
         for(int j=0; j < VM_PAGES_PER_TABLE && fb_entries > 0; j++){
             if(newly_allocated == false){                
-                counter++;
             } else {                
                 current_page_table[j] = phys_address + (((VM_PAGES_PER_TABLE * i) + j) * PAGE_SIZE_IN_BYTES) | PAGE_ENTRY_FLAGS;
             }
@@ -81,7 +79,6 @@ void map_framebuffer(struct framebuffer_info fbdata) {
         fb_entries++;
     }
     for(int j=0; fb_entries > 0; j++){
-        counter++;
         fb_entries--;
         if((p2_table[pd+j] < phys_address 
                 || p2_table[pd+j] > (phys_address + fbdata.memory_size)) 

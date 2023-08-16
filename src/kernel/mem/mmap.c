@@ -54,7 +54,7 @@ void _mmap_setup(){
     }
 }
 
-void* _mmap_determine_bitmap_region(uint64_t lower_limit, size_t bytes_needed){
+uintptr_t _mmap_determine_bitmap_region(uint64_t lower_limit, size_t bytes_needed){
     //NOTE: lower_limit can be used to place the bitmap after the kernel, or after anything if need be.
     for (size_t i = 0; i < mmap_number_of_entries; i++){
         multiboot_memory_map_t* current_entry = &mmap_entries[i];
@@ -74,11 +74,11 @@ void* _mmap_determine_bitmap_region(uint64_t lower_limit, size_t bytes_needed){
         if (actual_available_space >= bytes_needed)
         {
             loglinef(Verbose, "(_mmap_determine_bitmap_region): Found space for bitmap at address: 0x%x", current_entry->addr + entry_offset);
-            return (void*)(current_entry->addr + entry_offset);
+            return current_entry->addr + entry_offset;
         }
     }
 
     //BOOM! D:
     logline(Verbose, "(_mmap_determine_bitmap_region): Could not find a space big enough to hold the pmm bitmap! This should not happen.");
-    return NULL;
+    return 0;
 }

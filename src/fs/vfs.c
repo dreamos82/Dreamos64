@@ -35,8 +35,8 @@ void vfs_init() {
     mountpoints[3].file_operations.read = ustar_read;
 }
 
-int get_mountpoint_id(char *path) {
-    int last = 0;
+int get_mountpoint_id(const char *path) {
+    size_t last = 0;
     int lastlen = 0;
     if (strlen(path) == 0) {
         return last;

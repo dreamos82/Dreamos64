@@ -132,8 +132,7 @@ void scheduler_delete_thread(size_t thread_id) {
     }
 
     kfree(thread_item->execution_frame);
-    kfree(thread_item->stack - THREAD_DEFAULT_STACK_SIZE);
-
+    kfree((void*)(thread_item->stack - THREAD_DEFAULT_STACK_SIZE));
     if (thread_item == thread_list) {
         // If thread_item == thread_list it means that it is the first item so we just need
         // to make the root of the stack to point to the next item

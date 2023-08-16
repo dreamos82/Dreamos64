@@ -8,6 +8,16 @@ ARCH_PREFIX := x86_64-elf
 ASM_COMPILER := nasm
 QEMU_SYSTEM := qemu-system-x86_64
 
+ifeq ($(TOOLCHAIN), gcc)
+	X_CC = $(ARCH_PREFIX)-gcc
+	X_LD = $(ARCH_PREFIX)-ld
+else ifeq ($(TOOLCHAIN), clang)
+	X_CC = clang
+	X_LD = ld.lld
+else
+	$(error "Unknown compiler toolchain")
+endif
+
 ASM_DEBUG_FLAGS := -g \
 					-F dwarf
 ASM_FLAGS := -f elf64
@@ -54,21 +64,12 @@ $(BUILD_FOLDER)/%.o: src/%.s
 	echo "$(<D)"
 	mkdir -p "$(@D)"
 	mkdir -p "$(@D)"
-ifeq ($(DEBUG),'0')
 	${ASM_COMPILER} ${ASM_FLAGS} "$<" -o "$@"
-else
-	${ASM_COMPILER} ${ASM_DEBUG_FLAGS} ${ASM_FLAGS} "$<" -o "$@"
-endif
 
 $(BUILD_FOLDER)/%.o: src/%.c
 	echo "$(@D)"
 	mkdir -p "$(@D)"
-ifeq ($(DEBUG),'0')
-		$(ARCH_PREFIX)-gcc ${CFLAGS} -c "$<" -o "$@"
-else
-		@echo "Compiling with DEBUG flag"
-		$(ARCH_PREFIX)-gcc ${CFLAGS} ${C_DEBUG_FLAGS} -c "$<" -o "$@"
-endif
+	$(X_CC) ${CFLAGS} -c "$<" -o "$@"
 
 $(BUILD_FOLDER)/%.o: fonts/%.psf
 	echo "PSF: $(@D)"
@@ -78,7 +79,7 @@ $(BUILD_FOLDER)/%.o: fonts/%.psf
 $(BUILD_FOLDER)/kernel.bin: $(OBJ_ASM_FILE) $(OBJ_C_FILE) $(OBJ_FONT_FILE) src/linker.ld
 	echo $(OBJ_ASM_FILE)
 	echo $(OBJ_FONT_FILE)
-	$(ARCH_PREFIX)-ld -n -o $(BUILD_FOLDER)/kernel.bin -T src/linker.ld $(OBJ_ASM_FILE) $(OBJ_C_FILE) $(OBJ_FONT_FILE) -Map $(BUILD_FOLDER)/kernel.map
+	$(X_LD) -n -o $(BUILD_FOLDER)/kernel.bin -T src/linker.ld $(OBJ_ASM_FILE) $(OBJ_C_FILE) $(OBJ_FONT_FILE) -Map $(BUILD_FOLDER)/kernel.map
 
 gdb: DEBUG=1
 gdb: $(BUILD_FOLDER)/$(ISO_IMAGE_FILENAME)
