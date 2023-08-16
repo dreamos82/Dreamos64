@@ -38,7 +38,7 @@ void vmm_init(vmm_level_t vmm_level, VmmInfo *vmm_info) {
     if (vmm_info == NULL) {
         vmm_info = &vmm_kernel;
     }
-    //vmm_info.higherHalfDirectMapBase is where we will the Direct Mapping of physical memory will start.
+    //higherHalfDirectMapBase is where we will the Direct Mapping of physical memory will start.
     higherHalfDirectMapBase = ((uint64_t) HIGHER_HALF_ADDRESS_OFFSET + VM_KERNEL_MEMORY_PADDING);
 
     vmm_info->vmmDataStart = align_value_to_page(higherHalfDirectMapBase + memory_size_in_bytes + VM_KERNEL_MEMORY_PADDING);
@@ -57,7 +57,7 @@ void vmm_init(vmm_level_t vmm_level, VmmInfo *vmm_info) {
     } else if (vmm_level == VMM_LEVEL_USER) {
         loglinef(Verbose, "(%s): User level initialization", __FUNCTION__);
         vmm_info->vmmSpaceStart = 0x0l + VM_KERNEL_MEMORY_PADDING;
-        start_of_vmm_space = 0x0l + VM_KERNEL_MEMORY_PADDING;
+        //start_of_vmm_space = 0x0l + VM_KERNEL_MEMORY_PADDING;
         vmm_info->start_of_vmm_space = 0x0l + VM_KERNEL_MEMORY_PADDING;
         loglinef(Fatal, "(%s): Not implemented yet", __FUNCTION__);
     } else {
