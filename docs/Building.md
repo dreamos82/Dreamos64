@@ -28,6 +28,6 @@ Below the flags that are currently implemented to control the build/execution of
 * `build`: Just build the os, and create the iso in `$BUILD_FOLDER`
 * `run`:  It run the os using qemu
 * `clean`: To delete all build files
-* `debug`: To start the OS with the DEBUG flug active, it will print all messages on stdout, logging in _Verbose_ mode
+* `debug`: To start the OS with the DEBUG flag active, it will print all messages on stdout, logging in _Verbose_ mode
 * `gdb`: To start the OS with remote debugging mode enabled, to start the OS you need to connect using gdb and control execution from there.
 * `tests`: To run some _kind of_ unit tests.

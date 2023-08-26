@@ -38,7 +38,7 @@ void vmm_init(vmm_level_t vmm_level, VmmInfo *vmm_info) {
     if (vmm_info == NULL) {
         vmm_info = &vmm_kernel;
     }
-    //vmm_info.higherHalfDirectMapBase is where we will the Direct Mapping of physical memory will start.
+    //higherHalfDirectMapBase is where we will the Direct Mapping of physical memory will start.
     higherHalfDirectMapBase = ((uint64_t) HIGHER_HALF_ADDRESS_OFFSET + VM_KERNEL_MEMORY_PADDING);
 
     vmm_info->vmmDataStart = align_value_to_page(higherHalfDirectMapBase + memory_size_in_bytes + VM_KERNEL_MEMORY_PADDING);
@@ -57,9 +57,9 @@ void vmm_init(vmm_level_t vmm_level, VmmInfo *vmm_info) {
     } else if (vmm_level == VMM_LEVEL_USER) {
         loglinef(Verbose, "(%s): User level initialization", __FUNCTION__);
         vmm_info->vmmSpaceStart = 0x0l + VM_KERNEL_MEMORY_PADDING;
-        start_of_vmm_space = 0x0l + VM_KERNEL_MEMORY_PADDING;
+        //start_of_vmm_space = 0x0l + VM_KERNEL_MEMORY_PADDING;
         vmm_info->start_of_vmm_space = 0x0l + VM_KERNEL_MEMORY_PADDING;
-        loglinef(Fatal, "(%s): Not implemented yet", __FUNCTION__);
+        //loglinef(Fatal, "(%s): Not implemented yet", __FUNCTION__);
     } else {
         loglinef(Fatal, "(%s): Error: unsupported vmm privilege level", __FUNCTION__);
     }
@@ -67,9 +67,9 @@ void vmm_init(vmm_level_t vmm_level, VmmInfo *vmm_info) {
     vmm_info->status.next_available_address = vmm_info->start_of_vmm_space;
     vmm_info->status.vmm_items_per_page = (PAGE_SIZE_IN_BYTES / sizeof(VmmItem)) - 1;
     vmm_info->status.vmm_cur_index = 0;
-    loglinef(Verbose, "(vmm_init): vmm_container_root starts at: 0x%x - %d", vmm_info->status.vmm_container_root, is_address_aligned(vmm_info->vmmDataStart, PAGE_SIZE_IN_BYTES));
-    loglinef(Verbose, "(vmm_init): vmmDataStart  starts at: 0x%x - %x (end_of_vmm_data)", vmm_info->vmmDataStart, vmm_info->status.end_of_vmm_data);
-    loglinef(Verbose, "(vmm_init): higherHalfDirectMapBase: %x, is_aligned: %d", (uint64_t) higherHalfDirectMapBase, is_address_aligned(higherHalfDirectMapBase, PAGE_SIZE_IN_BYTES));
+    loglinef(Verbose, "(%s): vmm_container_root starts at: 0x%x - %d", __FUNCTION__, vmm_info->status.vmm_container_root, is_address_aligned(vmm_info->vmmDataStart, PAGE_SIZE_IN_BYTES));
+    loglinef(Verbose, "(%s): vmmDataStart  starts at: 0x%x - %x (end_of_vmm_data)", __FUNCTION__, vmm_info->vmmDataStart, vmm_info->status.end_of_vmm_data);
+    loglinef(Verbose, "(%s): higherHalfDirectMapBase: %x, is_aligned: %d", __FUNCTION__, (uint64_t) higherHalfDirectMapBase, is_address_aligned(higherHalfDirectMapBase, PAGE_SIZE_IN_BYTES));
     loglinef(Verbose, "(%s): vmmSpaceStart: %x - start_of_vmm_space: (%x)", __FUNCTION__,  (uint64_t) vmm_info->vmmSpaceStart, vmm_info->start_of_vmm_space);
     loglinef(Verbose, "(%s): sizeof VmmContainer: 0x%x", __FUNCTION__, sizeof(VmmContainer));
 
@@ -82,9 +82,8 @@ void vmm_init(vmm_level_t vmm_level, VmmInfo *vmm_info) {
 
     // Mapping the phyiscal address for the vmm structures
     map_phys_to_virt_addr(vmm_root_phys, vmm_info->status.vmm_container_root, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE);
-    //vmm_container_root->next = NULL;
+
     vmm_info->status.vmm_container_root->next = NULL;
-    //vmm_cur_container = vmm_container_root;
     vmm_info->status.vmm_cur_container = vmm_info->status.vmm_container_root;
 }
 

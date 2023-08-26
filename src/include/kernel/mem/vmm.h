@@ -53,18 +53,18 @@ typedef struct VmmInfo {
     uintptr_t vmmDataStart; /**< The start of the VMM reserved area for it's own data structures */
     uintptr_t vmmSpaceStart; /**< The start of the VMM space, where all allocation will be placed */
 
-    size_t start_of_vmm_space;
+    size_t start_of_vmm_space; /**< The starting addres ofthe vmm space */
 
     struct VmmStatus {
-        size_t vmm_items_per_page;
-        size_t vmm_cur_index;
+        size_t vmm_items_per_page; /**< Number of page items contained in one page */
+        size_t vmm_cur_index; /**< Current position inside the array */
 
-        size_t next_available_address;
+        size_t next_available_address; /**< The next available address */
 
-        uint64_t end_of_vmm_data;
+        uint64_t end_of_vmm_data; /**< We should never reach here, where the vmm_data finish */
 
-        VmmContainer *vmm_container_root;
-        VmmContainer *vmm_cur_container;
+        VmmContainer *vmm_container_root; /**< Root node of the vmmContainer */
+        VmmContainer *vmm_cur_container; /**< Current pointer */
     } status;
 } VmmInfo;
 
