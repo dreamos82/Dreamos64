@@ -142,6 +142,9 @@ void noop3(char *c) {
     uint64_t *test_addr = (uint64_t  *) vmm_alloc(2097253, 0, NULL);
     test_addr[0] = 5;
     loglinef(Verbose, "(noop3): test_addr[0] = %d", test_addr[0]);
+    task_t *current_task = current_executing_thread->parent_task;
+    uint64_t *tmp_var = vmm_alloc(0x1000, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE, &(current_task->vmm_data));
+    loglinef(Verbose, "(%s) Tmp var address returned by vmm_alloc: 0x%x", __FUNCTION__, tmp_var);
 }
 
 char *get_thread_status(thread_t *thread) {

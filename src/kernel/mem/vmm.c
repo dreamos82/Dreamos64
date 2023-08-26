@@ -59,7 +59,7 @@ void vmm_init(vmm_level_t vmm_level, VmmInfo *vmm_info) {
         vmm_info->vmmSpaceStart = 0x0l + VM_KERNEL_MEMORY_PADDING;
         //start_of_vmm_space = 0x0l + VM_KERNEL_MEMORY_PADDING;
         vmm_info->start_of_vmm_space = 0x0l + VM_KERNEL_MEMORY_PADDING;
-        loglinef(Fatal, "(%s): Not implemented yet", __FUNCTION__);
+        //loglinef(Fatal, "(%s): Not implemented yet", __FUNCTION__);
     } else {
         loglinef(Fatal, "(%s): Error: unsupported vmm privilege level", __FUNCTION__);
     }
@@ -67,9 +67,9 @@ void vmm_init(vmm_level_t vmm_level, VmmInfo *vmm_info) {
     vmm_info->status.next_available_address = vmm_info->start_of_vmm_space;
     vmm_info->status.vmm_items_per_page = (PAGE_SIZE_IN_BYTES / sizeof(VmmItem)) - 1;
     vmm_info->status.vmm_cur_index = 0;
-    loglinef(Verbose, "(vmm_init): vmm_container_root starts at: 0x%x - %d", vmm_info->status.vmm_container_root, is_address_aligned(vmm_info->vmmDataStart, PAGE_SIZE_IN_BYTES));
-    loglinef(Verbose, "(vmm_init): vmmDataStart  starts at: 0x%x - %x (end_of_vmm_data)", vmm_info->vmmDataStart, vmm_info->status.end_of_vmm_data);
-    loglinef(Verbose, "(vmm_init): higherHalfDirectMapBase: %x, is_aligned: %d", (uint64_t) higherHalfDirectMapBase, is_address_aligned(higherHalfDirectMapBase, PAGE_SIZE_IN_BYTES));
+    loglinef(Verbose, "(%s): vmm_container_root starts at: 0x%x - %d", __FUNCTION__, vmm_info->status.vmm_container_root, is_address_aligned(vmm_info->vmmDataStart, PAGE_SIZE_IN_BYTES));
+    loglinef(Verbose, "(%s): vmmDataStart  starts at: 0x%x - %x (end_of_vmm_data)", __FUNCTION__, vmm_info->vmmDataStart, vmm_info->status.end_of_vmm_data);
+    loglinef(Verbose, "(%s): higherHalfDirectMapBase: %x, is_aligned: %d", __FUNCTION__, (uint64_t) higherHalfDirectMapBase, is_address_aligned(higherHalfDirectMapBase, PAGE_SIZE_IN_BYTES));
     loglinef(Verbose, "(%s): vmmSpaceStart: %x - start_of_vmm_space: (%x)", __FUNCTION__,  (uint64_t) vmm_info->vmmSpaceStart, vmm_info->start_of_vmm_space);
     loglinef(Verbose, "(%s): sizeof VmmContainer: 0x%x", __FUNCTION__, sizeof(VmmContainer));
 
