@@ -138,10 +138,11 @@ void *vmm_alloc(size_t size, size_t flags, VmmInfo *vmm_info) {
 
         size_t required_pages = get_number_of_pages_from_size(size);
         size_t arch_flags = vm_parse_flags(flags);
-        loglinef(Verbose, "(%s): Testing vm_parse_flags: 0x%x", __FUNCTION__, arch_flags);
+        loglinef(Verbose, "(%s): Testing vm_parse_flags: 0x%x required pages: %d - address to ret: 0x%x", __FUNCTION__, arch_flags, required_pages, address_to_return);
 
         for  ( int i = 0; i < required_pages; i++ )  {
             void * frame = pmm_alloc_frame();
+            loglinef(Verbose, "(%s): mapping frame: 0x%x into: 0x%x", __FUNCTION__, frame, ((void *)address_to_return + (i * PAGE_SIZE_IN_BYTES)));
             map_phys_to_virt_addr((void*) frame, (void *)address_to_return + (i * PAGE_SIZE_IN_BYTES), VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE);
         }
     }
@@ -304,7 +305,7 @@ void *map_phys_to_virt_addr(void* physical_address, void* address, size_t flags)
 
     uint64_t *pd_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l,510l, (uint64_t) pml4_e, (uint64_t) pdpr_e));
     uint16_t pd_e = PD_ENTRY((uint64_t) address);
-    //loglinef(Verbose, "(map_phys_to_virt_addr) Pml4: %u - pdpr: %u - pd: %u", pml4_e, pdpr_e, pd_e);
+//    loglinef(Verbose, "(map_phys_to_virt_addr) Pml4: %u - pdpr: %u - pd: %u - flags: 0x%x to address: 0x%x", pml4_e, pdpr_e, pd_e, flags, address);
     uint8_t user_mode_status = 0;
 
     #if SMALL_PAGES == 1
@@ -322,9 +323,9 @@ void *map_phys_to_virt_addr(void* physical_address, void* address, size_t flags)
     // If the pml4_e item in the pml4 table is not present, we need to create a new one.
     // Every entry in pml4 table points to a pdpr table
     if( !(pml4_table[pml4_e] & 0b1) ) {
-        //loglinef(Verbose, "(%s): need to allocate pml4 for address: 0x%x", __FUNCTION__, (uint64_t) address);
         uint64_t *new_table = pmm_alloc_frame();
         pml4_table[pml4_e] = (uint64_t) new_table | user_mode_status | WRITE_BIT | PRESENT_BIT;
+//        loglinef(Verbose, "(%s): need to allocate pml4 for address: 0x%x - Entry value: 0x%x - phys_address: 0x%x", __FUNCTION__, (uint64_t) address, pml4_table[pml4_e], new_table);
         clean_new_table(pdpr_table);
     }
 
@@ -335,6 +336,7 @@ void *map_phys_to_virt_addr(void* physical_address, void* address, size_t flags)
     if( !(pdpr_table[pdpr_e] & 0b1) ) {
         uint64_t *new_table = pmm_alloc_frame();
         pdpr_table[pdpr_e] = (uint64_t) new_table | user_mode_status | WRITE_BIT | PRESENT_BIT;
+//        loglinef(Verbose, "(%s): PDPR entry value: 0x%x", __FUNCTION__, pdpr_table[pdpr_e]);
         clean_new_table(pd_table);
     }
 
@@ -347,6 +349,7 @@ void *map_phys_to_virt_addr(void* physical_address, void* address, size_t flags)
         clean_new_table(pt_table);
 #elif SMALL_PAGES == 0
         pd_table[pd_e] = (uint64_t) (physical_address) | HUGEPAGE_BIT | flags;
+//       loglinef(Verbose, "(%s): PD Flags: 0x%x entry value: 0x%x", __FUNCTION__, flags, pd_table[pd_e]);
 #endif
     }
 
