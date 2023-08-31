@@ -36,13 +36,5 @@ TESTFLAGS := -std=gnu99 \
         -DSMALL_PAGES=$(SMALL_PAGES) \
         -D_TEST_=1
 
-C_DEBUG_FLAGS := -g \
-				-DDEBUG=1
-
-ifeq ($(DEBUG), '0')
-	CFLAGS += ${C_DEBUG_FLAGS}
-	ASM_FLAGS += ${ASM_DEBUG_FLAGS}
-endif
-				
 PRJ_FOLDERS := src
 TEST_FOLDER := tests
