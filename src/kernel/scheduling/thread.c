@@ -44,6 +44,8 @@ thread_t* create_thread(char* thread_name, void (*_entry_point)(void *), void* a
 
     if (parent_task != NULL) {
         add_thread_to_task(parent_task, new_thread);
+    } else {
+        loglinef(Fatal, "(%s): Cannot create thread without parent task");
     }
 
     scheduler_add_thread(new_thread);
@@ -144,7 +146,9 @@ void noop3(char *c) {
     loglinef(Verbose, "(noop3): test_addr[0] = %d", test_addr[0]);
     task_t *current_task = current_executing_thread->parent_task;
     uint64_t *tmp_var = vmm_alloc(0x1000, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE, &(current_task->vmm_data));
-    loglinef(Verbose, "(%s) Tmp var address returned by vmm_alloc: 0x%x", __FUNCTION__, tmp_var);
+    loglinef(Verbose, "(%s) task name: %s - Tmp var address returned by vmm_alloc: 0x%x", __FUNCTION__, current_task->task_name, tmp_var);
+    tmp_var[0] = 0x1234;
+    loglinef(Verbose, "(%s) Tmp var address returned by vmm_alloc: 0x%x==0x1234 ", __FUNCTION__, tmp_var[0]);
 }
 
 char *get_thread_status(thread_t *thread) {

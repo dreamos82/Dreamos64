@@ -34,7 +34,6 @@ task_t* create_task(char *name, void (*_entry_point)(void *), void *args) {
 }
 
 void prepare_virtual_memory_environment(task_t* task) {
-    loglinef(Verbose, "(prepare_virtual_memory_environment) Placeholder for virtual_memory");
     // Steps:
     // 1. Prepare resources: allocatin an array of VM_PAGES_PER_TABLE
     // Make sure this address is physical, then it needs to be mapped to a virtual one.a
@@ -50,10 +49,14 @@ void prepare_virtual_memory_environment(task_t* task) {
     // 2. We will map the whole higher half of the kernel, this means from pml4 item 256 to 511
     //    ((uint64_t *)task->vm_root_page_table)[0] = p4_table[0];
     for(int i = 255; i < VM_PAGES_PER_TABLE; i++) {
-        ((uint64_t *)vm_root_vaddress)[i] = p4_table[i];
-        if(p4_table[i] != 0) {
+        if ( i == 510 ) {
+            ((uint64_t *)vm_root_vaddress)[i] = (uint64_t) (task->vm_root_page_table) | VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE;
+            loglinef(Verbose, "(%s): Mapping recursive entry: 0x%x", __FUNCTION__, ((uint64_t *)vm_root_vaddress)[i]);
+        } else {
+            ((uint64_t *)vm_root_vaddress)[i] = p4_table[i];
+        }
+        if (p4_table[i] != 0) {
             loglinef(Verbose, "(prepare_virtual_memory_environment): %d: o:0x%x - c:0x%x - t:0x%x", i, p4_table[i], kernel_settings.paging.page_root_address[i], ((uint64_t*)vm_root_vaddress)[i]);
-
         }
     }
 }
