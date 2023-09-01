@@ -19,7 +19,7 @@ else
 endif
 
 C_DEBUG_FLAGS := -g \
-				 -DDEBUG=1
+					-DDEBUG=1
 
 ASM_DEBUG_FLAGS := -g \
 					-F dwarf
