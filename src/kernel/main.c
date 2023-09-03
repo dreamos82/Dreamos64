@@ -134,13 +134,12 @@ void kernel_start(unsigned long addr, unsigned long magic){
     }  else {
         PSF_font *font = (PSF_font*)&_binary_fonts_default_psf_start;
         logline(Verbose, "(kernel_start): PSF v2 found");
-        loglinef(Verbose, "(kernel_start): Version: 0x%x - Magic: 0x%x", font->magic, font->version);
+        loglinef(Verbose, "(kernel_start): Version: 0x%x - Magic: 0x%x", font->version, font->magic);
         loglinef(Verbose, "(kernel_start): Number of glyphs: 0x%x - Bytes per glyphs: 0x%x", font->numglyph, font->bytesperglyph);
         loglinef(Verbose, "(kernel_start): Header size: 0x%x - flags: 0x%x", font->headersize, font->flags);
         loglinef(Verbose, "(kernel_start): Width: 0x%x - Height: 0x%x", font->width, font->height);
     }
 
-    loglinef(Verbose, "(kernel_start): PSF stored version: %d", psf_font_version);
     uint32_t pw, ph, cw, ch;
     get_framebuffer_mode(&pw, &ph, &cw, &ch);
     loglinef(Verbose, "(kernel_start): Number of lines: %d", ch);
@@ -153,12 +152,6 @@ void kernel_start(unsigned long addr, unsigned long magic){
     draw_logo(0, 400);
 #endif
 
-    /*char *cpuid_model = _cpuid_model();
-    loglinef(Verbose, "(kernel_start): Cpuid model: %s", cpuid_model);
-
-    uint32_t cpu_info = 0;
-    cpu_info = _cpuid_feature_apic();
-    loglinef(Verbose, "(kernel_start): Cpu info result: 0x%x", cpu_info);*/
     init_apic();
     _mmap_setup();
     vmm_init(VMM_LEVEL_SUPERVISOR, NULL);
@@ -183,7 +176,6 @@ void kernel_start(unsigned long addr, unsigned long magic){
     loglinef(Verbose, "(kernel_main) Calibrated apic value: %u", apic_ticks);
     loglinef(Verbose, "(kernel_main) (END of Mapped memory: 0x%x)", end_of_mapped_memory);
     vfs_init();
-    logline(Info, "(kernel_main) Init end!! Starting infinite loop");
     uint64_t unix_timestamp = read_rtc_time();
     #if USE_FRAMEBUFFER == 1
     _fb_printStrAndNumber("Epoch time: ", unix_timestamp, 0, 5, 0xf5c4f1, 0x000000);
@@ -195,7 +187,6 @@ void kernel_start(unsigned long addr, unsigned long magic){
     char d = 'd';
     task_t* idle_task = create_task("idle", noop, &a);
     idle_thread = idle_task->threads;
-    //idle_thread = create_thread("idle", noop,  &a, NULL);
     task_t* eldi_task = create_task("eldi", noop2, &b);
     create_thread("ledi", noop2, &c, eldi_task);
     create_task("sleeper", noop3, &d);
@@ -208,12 +199,11 @@ void kernel_start(unsigned long addr, unsigned long magic){
     int result = close(fd_id);
     loglinef(Verbose, "(kernel_main) Closing file with id: %d", result);
     //execute_runtime_tests();
-    //test_get_task();
     start_apic_timer(kernel_settings.apic_timer.timer_ticks_base, APIC_TIMER_SET_PERIODIC, kernel_settings.apic_timer.timer_divisor);
     loglinef(Verbose, "(kernel_main) (END of Mapped memory: 0x%x)", end_of_mapped_memory);
     loglinef(Verbose, "(kernel_main) init_basic_system: Memory lower (in kb): %d - upper (in kb): %d", tagmem->mem_lower, tagmem->mem_upper);
     struct multiboot_tag_basic_meminfo *virt_phys_addr = (struct multiboot_tag_basic_meminfo *) vmm_get_variable_from_direct_map ( (size_t) multiboot_basic_meminfo );
     loglinef(Verbose, "(kernel_main) init_basic_system: Memory lower (in kb): %d - upper (in kb): %d", virt_phys_addr->mem_lower, virt_phys_addr->mem_upper);
+    logline(Info, "(kernel_main) Init end!! Starting infinite loop");
     while(1);
 }
-

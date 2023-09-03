@@ -20,7 +20,7 @@ global p2_table
 global p4_table
 global p3_table
 global p3_table_hh
-%if SMALL_PAGES == 1 
+%if SMALL_PAGES == 1
 global pt_tables
 %endif
 global end_of_mapped_memory ;this variable will contain the virtual address of the last address mapped after bootstrap
@@ -38,7 +38,7 @@ start:
     mov esi, eax ; Magic number
 
     mov esp, stack.top - KERNEL_VIRTUAL_ADDR
-    
+
     mov eax, p3_table - KERNEL_VIRTUAL_ADDR; Copy p3_table address in eax
     or eax, PRESENT_BIT | WRITE_BIT        ; set writable and present bits to 1
     mov dword [(p4_table - KERNEL_VIRTUAL_ADDR) + 0], eax   ; Copy eax content into the entry 0 of p4 table
@@ -77,7 +77,7 @@ start:
     .map_p2_table:
         mov eax, PAGE_SIZE  ; Size of the page
         mul ecx             ; Multiply by counter
-        or eax, PAGE_TABLE_ENTRY ; We set: huge page bit (if on 2M pages), writable and present 
+        or eax, PAGE_TABLE_ENTRY ; We set: huge page bit (if on 2M pages), writable and present
 
         ; Moving the computed value into p2_table entry defined by ecx * 8
         ; ecx is the counter, 8 is the size of a single entry
@@ -95,7 +95,7 @@ start:
                             ; when small pages enabled: two tables are adjacent in memory
                             ; they are mapped in the pdir during the map_pd_table cycle
                             ; this is why the loop is up to 1024
-        
+
         jne .map_p2_table   ; if ecx < 512 then loop
 
 
@@ -112,7 +112,7 @@ start:
     mov eax, cr4
     or eax, 1 << 5  ; Physical address extension bit
     mov cr4, eax
-    
+
     ; Now set up the long mode bit
     mov ecx, 0xC0000080
     ; rdmsr is to read a a model specific register (msr)
@@ -121,21 +121,21 @@ start:
     or eax, 1 << 8
     ; write back the value
     wrmsr
-    
+
     ; Now is time to enable paging
     mov eax, cr0    ;cr0 contains the values we want to change
     or eax, 1 << 31 ; Paging bit
     or eax, 1 << 16 ; Write protect, cpu  can't write to read-only pages when
                     ; privilege level is 0
     mov cr0, eax    ; write back cr0
-    ; load gdt 
+    ; load gdt
     lgdt [gdt64.pointer_low - KERNEL_VIRTUAL_ADDR]
     jmp (0x8):(kernel_jumper - KERNEL_VIRTUAL_ADDR)
     bits 64
 
 section .text
 kernel_jumper:
-    bits 64    
+    bits 64
 
     %if SMALL_PAGES == 0
     mov qword[(end_of_mapped_memory - KERNEL_VIRTUAL_ADDR)], (511 << 39) | (510 << 30) | (511 << 21)
@@ -149,9 +149,9 @@ kernel_jumper:
     mov es, ax  ; extra segment register
     mov fs, ax  ; extra segment register
     mov gs, ax  ; extra segment register
-    
+
     lea rax, [rdi+8]
-    
+
     ;.bss section should be already 0  at least on unix and windows systems
     ;no need to initialize
 
@@ -192,7 +192,7 @@ read_multiboot:
             inc rcx
             cmp rcx, 512
             jne .map_fb
-        ;mov qword [p2_table + 8 * 488], 
+        ;mov qword [p2_table + 8 * 488],
     %endif
         jmp .item_not_needed
     .mmap_tag_item:
@@ -211,7 +211,7 @@ read_multiboot:
         ;Padded with 0 until the first byte aligned with 8bytes
         add rax, 7
         and rax, ~7
-        ;Check if the tag is the end tag 
+        ;Check if the tag is the end tag
         ;Type: 0 Size: 8
         ;multiboot_tag.type == 0?
         cmp dword [rax + multiboot_tag.type], MULTIBOOT_TAG_TYPE_END
@@ -229,7 +229,7 @@ higher_half:
     lgdt [gdt64.pointer]
 
     ; The two lines below are needed to un map the kernel in the lower half
-    ; But i'll leave them commented for now because the code in the kernel need 
+    ; But i'll leave them commented for now because the code in the kernel need
     ; to be changed and some addresses need to be updated (i.e. multiboot stuff)
     mov eax, 0x0
     mov dword [(p4_table - KERNEL_VIRTUAL_ADDR) + 0], eax
@@ -245,7 +245,7 @@ p4_table: ;PML4
 p3_table: ;PDPR
     resb 4096
 p3_table_hh: ;PDPR
-    resb 4096 
+    resb 4096
 p2_table: ;PDP
     resb 4096
 
@@ -289,9 +289,13 @@ gdt64:
         ; read/write: bit 41 1 means that is readable
         ; executable: bit 43 it has to be 1 for code segments
         ; 64bit: bit 53 1 if this is a 64bit gdt
-        dq (1 <<44) | (1 << 47) | (1 << 41) | (1 << 43) | (1 << 53)  ;second entry=code=8
+        dq (1 <<44) | (1 << 47) | (1 << 41) | (1 << 43) | (1 << 53)  ;second entry=code=0x8
     .data equ $ - gdt64
-        dq (1 << 44) | (1 << 47) | (1 << 41)	;third entry = data = 10
+        dq (1 << 44) | (1 << 47) | (1 << 41)	;third entry = data = 0x10
+    .ucode equ $ - gdt64
+        dq (1 <<44) | (1 << 47) | (1 << 41) | (1 << 43) | (1 << 53) | (3 << 13) ;fourth entry=code=0x18
+    .udata equ $ - gdt64
+        dq (1 << 44) | (1 << 47) | (1 << 41) | (3 << 13)	;fift entry = data = 0x20
 
 .pointer:
     dw .pointer - gdt64 - 1
