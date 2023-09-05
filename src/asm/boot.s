@@ -280,6 +280,7 @@ section .rodata
 ; gdt table needs at least 3 entries:
 ;     the first entry is always null
 ;     the other two are data segment and code segment.
+;     the last two are data and code segments for user mode.
 gdt64:
     dq  0	;first entry = 0
     .code equ $ - gdt64
@@ -293,9 +294,9 @@ gdt64:
     .data equ $ - gdt64
         dq (1 << 44) | (1 << 47) | (1 << 41)	;third entry = data = 0x10
     .ucode equ $ - gdt64
-        dq (1 <<44) | (1 << 47) | (1 << 41) | (1 << 43) | (1 << 53) | (3 << 13) ;fourth entry=code=0x18
+        dq (1 <<44) | (1 << 47) | (1 << 41) | (1 << 43) | (1 << 53) | (3 << 45) ;fourth entry=code=0x18
     .udata equ $ - gdt64
-        dq (1 << 44) | (1 << 47) | (1 << 41) | (3 << 13)	;fift entry = data = 0x20
+        dq (1 << 44) | (1 << 47) | (1 << 41) | (3 << 45)	;fifth entry = data = 0x20
 
 .pointer:
     dw .pointer - gdt64 - 1
