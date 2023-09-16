@@ -19,10 +19,10 @@ else
 endif
 
 C_DEBUG_FLAGS := -g \
-					-DDEBUG=1
+				 -DDEBUG=1
 
 ASM_DEBUG_FLAGS := -g \
-					-F dwarf
+				   -F dwarf
 ASM_FLAGS := -f elf64
 ASM_FLAGS += $(DEF_FLAGS)
 
