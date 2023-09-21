@@ -52,7 +52,7 @@ These are the packages you need to build and run it:
 
 ## Build
 
-To build dreamos, you need either `gcc` or `clang` supporting the target architecture, a complete guide on how to build the `gcc` cross-compiler, can be found [here](https://github.com/dreamos82/Osdev-Notes/blob/master/99_Appendices/E_Cross_Compilers.md), for DreamOS the target architecture will be `x86-64`.
+To build dreamos, you need either `gcc` compiled to support the target architecture (in our case `x86-64`) or `clang` toolchain installed, a complete guide on how to build the `gcc` cross-compiler, can be found [here](https://github.com/dreamos82/Osdev-Notes/blob/master/99_Appendices/E_Cross_Compilers.md), for DreamOS the target architecture will be `x86-64`.
 
 For `clang` having the toolchain installed should be enough.
 
