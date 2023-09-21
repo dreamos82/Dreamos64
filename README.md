@@ -20,7 +20,7 @@ But at kernel level several things have been implemented:
 
 * Long mode 
 * Kernel load in higher half
-* Basic i/o functions (using the VGA bios)
+* Basic I/O functions (using the VGA bios)
 * Basic framebuffer support (it can print strings on the screen, but only on the first half of the screen, the second half will cause a #PF for now) 
 * IDT Support
 * It can load the kernel using 4kb pages or 2Mb pages
@@ -37,6 +37,7 @@ But at kernel level several things have been implemented:
 * It prints the Epoch time! :) 
 * Extremely basic multi-task/multi-thread support
 * Thread switching, thread_sleep and basic spinlock implementation
+* Basic Virtual Memory implementation
 
 ## Prerequisites: 
 
