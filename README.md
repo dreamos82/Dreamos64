@@ -59,8 +59,7 @@ For `clang` having the toolchain installed should be enough.
 
 ### Build the OS
  
-Before building the os you need to copy a PsfV2 font in the fonts folder, called default.ps (even if building with framebuffer off) [TODO: expand this part]
-
+Before building the os you need to copy a PsfV2 font in the fonts folder, called default.ps (even if building with framebuffer off).
 A complete guide on how to build _DreamOS 64_ and the parameters availables in the docs folder: [docs/Building.md](docs/Building.md).
 
 To build just run: 
