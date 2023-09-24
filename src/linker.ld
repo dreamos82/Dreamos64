@@ -3,7 +3,7 @@ ENTRY(start)
 SECTIONS {
     . = 1M;
 
-    _kernel_start =.;
+    _kernel_start = .;
     _kern_virtual_offset = 0xffffffff80000000;
     .multiboot_header :
     {
@@ -21,14 +21,17 @@ SECTIONS {
 	.text ALIGN (4K) : AT (ADDR (.text) - _kern_virtual_offset)
 	{
 		*(.text)
+		*(.text.*)
 	}
 	.rodata ALIGN (4K) : AT (ADDR (.rodata) - _kern_virtual_offset)
 	{
 		*(.rodata)
+		*(.rodata.*)
 	}
 	.data ALIGN (4K) : AT (ADDR (.data) - _kern_virtual_offset)
 	{
 		*(.data)
+		*(.data.*)
 	}
 	.bss ALIGN (4K) : AT (ADDR (.bss) - _kern_virtual_offset)
 	{

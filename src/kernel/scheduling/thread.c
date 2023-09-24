@@ -31,14 +31,14 @@ thread_t* create_thread(char* thread_name, void (*_entry_point)(void *), void* a
     new_thread->execution_frame->ss = 0x10;
     new_thread->execution_frame->cs = 0x8;
     // We need to allocate a new stack for each thread
-    uintptr_t stack_pointer = (uintptr_t) kmalloc(THREAD_DEFAULT_STACK_SIZE);
+    void* stack_pointer = kmalloc(THREAD_DEFAULT_STACK_SIZE);
     if(stack_pointer == NULL) {
         loglinef(Fatal, "(create_thread): rsp is null - PANIC!");
         while(1);
     }
 
     // The stack grow backward, so the pointer will be the end of the stack
-    new_thread->stack = stack_pointer + THREAD_DEFAULT_STACK_SIZE;
+    new_thread->stack = (uintptr_t)stack_pointer + THREAD_DEFAULT_STACK_SIZE;
     new_thread->execution_frame->rsp = (uint64_t) new_thread->stack;
     new_thread->execution_frame->rbp = 0;
 
@@ -61,7 +61,7 @@ void thread_sleep(size_t millis) {
 }
 
 void thread_wakeup(thread_t* thread) {
-
+(void)thread;
 }
 
 void thread_suicide_trap() {
@@ -80,13 +80,12 @@ void idle() {
     while(1);
 }
 
-void noop(char *c) {
-    int i=0;
+void noop(void *v) {
+    char *c = (char*)v;
     char str[2];
     str[0] = *c;
     str[1] = '\0';
     while(1) {
-        i++;
         //loglinef(Verbose, "Task: %c - %d", (char) *c, i);
         #if USE_FRAMEBUFFER == 1
         _fb_printStr(str, 0, 12, 0x000000, 0xE169CD);
@@ -95,7 +94,8 @@ void noop(char *c) {
     asm("nop");
 }
 
-void noop2(char *c) {
+void noop2(void *v) {
+    char* c = (char*)v;
     int i=0;
     char str[2];
     str[0] = *c;
@@ -111,7 +111,8 @@ void noop2(char *c) {
     }
 }
 
-void noop3(char *c) {
+void noop3(void *v) {
+    char* c = (char*)v;
     int i=0;
     char str[4];
     str[0] = (char) *c;

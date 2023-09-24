@@ -7,6 +7,7 @@ SMALL_PAGES := 0
 
 # Build Configuration
 
+TOOLCHAIN := clang
 BUILD_FOLDER := dist
 FONT_FOLDER := fonts
 
