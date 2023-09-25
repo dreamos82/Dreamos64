@@ -38,6 +38,7 @@
 #include <vfs.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <tss.h>
 //#include <runtime_tests.h>
 
 extern uint32_t FRAMEBUFFER_MEMORY_SIZE;
@@ -169,6 +170,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
     init_keyboard();
     set_irq(KEYBOARD_IRQ, IOREDTBL1, 0x21, 0, 0, false);
     set_irq(PIT_IRQ, IOREDTBL2, 0x22, 0, 0, true);
+    initialize_tss();
     asm("sti");
 
     uint32_t apic_ticks = calibrate_apic();

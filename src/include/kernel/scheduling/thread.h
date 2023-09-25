@@ -22,7 +22,7 @@ typedef enum {
 
 typedef struct thread_t thread_t;
 
-#include <task.h> 
+#include <task.h>
 
 struct thread_t {
     uint16_t tid;
@@ -35,6 +35,7 @@ struct thread_t {
     size_t wakeup_time;
     thread_t* next_sibling;
     thread_t* next;
+    uint64_t* rsp0;
 };
 
 

@@ -147,7 +147,7 @@ void *vmm_alloc(size_t size, size_t flags, VmmInfo *vmm_info) {
 
         for  ( size_t i = 0; i < required_pages; i++ )  {
             void * frame = pmm_alloc_frame();
-            map_phys_to_virt_addr((void*) frame, (void *)address_to_return + (i * PAGE_SIZE_IN_BYTES), flags | VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE);
+            map_phys_to_virt_addr((void*) frame, (void *)address_to_return + (i * PAGE_SIZE_IN_BYTES), arch_flags | VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE);
         }
     }
 

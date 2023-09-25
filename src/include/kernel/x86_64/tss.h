@@ -1,6 +1,9 @@
 #ifndef __TSS_H__
 #define __TSS_H__
 
+#include <stdint.h>
+#include <stddef.h>
+
 
 /** This structure is copied from OSDev Notes, Part 6: Userspace.
    * https://github.com/dreamos82/Osdev-Notes/blob/master/06_Userspace/03_Handling_Interrupts.md
@@ -24,5 +27,12 @@ struct tss
     uint16_t reserved3;
     uint16_t io_bitmap_offset;
 };
+
+typedef struct tss tss_t;
+
+
+void initialize_tss();
+
+extern tss_t kernel_tss;
 
 #endif
