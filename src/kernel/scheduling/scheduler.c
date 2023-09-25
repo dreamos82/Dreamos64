@@ -47,7 +47,7 @@ cpu_status_t* schedule(cpu_status_t* cur_status) {
         //loglinef(Verbose, "Current thread %d status is sleeping!", current_executing_thread->tid);
         current_executing_thread->ticks = SCHEDULER_NUMBER_OF_TICKS;
     }
-    
+
     if (current_executing_thread->ticks++ < SCHEDULER_NUMBER_OF_TICKS) {
         return cur_status;
     }
@@ -67,7 +67,7 @@ cpu_status_t* schedule(cpu_status_t* cur_status) {
 
     while (current_thread->tid != prev_thread_tid) {
         if (current_thread->status == SLEEP) {
-            loglinef(Verbose, "(schedule) This thread %d is sleeping", current_thread->tid); 
+            loglinef(Verbose, "(schedule) This thread %d is sleeping", current_thread->tid);
             //loglinef(Verbose, "Current uptime: %d - wakeup: %d", get_kernel_uptime(), current_thread->wakeup_time);
             if ( get_kernel_uptime() > current_thread->wakeup_time) {
                 //loglinef(Verbose, "(schedule) --->WAKING UP: %d - thread_name: %s", current_thread->tid, current_thread->thread_name);
@@ -76,7 +76,7 @@ cpu_status_t* schedule(cpu_status_t* cur_status) {
                 break;
             }
         }
-        
+
         if (current_thread->status == DEAD) {
             remove_thread_from_task(current_thread->tid, current_thread->parent_task);
             scheduler_delete_thread(current_thread->tid);
@@ -85,14 +85,14 @@ cpu_status_t* schedule(cpu_status_t* cur_status) {
             break;
         }
         prev_thread_tid = current_thread->tid;
-        current_thread = scheduler_get_next_thread();        
+        current_thread = scheduler_get_next_thread();
     }
 
     thread_to_execute->status = RUN;
     thread_to_execute->ticks = 0;
     current_executing_thread = thread_to_execute;
     task_t *current_task = current_executing_thread->parent_task;
-    load_cr3(current_task->vm_root_page_table); 
+    load_cr3(current_task->vm_root_page_table);
     //loglinef(Verbose, "(schedule) leaving schedule...");
     return current_executing_thread->execution_frame;
 }
@@ -106,7 +106,7 @@ void scheduler_add_task(task_t* task) {
 }
 
 void scheduler_add_thread(thread_t* thread) {
-    thread->next = thread_list;    
+    thread->next = thread_list;
     thread_list_size++;
     thread_list = thread;
     loglinef(Verbose, "(scheduler_add_thread) Adding thread: %s - %d", thread_list->thread_name, thread_list->tid);
@@ -120,22 +120,21 @@ void scheduler_delete_thread(size_t thread_id) {
     loglinef(Verbose, "(scheduler_delete_thread) Called with thread id: %d", thread_id);
     thread_t *thread_item = thread_list;
     thread_t *prev_item = NULL;
-    
+
     // First thing: we should search for the thread to be deleted.
     while (thread_item != NULL && thread_item->tid != thread_id ) {
         prev_item = thread_item;
         thread_item = thread_item->next;
     }
-    
+
     if (thread_item == NULL) {
         return;
     }
 
     kfree(thread_item->execution_frame);
-    kfree(thread_item->stack - THREAD_DEFAULT_STACK_SIZE);
-    
+    kfree((void*)(thread_item->stack - THREAD_DEFAULT_STACK_SIZE));
     if (thread_item == thread_list) {
-        // If thread_item == thread_list it means that it is the first item so we just need 
+        // If thread_item == thread_list it means that it is the first item so we just need
         // to make the root of the stack to point to the next item
         thread_list = thread_list->next;
         thread_list_size--;
@@ -159,7 +158,7 @@ thread_t* scheduler_get_next_thread() {
     if (current_executing_thread->next == NULL) {
         return thread_list;
     }
-    return current_executing_thread->next;    
+    return current_executing_thread->next;
 }
 
 size_t scheduler_get_queue_size() {

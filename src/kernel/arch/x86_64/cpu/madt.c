@@ -58,10 +58,8 @@ void print_madt_table(MADT* table) {
     //logline(Verbose, "Printing madt table: ");
     uint32_t total_length = 0;
     MADT_Item* item = (MADT_Item *) (madt_base);
-    int counter = 0;
     while(total_length + sizeof(MADT) < table->header.Length) {
         //loglinef(Verbose, "    %d: Type: 0x%x - Length: 0x%x\n", counter, item->type, item->length, item, total_length, ((uint64_t)madt_base + (uint64_t) total_length));
-        counter++;
         total_length = total_length + item->length;
         item = (MADT_Item *)((uint64_t)madt_base + (uint64_t) total_length);
     }

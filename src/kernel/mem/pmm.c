@@ -5,6 +5,7 @@
 #include <vmm.h>
 #include <logging.h>
 #include <spinlock.h>
+#include <vmm_util.h>
 
 #ifndef _TEST_
 #include <video.h>
@@ -64,7 +65,7 @@ void *pmm_alloc_area(size_t size) {
     spinlock_acquire(&memory_spinlock);
     uint64_t frames = _bitmap_request_frames(requested_frames);
     
-    for (int i =0; i < requested_frames; i++) {
+    for (size_t i =0; i < requested_frames; i++) {
         _bitmap_set_bit( frames + i );
     }
     

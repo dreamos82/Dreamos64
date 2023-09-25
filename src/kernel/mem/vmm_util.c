@@ -26,9 +26,9 @@ bool is_address_aligned(size_t value, size_t alignment) {
  *
  *
  * @param flags vmm flags
- * @return architecture independat flags 
+ * @return architecture dependant flags
  */
 size_t vm_parse_flags( size_t flags ) {
-    flags = flags & ~(1 << 7); 
+    flags = flags & ~(1 << 7);
     return flags;
 }
