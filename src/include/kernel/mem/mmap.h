@@ -16,5 +16,5 @@ extern const char *mmap_types[];
 
 void _mmap_parse(struct multiboot_tag_mmap*);
 void _mmap_setup();
-void* _mmap_determine_bitmap_region(uint64_t lower_limit, size_t size);
+uintptr_t _mmap_determine_bitmap_region(uint64_t lower_limit, size_t size);
 #endif

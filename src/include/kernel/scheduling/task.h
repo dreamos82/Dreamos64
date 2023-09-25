@@ -35,5 +35,6 @@ bool add_thread_to_task( task_t* task, thread_t* thread );
 bool delete_thread_from_task( size_t thread_id, task_t *task );
 void prepare_virtual_memory_environment( task_t* task );
 void print_thread_list( size_t task_id );
+bool remove_thread_from_task(size_t thread_id, task_t *task);
 
 #endif

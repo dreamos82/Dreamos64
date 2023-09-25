@@ -1,5 +1,9 @@
 # Build configuration
 
+DreamOS can be built using either `gcc` or `clang` toolchain. 
+
+This is controlled by the `TOOLCHAIN` variable, inside the Config.mk file, the accepted values are: `gcc` or `clang`.
+
 ## Compilation
 
 The following flags have to be properly set before building the os:

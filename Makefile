@@ -8,8 +8,21 @@ ARCH_PREFIX := x86_64-elf
 ASM_COMPILER := nasm
 QEMU_SYSTEM := qemu-system-x86_64
 
+ifeq ($(TOOLCHAIN), gcc)
+	X_CC = $(ARCH_PREFIX)-gcc
+	X_LD = $(ARCH_PREFIX)-ld
+else ifeq ($(TOOLCHAIN), clang)
+	X_CC = clang
+	X_LD = ld.lld
+else
+	$(error "Unknown compiler toolchain")
+endif
+
+C_DEBUG_FLAGS := -g \
+				 -DDEBUG=1
+
 ASM_DEBUG_FLAGS := -g \
-					-F dwarf
+				   -F dwarf
 ASM_FLAGS := -f elf64
 ASM_FLAGS += $(DEF_FLAGS)
 
@@ -39,6 +52,8 @@ run: $(BUILD_FOLDER)/$(ISO_IMAGE_FILENAME)
 	$(QEMU_SYSTEM) -cdrom $(BUILD_FOLDER)/$(ISO_IMAGE_FILENAME)
 
 debug: DEBUG=1
+debug: CFLAGS += $(C_DEBUG_FLAGS)
+debug: ASM_FLAGS += $(ASM_DEBUG_FLAGS)
 debug: $(BUILD_FOLDER)/$(ISO_IMAGE_FILENAME)
 # qemu-system-x86_64 -monitor unix:qemu-monitor-socket,server,nowait -cpu qemu64,+x2apic  -cdrom build/DreamOs64.iso -serial file:dreamos64.log -m 1G -d int -no-reboot -no-shutdown
 	$(QEMU_SYSTEM) -monitor unix:qemu-monitor-socket,server,nowait -cpu qemu64,+x2apic  -cdrom $(BUILD_FOLDER)/$(ISO_IMAGE_FILENAME) -serial stdio -m 2G  -no-reboot -no-shutdown
@@ -54,21 +69,12 @@ $(BUILD_FOLDER)/%.o: src/%.s
 	echo "$(<D)"
 	mkdir -p "$(@D)"
 	mkdir -p "$(@D)"
-ifeq ($(DEBUG),'0')
 	${ASM_COMPILER} ${ASM_FLAGS} "$<" -o "$@"
-else
-	${ASM_COMPILER} ${ASM_DEBUG_FLAGS} ${ASM_FLAGS} "$<" -o "$@"
-endif
 
 $(BUILD_FOLDER)/%.o: src/%.c
 	echo "$(@D)"
 	mkdir -p "$(@D)"
-ifeq ($(DEBUG),'0')
-		$(ARCH_PREFIX)-gcc ${CFLAGS} -c "$<" -o "$@"
-else
-		@echo "Compiling with DEBUG flag"
-		$(ARCH_PREFIX)-gcc ${CFLAGS} ${C_DEBUG_FLAGS} -c "$<" -o "$@"
-endif
+	$(X_CC) ${CFLAGS} -c "$<" -o "$@"
 
 $(BUILD_FOLDER)/%.o: fonts/%.psf
 	echo "PSF: $(@D)"
@@ -78,18 +84,18 @@ $(BUILD_FOLDER)/%.o: fonts/%.psf
 $(BUILD_FOLDER)/kernel.bin: $(OBJ_ASM_FILE) $(OBJ_C_FILE) $(OBJ_FONT_FILE) src/linker.ld
 	echo $(OBJ_ASM_FILE)
 	echo $(OBJ_FONT_FILE)
-	$(ARCH_PREFIX)-ld -n -o $(BUILD_FOLDER)/kernel.bin -T src/linker.ld $(OBJ_ASM_FILE) $(OBJ_C_FILE) $(OBJ_FONT_FILE) -Map $(BUILD_FOLDER)/kernel.map
+	$(X_LD) -n -o $(BUILD_FOLDER)/kernel.bin -T src/linker.ld $(OBJ_ASM_FILE) $(OBJ_C_FILE) $(OBJ_FONT_FILE) -Map $(BUILD_FOLDER)/kernel.map
 
 gdb: DEBUG=1
 gdb: $(BUILD_FOLDER)/$(ISO_IMAGE_FILENAME)
 	$(QEMU_SYSTEM) -cdrom $(BUILD_FOLDER)/$(ISO_IMAGE_FILENAME) -monitor unix:qemu-monitor-socket,server,nowait -serial file:dreamos64.log -m 1G -d int -no-reboot -no-shutdown -s -S 
 
 tests:
-	gcc ${TESTFLAGS} tests/test_mem.c tests/test_common.c src/kernel/mem/bitmap.c src/kernel/mem/vmm_util.c src/kernel/mem/pmm.c src/kernel/mem/mmap.c -o tests/test_mem.o
-	gcc ${TESTFLAGS} tests/test_number_conversion.c tests/test_common.c src/base/numbers.c -o tests/test_number_conversion.o
-	gcc ${TESTFLAGS} tests/test_kheap.c tests/test_common.c src/kernel/mem/kheap.c src/kernel/mem/bitmap.c src/kernel/mem/pmm.c src/kernel/mem/mmap.c src/kernel/mem/vmm_util.c -o tests/test_kheap.o
-	gcc ${TESTFLAGS} tests/test_vm.c tests/test_common.c src/kernel/arch/x86_64/system/vm.c src/kernel/mem/vmm_util.c  -o tests/test_vm.o
-	gcc ${TESTFLAGS} tests/test_vfs.c tests/test_common.c src/fs/vfs.c src/drivers/fs/ustar.c -o tests/test_vfs.o
-	gcc ${TESTFLAGS} tests/test_utils.c src/kernel/mem/vmm_util.c -o tests/test_utils.o
+	$(X_CC) ${TESTFLAGS} tests/test_mem.c tests/test_common.c src/kernel/mem/bitmap.c src/kernel/mem/vmm_util.c src/kernel/mem/pmm.c src/kernel/mem/mmap.c -o tests/test_mem.o
+	$(X_CC) ${TESTFLAGS} tests/test_number_conversion.c tests/test_common.c src/base/numbers.c -o tests/test_number_conversion.o
+	$(X_CC) ${TESTFLAGS} tests/test_kheap.c tests/test_common.c src/kernel/mem/kheap.c src/kernel/mem/bitmap.c src/kernel/mem/pmm.c src/kernel/mem/mmap.c src/kernel/mem/vmm_util.c -o tests/test_kheap.o
+	$(X_CC) ${TESTFLAGS} tests/test_vm.c tests/test_common.c src/kernel/arch/x86_64/system/vm.c src/kernel/mem/vmm_util.c  -o tests/test_vm.o
+	$(X_CC) ${TESTFLAGS} tests/test_vfs.c tests/test_common.c src/fs/vfs.c src/drivers/fs/ustar.c -o tests/test_vfs.o
+	$(X_CC) ${TESTFLAGS} tests/test_utils.c src/kernel/mem/vmm_util.c -o tests/test_utils.o
 	./tests/test_mem.o && ./tests/test_kheap.o && ./tests/test_number_conversion.o && ./tests/test_vm.o && ./tests/test_vfs.o && ./tests/test_utils.o
 
