@@ -29,6 +29,9 @@ global multiboot_mmap_data
 global multiboot_basic_meminfo
 global multiboot_acpi_info
 global read_multiboot
+global gdt64
+
+extern kernel_tss
 extern kernel_start
 
 [bits 32]
@@ -284,6 +287,7 @@ section .rodata
 gdt64:
     dq  0	;first entry = 0
     .code equ $ - gdt64
+        ; equ tells the compiler to set the address of the variable at given address ($ - gdt64). $ is the current position.
         ; set the following values:
         ; descriptor type: bit 44 has to be 1 for code and data segments
         ; present: bit 47 has to be  1 if the entry is valid
@@ -297,6 +301,10 @@ gdt64:
         dq (1 <<44) | (1 << 47) | (1 << 41) | (1 << 43) | (1 << 53) | (3 << 45) ;fourth entry=code=0x18
     .udata equ $ - gdt64
         dq (1 << 44) | (1 << 47) | (1 << 41) | (3 << 45)	;fifth entry = data = 0x20
+    .tss_low equ $ - gdt64
+        dq 0
+    .tss_high equ $ - gdt64
+        dq 0
 
 .pointer:
     dw .pointer - gdt64 - 1

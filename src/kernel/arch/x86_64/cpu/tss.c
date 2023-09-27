@@ -1,8 +1,14 @@
+#include <logging.h>
 #include <tss.h>
+
+extern uint64_t gdt64[];
 
 tss_t kernel_tss;
 
 void initialize_tss(){
+
+    loglinef(Verbose, "(%s) Initializing tss", __FUNCTION__);
+    loglinef(Verbose, "(%s) gdt64[0] = 0x%x", __FUNCTION__, gdt64[1]);
 
     // These fields are reserved and must be set to 0
     kernel_tss.reserved0 = 0x0;
