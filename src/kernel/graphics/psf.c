@@ -1,7 +1,6 @@
 #include <psf.h>
 
 #if AUTOMATION == 1
-#pragma message("mmmm....")
 char _binary_fonts_default_psf_size;
 char _binary_fonts_default_psf_start[];
 char _binary_fonts_default_psf_end;
