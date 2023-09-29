@@ -1,5 +1,12 @@
 #include <psf.h>
 
+#if AUTOMATION == 1
+#pragma message("mmmm....")
+char _binary_fonts_default_psf_size;
+char _binary_fonts_default_psf_start[];
+char _binary_fonts_default_psf_end;
+#endif
+
 uint8_t psf_font_version;
 
 uint8_t get_PSF_version(char *_font_structure){

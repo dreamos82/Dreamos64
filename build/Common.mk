@@ -19,7 +19,7 @@ CFLAGS := -std=gnu99 \
         -mno-red-zone \
         -mno-sse \
         -mcmodel=large \
-		-fno-stack-protector
+        -fno-stack-protector
         
 CFLAGS += $(DEF_FLAGS)
 
