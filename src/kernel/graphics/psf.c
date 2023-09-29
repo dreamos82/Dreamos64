@@ -1,8 +1,9 @@
 #include <psf.h>
 
-#if AUTOMATION == 1
+#if IS_WORKFLOW == 1
+#pragma message "IS_WORKFLOW is 1 Adding dummy variables"
 char _binary_fonts_default_psf_size;
-char _binary_fonts_default_psf_start[];
+char _binary_fonts_default_psf_start[0];
 char _binary_fonts_default_psf_end;
 #endif
 

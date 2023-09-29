@@ -8,7 +8,7 @@ ARCH_PREFIX := x86_64-elf
 ASM_COMPILER := nasm
 QEMU_SYSTEM := qemu-system-x86_64
 
-AUTOMATION ?= 0
+IS_WORKFLOW ?= 0
 
 ifeq ($(TOOLCHAIN), gcc)
 	X_CC = $(ARCH_PREFIX)-gcc
@@ -76,7 +76,7 @@ $(BUILD_FOLDER)/%.o: src/%.s
 $(BUILD_FOLDER)/%.o: src/%.c
 	echo "$(@D)"
 	mkdir -p "$(@D)"
-	$(X_CC) ${CFLAGS} -DAUTOMATION=$(AUTOMATION) -c "$<" -o "$@"
+	$(X_CC) ${CFLAGS} -DIS_WORKFLOW=$(IS_WORKFLOW) -c "$<" -o "$@"
 
 $(BUILD_FOLDER)/%.o: $(FONT_FOLDER)/%.psf
 	echo "PSF: $(@D)"
@@ -86,14 +86,14 @@ $(BUILD_FOLDER)/%.o: $(FONT_FOLDER)/%.psf
 $(BUILD_FOLDER)/kernel.bin: $(OBJ_ASM_FILE) $(OBJ_C_FILE) $(OBJ_FONT_FILE) src/linker.ld
 	echo $(OBJ_ASM_FILE)
 	echo $(OBJ_FONT_FILE)
-	echo $(AUTOMATION)
+	echo $(IS_WORKFLOW)
 	$(X_LD) -n -o $(BUILD_FOLDER)/kernel.bin -T src/linker.ld $(OBJ_ASM_FILE) $(OBJ_C_FILE) $(OBJ_FONT_FILE) -Map $(BUILD_FOLDER)/kernel.map
 
 gdb: DEBUG=1
 gdb: CFLAGS += $(C_DEBUG_FLAGS)
 gdb: ASM_FLAGS += $(ASM_DEBUG_FLAGS)
 gdb: $(BUILD_FOLDER)/$(ISO_IMAGE_FILENAME)
-	$(QEMU_SYSTEM) -cdrom $(BUILD_FOLDER)/$(ISO_IMAGE_FILENAME) -monitor unix:qemu-monitor-socket,server,nowait -serial file:dreamos64.log -m 1G -d int -no-reboot -no-shutdown -s -S 
+	$(QEMU_SYSTEM) -cdrom $(BUILD_FOLDER)/$(ISO_IMAGE_FILENAME) -monitor unix:qemu-monitor-socket,server,nowait -serial file:dreamos64.log -m 1G -d int -no-reboot -no-shutdown -s -S
 
 tests:
 	$(X_CC) ${TESTFLAGS} tests/test_mem.c tests/test_common.c src/kernel/mem/bitmap.c src/kernel/mem/vmm_util.c src/kernel/mem/pmm.c src/kernel/mem/mmap.c -o tests/test_mem.o
