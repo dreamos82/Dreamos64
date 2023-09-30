@@ -44,7 +44,13 @@ default: build
 
 .PHONY: default build run clean debug tests gdb
 
-build: $(BUILD_FOLDER)/$(ISO_IMAGE_FILENAME)
+build: prepare $(BUILD_FOLDER)/$(ISO_IMAGE_FILENAME)
+
+prepare: CFLAGS += -DSELECTED_FONT=$(subst .,_,$(SELECTED_FONT))
+prepare:
+	echo "Preparing build"
+	echo $(CFLAGS)
+
 
 clean:
 	-rm -rf $(BUILD_FOLDER)
@@ -81,9 +87,11 @@ $(BUILD_FOLDER)/%.o: src/%.c
 $(BUILD_FOLDER)/%.o: $(FONT_FOLDER)/%.psf
 	echo "PSF: $(@D)"
 	mkdir -p "$(@D)"
+	echo $(subst .,_, $(SELECTED_FONT))
+	CFLAGS += -DSELECTED_FONT=$(subst .,_, $(SELECTED_FONT))
 	objcopy -O elf64-x86-64 -B i386 -I binary "$<" "$@"
 
-$(BUILD_FOLDER)/kernel.bin: $(OBJ_ASM_FILE) $(OBJ_C_FILE) $(OBJ_FONT_FILE) src/linker.ld
+$(BUILD_FOLDER)/kernel.bin: $(OBJ_FONT_FILE) $(OBJ_ASM_FILE) $(OBJ_C_FILE) src/linker.ld
 	echo $(OBJ_ASM_FILE)
 	echo $(OBJ_FONT_FILE)
 	echo $(AUTOMATION)

@@ -1,9 +1,9 @@
 #include <psf.h>
 
 #if AUTOMATION == 1
-char _binary_fonts_default_psf_size;
-char _binary_fonts_default_psf_start[];
-char _binary_fonts_default_psf_end;
+char FONT_VARIABLE(SELECTED_FONT, size);
+char FONT_VARIABLE(SELECTED_FONT, start)[];
+char FONT_VARIABLE(SELECTED_FONT, end);
 #endif
 
 uint8_t psf_font_version;

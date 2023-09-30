@@ -7,10 +7,14 @@ SMALL_PAGES := 0
 
 # Build Configuration
 
-TOOLCHAIN := clang
+TOOLCHAIN := gcc
 BUILD_FOLDER := dist
 FONT_FOLDER := fonts
 
 # Image Base Name
 
 IMAGE_BASE_NAME := DreamOs64
+
+# Selected font file name
+
+SELECTED_FONT := default.psf

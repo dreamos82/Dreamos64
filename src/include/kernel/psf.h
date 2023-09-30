@@ -33,9 +33,13 @@ typedef struct {
     uint32_t width;         /* width in pixels */
 } PSF_font;
 
-extern char _binary_fonts_default_psf_size;
-extern char _binary_fonts_default_psf_start[];
-extern char _binary_fonts_default_psf_end;
+#define CREATE_FONT_VAR(name, type) _binary_fonts_##name##_##type
+#define FONT_VARIABLE(name, type) CREATE_FONT_VAR(name, type)
+
+
+extern char FONT_VARIABLE(SELECTED_FONT, size);
+extern char FONT_VARIABLE(SELECTED_FONT, start)[];
+extern char FONT_VARIABLE(SELECTED_FONT, end);
 
 uint8_t get_PSF_version(char *);
 
