@@ -24,6 +24,9 @@ jobs:
     - name: Install llvm and clang
       run: sudo apt install lld llvm
 
+    - name: Install nasm
+      run: sudo apt install nasm
+
     - name: Download gcc
       if: steps.cached-compiler-binaries.outputs.cache-hit != 'true'
       run: >
@@ -40,6 +43,7 @@ jobs:
       run: |
         cd dreamos;
         ls;
-        make clean
+        make clean;
+        nasm -v
 
 
