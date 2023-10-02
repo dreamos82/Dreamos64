@@ -2,16 +2,16 @@ name: Dreamos Build
 
 on:
   push:
-    branches: [ fix_psf_makefile ]
+    branches: [ new_workflow_test ]
   pull_request:
-    branches: [ fix_psf_makefile ]
+    branches: [ new_workflow_test ]
 
 jobs:
   build-dreamos:
 
     runs-on: ubuntu-latest
 
-    steps:
+    steps:with
 
     - name: Prepare cache for binaries
       uses: actions/cache@v2
