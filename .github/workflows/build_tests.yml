@@ -19,6 +19,7 @@ jobs:
       with:
         path: |
           **/gcc-x86_64-cross
+        key: gcc-binary-toolchains
 
     - name: Install llvm and clang
       run: sudo apt install lld llvm
