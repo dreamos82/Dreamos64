@@ -27,7 +27,7 @@ jobs:
     - name: Download gcc
       if: steps.cached-compiler-binaries.outputs.cache-hit != 'true'
       run: >
-        mkdir toolchains
+        mkdir toolchains;
         wget https://toolchains.bootlin.com/downloads/releases/toolchains/x86-64/tarballs/x86-64--glibc--stable-2022.08-1.tar.bz2 -O toolchains/gcc-x86_64;
         cd toolchains;
         tar -vxf gcc-x86_64; mv x86-64--glibc--stable-2022.08-1 gcc-x86_64-cross;
