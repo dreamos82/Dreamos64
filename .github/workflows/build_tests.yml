@@ -42,11 +42,7 @@ jobs:
 
     - name: Compile with gcc
       run: >
-        PATH=$PATH:$GITHUB_WORKSPACE/toolcahins/gcc-x86_64-cross/bin;
-        ls $GITHUB_WORKSPACE/;
-        ls $GITHUB_WORKSPACE/toolcahins/;
-        ls $GITHUB_WORKSPACE/toolcahins/gcc-x86_64-cross/;
-        ls $GITHUB_WORKSPACE/toolcahins/gcc-x86_64-cross/bin;
+        PATH=$PATH:$GITHUB_WORKSPACE/toolchains/gcc-x86_64-cross/bin;
         cd dreamos;
         ls;
         make clean;
