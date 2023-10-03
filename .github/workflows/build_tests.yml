@@ -45,5 +45,9 @@ jobs:
         ls;
         make clean;
         nasm -v
+        make build TOOLCHAN=gcc
+        IS_WORKFLOW=1
+        ARCH_PREFIX=x86_64-elf
+        IMAGE_BASE_NAME=DreamOS64
 
 
