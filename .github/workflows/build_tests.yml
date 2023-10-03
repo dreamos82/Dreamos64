@@ -35,12 +35,14 @@ jobs:
         cd toolchains;
         tar -vxf gcc-x86_64; mv x86-64--glibc--stable-2022.08-1 gcc-x86_64-cross;
 
+
     - uses: actions/checkout@v2
       with:
         path: dreamos
 
     - name: Compile with gcc
       run: >
+        PATH=$PATH:$GITHUB_WORKSPACE/toolcahins/gcc-x86_64-cross/bin;
         cd dreamos;
         ls;
         make clean;
@@ -48,7 +50,7 @@ jobs:
         make build
         TOOLCHAIN=gcc
         IS_WORKFLOW=1
-        ARCH_PREFIX=x86_64-elf
+        ARCH_PREFIX=x86_64-buildroot-linux-gnu
         IMAGE_BASE_NAME=DreamOS64
 
 
