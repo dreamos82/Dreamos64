@@ -27,6 +27,9 @@ jobs:
     - name: Install nasm
       run: sudo apt install nasm
 
+    - name: Install mtools
+      run: sudo apt install mtools
+
     - name: Download gcc
       if: steps.cached-binaries.outputs.cache-hit != 'true'
       run: >
