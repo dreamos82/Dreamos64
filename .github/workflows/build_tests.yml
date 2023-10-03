@@ -56,6 +56,8 @@ jobs:
 
     - name: Compile with clang
       run: >
+        PATH=$PATH:$GITHUB_WORKSPACE/toolchains/gcc-x86_64-cross/bin;
+        cd dreamos;
         make clean;
         make build
         TOOLCHAIN=clang
