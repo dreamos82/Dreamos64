@@ -40,11 +40,15 @@ jobs:
         path: dreamos
 
     - name: Compile with gcc
-      run: |
+      run: >
         cd dreamos;
         ls;
         make clean;
         nasm -v;
-        make build  TOOLCHAIN=gcc IS_WORKFLOW=1  ARCH_PREFIX=x86_64-elf IMAGE_BASE_NAME=DreamOS64
+        make build
+        TOOLCHAIN=gcc
+        IS_WORKFLOW=1
+        ARCH_PREFIX=x86_64-elf
+        IMAGE_BASE_NAME=DreamOS64
 
 
