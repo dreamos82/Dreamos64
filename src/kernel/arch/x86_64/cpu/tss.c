@@ -23,7 +23,7 @@ void initialize_tss(){
     kernel_tss.rsp0 = 0x0; // this will not be 0
     kernel_tss.rsp1 = 0x0;
     kernel_tss.rsp2 = 0x0;
-    // istX are the Interrup stack table,  unlesse some specific cases they can be left as 0
+    // istX are the Interrup stack table,  unless some specific cases they can be left as 0
     // See intel manual chapter 5
     kernel_tss.ist1 = 0x0;
     kernel_tss.ist2 = 0x0;
@@ -32,6 +32,10 @@ void initialize_tss(){
     kernel_tss.ist5 = 0x0;
     kernel_tss.ist6 = 0x0;
     kernel_tss.ist7 = 0x0;
-    // Ca nbe left as 0 for now
+    // Can be left as 0 for now
     kernel_tss.io_bitmap_offset = 0x0;
+}
+
+void load_tss() {
+// TODO
 }

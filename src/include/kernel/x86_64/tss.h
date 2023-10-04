@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include <stddef.h>
 
+#define TSS_ENTRY_LOW 4
+#define TSS_ENTRY_HIGH 5
 
 /** This structure is copied from OSDev Notes, Part 6: Userspace.
    * https://github.com/dreamos82/Osdev-Notes/blob/master/06_Userspace/03_Handling_Interrupts.md
@@ -30,9 +32,9 @@ struct tss
 
 typedef struct tss tss_t;
 
+extern tss_t kernel_tss;
 
 void initialize_tss();
-
-extern tss_t kernel_tss;
+void load_tss();
 
 #endif
