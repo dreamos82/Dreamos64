@@ -51,17 +51,19 @@ These are the packages required to build and run it:
 * mtools
 * Gcc cross compiler or Clang
 
+To build _Dreamos64_, a toolchain that supports the target architecture is required,  it can be either   `gcc`  (in our case `x86-64`) or `clang` installed.
+
+A complete guide on how to build the `gcc` cross-compiler, can be found [here](https://github.com/dreamos82/Osdev-Notes/blob/master/99_Appendices/E_Cross_Compilers.md), for `DreamOS64` the target architecture will be `x86-64`.
+
+For `clang` we just need to install the `llvm`and the `lld` packages (the exact package name depends on the distribution used)..
+
 ## Compiling and Running the OS
 
-To build _Dreamos64_, you need to have one  `gcc` compiled to support the target architecture (in our case `x86-64`) or `clang` toolchain installed, a complete guide on how to build the `gcc` cross-compiler, can be found [here](https://github.com/dreamos82/Osdev-Notes/blob/master/99_Appendices/E_Cross_Compilers.md), for `DreamOS64` the target architecture will be `x86-64`.
-
-For `clang` having the toolchain and the `lld` packages installed should be enough.
+For a  complete guide on how to build _DreamOS64_ and the parameters that are availables is in the docs folder: [docs/Building.md](docs/Building.md).
 
 ### Build the OS
 
 Before building the os we need to copy a PSF font (either v1 or v2) in the fonts folder, and change its name to `default.psf` (even if we are building with framebuffer off).
-
-A complete guide on how to build _DreamOS64_ and the parameters that are availables is in the docs folder: [docs/Building.md](docs/Building.md).
 
 Once all the parameters in `build/Config.mk` are set, to build just type:
 
@@ -74,16 +76,18 @@ It will use the default goal `build` and produce a bootable iso in the `dist/` f
 ## Run and Debug
 
 To launch the OS in qemu just use:
+
 ```bash
     make run
 ```
 
 Instead if we type:
+
 ```bash
    make debug
 ```
 
-It will compile the OS with the debug symbols enabled, all the output logging information will sent to stdio.
+It will compile the OS with the debug symbols enabled, all the output logging information will be sent to stdio.
 
 Finally:
 
