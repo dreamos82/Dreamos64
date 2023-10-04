@@ -2,10 +2,9 @@ name: Dreamos Build
 
 on:
   push:
-    branches: [ new_workflow_test ]
+    paths-ignore: [ 'docs/**' ]
   pull_request:
-    branches: [ new_workflow_test ]
-
+    paths-ignore: [ 'docs/**' ]
 jobs:
   build-dreamos:
 
