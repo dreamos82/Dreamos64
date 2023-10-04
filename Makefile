@@ -8,7 +8,7 @@ ARCH_PREFIX := x86_64-elf
 ASM_COMPILER := nasm
 QEMU_SYSTEM := qemu-system-x86_64
 
-IS_WORKFLOW ?= 0
+IS_WORKFLOW = 0
 
 ifeq ($(TOOLCHAIN), gcc)
 	X_CC = $(ARCH_PREFIX)-gcc
