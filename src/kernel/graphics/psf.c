@@ -1,5 +1,12 @@
 #include <psf.h>
 
+#if IS_WORKFLOW == 1
+#pragma message "IS_WORKFLOW is 1 Adding dummy variables"
+char _binary_fonts_default_psf_size;
+char _binary_fonts_default_psf_start[0];
+char _binary_fonts_default_psf_end;
+#endif
+
 uint8_t psf_font_version;
 
 uint8_t get_PSF_version(char *_font_structure){
