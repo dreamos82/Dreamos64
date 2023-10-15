@@ -33,6 +33,8 @@ typedef struct tss tss_t;
 
 extern tss_t kernel_tss;
 
+extern void _load_task_register();
+
 void initialize_tss();
 void load_tss();
 

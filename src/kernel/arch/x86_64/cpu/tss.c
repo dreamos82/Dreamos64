@@ -2,6 +2,7 @@
 #include <tss.h>
 
 extern uint64_t gdt64[];
+extern uint64_t stack;
 
 tss_t kernel_tss;
 
@@ -19,7 +20,7 @@ void initialize_tss(){
     // Rsp contain the stack for that privilege level.
     // We use only privilege level 0 and 3, so rsp1 and rsp2 can be left as 0
     // Every thread will have it's own rsp0 pointer
-    kernel_tss.rsp0 = 0x0; // this will not be 0
+    kernel_tss.rsp0 = stack + 16384; // this will not be 0
     kernel_tss.rsp1 = 0x0;
     kernel_tss.rsp2 = 0x0;
     // istX are the Interrup stack table,  unless some specific cases they can be left as 0
@@ -58,5 +59,6 @@ void load_tss() {
     loglinef(Verbose, "(%s) gdt64[4] = 0x%x", __FUNCTION__, (uint64_t)gdt64[TSS_ENTRY_LOW]);
     loglinef(Verbose, "(%s) gdt64[5] = 0x%x", __FUNCTION__,  (uint64_t)gdt64[TSS_ENTRY_HIGH]);
 
-    //__asm__ __volatile__("ltr %0": :"g" (gdt64[TSS_ENTRY_LOW]));
+    _load_task_register();
+    //asm("ltr $0x28");
 }

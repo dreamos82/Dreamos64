@@ -30,6 +30,7 @@ global multiboot_basic_meminfo
 global multiboot_acpi_info
 global read_multiboot
 global gdt64
+global stack
 
 extern kernel_tss
 extern kernel_start
