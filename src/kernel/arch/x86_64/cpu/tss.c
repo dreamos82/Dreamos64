@@ -8,7 +8,6 @@ tss_t kernel_tss;
 void initialize_tss(){
 
     loglinef(Verbose, "(%s) Initializing tss", __FUNCTION__);
-    loglinef(Verbose, "(%s) gdt64[0] = 0x%x", __FUNCTION__, gdt64[1]);
 
     // These fields are reserved and must be set to 0
     kernel_tss.reserved0 = 0x0;
@@ -37,5 +36,27 @@ void initialize_tss(){
 }
 
 void load_tss() {
-// TODO
+    // Fields explanation (each entry is 64bit)
+    // TSS_ENTRY_LOW:
+    // 0:15 -> Limit (first 15 bits) should be 0xFFFF
+    // 16:39 -> First 24 bits of kernel_tss address
+    // 40:47 -> Type 4 bits in our case is 1001, 0,  DPL should be 0 , P = 1
+    // 48:55 -> Limit (last 4 bits) can be 0, AVL=available to OS we leave it as 0, 53:54 are 0, 55 G (Granularity)
+    // 55:63 -> Bits 25:31 of the kernel_tss base address
+    // TSS_ENTRY_HIGH
+    // 0:31 -> kernel_tss bits 32:63
+    // 32:63 -> Reserved / 0
+    // TYPE: 1001 (64Bit TSS Available)
+    // BASE_ADDRESS: kernel_tss
+    // LIMIT 16:19 0 DPL: 0 P: 1 G:0
+    gdt64[TSS_ENTRY_LOW] = 0x00;
+    gdt64[TSS_ENTRY_HIGH] = 0x00;
+    gdt64[TSS_ENTRY_LOW] = ((((uint64_t) &kernel_tss>>24) & 0xFF)<<56)  /*bits 56:63*/ | ((uint64_t) (0 & 0xFF) << 48) /* bits 48:55 */ | ((uint64_t)0x89 << 40) /* bits 40:47*/|  ((((uint64_t) &kernel_tss) & 0xFFFFFF) << 16) /* bits 15:39 */ | (uint64_t) 0xFFFF /* Base */;
+    gdt64[TSS_ENTRY_HIGH] = (((uint64_t) &kernel_tss>>32)& 0xFFFFFFFF);
+    loglinef(Verbose, "(%s) Loading TSS Register", __FUNCTION__);
+    loglinef(Verbose, "(%s) kernel_tss address = 0x%x", __FUNCTION__, &kernel_tss);
+    loglinef(Verbose, "(%s) gdt64[4] = 0x%x", __FUNCTION__, (uint64_t)gdt64[TSS_ENTRY_LOW]);
+    loglinef(Verbose, "(%s) gdt64[5] = 0x%x", __FUNCTION__,  (uint64_t)gdt64[TSS_ENTRY_HIGH]);
+
+    //__asm__ __volatile__("ltr %0": :"g" (gdt64[TSS_ENTRY_LOW]));
 }

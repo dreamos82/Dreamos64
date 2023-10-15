@@ -301,9 +301,9 @@ gdt64:
         dq (1 <<44) | (1 << 47) | (1 << 41) | (1 << 43) | (1 << 53) | (3 << 45) ;fourth entry=code=0x18
     .udata equ $ - gdt64
         dq (1 << 44) | (1 << 47) | (1 << 41) | (3 << 45)	;fifth entry = data = 0x20
-    .tss_low equ $ - gdt64
+    .tss_low equ $ - gdt64 ;sixth entry placeholder for TSS entry lower part
         dq 0
-    .tss_high equ $ - gdt64
+    .tss_high equ $ - gdt64 ; seventh entry placeholder for TSS entry higher part
         dq 0
 
 .pointer:

@@ -171,6 +171,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
     set_irq(KEYBOARD_IRQ, IOREDTBL1, 0x21, 0, 0, false);
     set_irq(PIT_IRQ, IOREDTBL2, 0x22, 0, 0, true);
     initialize_tss();
+    load_tss();
     asm("sti");
 
     uint32_t apic_ticks = calibrate_apic();

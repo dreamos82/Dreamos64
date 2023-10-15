@@ -10,7 +10,6 @@
 /** This structure is copied from OSDev Notes, Part 6: Userspace.
    * https://github.com/dreamos82/Osdev-Notes/blob/master/06_Userspace/03_Handling_Interrupts.md
    */
-__attribute__((packed))
 struct tss
 {
     uint32_t reserved0;
@@ -28,7 +27,7 @@ struct tss
     uint64_t reserved2;
     uint16_t reserved3;
     uint16_t io_bitmap_offset;
-};
+} __attribute__((packed));
 
 typedef struct tss tss_t;
 
