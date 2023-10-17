@@ -11,16 +11,17 @@ void initialize_tss(){
     loglinef(Verbose, "(%s) Initializing tss", __FUNCTION__);
 
     // These fields are reserved and must be set to 0
-    kernel_tss.reserved0 = 0x0;
-    kernel_tss.reserved1 = 0x0;
-    kernel_tss.reserved2 = 0x0;
-    kernel_tss.reserved3 = 0x0;
+    kernel_tss.reserved0 = 0x00;
+    kernel_tss.reserved1 = 0x00;
+    kernel_tss.reserved2 = 0x00;
+    kernel_tss.reserved3 = 0x00;
+    kernel_tss.reserved4 = 0x00;
 
     // The rspX are used when there is a privilege change from a lower to a higher privilege
     // Rsp contain the stack for that privilege level.
     // We use only privilege level 0 and 3, so rsp1 and rsp2 can be left as 0
     // Every thread will have it's own rsp0 pointer
-    kernel_tss.rsp0 = stack + 16384; // this will not be 0
+    kernel_tss.rsp0 = 0x0;
     kernel_tss.rsp1 = 0x0;
     kernel_tss.rsp2 = 0x0;
     // istX are the Interrup stack table,  unless some specific cases they can be left as 0
@@ -52,8 +53,8 @@ void load_tss() {
     // LIMIT 16:19 0 DPL: 0 P: 1 G:0
     gdt64[TSS_ENTRY_LOW] = 0x00;
     gdt64[TSS_ENTRY_HIGH] = 0x00;
-    gdt64[TSS_ENTRY_LOW] = ((((uint64_t) &kernel_tss>>24) & 0xFF)<<56)  /*bits 56:63*/ | ((uint64_t) (0 & 0xFF) << 48) /* bits 48:55 */ | ((uint64_t)0x89 << 40) /* bits 40:47*/|  ((((uint64_t) &kernel_tss) & 0xFFFFFF) << 16) /* bits 15:39 */ | (uint64_t) 0xFFFF /* Base */;
-    gdt64[TSS_ENTRY_HIGH] = (((uint64_t) &kernel_tss>>32)& 0xFFFFFFFF);
+    gdt64[TSS_ENTRY_LOW] = ((((uint64_t) &kernel_tss>>24) & 0xFF)<<56)  /*bits 56:63*/ | ((uint64_t) (0 & 0xFF) << 48) /* bits 48:55 */ | ((uint64_t)0x89 << 40) /* bits 40:47*/|  ((((uint64_t) &kernel_tss) & 0xFFFFFF) << 16) /* bits 15:39 */ | (uint64_t) 0x70 /* Base */;
+    gdt64[TSS_ENTRY_HIGH] = (uint64_t) 0 |  (((uint64_t) &kernel_tss>>32)& 0xFFFFFFFF);
     loglinef(Verbose, "(%s) Loading TSS Register", __FUNCTION__);
     loglinef(Verbose, "(%s) kernel_tss address = 0x%x", __FUNCTION__, &kernel_tss);
     loglinef(Verbose, "(%s) gdt64[4] = 0x%x", __FUNCTION__, (uint64_t)gdt64[TSS_ENTRY_LOW]);

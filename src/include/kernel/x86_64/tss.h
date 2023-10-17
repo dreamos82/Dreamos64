@@ -4,13 +4,13 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#define TSS_ENTRY_LOW 4
-#define TSS_ENTRY_HIGH 5
+#define TSS_ENTRY_LOW 5
+#define TSS_ENTRY_HIGH 6
 
 /** This structure is copied from OSDev Notes, Part 6: Userspace.
    * https://github.com/dreamos82/Osdev-Notes/blob/master/06_Userspace/03_Handling_Interrupts.md
    */
-struct tss
+typedef struct tss
 {
     uint32_t reserved0;
     uint64_t rsp0;
@@ -28,9 +28,9 @@ struct tss
     uint64_t reserved3;
     uint16_t reserved4;
     uint16_t io_bitmap_offset;
-} __attribute__((packed));
+}__attribute__((__packed__)) tss_t;
 
-typedef struct tss tss_t;
+//typedef struct tss tss_t;
 
 extern tss_t kernel_tss;
 
