@@ -279,8 +279,7 @@ stack:
     resb 16384
     .top:
 
-section .rodata
-
+section .data
 ; gdt table needs at least 3 entries:
 ;     the first entry is always null
 ;     the other two are data segment and code segment.
