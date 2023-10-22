@@ -2,7 +2,7 @@
 #include <tss.h>
 
 extern uint64_t gdt64[];
-extern uint64_t stack;
+extern uint64_t stack[];
 
 tss_t kernel_tss;
 
@@ -21,7 +21,7 @@ void initialize_tss(){
     // Rsp contain the stack for that privilege level.
     // We use only privilege level 0 and 3, so rsp1 and rsp2 can be left as 0
     // Every thread will have it's own rsp0 pointer
-    kernel_tss.rsp0 = 0x0;
+    kernel_tss.rsp0 = (uint64_t)stack + 16384;
     kernel_tss.rsp1 = 0x0;
     kernel_tss.rsp2 = 0x0;
     // istX are the Interrup stack table,  unless some specific cases they can be left as 0
@@ -53,6 +53,7 @@ void load_tss() {
     uint8_t  flags_1 = 0x89; // 40:47 -> Type 4 bits in our case is 1001, 0,  DPL should be 0 , P = 1
     uint8_t flags_2 = 0; // 48:55 -> Limit (last 4 bits) can be 0, AVL=available to OS we leave it as 0, 53:54 are 0, 55 G (Granularity)
     uint8_t tss_entry_base_3 = (((uint64_t)&kernel_tss >> 24) & 0xFF);     // 55:63 -> Bits 25:31 of the kernel_tss base address
+
     // TSS_ENTRY_HIGH
     uint32_t tss_entry_base_4 = (((uint64_t) &kernel_tss>>32)& 0xFFFFFFFF); // 0:31 -> kernel_tss bits 32:63
     uint32_t reserved_part = 0; // 32:63 -> Reserved / 0
@@ -65,10 +66,7 @@ void load_tss() {
     gdt64[TSS_ENTRY_HIGH] = entry_high;
     loglinef(Verbose, "(%s) Loading TSS Register", __FUNCTION__);
     loglinef(Verbose, "(%s) kernel_tss address = 0x%x", __FUNCTION__, &kernel_tss);
-    loglinef(Verbose, "(%s) gdt64[4]n = 0x%x", __FUNCTION__, entry_low);
-    loglinef(Verbose, "(%s) gdt64[5]n = 0x%x", __FUNCTION__,  entry_high);
     loglinef(Verbose, "(%s) gdt64[4] = 0x%x", __FUNCTION__, (uint64_t)gdt64[TSS_ENTRY_LOW]);
     loglinef(Verbose, "(%s) gdt64[5] = 0x%x", __FUNCTION__,  (uint64_t)gdt64[TSS_ENTRY_HIGH]);
-
     _load_task_register();
 }
