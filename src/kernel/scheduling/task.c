@@ -27,7 +27,6 @@ task_t* create_task(char *name, void (*_entry_point)(void *), void *args) {
     prepare_virtual_memory_environment(new_task);
     vmm_init(VMM_LEVEL_USER, &(new_task->vmm_data));
     scheduler_add_task(new_task);
-    //load_cr3(new_task->vm_root_page_table);
     //re-enable interrupts
     asm("sti");
     return new_task;

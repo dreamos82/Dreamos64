@@ -100,7 +100,6 @@ void *vmm_alloc(size_t size, size_t flags, VmmInfo *vmm_info) {
     }
 
     if (vmm_info->status.vmm_cur_index >= vmm_info->status.vmm_items_per_page) {
-        loglinef(Verbose, "(%s): Max number of pages reached, expansion to be implemented", __FUNCTION__);
         // Step 1: We need to create another VmmContainer
         void *new_container_phys_address = pmm_alloc_frame();
         VmmContainer *new_container = NULL;
@@ -133,6 +132,12 @@ void *vmm_alloc(size_t size, size_t flags, VmmInfo *vmm_info) {
     vmm_info->status.vmm_cur_container->vmm_root[vmm_info->status.vmm_cur_index].size = new_size;
     vmm_info->status.next_available_address += new_size;
 
+    if ( !is_address_higher_half(address_to_return) ) {
+        flags = flags | VMM_FLAGS_USER_LEVEL;
+    }
+
+    loglinef(Verbose, "(%s): Flags PRESENT(%d) - WRITE(%d) - USER(%d)", __FUNCTION__, flags & VMM_FLAGS_PRESENT, flags & VMM_FLAGS_WRITE_ENABLE, flags & VMM_FLAGS_USER_LEVEL);
+
     if  (!is_address_only(flags) ) {
         loglinef(Verbose, "(%s): This means that we want the address to be mapped directly with physical memory.", __FUNCTION__);
 
@@ -142,8 +147,7 @@ void *vmm_alloc(size_t size, size_t flags, VmmInfo *vmm_info) {
 
         for  ( size_t i = 0; i < required_pages; i++ )  {
             void * frame = pmm_alloc_frame();
-            loglinef(Verbose, "(%s): mapping frame: 0x%x into: 0x%x", __FUNCTION__, frame, ((void *)address_to_return + (i * PAGE_SIZE_IN_BYTES)));
-            map_phys_to_virt_addr((void*) frame, (void *)address_to_return + (i * PAGE_SIZE_IN_BYTES), VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE);
+            map_phys_to_virt_addr((void*) frame, (void *)address_to_return + (i * PAGE_SIZE_IN_BYTES), arch_flags | VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE);
         }
     }
 
@@ -376,6 +380,7 @@ void map_vaddress_range(void *virtual_address, size_t flags, size_t required_pag
     }
 }
 
+//TODO implement this function or remove it
 uint8_t check_virt_address_status(uint64_t virtual_address) {
     (void)virtual_address;
     return VIRT_ADDRESS_NOT_PRESENT;
