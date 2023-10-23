@@ -29,10 +29,17 @@ thread_t* create_thread(char* thread_name, void (*_entry_point)(void *), void* a
     new_thread->execution_frame->rsi = (uint64_t) arg;
     new_thread->execution_frame->rflags = 0x202;
     new_thread->execution_frame->ss = 0x10;
-    new_thread->execution_frame->cs = 0x8;
+    new_thread->execution_frame->cs = 0x08;
+
+    // Every thread need it's kernel stack allocated (aka rsp0 field of the TSS)
+    new_thread->rsp0 = kmalloc(THREAD_DEFAULT_STACK_SIZE);
+    if (new_thread->rsp0 == NULL) {
+          loglinef(Fatal, "(create_thread): rsp0 is null - PANIC!");
+          while(1);
+    }
     // We need to allocate a new stack for each thread
     void* stack_pointer = kmalloc(THREAD_DEFAULT_STACK_SIZE);
-    if(stack_pointer == NULL) {
+    if (stack_pointer == NULL) {
         loglinef(Fatal, "(create_thread): rsp is null - PANIC!");
         while(1);
     }
