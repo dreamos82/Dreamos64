@@ -20,12 +20,12 @@ task_t* create_task(char *name, void (*_entry_point)(void *), void *args) {
     new_task->parent = NULL;
     new_task->task_id = next_task_id++;
     loglinef(Verbose, "(create_task) Task created with name: %s - Task id: %d", new_task->task_name, new_task->task_id);
+    prepare_virtual_memory_environment(new_task);
+    vmm_init(VMM_LEVEL_USER, &(new_task->vmm_data));
     if( _entry_point != NULL) {
         thread_t* thread = create_thread(name, _entry_point, args, new_task);
         new_task->threads = thread;
     }
-    prepare_virtual_memory_environment(new_task);
-    vmm_init(VMM_LEVEL_USER, &(new_task->vmm_data));
     scheduler_add_task(new_task);
     //re-enable interrupts
     asm("sti");

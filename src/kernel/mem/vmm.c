@@ -143,7 +143,7 @@ void *vmm_alloc(size_t size, size_t flags, VmmInfo *vmm_info) {
 
         size_t required_pages = get_number_of_pages_from_size(size);
         size_t arch_flags = vm_parse_flags(flags);
-        loglinef(Verbose, "(%s): Testing vm_parse_flags: 0x%x required pages: %d - address to ret: 0x%x", __FUNCTION__, arch_flags, required_pages, address_to_return);
+        loglinef(Verbose, "(%s): Testing vm_parse_flags: 0x%x required pages: %d - address to ret: 0x%x - arch_flags: 0x%x", __FUNCTION__, arch_flags, required_pages, address_to_return, arch_flags);
 
         for  ( size_t i = 0; i < required_pages; i++ )  {
             void * frame = pmm_alloc_frame();
