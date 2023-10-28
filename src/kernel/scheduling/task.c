@@ -6,6 +6,7 @@
 #include <vm.h>
 #include <kernel.h>
 #include <vmm.h>
+#include <vmm_mapping.h>
 #include <pmm.h>
 
 extern uint64_t p4_table[];
@@ -43,12 +44,14 @@ void prepare_virtual_memory_environment(task_t* task) {
     // Tecnically the vmm_allos is not needed, since i have the direct memory map already accessible, so i just need to access it through the direct map.
 
     void* vm_root_vaddress = vmm_alloc(PAGE_SIZE_IN_BYTES, VMM_FLAGS_ADDRESS_ONLY, NULL);
-    map_phys_to_virt_addr(task->vm_root_page_table, vm_root_vaddress, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE);
+    map_phys_to_virt_addr(task->vm_root_page_table, vm_root_vaddress, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE, NULL);
 
     // 2. We will map the whole higher half of the kernel, this means from pml4 item 256 to 511
     //    ((uint64_t *)task->vm_root_page_table)[0] = p4_table[0];
-    for(int i = 255; i < VM_PAGES_PER_TABLE; i++) {
-        if ( i == 510 ) {
+    for(int i = 0; i < VM_PAGES_PER_TABLE; i++) {
+        if (i <=255) {
+            ((uint64_t *)vm_root_vaddress)[i] = 0x00;
+        } else if ( i == 510 ) {
             ((uint64_t *)vm_root_vaddress)[i] = (uint64_t) (task->vm_root_page_table) | VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE;
             loglinef(Verbose, "(%s): Mapping recursive entry: 0x%x", __FUNCTION__, ((uint64_t *)vm_root_vaddress)[i]);
         } else {

@@ -10,8 +10,9 @@
 #include <cpuid.h>
 #include <io.h>
 #include <vmm.h>
-#include <kernel.h>
+#include <vmm_mapping.h>
 #include <vm.h>
+#include <kernel.h>
 #include <logging.h>
 
 //cpuid is non-standard header, but is supported by both gcc/clang.
@@ -38,7 +39,7 @@ void init_apic() {
     uint32_t x2ApicLeaf = 0;
     __get_cpuid(1, &ignored, &ignored, &x2ApicLeaf, &xApicLeaf);
     (void)ignored;
-    
+
     if (x2ApicLeaf & (1 << 21)) {
         logline(Info, "(init_apic): X2APIC available!");
         apicInX2Mode = true;
@@ -54,7 +55,7 @@ void init_apic() {
         kernel_settings.use_x2_apic = false;
 
         //registers are accessed via mmio, make sure they're identity mapped
-        map_phys_to_virt_addr(VPTR(apic_base_address), VPTR(apic_hh_base_address), VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE);
+        map_phys_to_virt_addr(VPTR(apic_base_address), VPTR(apic_hh_base_address), VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE, NULL);
     }
     else {
         kernel_settings.use_x2_apic = false;
@@ -65,15 +66,15 @@ void init_apic() {
 
     uint32_t spurious_interrupt_register = read_apic_register(APIC_SPURIOUS_VECTOR_REGISTER_OFFSET);
     loglinef(Verbose, "(init_apic): Apic enabled: %x - Apic BSP bit: %x", 1&(msr_output >> APIC_GLOBAL_ENABLE_BIT), 1&(msr_output >> APIC_BSP_BIT));
-    
+
     if(!(1&(msr_output >> APIC_GLOBAL_ENABLE_BIT))) {
         logline(Info, "(init_apic): Apic disabled globally");
         return;
     }
-    
+
     //Enabling apic
     write_apic_register(APIC_SPURIOUS_VECTOR_REGISTER_OFFSET, APIC_SOFTWARE_ENABLE | APIC_SPURIOUS_INTERRUPT);
-    
+
     if(apic_base_address < memory_size_in_bytes) {
         //I think that ideally it should be relocated above the physical memory (that should be possible)
         //but for now i'll mark that location as used
@@ -94,7 +95,7 @@ void disable_pic() {
     //ICW_2 tells the PIC where the IRQ should be placed in the IDT (but we are not going to use them
     outportb(PIC_DATA_MASTER, ICW_2_M);
     outportb(PIC_DATA_SLAVE, ICW_2_S);
-    //ICW_3 Indicates if there is a slave connected (when is the master pic) or the slave id 
+    //ICW_3 Indicates if there is a slave connected (when is the master pic) or the slave id
     outportb(PIC_DATA_MASTER, ICW_3_M);
     outportb(PIC_DATA_SLAVE, ICW_3_S);
     //Set the modes of operation (we are just oging to set the 8086 mode bit.
@@ -126,6 +127,6 @@ uint32_t lapic_id()
 }
 
 bool lapic_is_x2()
-{ 
-    return apicInX2Mode; 
+{
+    return apicInX2Mode;
 }

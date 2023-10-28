@@ -33,7 +33,7 @@ int main(){
     printf("\t [test_kheap] (Init)  Initialized heap of size: %d\n", kernel_heap_start->size);
     printf("\t [test_kheap] (Init) Address of kheap: 0x%X\n", kernel_heap_start);
     kernel_heap_end = kernel_heap_start;
-    end_of_mapped_memory = kernel_heap_end + 0x15000;
+    end_of_mapped_memory = (uint64_t) kernel_heap_end + 0x15000;
     printf("\t [test_kheap] (Init) Initializing sizeof heap structure: ... %d\n", sizeof(KHeapMemoryNode));
     printf("\t [test_kheap] (Init) Address of kheap: 0x%X\n", kernel_heap_end);
     printf("\t [test_kheap] (Init) Kheap size: %d\n", get_kheap_size(kernel_heap_start));
@@ -46,7 +46,7 @@ int main(){
 
 void test_kmalloc(){
     void *initial_end = (void *) kernel_heap_end;
-    printf("Testing kmalloc\n"); 
+    printf("Testing kmalloc\n");
     printf("\t [test_kheap] (kmalloc) Testing kmalloc with size 0\n");
     char *test_ptr = (char *) kmalloc(0);
     printf("\t [test_kheap] (kmalloc) kmalloc(0)  should return NULL\n");

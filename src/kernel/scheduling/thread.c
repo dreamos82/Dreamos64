@@ -44,7 +44,7 @@ thread_t* create_thread(char* thread_name, void (*_entry_point)(void *), void* a
     }
     // We need to allocate a new stack for each thread
     void* stack_pointer = kmalloc(THREAD_DEFAULT_STACK_SIZE);
-    //void* stack_pointer = vmm_alloc(THREAD_DEFAULT_STACK_SIZE, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE | VMM_FLAGS_USER_LEVEL, &(parent_task->vmm_data));
+    //void* stack_pointer = vmm_alloc(THREAD_DEFAULT_STACK_SIZE, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE, &(parent_task->vmm_data));
     if (stack_pointer == NULL) {
         loglinef(Fatal, "(create_thread): rsp is null - PANIC!");
         while(1);

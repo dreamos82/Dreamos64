@@ -9,6 +9,7 @@
 #include <main.h>
 #include <vm.h>
 #include <vmm.h>
+#include <vmm_mapping.h>
 #include <kernel.h>
 #endif
 
@@ -31,7 +32,7 @@ uint64_t memory_map_phys_addr;
 
 
 void _initialize_bitmap ( unsigned long end_of_reserved_area ) {
-    uint64_t memory_size = (tagmem->mem_upper + 1024) * 1024;    
+    uint64_t memory_size = (tagmem->mem_upper + 1024) * 1024;
     bitmap_size = memory_size / PAGE_SIZE_IN_BYTES + 1;
     used_frames = 0;
     number_of_entries = bitmap_size / 64 + 1;
@@ -45,7 +46,7 @@ void _initialize_bitmap ( unsigned long end_of_reserved_area ) {
     if(memory_map_phys_addr > end_of_mapped_physical_memory) {
         loglinef(Verbose, "(%s): The address 0x%x is above the initally mapped memory: 0x%x", __FUNCTION__, memory_map_phys_addr, end_of_mapped_physical_memory);
         //TODO: This need to be fixed map_phys_to_virt_addr can't be used here since it relies on the bitmap, and it is not initialized yet.
-        map_phys_to_virt_addr((void*)ALIGN_PHYSADDRESS(memory_map_phys_addr), (void*)(memory_map_phys_addr + _HIGHER_HALF_KERNEL_MEM_START), VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE);
+        map_phys_to_virt_addr((void*)ALIGN_PHYSADDRESS(memory_map_phys_addr), (void*)(memory_map_phys_addr + _HIGHER_HALF_KERNEL_MEM_START), VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE, NULL);
     } else {
         loglinef(Verbose, "(%s): The address 0x%x is not above the initially mapped memory: 0x%x", __FUNCTION__, memory_map_phys_addr, end_of_mapped_physical_memory);
     }
@@ -55,7 +56,7 @@ void _initialize_bitmap ( unsigned long end_of_reserved_area ) {
     for (uint32_t i=0; i<number_of_entries; i++){
         memory_map[i] = 0x0;
     }
-    
+
     uint32_t kernel_entries = _compute_kernel_entries(end_of_reserved_area);
     uint32_t number_of_bitmap_rows = kernel_entries/64;
     uint32_t j=0;
@@ -65,16 +66,16 @@ void _initialize_bitmap ( unsigned long end_of_reserved_area ) {
     memory_map[j] = ~(~(0ul) << (kernel_entries - (number_of_bitmap_rows*64)));
     used_frames = kernel_entries;
     loglinef(Info, "(_initialize_bitmap): Page size used by the kernel: %d", PAGE_SIZE_IN_BYTES);
-    loglinef(Verbose, "(_initialize_bitmap): Physical size in bytes: %d", memory_size_in_bytes);    
-    loglinef(Verbose, "(_initialize_bitmap): Number of bit entries: %d - %d", bitmap_size, number_of_entries); 
+    loglinef(Verbose, "(_initialize_bitmap): Physical size in bytes: %d", memory_size_in_bytes);
+    loglinef(Verbose, "(_initialize_bitmap): Number of bit entries: %d - %d", bitmap_size, number_of_entries);
 }
 
 void _bitmap_get_region(uint64_t* base_address, size_t* length_in_bytes, address_type_t type)
 {
     if (type == ADDRESS_TYPE_PHYSICAL) {
-        *base_address = (uint64_t)memory_map_phys_addr;      
+        *base_address = (uint64_t)memory_map_phys_addr;
     } else if (type == ADDRESS_TYPE_VIRTUAL) {
-        *base_address = (uint64_t)memory_map;    
+        *base_address = (uint64_t)memory_map;
     }
     *length_in_bytes = bitmap_size / 8 + 1;
 }
@@ -85,9 +86,9 @@ uint32_t _compute_kernel_entries(uint64_t end_of_kernel_area){
     uint32_t kernel_mod_entries = ((uint32_t)(end_of_kernel_area)) % PAGE_SIZE_IN_BYTES;
     if (  kernel_mod_entries != 0){
         return kernel_entries + 2;
-    } 
+    }
     return kernel_entries + 1;
-   
+
 }
 #endif
 
@@ -102,8 +103,8 @@ int64_t _bitmap_request_frame(){
         if(memory_map[row] != BITMAP_ENTRY_FULL){
             //loglinef(Verbose, "(_bitmap_request_frame): here");
             for (column = 0; column < BITMAP_ROW_BITS; column++){
-                uint64_t bit = 1 << column;                
-                if((memory_map[row] & bit) == 0){                    
+                uint64_t bit = 1 << column;
+                if((memory_map[row] & bit) == 0){
                     return row * BITMAP_ROW_BITS + column;
                 }
             }

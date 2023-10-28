@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stddef.h>
 #include <vmm.h>
+#include <vmm_mapping.h>
 #include <vm.h>
 #include <logging.h>
 
@@ -20,16 +21,16 @@ void init_ioapic(MADT *madt_table){
         loglinef(Verbose, "(init_ioapic): IOAPIC Item address: 0x%x - length: 0x%x", item, item->length);
         IO_APIC_Item *ioapic_item = (IO_APIC_Item *) ( ensure_address_in_higher_half((uint64_t) item + sizeof(MADT_Item)));
         if (is_phyisical_address_mapped(ALIGN_PHYSADDRESS((uint64_t) item), ensure_address_in_higher_half((uint64_t) item)) == PHYS_ADDRESS_NOT_MAPPED) {
-            map_phys_to_virt_addr((void *) ALIGN_PHYSADDRESS((uint64_t) item), (void *)ensure_address_in_higher_half((uint64_t) item),VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE);
+            map_phys_to_virt_addr((void *) ALIGN_PHYSADDRESS((uint64_t) item), (void *)ensure_address_in_higher_half((uint64_t) item),VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE, NULL);
         }
-        loglinef(Verbose, "(init_ioapic): IOAPIC_ID: 0x%x, Address: 0x%x", ioapic_item->ioapic_id, ioapic_item->address ); 
+        loglinef(Verbose, "(init_ioapic): IOAPIC_ID: 0x%x, Address: 0x%x", ioapic_item->ioapic_id, ioapic_item->address );
         loglinef(Verbose, "(init_ioapic): IOApic_Global_System_Interrupt_Base: 0x%x", ioapic_item->global_system_interrupt_base);
         loglinef(Verbose, "(init_ioapic): IOApic Higher Half Address: 0x%x", ensure_address_in_higher_half(ioapic_item->address));
         io_apic_base_address = ioapic_item->address;
         io_apic_hh_base_address = ensure_address_in_higher_half(ioapic_item->address);
-        // This one should be mapped in the higher half ?? 
+        // This one should be mapped in the higher half ??
         //map_phys_to_virt_addr(VPTR(io_apic_base_address), VPTR(io_apic_base_address), 0);
-        map_phys_to_virt_addr(VPTR(io_apic_base_address), (void *) io_apic_hh_base_address, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE);
+        map_phys_to_virt_addr(VPTR(io_apic_base_address), (void *) io_apic_hh_base_address, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE, NULL);
         _bitmap_set_bit(ADDRESS_TO_BITMAP_ENTRY(io_apic_base_address));
         uint32_t ioapic_version = read_io_apic_register(IO_APIC_VER_OFFSET);
         loglinef(Info, "(init_ioapic): IOAPIC Version: 0x%x", ioapic_version);
@@ -122,7 +123,7 @@ void set_irq(uint8_t irq_type, uint8_t redirect_table_pos, uint8_t idt_entry, ui
     // 1. Check if irq_type is in the Source overrides
     uint8_t counter = 0;
     uint8_t selected_pin = irq_type;
-    io_apic_redirect_entry_t entry; 
+    io_apic_redirect_entry_t entry;
     entry.raw = flags | (idt_entry & 0xFF);
     while(counter < io_apic_source_override_array_size) {
         // 2. If yes we need to use the gsi in the source override entry
@@ -148,7 +149,7 @@ void set_irq(uint8_t irq_type, uint8_t redirect_table_pos, uint8_t idt_entry, ui
     entry.interrupt_mask = masked;
     loglinef(Info, "(set_irq): Setting IRQ number: %x, to idt_entry: %x at REDTBL pos: %x - Final value: %x", irq_type, idt_entry, redirect_table_pos, entry.raw);
     write_io_apic_redirect(redirect_table_pos, entry);
-    io_apic_redirect_entry_t read_entry; 
+    io_apic_redirect_entry_t read_entry;
     int ret_val = read_io_apic_redirect(IOREDTBL1, &read_entry);
     loglinef(Verbose, "(set_irq): ret_val: %d - entry raw: %x mask: %d", ret_val, read_entry.vector, read_entry.interrupt_mask);
 }

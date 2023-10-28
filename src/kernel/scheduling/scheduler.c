@@ -101,6 +101,7 @@ cpu_status_t* schedule(cpu_status_t* cur_status) {
     // ... and finally we need to update the tss structure with the current thread rsp0
     kernel_tss.rsp0 = (uint64_t) current_executing_thread->rsp0;
     //loglinef(Verbose, "(schedule) leaving schedule...");
+    loglinef(Verbose, "(schedule) next task to run: %d->(%s)", current_executing_thread->tid, current_executing_thread->thread_name);
     return current_executing_thread->execution_frame;
 }
 

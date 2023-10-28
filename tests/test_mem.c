@@ -35,7 +35,7 @@ int main() {
 void test_pmm_initialize(){
     uint32_t bitmap_entries = _compute_kernel_entries(_kernel_end);
     memory_size_in_bytes = 20 * sizeof(uint64_t);
-    memory_map = (uint64_t *) malloc(20 * sizeof(uint64_t)); 
+    memory_map = (uint64_t *) malloc(20 * sizeof(uint64_t));
     tagmem = (struct multiboot_tag_basic_meminfo *) malloc(sizeof(struct multiboot_tag_basic_meminfo));
     tagmem->mem_lower = 0x27F;
     tagmem->mem_upper = 0xFFB80;
@@ -68,7 +68,7 @@ void test_pmm_initialize(){
     mmap_root->entries[4].type = 2;
     mmap_root->entries[5].addr = 0xFFFC0000;
     mmap_root->entries[5].len = 0x40000;
-    mmap_root->entries[5].type = 2; 
+    mmap_root->entries[5].type = 2;
     mmap_root->size = 0xA0;
     mmap_root->entry_size = 0x18;
     mmap_root->entry_version = 0;
@@ -97,7 +97,7 @@ void test_pmm(){
     bool available_pages = pmm_check_frame_availability();
     assert(available_pages == true);
     printf("\t [test_mem] (bitmap): Checking pmm_alloc_frame()\n");
-    uint64_t  frame = pmm_alloc_frame();
+    uint64_t  frame = (uint64_t) pmm_alloc_frame();
     printf("\t [test_mem] (bitmap): used_frames: %x\n", used_frames);
     assert(used_frames == 0x3);
     printf("\t [test_mem] (bitmap): Checking that returned address is: 0x%x\n", frame);
@@ -113,7 +113,7 @@ void test_pmm(){
     _bitmap_free_bit(67);
     assert(memory_map[1] == 0x40);
     printf("\t [test_mem] (bitmap): Trying allocating another frame\n");
-    frame = pmm_alloc_frame();
+    frame = (uint64_t)pmm_alloc_frame();
     printf("\t [test_mem] (bitmap): Checking that returned address is: 0x%x\n", frame);
     assert(frame == (void*)0x600000);
     assert(used_frames == 0x4);
@@ -134,7 +134,7 @@ void test_pmm(){
     assert(used_frames == 0x3);
     printf("\t [test_mem] (bitmap): Trying to free another frame: 0x%x\n", frame);
     printf("\t [test_mem] (bitmap): before freeing memorymap[0]: %X\n", memory_map[0]);
-    pmm_free_frame(frame);
+    pmm_free_frame((uint64_t *) frame);
     assert(used_frames == 0x2);
     assert(memory_map[0] == 3);
     printf("\t [test_mem] (bitmap): used_frames == 0x2 %d\n", used_frames == 0x2);
@@ -175,11 +175,11 @@ void test_mmap(){
     bitmap_entry = ADDRESS_TO_BITMAP_ENTRY((mmap_entries[3].addr + 0x1300000));
     assert(_bitmap_test_bit(bitmap_entry) == false);
     printf("\t [test_mem]  (mmap): Try to free a reserved area, should not happen\n");
-    pmm_free_area(mmap_entries[1].addr, mmap_entries[1].len);    
+    pmm_free_area(mmap_entries[1].addr, mmap_entries[1].len);
     bitmap_entry = ADDRESS_TO_BITMAP_ENTRY(mmap_entries[1].addr);
     assert(_bitmap_test_bit(bitmap_entry) == true);
     printf("\t [test_mem]  (mmap): Try to free another reserved area, should not happen\n");
-    pmm_free_area(mmap_entries[2].addr, mmap_entries[2].len);    
+    pmm_free_area(mmap_entries[2].addr, mmap_entries[2].len);
     bitmap_entry = ADDRESS_TO_BITMAP_ENTRY(mmap_entries[2].addr);
     assert(_bitmap_test_bit(bitmap_entry) == true);
     printf("Finished\n");
