@@ -91,7 +91,7 @@ void *map_vaddress(void *virtual_address, size_t flags, uint64_t *pml4_root){
     return map_phys_to_virt_addr(new_addr, virtual_address, flags, pml4_root);
 }
 
-void map_vaddress_range(void *virtual_address, size_t flags, size_t required_pages) {
+void map_vaddress_range(void *virtual_address, size_t flags, size_t required_pages, uint64_t *pml4_root) {
     for(size_t i = 0; i < required_pages; i++) {
         map_vaddress(virtual_address + (i * PAGE_SIZE_IN_BYTES), flags, NULL);
     }

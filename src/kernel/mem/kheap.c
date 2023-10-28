@@ -105,7 +105,7 @@ void expand_heap(size_t required_size) {
         //if the new heap address is above that, we need to map a new one, otherwise we can just mark it as used.
         //That part temporary, it needs to be reviewed when the memory mapping will be reviewed.
         // This function no longer need to use end_of_mapped_memory, since now the heap reside somewhere else.
-        map_vaddress_range((uint64_t *) heap_end, VMM_FLAGS_WRITE_ENABLE | VMM_FLAGS_PRESENT, number_of_pages);
+        map_vaddress_range((uint64_t *) heap_end, VMM_FLAGS_WRITE_ENABLE | VMM_FLAGS_PRESENT, number_of_pages, NULL);
     }
     // We need to update the tail first
     // It starts at the end of the current heap
