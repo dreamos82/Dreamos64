@@ -2,6 +2,7 @@
 #include <pmm.h>
 #include <vm.h>
 #include <vmm.h>
+
 /**
  * This function map a phyisical address into a virtual one. Both of them needs to already defined.
  *
@@ -18,6 +19,7 @@ void *map_phys_to_virt_addr(void* physical_address, void* address, size_t flags,
     }
     uint16_t pml4_e = PML4_ENTRY((uint64_t) address);
     uint64_t *pml4_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l,510l,510l,510l));
+
 
     uint16_t pdpr_e = PDPR_ENTRY((uint64_t) address);
     uint64_t *pdpr_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l,510l,510l, (uint64_t) pml4_e));
@@ -83,15 +85,15 @@ void *map_phys_to_virt_addr(void* physical_address, void* address, size_t flags,
     return address;
 }
 
-void *map_vaddress(void *virtual_address, size_t flags){
+void *map_vaddress(void *virtual_address, size_t flags, uint64_t *pml4_root){
     loglinef(Verbose, "(map_vaddress) address: 0x%x", virtual_address);
     void *new_addr = pmm_alloc_frame();
-    return map_phys_to_virt_addr(new_addr, virtual_address, flags, NULL);
+    return map_phys_to_virt_addr(new_addr, virtual_address, flags, pml4_root);
 }
 
 void map_vaddress_range(void *virtual_address, size_t flags, size_t required_pages) {
     for(size_t i = 0; i < required_pages; i++) {
-        map_vaddress(virtual_address + (i * PAGE_SIZE_IN_BYTES), flags);
+        map_vaddress(virtual_address + (i * PAGE_SIZE_IN_BYTES), flags, NULL);
     }
 }
 
