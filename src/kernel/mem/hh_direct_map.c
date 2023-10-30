@@ -9,7 +9,7 @@
  *
  *
  * @param phys_address the physical address we want to retrieve
- * @return hhdm virtual address of the physical address
+ * @return hhdm virtual address of the physical address or NULL in case of error
  */
 void *hhdm_get_variable ( size_t phys_address ) {
     if ( phys_address < memory_size_in_bytes) {

@@ -21,6 +21,7 @@ void *map_phys_to_virt_addr(void* physical_address, void* address, size_t flags,
     if (pml4_root != NULL) {
         loglinef(Verbose, "(%s): Work in progress...", __FUNCTION__, pml4_root[510]);
     }
+
     uint64_t *pml4_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l,510l,510l,510l));
     uint64_t *pdpr_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l,510l,510l, (uint64_t) pml4_e));
     uint64_t *pd_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l,510l, (uint64_t) pml4_e, (uint64_t) pdpr_e));
