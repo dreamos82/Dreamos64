@@ -14,18 +14,17 @@
  * @return address the virtual address specified in input, or NULL in case of error.
  */
 void *map_phys_to_virt_addr(void* physical_address, void* address, size_t flags, uint64_t *pml4_root){
-    if (pml4_root == NULL) {
-        //loglinef(Verbose, "(%s): Work in progress...", __FUNCTION__);
-    }
     uint16_t pml4_e = PML4_ENTRY((uint64_t) address);
-    uint64_t *pml4_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l,510l,510l,510l));
-
-
     uint16_t pdpr_e = PDPR_ENTRY((uint64_t) address);
-    uint64_t *pdpr_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l,510l,510l, (uint64_t) pml4_e));
-
-    uint64_t *pd_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l,510l, (uint64_t) pml4_e, (uint64_t) pdpr_e));
     uint16_t pd_e = PD_ENTRY((uint64_t) address);
+
+    if (pml4_root != NULL) {
+        loglinef(Verbose, "(%s): Work in progress...", __FUNCTION__, pml4_root[510]);
+    }
+    uint64_t *pml4_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l,510l,510l,510l));
+    uint64_t *pdpr_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l,510l,510l, (uint64_t) pml4_e));
+    uint64_t *pd_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l,510l, (uint64_t) pml4_e, (uint64_t) pdpr_e));
+
 //    loglinef(Verbose, "(map_phys_to_virt_addr) Pml4: %u - pdpr: %u - pd: %u - flags: 0x%x to address: 0x%x", pml4_e, pdpr_e, pd_e, flags, address);
     uint8_t user_mode_status = 0;
 

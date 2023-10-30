@@ -28,9 +28,6 @@ uint64_t end_of_vmm_data;
 VmmInfo vmm_kernel;
 uintptr_t higherHalfDirectMapBase;
 
-//uint64_t memory_size_in_bytes;
-extern uint64_t end_of_mapped_memory;
-
 /**
  * When initialized the VM Manager should reserve a portion of the virtual memory space for itself.
  */
@@ -187,27 +184,7 @@ void vmm_free(void *address) {
     return;
 }
 
-void vmm_direct_map_physical_memory() {
-    // This function needs to map the entire phyisical memory inside the virtual memory enironment.
-    // The starting address is _HIGHER_HALF_KERNEL_MEM_START
-    loglinef(Verbose, "(direct_map_physical_memory) End of memory_mapping phys: 0x%x, memory_size: 0x%x", end_of_mapped_memory - _HIGHER_HALF_KERNEL_MEM_START, memory_size_in_bytes);
-    uint64_t end_of_mapped_physical_memory = end_of_mapped_memory - _HIGHER_HALF_KERNEL_MEM_START;
-    if (is_phyisical_address_mapped(end_of_mapped_physical_memory, end_of_mapped_physical_memory)) {
-        end_of_mapped_memory = end_of_mapped_memory + PAGE_SIZE_IN_BYTES;
-        end_of_mapped_physical_memory = end_of_mapped_physical_memory + PAGE_SIZE_IN_BYTES;
-    }
 
-    uint64_t address_to_map = 0;
-    uint64_t virtual_address = higherHalfDirectMapBase;
-
-    while ( address_to_map < memory_size_in_bytes) {
-        map_phys_to_virt_addr((void*)address_to_map, (void*)virtual_address, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE, NULL);
-        address_to_map += PAGE_SIZE_IN_BYTES;
-        virtual_address += PAGE_SIZE_IN_BYTES;
-        //loglinef(Verbose, "(direct_map_physical_memory) Mapping physical address: 0x%x - To virtual: 0x%x", address_to_map, virtual_address);
-    }
-    loglinef(Verbose, "(direct_map_physical_memory) Physical memory mapped end: 0x%x - Virtual memory direct end: 0x%x", end_of_mapped_physical_memory, end_of_mapped_memory);
-}
 
 uint8_t is_phyisical_address_mapped(uintptr_t physical_address, uintptr_t virtual_address) {
     uint16_t pml4_e = PML4_ENTRY((uint64_t) virtual_address);
@@ -259,10 +236,5 @@ uint8_t check_virt_address_status(uint64_t virtual_address) {
     return VIRT_ADDRESS_NOT_PRESENT;
 }
 
-void *vmm_get_variable_from_direct_map ( size_t phys_address ) {
-    if ( phys_address < memory_size_in_bytes) {
-        return (void*)(phys_address + higherHalfDirectMapBase);
-    }
-    loglinef(Verbose, "(%s): Not in physical memory", __FUNCTION__);
-    return NULL;
-}
+
+

@@ -1,3 +1,4 @@
+#include <hh_direct_map.h>
 #include <task.h>
 #include <scheduler.h>
 #include <kheap.h>
@@ -38,13 +39,14 @@ void prepare_virtual_memory_environment(task_t* task) {
     // 1. Prepare resources: allocatin an array of VM_PAGES_PER_TABLE
     // Make sure this address is physical, then it needs to be mapped to a virtual one.a
     task->vm_root_page_table = pmm_alloc_frame();
-    loglinef(Verbose, "(prepare_virtual_memory_environment) vm_root_page_table address: %x", task->vm_root_page_table);
+    loglinef(Verbose, "(%s) vm_root_page_table address: %x", __FUNCTION__, task->vm_root_page_table);
     //identity_map_phys_address(task->vm_root_page_table, 0);
     // I will get the page frame first, then get virtual address to map it to with vmm_alloc, and then do the mapping on the virtual address.
     // Tecnically the vmm_allos is not needed, since i have the direct memory map already accessible, so i just need to access it through the direct map.
 
-    void* vm_root_vaddress = vmm_alloc(PAGE_SIZE_IN_BYTES, VMM_FLAGS_ADDRESS_ONLY, NULL);
-    map_phys_to_virt_addr(task->vm_root_page_table, vm_root_vaddress, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE, NULL);
+    //void* vm_root_vaddress = vmm_alloc(PAGE_SIZE_IN_BYTES, VMM_FLAGS_ADDRESS_ONLY, NULL);
+    void* vm_root_vaddress = hhdm_get_variable ((size_t) task->vm_root_page_table);
+    //map_phys_to_virt_addr(task->vm_root_page_table, vm_root_vaddress, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE, NULL);
 
     // 2. We will map the whole higher half of the kernel, this means from pml4 item 256 to 511
     //    ((uint64_t *)task->vm_root_page_table)[0] = p4_table[0];

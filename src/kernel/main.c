@@ -16,6 +16,7 @@
 #include <acpi.h>
 #include <string.h>
 #include <bitmap.h>
+#include <hh_direct_map.h>
 #include <pmm.h>
 #include <mmap.h>
 #include <vmm.h>
@@ -156,7 +157,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
     init_apic();
     _mmap_setup();
     vmm_init(VMM_LEVEL_SUPERVISOR, NULL);
-    vmm_direct_map_physical_memory();
+    hhdm_map_physical_memory();
     initialize_kheap();
     kernel_settings.kernel_uptime = 0;
     kernel_settings.paging.page_root_address = p4_table;
@@ -205,7 +206,8 @@ void kernel_start(unsigned long addr, unsigned long magic){
     start_apic_timer(kernel_settings.apic_timer.timer_ticks_base, APIC_TIMER_SET_PERIODIC, kernel_settings.apic_timer.timer_divisor);
     loglinef(Verbose, "(kernel_main) (END of Mapped memory: 0x%x)", end_of_mapped_memory);
     loglinef(Verbose, "(kernel_main) init_basic_system: Memory lower (in kb): %d - upper (in kb): %d", tagmem->mem_lower, tagmem->mem_upper);
-    struct multiboot_tag_basic_meminfo *virt_phys_addr = (struct multiboot_tag_basic_meminfo *) vmm_get_variable_from_direct_map ( (size_t) multiboot_basic_meminfo );
+    // Testing that the hhdm is actually working
+    struct multiboot_tag_basic_meminfo *virt_phys_addr = (struct multiboot_tag_basic_meminfo *) hhdm_get_variable( (size_t) multiboot_basic_meminfo );
     loglinef(Verbose, "(kernel_main) init_basic_system: Memory lower (in kb): %d - upper (in kb): %d", virt_phys_addr->mem_lower, virt_phys_addr->mem_upper);
     logline(Info, "(kernel_main) Init end!! Starting infinite loop");
     while(1);

@@ -55,6 +55,8 @@ typedef struct VmmInfo {
 
     size_t start_of_vmm_space; /**< The starting addres ofthe vmm space */
 
+    uintptr_t pml4_root;
+
     struct VmmStatus {
         size_t vmm_items_per_page; /**< Number of page items contained in one page */
         size_t vmm_cur_index; /**< Current position inside the array */
@@ -68,6 +70,8 @@ typedef struct VmmInfo {
     } status;
 } VmmInfo;
 
+//uint64_t memory_size_in_bytes;
+extern uint64_t end_of_mapped_memory;
 extern uint64_t end_of_vmm_space;
 extern VmmInfo vmm_info;
 extern uintptr_t higherHalfDirectMapBase; /**< The start of the physical memory direct mapping */
