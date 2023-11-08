@@ -33,8 +33,15 @@ uintptr_t higherHalfDirectMapBase;
  */
 void vmm_init(vmm_level_t vmm_level, VmmInfo *vmm_info) {
 
+    uint64_t *root_table_hh;
+
     if (vmm_info == NULL) {
+        loglinef(Verbose, "(%s): kernel vmm initialization", __FUNCTION__);
         vmm_info = &vmm_kernel;
+        root_table_hh = kernel_settings.paging.hhdm_page_root_address;
+    } else {
+        loglinef(Verbose, "(%s): task vmm initialization: root_table_hhdm: 0x%x", __FUNCTION__, vmm_info->root_table_hhdm);
+        root_table_hh = (uint64_t *) vmm_info->root_table_hhdm;
     }
     //higherHalfDirectMapBase is where we will the Direct Mapping of physical memory will start.
     higherHalfDirectMapBase = ((uint64_t) HIGHER_HALF_ADDRESS_OFFSET + VM_KERNEL_MEMORY_PADDING);
@@ -50,14 +57,11 @@ void vmm_init(vmm_level_t vmm_level, VmmInfo *vmm_info) {
     if (vmm_level == VMM_LEVEL_SUPERVISOR) {
         loglinef(Verbose, "(%s): Supervisor level initialization", __FUNCTION__);
         vmm_info->vmmSpaceStart = vmm_info->vmmDataStart + VMM_RESERVED_SPACE_SIZE + VM_KERNEL_MEMORY_PADDING;
-        //start_of_vmm_space = (size_t) vmm_container_root + VMM_RESERVED_SPACE_SIZE + VM_KERNEL_MEMORY_PADDING;
         vmm_info->start_of_vmm_space = (size_t) vmm_info->status.vmm_container_root + VMM_RESERVED_SPACE_SIZE + VM_KERNEL_MEMORY_PADDING;
     } else if (vmm_level == VMM_LEVEL_USER) {
         loglinef(Verbose, "(%s): User level initialization", __FUNCTION__);
         vmm_info->vmmSpaceStart = 0x0l + VM_KERNEL_MEMORY_PADDING;
-        //start_of_vmm_space = 0x0l + VM_KERNEL_MEMORY_PADDING;
         vmm_info->start_of_vmm_space = 0x0l + VM_KERNEL_MEMORY_PADDING;
-        //loglinef(Fatal, "(%s): Not implemented yet", __FUNCTION__);
     } else {
         loglinef(Fatal, "(%s): Error: unsupported vmm privilege level", __FUNCTION__);
     }
@@ -65,6 +69,7 @@ void vmm_init(vmm_level_t vmm_level, VmmInfo *vmm_info) {
     vmm_info->status.next_available_address = vmm_info->start_of_vmm_space;
     vmm_info->status.vmm_items_per_page = (PAGE_SIZE_IN_BYTES / sizeof(VmmItem)) - 1;
     vmm_info->status.vmm_cur_index = 0;
+
     loglinef(Verbose, "(%s): vmm_container_root starts at: 0x%x - %d", __FUNCTION__, vmm_info->status.vmm_container_root, is_address_aligned(vmm_info->vmmDataStart, PAGE_SIZE_IN_BYTES));
     loglinef(Verbose, "(%s): vmmDataStart  starts at: 0x%x - %x (end_of_vmm_data)", __FUNCTION__, vmm_info->vmmDataStart, vmm_info->status.end_of_vmm_data);
     loglinef(Verbose, "(%s): higherHalfDirectMapBase: %x, is_aligned: %d", __FUNCTION__, (uint64_t) higherHalfDirectMapBase, is_address_aligned(higherHalfDirectMapBase, PAGE_SIZE_IN_BYTES));
@@ -79,7 +84,7 @@ void vmm_init(vmm_level_t vmm_level, VmmInfo *vmm_info) {
     }
 
     // Mapping the phyiscal address for the vmm structures
-    map_phys_to_virt_addr(vmm_root_phys, vmm_info->status.vmm_container_root, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE, NULL);
+    map_phys_to_virt_addr(vmm_root_phys, vmm_info->status.vmm_container_root, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE, root_table_hh);
 
     vmm_info->status.vmm_container_root->next = NULL;
     vmm_info->status.vmm_cur_container = vmm_info->status.vmm_container_root;
@@ -142,9 +147,13 @@ void *vmm_alloc(size_t size, size_t flags, VmmInfo *vmm_info) {
         size_t required_pages = get_number_of_pages_from_size(size);
         size_t arch_flags = vm_parse_flags(flags);
         loglinef(Verbose, "(%s): Testing vm_parse_flags: 0x%x required pages: %d - address to ret: 0x%x - arch_flags: 0x%x", __FUNCTION__, arch_flags, required_pages, address_to_return, arch_flags);
-
+        loglinef(Verbose, "(%s): address: 0x%x", __FUNCTION__, vmm_info->root_table_hhdm);
+        if (vmm_info->root_table_hhdm != NULL) {
+            loglinef(Verbose, "(%s): vmm_info->root_table_hhdm[510]: 0x%x  ", __FUNCTION__, ((uint64_t *)vmm_info->root_table_hhdm)[510]);
+        }
         for  ( size_t i = 0; i < required_pages; i++ )  {
-            void * frame = pmm_alloc_frame();
+            void *frame = pmm_alloc_frame();
+            loglinef(Verbose, "(%s): address to map: 0x%x - phys frame: 0x%x", __FUNCTION__, frame, address_to_return);
             map_phys_to_virt_addr((void*) frame, (void *)address_to_return + (i * PAGE_SIZE_IN_BYTES), arch_flags | VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE, NULL);
         }
     }

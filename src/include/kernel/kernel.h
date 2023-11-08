@@ -17,9 +17,14 @@ struct apic_timer_parameters {
     uint8_t timer_divisor;
 };
 
+
+/**
+ * This struct contains the arch paging root table references
+ */
 struct paging_status_t {
-    uint64_t *page_root_address;
-    size_t page_generation;
+    uint64_t *page_root_address; /**< This is the root table address, as it is provided by the boot code. So it resides in the higher kernel mapped in the higher half */
+    uint64_t *hhdm_page_root_address; /**< The hhdm address, that is going to be used with the vmm */
+    size_t page_generation; /**< If any changes happens to the page root in the second half, the generation will be increased */
 };
 
 typedef struct kernel_status_t {

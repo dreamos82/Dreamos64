@@ -45,7 +45,7 @@ void prepare_virtual_memory_environment(task_t* task) {
     // Tecnically the vmm_allos is not needed, since i have the direct memory map already accessible, so i just need to access it through the direct map.
 
     //void* vm_root_vaddress = vmm_alloc(PAGE_SIZE_IN_BYTES, VMM_FLAGS_ADDRESS_ONLY, NULL);
-    void* vm_root_vaddress = hhdm_get_variable ((size_t) task->vm_root_page_table);
+    void* vm_root_vaddress = hhdm_get_variable ((uintptr_t) task->vm_root_page_table);
     task->vmm_data.root_table_hhdm = (uintptr_t) vm_root_vaddress;
     //map_phys_to_virt_addr(task->vm_root_page_table, vm_root_vaddress, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE, NULL);
 

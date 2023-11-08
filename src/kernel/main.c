@@ -161,6 +161,9 @@ void kernel_start(unsigned long addr, unsigned long magic){
     initialize_kheap();
     kernel_settings.kernel_uptime = 0;
     kernel_settings.paging.page_root_address = p4_table;
+    uint64_t p4_table_phys_address = (uint64_t) p4_table - _HIGHER_HALF_KERNEL_MEM_START;
+    kernel_settings.paging.hhdm_page_root_address = (uint64_t*) hhdm_get_variable( (uintptr_t) p4_table_phys_address);
+    loglinef(Verbose, "(kernel_main) p4_table[510]: %x - ADDRESS: %x", p4_table[510], kernel_settings.paging.hhdm_page_root_address[510]);
     kernel_settings.paging.page_generation = 0;
     //The table containing the IOAPIC information is called MADT
     MADT* madt_table = (MADT*) get_SDT_item(MADT_ID);

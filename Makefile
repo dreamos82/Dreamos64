@@ -70,7 +70,6 @@ $(BUILD_FOLDER)/$(ISO_IMAGE_FILENAME): $(BUILD_FOLDER)/kernel.bin grub.cfg
 $(BUILD_FOLDER)/%.o: src/%.s
 	echo "$(<D)"
 	mkdir -p "$(@D)"
-	mkdir -p "$(@D)"
 	${ASM_COMPILER} ${ASM_FLAGS} "$<" -o "$@"
 
 $(BUILD_FOLDER)/%.o: src/%.c
@@ -96,7 +95,7 @@ gdb: $(BUILD_FOLDER)/$(ISO_IMAGE_FILENAME)
 	$(QEMU_SYSTEM) -cdrom $(BUILD_FOLDER)/$(ISO_IMAGE_FILENAME) -monitor unix:qemu-monitor-socket,server,nowait -serial file:dreamos64.log -m 1G -d int -no-reboot -no-shutdown -s -S
 
 tests:
-	rm -f tests/*.o
+	#rm -f tests/*.o
 	$(X_CC) ${TESTFLAGS} tests/test_mem.c tests/test_common.c src/kernel/mem/bitmap.c src/kernel/mem/vmm_util.c src/kernel/mem/pmm.c src/kernel/mem/mmap.c -o tests/test_mem.o
 	$(X_CC) ${TESTFLAGS} tests/test_number_conversion.c tests/test_common.c src/base/numbers.c -o tests/test_number_conversion.o
 	$(X_CC) ${TESTFLAGS} tests/test_kheap.c tests/test_common.c src/kernel/mem/kheap.c src/kernel/mem/bitmap.c src/kernel/mem/pmm.c src/kernel/mem/mmap.c src/kernel/mem/vmm_util.c -o tests/test_kheap.o
