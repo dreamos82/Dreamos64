@@ -9,7 +9,9 @@ CFLAGS := -std=gnu99 \
         -I src/include/base \
         -I src/include/kernel \
         -I src/include/kernel/mem \
-        -I src/include/kernel/x86_64 \
+        -I src/include/kernel/arch/x86_64 \
+        -I src/include/kernel/arch/common \
+        -I src/include/kernel/arch/common/mem \
         -I src/include/kernel/hardware \
         -I src/include/kernel/scheduling \
         -I src/include/libc \
@@ -20,7 +22,7 @@ CFLAGS := -std=gnu99 \
         -mno-sse \
         -mcmodel=large \
         -fno-stack-protector
-        
+
 CFLAGS += $(DEF_FLAGS)
 
 TESTFLAGS := -std=gnu99 \
@@ -31,7 +33,8 @@ TESTFLAGS := -std=gnu99 \
         -I src/include/fs \
         -I src/include/drivers/fs \
         -I src/include/kernel \
-        -I src/include/kernel/x86_64 \
+        -I src/include/kernel/arch/x86_64 \
+        -I src/include/kernel/arch/common/mem \
         -I src/include/sys \
         -DSMALL_PAGES=$(SMALL_PAGES) \
         -D_TEST_=1

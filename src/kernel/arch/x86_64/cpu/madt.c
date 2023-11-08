@@ -6,6 +6,7 @@
 #include <vm.h>
 #include <bitmap.h>
 #include <vmm.h>
+#include <vmm_mapping.h>
 #include <logging.h>
 
 bool is_madt_mapped;
@@ -16,9 +17,9 @@ void map_madt(MADT* table){
         // Table is not MADT
         return;
     }
-    
+
     uint64_t madt_address = ((uint64_t) table + sizeof(MADT));
-    map_phys_to_virt_addr((void *) ALIGN_PHYSADDRESS(madt_address), (void *) ensure_address_in_higher_half(madt_address), VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE);
+    map_phys_to_virt_addr((void *) ALIGN_PHYSADDRESS(madt_address), (void *) ensure_address_in_higher_half(madt_address), VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE, NULL);
     _bitmap_set_bit_from_address(ALIGN_PHYSADDRESS(madt_address));
     loglinef(Verbose, "(map_madt): Sizeof MADT struct: 0x%x", sizeof(MADT));
     madt_base = (MADT_Item *) ensure_address_in_higher_half((uint64_t)madt_address);
@@ -44,7 +45,7 @@ MADT_Item* get_MADT_item(MADT* table, uint8_t type, uint8_t offset) {
             }
             counter++;
         }
-        total_length = total_length + item->length;        
+        total_length = total_length + item->length;
         item = (MADT_Item *)((uint64_t)madt_base + (uint64_t) total_length);
     }
     return NULL;

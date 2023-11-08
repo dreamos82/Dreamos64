@@ -1,12 +1,14 @@
-#include <scheduler.h>
+
 #include <framebuffer.h>
+#include <scheduler.h>
 #include <string.h>
-#include <stdio.h>
-#include <logging.h>
-#include <kheap.h>
 #include <kernel.h>
-#include <vm.h>
+#include <kheap.h>
+#include <logging.h>
+#include <stdio.h>
 #include <task.h>
+#include <tss.h>
+#include <vm.h>
 
 uint16_t scheduler_ticks;
 size_t next_thread_id;
@@ -88,12 +90,18 @@ cpu_status_t* schedule(cpu_status_t* cur_status) {
         current_thread = scheduler_get_next_thread();
     }
 
+    // We have found a thread to run, let's update it's status
     thread_to_execute->status = RUN;
     thread_to_execute->ticks = 0;
+    // ... and update the current executing thread
     current_executing_thread = thread_to_execute;
     task_t *current_task = current_executing_thread->parent_task;
+    // ... every task has it's own addressing space, so we need to update the cr3 register
     load_cr3(current_task->vm_root_page_table);
+    // ... and finally we need to update the tss structure with the current thread rsp0
+    kernel_tss.rsp0 = (uint64_t) current_executing_thread->rsp0;
     //loglinef(Verbose, "(schedule) leaving schedule...");
+    loglinef(Verbose, "(schedule) next task to run: %d->(%s)", current_executing_thread->tid, current_executing_thread->thread_name);
     return current_executing_thread->execution_frame;
 }
 

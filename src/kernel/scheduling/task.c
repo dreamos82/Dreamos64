@@ -1,3 +1,4 @@
+#include <hh_direct_map.h>
 #include <task.h>
 #include <scheduler.h>
 #include <kheap.h>
@@ -6,6 +7,7 @@
 #include <vm.h>
 #include <kernel.h>
 #include <vmm.h>
+#include <vmm_mapping.h>
 #include <pmm.h>
 
 extern uint64_t p4_table[];
@@ -20,12 +22,12 @@ task_t* create_task(char *name, void (*_entry_point)(void *), void *args) {
     new_task->parent = NULL;
     new_task->task_id = next_task_id++;
     loglinef(Verbose, "(create_task) Task created with name: %s - Task id: %d", new_task->task_name, new_task->task_id);
+    prepare_virtual_memory_environment(new_task);
+    vmm_init(VMM_LEVEL_USER, &(new_task->vmm_data));
     if( _entry_point != NULL) {
         thread_t* thread = create_thread(name, _entry_point, args, new_task);
         new_task->threads = thread;
     }
-    prepare_virtual_memory_environment(new_task);
-    vmm_init(VMM_LEVEL_USER, &(new_task->vmm_data));
     scheduler_add_task(new_task);
     //re-enable interrupts
     asm("sti");
@@ -37,18 +39,22 @@ void prepare_virtual_memory_environment(task_t* task) {
     // 1. Prepare resources: allocatin an array of VM_PAGES_PER_TABLE
     // Make sure this address is physical, then it needs to be mapped to a virtual one.a
     task->vm_root_page_table = pmm_alloc_frame();
-    loglinef(Verbose, "(prepare_virtual_memory_environment) vm_root_page_table address: %x", task->vm_root_page_table);
+    loglinef(Verbose, "(%s) vm_root_page_table address: %x", __FUNCTION__, task->vm_root_page_table);
     //identity_map_phys_address(task->vm_root_page_table, 0);
     // I will get the page frame first, then get virtual address to map it to with vmm_alloc, and then do the mapping on the virtual address.
     // Tecnically the vmm_allos is not needed, since i have the direct memory map already accessible, so i just need to access it through the direct map.
 
-    void* vm_root_vaddress = vmm_alloc(PAGE_SIZE_IN_BYTES, VMM_FLAGS_ADDRESS_ONLY, NULL);
-    map_phys_to_virt_addr(task->vm_root_page_table, vm_root_vaddress, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE);
+    //void* vm_root_vaddress = vmm_alloc(PAGE_SIZE_IN_BYTES, VMM_FLAGS_ADDRESS_ONLY, NULL);
+    void* vm_root_vaddress = hhdm_get_variable ((size_t) task->vm_root_page_table);
+    task->vmm_data.root_table_hhdm = (uintptr_t) vm_root_vaddress;
+    //map_phys_to_virt_addr(task->vm_root_page_table, vm_root_vaddress, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE, NULL);
 
     // 2. We will map the whole higher half of the kernel, this means from pml4 item 256 to 511
     //    ((uint64_t *)task->vm_root_page_table)[0] = p4_table[0];
-    for(int i = 255; i < VM_PAGES_PER_TABLE; i++) {
-        if ( i == 510 ) {
+    for(int i = 0; i < VM_PAGES_PER_TABLE; i++) {
+        if (i <=255) {
+            ((uint64_t *)vm_root_vaddress)[i] = 0x00;
+        } else if ( i == 510 ) {
             ((uint64_t *)vm_root_vaddress)[i] = (uint64_t) (task->vm_root_page_table) | VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE;
             loglinef(Verbose, "(%s): Mapping recursive entry: 0x%x", __FUNCTION__, ((uint64_t *)vm_root_vaddress)[i]);
         } else {

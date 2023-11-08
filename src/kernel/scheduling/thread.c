@@ -9,6 +9,8 @@
 #include <vmm.h>
 
 thread_t* create_thread(char* thread_name, void (*_entry_point)(void *), void* arg, task_t* parent_task) {
+    // The first part is pretty trivial mostly bureaucray. Setting basic thread information like name, tid, parent...
+    // Just like when registtering a new born child :D
     thread_t *new_thread = kmalloc(sizeof(thread_t));
     new_thread->tid = next_thread_id++;
     new_thread->parent_task = parent_task;
@@ -28,11 +30,22 @@ thread_t* create_thread(char* thread_name, void (*_entry_point)(void *), void* a
     new_thread->execution_frame->rdi = (uint64_t) _entry_point;
     new_thread->execution_frame->rsi = (uint64_t) arg;
     new_thread->execution_frame->rflags = 0x202;
+    // For user mode cs is 1b and ss is 23
     new_thread->execution_frame->ss = 0x10;
-    new_thread->execution_frame->cs = 0x8;
+    //new_thread->execution_frame->ss = 0x23;
+    new_thread->execution_frame->cs = 0x08;
+    //new_thread->execution_frame->cs = 0x1B;
+
+    // Every thread need it's kernel stack allocated (aka rsp0 field of the TSS)
+    new_thread->rsp0 = kmalloc(THREAD_DEFAULT_STACK_SIZE);
+    if (new_thread->rsp0 == NULL) {
+          loglinef(Fatal, "(create_thread): rsp0 is null - PANIC!");
+          while(1);
+    }
     // We need to allocate a new stack for each thread
     void* stack_pointer = kmalloc(THREAD_DEFAULT_STACK_SIZE);
-    if(stack_pointer == NULL) {
+    //void* stack_pointer = vmm_alloc(THREAD_DEFAULT_STACK_SIZE, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE, &(parent_task->vmm_data));
+    if (stack_pointer == NULL) {
         loglinef(Fatal, "(create_thread): rsp is null - PANIC!");
         while(1);
     }

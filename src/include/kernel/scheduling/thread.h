@@ -1,9 +1,9 @@
 #ifndef _THREAD_H_
 #define _THREAD_H_
 
+#include <cpu.h>
 #include <stdint.h>
 #include <stddef.h>
-#include <cpu.h>
 
 #define THREAD_NAME_MAX_LEN 32
 #define THREAD_MAX_ID (uint16_t-1)
@@ -35,7 +35,7 @@ struct thread_t {
     size_t wakeup_time;
     thread_t* next_sibling;
     thread_t* next;
-    uint64_t* rsp0;
+    uintptr_t* rsp0;
 };
 
 

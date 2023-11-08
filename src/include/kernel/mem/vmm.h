@@ -55,6 +55,8 @@ typedef struct VmmInfo {
 
     size_t start_of_vmm_space; /**< The starting addres ofthe vmm space */
 
+    uintptr_t root_table_hhdm;
+
     struct VmmStatus {
         size_t vmm_items_per_page; /**< Number of page items contained in one page */
         size_t vmm_cur_index; /**< Current position inside the array */
@@ -68,6 +70,8 @@ typedef struct VmmInfo {
     } status;
 } VmmInfo;
 
+//uint64_t memory_size_in_bytes;
+extern uint64_t end_of_mapped_memory;
 extern uint64_t end_of_vmm_space;
 extern VmmInfo vmm_info;
 extern uintptr_t higherHalfDirectMapBase; /**< The start of the physical memory direct mapping */
@@ -77,12 +81,6 @@ void vmm_init(vmm_level_t vmm_level, VmmInfo *vmm_info);
 void *vmm_alloc(size_t size, size_t flags, VmmInfo *vmm_info);
 void vmm_free(void *address);
 
-void *map_vaddress(void *address, size_t flags);
-int unmap_vaddress(void *address);
-
-void *map_phys_to_virt_addr(void* physical_address, void* address, size_t flags);
-void identity_map_phys_address(void *pyhysical_address, size_t flags);
-void map_vaddress_range(void *virtual_address, size_t flags, size_t required_pages);
 uint8_t is_phyisical_address_mapped(uintptr_t physical_address, uintptr_t virtual_address);
 uint8_t check_virt_address_status(uint64_t virtual_address);
 void vmm_direct_map_physical_memory();
