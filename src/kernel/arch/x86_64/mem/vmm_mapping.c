@@ -5,6 +5,96 @@
 #include <vm.h>
 #include <vmm.h>
 
+void *map_phys_to_virt_addr_hh(void* physical_address, void* address, size_t flags, uint64_t *pml4_root) {
+
+    uint16_t pml4_e = PML4_ENTRY((uint64_t) address);
+    uint16_t pdpr_e = PDPR_ENTRY((uint64_t) address);
+    uint16_t pd_e = PD_ENTRY((uint64_t) address);
+
+    uint64_t *pml4_table = NULL;
+    uint64_t *pdpr_root = NULL;
+    uint64_t *pd_root = NULL;
+
+    uint8_t user_mode_status = 0;
+
+    if ( !is_address_higher_half((uint64_t) address) ) {
+        flags = flags | VMM_FLAGS_USER_LEVEL;
+        user_mode_status = VMM_FLAGS_USER_LEVEL;
+    }
+
+    if (pml4_root == NULL) {
+        pml4_root = kernel_settings.paging.hhdm_page_root_address;
+    }
+
+    loglinef(Verbose, "(%s): here", __FUNCTION__);
+
+    if (pml4_root != NULL) {
+        pml4_table = pml4_root;
+        loglinef(Verbose, "(%s): Entries values pml4_e: 0x%d pdpr_e: 0x%d pd_e: 0x%d", __FUNCTION__, pml4_e, pdpr_e, pd_e);
+        loglinef(Verbose, "(%s):\taddress: 0x%x", __FUNCTION__, address);
+        loglinef(Verbose, "(%s):\tpml4_root address: 0x%x", __FUNCTION__, pml4_root);
+        loglinef(Verbose, "(%s):\tpml4_root[pml4_e] = 0x%x pml4_table[pml4_e] = 0x%x", __FUNCTION__, pml4_root[pml4_e], pml4_table[pml4_e]);
+        loglinef(Verbose, "(%s):\tpdpr base_address: 0x%x", __FUNCTION__, pml4_root[pml4_e] & VM_PAGE_TABLE_BASE_ADDRESS_MASK);
+
+        if ( !(pml4_root[pml4_e] & 0b1) ) {
+            loglinef(Verbose, "(%s): We should allocate a new table at pml4_e: %d", __FUNCTION__, pml4_e);
+            uint64_t *new_table = pmm_alloc_frame();
+            pml4_root[pml4_e] = (uint64_t) new_table | user_mode_status | WRITE_BIT | PRESENT_BIT;
+            uint64_t *new_table_hhdm = hhdm_get_variable((uintptr_t) new_table);
+            clean_new_table(new_table_hhdm);
+            pdpr_root = new_table_hhdm;
+        } else {
+            pdpr_root =  (uint64_t *) hhdm_get_variable((uintptr_t) pml4_root[pml4_e] & VM_PAGE_TABLE_BASE_ADDRESS_MASK);
+        }
+
+        if ( !(pdpr_root[pdpr_e] & 0b1) ) {
+            loglinef(Verbose, "(%s): We should allocate a new table at pdpr_e: %d", __FUNCTION__, pdpr_e);
+            uint64_t *new_table = pmm_alloc_frame();
+            pdpr_root[pdpr_e] = (uint64_t) new_table | user_mode_status | WRITE_BIT | PRESENT_BIT;
+            uint64_t *new_table_hhdm = hhdm_get_variable((uintptr_t) new_table);
+            clean_new_table(new_table_hhdm);
+            pd_root = new_table_hhdm;
+        } else {
+             pd_root =  (uint64_t *) hhdm_get_variable((uintptr_t) pdpr_root[pdpr_e] & VM_PAGE_TABLE_BASE_ADDRESS_MASK);
+        }
+
+        if( !(pd_root[pd_e] & 0b01) ) {
+#if SMALL_PAGES == 1
+        uint64_t *new_table = pmm_alloc_frame();
+        pd_root[pd_e] = (uint64_t) new_table | user_mode_status | WRITE_BIT | PRESENT_BIT;
+        uint64_t *new_table_hhdm = hhdm_get_variable((uintptr_t) new_table);
+        clean_new_table(new_table_hhdm);
+        pt_root = new_table_hhdm;
+#elif SMALL_PAGES == 0
+        pd_root[pd_e] = (uint64_t) (physical_address) | HUGEPAGE_BIT | flags | user_mode_status;
+//       loglinef(Verbose, "(%s): PD Flags: 0x%x entry value: 0x%x", __FUNCTION__, flags, pd_table[pd_e]);
+#endif
+    }
+
+#if SMALL_PAGES == 1
+        uint64_t *pt_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l, (uint64_t) pml4_e, (uint64_t) pdpr_e, (uint64_t) pd_e));
+        uint16_t pt_e = PT_ENTRY((uint64_t) address);
+#endif
+
+#if SMALL_PAGES == 1
+
+    // This case apply only for 4kb pages, if the pt_e entry is not present in the page table we need to allocate a new 4k page
+    // Every entry in the page table is a 4kb page of physical memory
+    if( !(pt_table[pt_e] & 0b1)) {
+        pt_table[pt_e] = (uint64_t) physical_address | flags;
+    }
+#endif
+
+        //pml4_table = pml4_root;
+
+        return address;
+    }
+
+    return NULL;
+
+}
+
+
 /**
  * This function map a phyisical address into a virtual one. Both of them needs to already defined.
  *
@@ -15,7 +105,7 @@
  * @param pml4_root the pointer to the pml4 table, It should be the hhdm address. if null it will use the kernel default pml4 table.
  * @return address the virtual address specified in input, or NULL in case of error.
  */
-void *map_phys_to_virt_addr(void* physical_address, void* address, size_t flags, uint64_t *pml4_root){
+void *map_phys_to_virt_addr(void* physical_address, void* address, size_t flags){
     uint16_t pml4_e = PML4_ENTRY((uint64_t) address);
     uint16_t pdpr_e = PDPR_ENTRY((uint64_t) address);
     uint16_t pd_e = PD_ENTRY((uint64_t) address);
@@ -30,32 +120,6 @@ void *map_phys_to_virt_addr(void* physical_address, void* address, size_t flags,
         flags = flags | VMM_FLAGS_USER_LEVEL;
         user_mode_status = VMM_FLAGS_USER_LEVEL;
     }
-
-    /*if (pml4_root == NULL) {
-            pml4_root = kernel_settings.paging.hhdm_page_root_address;
-            loglinef(Verbose, "(%s):\t Default pml4_root address: 0x%x", __FUNCTION__, pml4_root);
-    }*/
-
-    if (pml4_root != NULL) {
-        loglinef(Verbose, "(%s): Entries values pml4_e: 0x%d pdpr_e: 0x%d pd_e: 0x%d", __FUNCTION__, pml4_e, pdpr_e, pd_e);
-        loglinef(Verbose, "(%s):\taddress: 0x%x", __FUNCTION__, address);
-        loglinef(Verbose, "(%s):\tpml4_root address: 0x%x", __FUNCTION__, pml4_root);
-        loglinef(Verbose, "(%s):\tpml4_root[pml4_e] = 0x%x pml4_table[pml4_e] = 0x%x", __FUNCTION__, pml4_root[pml4_e], pml4_table[pml4_e]);
-        loglinef(Verbose, "(%s):\tpdpr base_address: 0x%x", __FUNCTION__, pml4_root[pml4_e] & VM_PAGE_TABLE_BASE_ADDRESS_MASK);
-
-        if ( !(pml4_root[pml4_e] & 0b1) ) {
-            loglinef(Verbose, "(%s): We should allocate a new table at pml4_e: %d", __FUNCTION__, pml4_e);
-            //uint64_t *new_table = pmm_alloc_frame();
-            //pml4_root[pml4_e] = (uint64_t) new_table | user_mode_status | WRITE_BIT | PRESENT_BIT;
-             //uint64_t *new_table_hhdm = hhdm_get_variable((uintptr_t) new_table);
-            //clean_new_table(new_table_hhdm);
-        } else {
-            pdpr_root =  (uint64_t *) hhdm_get_variable((uintptr_t) pml4_root[pml4_e] & VM_PAGE_TABLE_BASE_ADDRESS_MASK);
-        }
-        //pml4_table = pml4_root;
-    }
-
-
 
     uint64_t *pdpr_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l,510l,510l, (uint64_t) pml4_e));
     uint64_t *pd_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l,510l, (uint64_t) pml4_e, (uint64_t) pdpr_e));
@@ -73,11 +137,9 @@ void *map_phys_to_virt_addr(void* physical_address, void* address, size_t flags,
     if( !(pml4_table[pml4_e] & 0b1) ) {
         uint64_t *new_table = pmm_alloc_frame();
         pml4_table[pml4_e] = (uint64_t) new_table | user_mode_status | WRITE_BIT | PRESENT_BIT;
-        loglinef(Verbose, "(%s): need to allocate pml4 for address: 0x%x - Entry value: 0x%x - phys_address: 0x%x", __FUNCTION__, (uint64_t) address, pml4_table[pml4_e], new_table);
+       // loglinef(Verbose, "(%s): need to allocate pml4 for address: 0x%x - Entry value: 0x%x - phys_address: 0x%x", __FUNCTION__, (uint64_t) address, pml4_table[pml4_e], new_table);
         clean_new_table(pdpr_table);
     }
-
-
 
     // If the pdpr_e item in the pdpr table is not present, we need to create a new one.
     // Every entry in pdpr table points to a pdpr table
@@ -86,10 +148,6 @@ void *map_phys_to_virt_addr(void* physical_address, void* address, size_t flags,
         pdpr_table[pdpr_e] = (uint64_t) new_table | user_mode_status | WRITE_BIT | PRESENT_BIT;
 //        loglinef(Verbose, "(%s): PDPR entry value: 0x%x", __FUNCTION__, pdpr_table[pdpr_e]);
         clean_new_table(pd_table);
-    }
-
-    if (pdpr_root != NULL) {
-        loglinef(Verbose, "(%s): pdpr_table[pdpr_e]: 0x%x - pdpr_root[pdpr_e]: 0x%x", __FUNCTION__, pdpr_table[pdpr_e], pdpr_root[pdpr_e]);
     }
 
     // If the pd_e item in the pd table is not present, we need to create a new one.
@@ -103,13 +161,6 @@ void *map_phys_to_virt_addr(void* physical_address, void* address, size_t flags,
         pd_table[pd_e] = (uint64_t) (physical_address) | HUGEPAGE_BIT | flags | user_mode_status;
 //       loglinef(Verbose, "(%s): PD Flags: 0x%x entry value: 0x%x", __FUNCTION__, flags, pd_table[pd_e]);
 #endif
-    }
-
-    if(pdpr_root != NULL) {
-        pd_root =  (uint64_t *) hhdm_get_variable((uintptr_t) pdpr_root[pdpr_e] & VM_PAGE_TABLE_BASE_ADDRESS_MASK);
-        if (pdpr_root != NULL) {
-            loglinef(Verbose, "(%s): pd_table[pd_e]: 0x%x - pd_root[pd_e]: 0x%x", __FUNCTION__, pd_table[pd_e], pd_root[pd_e]);
-        }
     }
 
 #if SMALL_PAGES == 1

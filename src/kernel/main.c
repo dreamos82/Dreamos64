@@ -19,7 +19,6 @@
 #include <hh_direct_map.h>
 #include <pmm.h>
 #include <mmap.h>
-#include <vmm.h>
 #include <kheap.h>
 #include <rsdt.h>
 #include <madt.h>
@@ -34,12 +33,14 @@
 #include <scheduler.h>
 #include <thread.h>
 #include <rtc.h>
-#include <spinlock.h>
-#include <task.h>
-#include <vfs.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <spinlock.h>
+#include <task.h>
 #include <tss.h>
+#include <vfs.h>
+#include <vm.h>
+#include <vmm.h>
 //#include <runtime_tests.h>
 
 extern uint32_t FRAMEBUFFER_MEMORY_SIZE;
@@ -57,6 +58,8 @@ struct multiboot_tag_old_acpi *tagold_acpi = NULL;
 struct multiboot_tag_new_acpi *tagnew_acpi = NULL;
 struct multiboot_tag_mmap *tagmmap = NULL;
 struct multiboot_tag *tagacpi = NULL;
+
+uintptr_t higherHalfDirectMapBase;
 
 void _init_basic_system(unsigned long addr){
     struct multiboot_tag* tag;
@@ -153,18 +156,20 @@ void kernel_start(unsigned long addr, unsigned long magic){
 
     draw_logo(0, 400);
 #endif
-
-    init_apic();
+    //higherHalfDirectMapBase is where we will the Direct Mapping of physical memory will start.
+    higherHalfDirectMapBase = ((uint64_t) HIGHER_HALF_ADDRESS_OFFSET + VM_KERNEL_MEMORY_PADDING);
     _mmap_setup();
-    vmm_init(VMM_LEVEL_SUPERVISOR, NULL);
     hhdm_map_physical_memory();
-    initialize_kheap();
     kernel_settings.kernel_uptime = 0;
     kernel_settings.paging.page_root_address = p4_table;
     uint64_t p4_table_phys_address = (uint64_t) p4_table - _HIGHER_HALF_KERNEL_MEM_START;
     kernel_settings.paging.hhdm_page_root_address = (uint64_t*) hhdm_get_variable( (uintptr_t) p4_table_phys_address);
     loglinef(Verbose, "(kernel_main) p4_table[510]: %x - ADDRESS: %x", p4_table[510], kernel_settings.paging.hhdm_page_root_address[510]);
+    vmm_init(VMM_LEVEL_SUPERVISOR, NULL);
+
+    initialize_kheap();
     kernel_settings.paging.page_generation = 0;
+    init_apic();
     //The table containing the IOAPIC information is called MADT
     MADT* madt_table = (MADT*) get_SDT_item(MADT_ID);
     loglinef(Verbose, "(kernel_main) Madt SIGNATURE: %x - ADDRESS: %.4s", madt_table->header.Signature, madt_table);
@@ -213,5 +218,11 @@ void kernel_start(unsigned long addr, unsigned long magic){
     struct multiboot_tag_basic_meminfo *virt_phys_addr = (struct multiboot_tag_basic_meminfo *) hhdm_get_variable( (size_t) multiboot_basic_meminfo );
     loglinef(Verbose, "(kernel_main) init_basic_system: Memory lower (in kb): %d - upper (in kb): %d", virt_phys_addr->mem_lower, virt_phys_addr->mem_upper);
     logline(Info, "(kernel_main) Init end!! Starting infinite loop");
+    uint64_t* vm_root_vaddress = (uint64_t *) vmm_alloc(PAGE_SIZE_IN_BYTES, VMM_FLAGS_ADDRESS_ONLY, NULL);
+    void* temp_var = pmm_alloc_frame();
+    map_phys_to_virt_addr_hh(temp_var, (void *) vm_root_vaddress, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE, NULL);
+    vm_root_vaddress[0] = 5;
+    loglinef(Verbose, "(%s): vm_root_vaddress value: 0x%x", __FUNCTION__, vm_root_vaddress[0]);
+    //map_phys_to_hh();
     while(1);
 }

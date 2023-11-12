@@ -26,7 +26,6 @@ size_t start_of_vmm_space;
 size_t next_available_address;
 uint64_t end_of_vmm_data;
 VmmInfo vmm_kernel;
-uintptr_t higherHalfDirectMapBase;
 
 /**
  * When initialized the VM Manager should reserve a portion of the virtual memory space for itself.
@@ -43,8 +42,6 @@ void vmm_init(vmm_level_t vmm_level, VmmInfo *vmm_info) {
         loglinef(Verbose, "(%s): task vmm initialization: root_table_hhdm: 0x%x", __FUNCTION__, vmm_info->root_table_hhdm);
         root_table_hh = (uint64_t *) vmm_info->root_table_hhdm;
     }
-    //higherHalfDirectMapBase is where we will the Direct Mapping of physical memory will start.
-    higherHalfDirectMapBase = ((uint64_t) HIGHER_HALF_ADDRESS_OFFSET + VM_KERNEL_MEMORY_PADDING);
 
     vmm_info->vmmDataStart = align_value_to_page(higherHalfDirectMapBase + memory_size_in_bytes + VM_KERNEL_MEMORY_PADDING);
 
@@ -84,7 +81,7 @@ void vmm_init(vmm_level_t vmm_level, VmmInfo *vmm_info) {
     }
 
     // Mapping the phyiscal address for the vmm structures
-    map_phys_to_virt_addr(vmm_root_phys, vmm_info->status.vmm_container_root, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE, root_table_hh);
+    map_phys_to_virt_addr_hh(vmm_root_phys, vmm_info->status.vmm_container_root, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE, root_table_hh);
 
     vmm_info->status.vmm_container_root->next = NULL;
     vmm_info->status.vmm_cur_container = vmm_info->status.vmm_container_root;
@@ -110,7 +107,7 @@ void *vmm_alloc(size_t size, size_t flags, VmmInfo *vmm_info) {
             // 1.a We need to get the virtual address for the new structure
             new_container = (VmmContainer*)align_value_to_page((uint64_t)vmm_info->status.vmm_cur_container + sizeof(VmmContainer) + PAGE_SIZE_IN_BYTES);
             loglinef(Verbose, "(%s): new address 0x%x is aligned: %d", __FUNCTION__, new_container, is_address_aligned((uintptr_t)new_container, PAGE_SIZE_IN_BYTES));
-            map_phys_to_virt_addr(new_container_phys_address, new_container, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE, NULL);
+            map_phys_to_virt_addr_hh(new_container_phys_address, new_container, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE, NULL);
             // Step 2: Reset vmm_cur_index
             vmm_info->status.vmm_cur_index = 0;
             // Step 2.a: Set next as null for new_container;
@@ -154,7 +151,7 @@ void *vmm_alloc(size_t size, size_t flags, VmmInfo *vmm_info) {
         for  ( size_t i = 0; i < required_pages; i++ )  {
             void *frame = pmm_alloc_frame();
             loglinef(Verbose, "(%s): address to map: 0x%x - phys frame: 0x%x", __FUNCTION__, frame, address_to_return);
-            map_phys_to_virt_addr((void*) frame, (void *)address_to_return + (i * PAGE_SIZE_IN_BYTES), arch_flags | VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE, NULL);
+            map_phys_to_virt_addr_hh((void*) frame, (void *)address_to_return + (i * PAGE_SIZE_IN_BYTES), arch_flags | VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE, NULL);
         }
     }
 

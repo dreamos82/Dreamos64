@@ -10,6 +10,8 @@ extern uint64_t p3_table_hh[];
 extern uint64_t p2_table[];
 extern uint64_t pt_tables[];
 
+uintptr_t temporaryPage = NULL;
+
 /**
  * This function return the hhdm pointer of the physycal address provided
  *
@@ -39,6 +41,8 @@ void hhdm_map_physical_memory() {
     }
 
     uint64_t address_to_map = 0;
+    temporaryPage = ((uint64_t) HIGHER_HALF_ADDRESS_OFFSET + VM_KERNEL_MEMORY_PADDING);
+    //higherHalfDirectMapBase = ((uint64_t) temporaryPage + VM_KERNEL_MEMORY_PADDING);
     uint64_t virtual_address = higherHalfDirectMapBase;
 
     loglinef(Verbose, "(%s): HigherHalf Initial entries: pml4: %d, pdpr: %d, pd: %d", __FUNCTION__, PML4_ENTRY((uint64_t) higherHalfDirectMapBase), PDPR_ENTRY((uint64_t) higherHalfDirectMapBase), PD_ENTRY((uint64_t) higherHalfDirectMapBase));
