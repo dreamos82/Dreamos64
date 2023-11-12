@@ -21,6 +21,7 @@ const char *mmap_types[] = {
     "Defective"
 };
 
+// This function is apparently only printing the list of mmap items and their value.
 void _mmap_parse(struct multiboot_tag_mmap *mmap_root){
     int total_entries = 0;
     mmap_number_of_entries = (mmap_root->size - sizeof(*mmap_root))/mmap_root->entry_size;
@@ -29,7 +30,7 @@ void _mmap_parse(struct multiboot_tag_mmap *mmap_root){
 
 #ifndef _TEST_
     while(i<mmap_number_of_entries){
-        loglinef(Verbose, "(_mmap_parse): [%d] Address: 0x%x - Len: 0x%x Type: (%d) %s", i, mmap_entries[i].addr, mmap_entries[i].len, mmap_entries[i].type, (char *) mmap_types[mmap_entries[i].type]);
+        loglinef(Verbose, "(_mmap_parse): \t[%d] Address: 0x%x - Len: 0x%x Type: (%d) %s", i, mmap_entries[i].addr, mmap_entries[i].len, mmap_entries[i].type, (char *) mmap_types[mmap_entries[i].type]);
         total_entries++;
         i++;
     }
@@ -45,7 +46,7 @@ void _mmap_setup(){
         while(counter < mmap_number_of_entries){
             if(mmap_entries[counter].addr < mem_limit &&
                     mmap_entries[counter].type > 1){
-                loglinef(Verbose, "(_mmap_setup): Found entry at addr: %x", mmap_entries[counter].addr);
+                loglinef(Verbose, "(_mmap_setup): Found unusable entry at addr: %x", mmap_entries[counter].addr);
                 pmm_reserve_area(mmap_entries[counter].addr, mmap_entries[counter].len);
                 count_physical_reserved++;
             }
@@ -70,7 +71,7 @@ uintptr_t _mmap_determine_bitmap_region(uint64_t lower_limit, size_t bytes_neede
         const size_t entry_offset = lower_limit > current_entry->addr ? lower_limit - current_entry->addr : 0;
 
         actual_available_space -= entry_offset; //lower limit might force us to be midway through a region
-        
+
         if (actual_available_space >= bytes_needed)
         {
             loglinef(Verbose, "(_mmap_determine_bitmap_region): Found space for bitmap at address: 0x%x", current_entry->addr + entry_offset);

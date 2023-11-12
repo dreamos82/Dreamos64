@@ -41,6 +41,7 @@
 #include <vfs.h>
 #include <vm.h>
 #include <vmm.h>
+#include <vmm_mapping.h>
 //#include <runtime_tests.h>
 
 extern uint32_t FRAMEBUFFER_MEMORY_SIZE;

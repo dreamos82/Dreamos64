@@ -111,8 +111,6 @@ void *map_phys_to_virt_addr(void* physical_address, void* address, size_t flags)
     uint16_t pd_e = PD_ENTRY((uint64_t) address);
 
     uint64_t *pml4_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l,510l,510l,510l));
-    uint64_t *pdpr_root = NULL;
-    uint64_t *pd_root = NULL;
 
     uint8_t user_mode_status = 0;
 
@@ -177,7 +175,7 @@ void *map_phys_to_virt_addr(void* physical_address, void* address, size_t flags)
 void *map_vaddress(void *virtual_address, size_t flags, uint64_t *pml4_root){
     loglinef(Verbose, "(map_vaddress) address: 0x%x", virtual_address);
     void *new_addr = pmm_alloc_frame();
-    return map_phys_to_virt_addr(new_addr, virtual_address, flags, pml4_root);
+    return map_phys_to_virt_addr_hh(new_addr, virtual_address, flags, pml4_root);
 }
 
 void map_vaddress_range(void *virtual_address, size_t flags, size_t required_pages, uint64_t *pml4_root) {
@@ -222,5 +220,5 @@ int unmap_vaddress(void *address){
 }
 
 void identity_map_phys_address(void *physical_address, size_t flags) {
-    map_phys_to_virt_addr(physical_address, physical_address, flags, NULL);
+    map_phys_to_virt_addr(physical_address, physical_address, flags);
 }

@@ -10,7 +10,6 @@ extern uint64_t p3_table_hh[];
 extern uint64_t p2_table[];
 extern uint64_t pt_tables[];
 
-uintptr_t temporaryPage = NULL;
 
 /**
  * This function return the hhdm pointer of the physycal address provided
@@ -41,8 +40,6 @@ void hhdm_map_physical_memory() {
     }
 
     uint64_t address_to_map = 0;
-    temporaryPage = ((uint64_t) HIGHER_HALF_ADDRESS_OFFSET + VM_KERNEL_MEMORY_PADDING);
-    //higherHalfDirectMapBase = ((uint64_t) temporaryPage + VM_KERNEL_MEMORY_PADDING);
     uint64_t virtual_address = higherHalfDirectMapBase;
 
     loglinef(Verbose, "(%s): HigherHalf Initial entries: pml4: %d, pdpr: %d, pd: %d", __FUNCTION__, PML4_ENTRY((uint64_t) higherHalfDirectMapBase), PDPR_ENTRY((uint64_t) higherHalfDirectMapBase), PD_ENTRY((uint64_t) higherHalfDirectMapBase));
@@ -57,24 +54,11 @@ void hhdm_map_physical_memory() {
     while ( address_to_map < memory_size_in_bytes) {
         //loglinef(Verbose, "(direct_map_physical_memory) Mapping physical address: 0x%x", address_to_map);
         //p4_table[current_entry] = address_to_map | HUGEPAGE_BIT| WRITE_BIT | PRESENT_BIT;
-        map_phys_to_virt_addr((void*)address_to_map, (void*)virtual_address, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE, NULL);
+        map_phys_to_virt_addr((void*)address_to_map, (void*)virtual_address, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE);
         address_to_map += PAGE_SIZE_IN_BYTES;
         virtual_address += PAGE_SIZE_IN_BYTES;
     }
 
     loglinef(Verbose, "(%s) Physical memory mapped end: 0x%x - Virtual memory direct end: 0x%x - counter: %d", __FUNCTION__, end_of_mapped_physical_memory, end_of_mapped_memory, current_pml4_entry);
-
-}
-
-void hh_map_entry(uint64_t phys_address, uint64_t virt_address) {
-    size_t pml4_entry = PML4_ENTRY((uint64_t) virt_address);
-    size_t pdpr_entry = PDPR_ENTRY((uint64_t) virt_address);
-    size_t pd_entry = PML4_ENTRY((uint64_t) virt_address);
-    //loglinef(Verbose, "(%s): p4_table: 0x%x - current_entry: %d", __FUNCTION__, p4_table, current_pml4_entry);
-
-    if ( !(p4_table[pml4_entry] & 0b1)) {
-        //uint64_t *new_table = pmm_alloc_frame();
-        //p4_table[pml4_entry] = address_to_map | WRITE_BIT | PRESENT_BIT;
-    }
 
 }
