@@ -58,7 +58,7 @@ void *map_phys_to_virt_addr_hh(void* physical_address, void* address, size_t fla
              pd_root =  (uint64_t *) hhdm_get_variable((uintptr_t) pdpr_root[pdpr_e] & VM_PAGE_TABLE_BASE_ADDRESS_MASK);
         }
 
-        if( !(pd_root[pd_e] & 0b01) ) {
+        if( !(pd_root[pd_e] & 0b1) ) {
 #if SMALL_PAGES == 1
         uint64_t *new_table = pmm_alloc_frame();
         pd_root[pd_e] = (uint64_t) new_table | user_mode_status | WRITE_BIT | PRESENT_BIT;
@@ -67,7 +67,7 @@ void *map_phys_to_virt_addr_hh(void* physical_address, void* address, size_t fla
         pt_root = new_table_hhdm;
 #elif SMALL_PAGES == 0
         pd_root[pd_e] = (uint64_t) (physical_address) | HUGEPAGE_BIT | flags | user_mode_status;
-//       loglinef(Verbose, "(%s): PD Flags: 0x%x entry value: 0x%x", __FUNCTION__, flags, pd_table[pd_e]);
+       loglinef(Verbose, "(%s): PD Flags: 0x%x entry value: 0x%x", __FUNCTION__, flags, pd_root[pd_e]);
 #endif
     }
 

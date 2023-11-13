@@ -107,7 +107,7 @@ void *vmm_alloc(size_t size, size_t flags, VmmInfo *vmm_info) {
             // 1.a We need to get the virtual address for the new structure
             new_container = (VmmContainer*)align_value_to_page((uint64_t)vmm_info->status.vmm_cur_container + sizeof(VmmContainer) + PAGE_SIZE_IN_BYTES);
             loglinef(Verbose, "(%s): new address 0x%x is aligned: %d", __FUNCTION__, new_container, is_address_aligned((uintptr_t)new_container, PAGE_SIZE_IN_BYTES));
-            map_phys_to_virt_addr_hh(new_container_phys_address, new_container, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE, NULL);
+            map_phys_to_virt_addr_hh(new_container_phys_address, new_container, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE, (uint64_t *) vmm_info->root_table_hhdm);
             // Step 2: Reset vmm_cur_index
             vmm_info->status.vmm_cur_index = 0;
             // Step 2.a: Set next as null for new_container;
@@ -145,13 +145,11 @@ void *vmm_alloc(size_t size, size_t flags, VmmInfo *vmm_info) {
         size_t arch_flags = vm_parse_flags(flags);
         loglinef(Verbose, "(%s): Testing vm_parse_flags: 0x%x required pages: %d - address to ret: 0x%x - arch_flags: 0x%x", __FUNCTION__, arch_flags, required_pages, address_to_return, arch_flags);
         loglinef(Verbose, "(%s): address: 0x%x", __FUNCTION__, vmm_info->root_table_hhdm);
-        if (vmm_info->root_table_hhdm != NULL) {
-            loglinef(Verbose, "(%s): vmm_info->root_table_hhdm[510]: 0x%x  ", __FUNCTION__, ((uint64_t *)vmm_info->root_table_hhdm)[510]);
-        }
+
         for  ( size_t i = 0; i < required_pages; i++ )  {
             void *frame = pmm_alloc_frame();
             loglinef(Verbose, "(%s): address to map: 0x%x - phys frame: 0x%x", __FUNCTION__, frame, address_to_return);
-            map_phys_to_virt_addr_hh((void*) frame, (void *)address_to_return + (i * PAGE_SIZE_IN_BYTES), arch_flags | VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE, NULL);
+            map_phys_to_virt_addr_hh((void*) frame, (void *)address_to_return + (i * PAGE_SIZE_IN_BYTES), arch_flags | VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE, (uint64_t *) vmm_info->root_table_hhdm);
         }
     }
 
