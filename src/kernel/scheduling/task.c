@@ -14,7 +14,7 @@ extern uint64_t p4_table[];
 extern uint64_t p3_table[];
 extern uint64_t p3_table_hh[];
 
-task_t* create_task(char *name, void (*_entry_point)(void *), void *args) {
+task_t* create_task(char *name, void (*_entry_point)(void *), void *args, bool is_supervisor) {
     //disable interrupts while creating a task
     asm("cli");
     task_t* new_task = (task_t*) kmalloc(sizeof(task_t));
@@ -23,9 +23,14 @@ task_t* create_task(char *name, void (*_entry_point)(void *), void *args) {
     new_task->task_id = next_task_id++;
     loglinef(Verbose, "(create_task) Task created with name: %s - Task id: %d", new_task->task_name, new_task->task_id);
     prepare_virtual_memory_environment(new_task);
-    vmm_init(VMM_LEVEL_USER, &(new_task->vmm_data));
+    if ( is_supervisor ){
+        vmm_init(VMM_LEVEL_SUPERVISOR, &(new_task->vmm_data));
+    } else {
+        vmm_init(VMM_LEVEL_USER, &(new_task->vmm_data));
+    }
+
     if( _entry_point != NULL) {
-        thread_t* thread = create_thread(name, _entry_point, args, new_task);
+        thread_t* thread = create_thread(name, _entry_point, args, new_task, is_supervisor);
         new_task->threads = thread;
     }
     scheduler_add_task(new_task);
@@ -130,7 +135,7 @@ void print_thread_list(size_t task_id) {
     if (task != NULL) {
         thread_t* thread = task->threads;
         while(thread != NULL) {
-            loglinef(Verbose, "(print_thread_list)\tThread; %d - %s", thread->tid, thread->thread_name);
+            loglinef(Verbose, "(%s)\tThread; %d - %s", __FUNCTION__, thread->tid, thread->thread_name);
             thread = thread->next;
         }
     }

@@ -26,14 +26,12 @@ void *map_phys_to_virt_addr_hh(void* physical_address, void* address, size_t fla
         pml4_root = kernel_settings.paging.hhdm_page_root_address;
     }
 
-    loglinef(Verbose, "(%s): here", __FUNCTION__);
-
     if (pml4_root != NULL) {
         pml4_table = pml4_root;
         loglinef(Verbose, "(%s): Entries values pml4_e: 0x%d pdpr_e: 0x%d pd_e: 0x%d", __FUNCTION__, pml4_e, pdpr_e, pd_e);
         loglinef(Verbose, "(%s):\taddress: 0x%x", __FUNCTION__, address);
-        loglinef(Verbose, "(%s):\tpml4_root address: 0x%x", __FUNCTION__, pml4_root);
-        loglinef(Verbose, "(%s):\tpml4_root[pml4_e] = 0x%x pml4_table[pml4_e] = 0x%x", __FUNCTION__, pml4_root[pml4_e], pml4_table[pml4_e]);
+        //loglinef(Verbose, "(%s):\tpml4_root address: 0x%x", __FUNCTION__, pml4_root);
+        //loglinef(Verbose, "(%s):\tpml4_root[pml4_e] = 0x%x pml4_table[pml4_e] = 0x%x", __FUNCTION__, pml4_root[pml4_e], pml4_table[pml4_e]);
         loglinef(Verbose, "(%s):\tpdpr base_address: 0x%x", __FUNCTION__, pml4_root[pml4_e] & VM_PAGE_TABLE_BASE_ADDRESS_MASK);
 
         if ( !(pml4_root[pml4_e] & 0b1) ) {
@@ -67,7 +65,7 @@ void *map_phys_to_virt_addr_hh(void* physical_address, void* address, size_t fla
         pt_root = new_table_hhdm;
 #elif SMALL_PAGES == 0
         pd_root[pd_e] = (uint64_t) (physical_address) | HUGEPAGE_BIT | flags | user_mode_status;
-       loglinef(Verbose, "(%s): PD Flags: 0x%x entry value: 0x%x", __FUNCTION__, flags, pd_root[pd_e]);
+        loglinef(Verbose, "(%s): PD Flags: 0x%x entry value: 0x%x", __FUNCTION__, flags, pd_root[pd_e]);
 #endif
     }
 
@@ -180,7 +178,7 @@ void *map_vaddress(void *virtual_address, size_t flags, uint64_t *pml4_root){
 
 void map_vaddress_range(void *virtual_address, size_t flags, size_t required_pages, uint64_t *pml4_root) {
     for(size_t i = 0; i < required_pages; i++) {
-        map_vaddress(virtual_address + (i * PAGE_SIZE_IN_BYTES), flags, NULL);
+        map_vaddress(virtual_address + (i * PAGE_SIZE_IN_BYTES), flags, pml4_root);
     }
 }
 

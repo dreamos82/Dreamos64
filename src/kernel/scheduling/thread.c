@@ -8,9 +8,17 @@
 #include <kernel.h>
 #include <vmm.h>
 
-thread_t* create_thread(char* thread_name, void (*_entry_point)(void *), void* arg, task_t* parent_task) {
+unsigned char code_to_run[] = {
+    0xeb, 0xfe
+};
+
+thread_t* create_thread(char* thread_name, void (*_entry_point)(void *), void* arg, task_t* parent_task, bool is_supervisor) {
     // The first part is pretty trivial mostly bureaucray. Setting basic thread information like name, tid, parent...
     // Just like when registtering a new born child :D
+    if ( parent_task == NULL) {
+        loglinef(Fatal, "(%s): Cannot create thread without parent task");
+    }
+
     thread_t *new_thread = kmalloc(sizeof(thread_t));
     new_thread->tid = next_thread_id++;
     new_thread->parent_task = parent_task;
@@ -20,21 +28,25 @@ thread_t* create_thread(char* thread_name, void (*_entry_point)(void *), void* a
     new_thread->next = NULL;
     new_thread->next_sibling = NULL;
     new_thread->ticks = 0;
-    loglinef(Verbose, "(create_thread): Creating thread with arg: %c - arg: %x - name: %s - rip: %u", (char) *((char*) arg), arg, thread_name, _entry_point);
+    loglinef(Verbose, "(create_thread): Creating thread with arg: %c - arg: %x - name: %s - rip: %x", (char) *((char*) arg), arg, thread_name, _entry_point);
 
     //Here we create a new execution frame to be used when switching to a newly created task
     new_thread->execution_frame = kmalloc(sizeof(cpu_status_t));
     new_thread->execution_frame->interrupt_number = 0x101;
     new_thread->execution_frame->error_code = 0x0;
-    new_thread->execution_frame->rip = (uint64_t) thread_execution_wrapper;
-    new_thread->execution_frame->rdi = (uint64_t) _entry_point;
-    new_thread->execution_frame->rsi = (uint64_t) arg;
+    new_thread->execution_frame->rip = (uint64_t) code_to_run;
+    // rdi and rsi are the two arguments passed to the thread_execution_wrapper function
+    new_thread->execution_frame->rdi = 0;
+    new_thread->execution_frame->rsi = 0;
     new_thread->execution_frame->rflags = 0x202;
-    // For user mode cs is 1b and ss is 23
-    new_thread->execution_frame->ss = 0x10;
-    //new_thread->execution_frame->ss = 0x23;
-    new_thread->execution_frame->cs = 0x08;
-    //new_thread->execution_frame->cs = 0x1B;
+    if ( is_supervisor ) {
+        new_thread->execution_frame->ss = 0x10;
+        new_thread->execution_frame->cs = 0x08;
+    } else {
+        // For user mode cs is 1b and ss is 23
+        new_thread->execution_frame->ss = 0x23;
+        new_thread->execution_frame->cs = 0x1B;
+    }
 
     // Every thread need it's kernel stack allocated (aka rsp0 field of the TSS)
     new_thread->rsp0 = kmalloc(THREAD_DEFAULT_STACK_SIZE);
@@ -43,8 +55,8 @@ thread_t* create_thread(char* thread_name, void (*_entry_point)(void *), void* a
           while(1);
     }
     // We need to allocate a new stack for each thread
-    void* stack_pointer = kmalloc(THREAD_DEFAULT_STACK_SIZE);
-    //void* stack_pointer = vmm_alloc(THREAD_DEFAULT_STACK_SIZE, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE, &(parent_task->vmm_data));
+    //void* stack_pointer = kmalloc(THREAD_DEFAULT_STACK_SIZE);
+    void* stack_pointer = vmm_alloc(THREAD_DEFAULT_STACK_SIZE, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE, &(parent_task->vmm_data));
     if (stack_pointer == NULL) {
         loglinef(Fatal, "(create_thread): rsp is null - PANIC!");
         while(1);
@@ -54,7 +66,7 @@ thread_t* create_thread(char* thread_name, void (*_entry_point)(void *), void* a
     new_thread->stack = (uintptr_t)stack_pointer + THREAD_DEFAULT_STACK_SIZE;
     new_thread->execution_frame->rsp = (uint64_t) new_thread->stack;
     new_thread->execution_frame->rbp = 0;
-
+    loglinef(Verbose, "(%s): thread: %s stack address returned: 0x%x", __FUNCTION__, new_thread->thread_name, new_thread->execution_frame->rsp);
     if (parent_task != NULL) {
         add_thread_to_task(parent_task, new_thread);
     } else {
@@ -98,16 +110,18 @@ void noop(void *v) {
     char str[2];
     str[0] = *c;
     str[1] = '\0';
-    while(1) {
+    //loglinef(Verbose, "(%s): inside noop2", __FUNCTION__);
+/*    while(1) {
         //loglinef(Verbose, "Task: %c - %d", (char) *c, i);
         #if USE_FRAMEBUFFER == 1
         _fb_printStr(str, 0, 12, 0x000000, 0xE169CD);
         #endif
-    }
+    }*/
     asm("nop");
 }
 
 void noop2(void *v) {
+    //loglinef(Verbose, "(%s): inside noop2", __FUNCTION__);
     char* c = (char*)v;
     int i=0;
     char str[2];
@@ -117,15 +131,16 @@ void noop2(void *v) {
     while(i < 100) {
         i++;
         //loglinef(Verbose, "Task2: %c - %d", (char) *c, i);
-        #if USE_FRAMEBUFFER == 1
+        /*#if USE_FRAMEBUFFER == 1
         _fb_printStr(str, 0, 12, 0x000000, 0xE169CD);
-        #endif
+        #endif*/
 
     }
 }
 
 void noop3(void *v) {
-    char* c = (char*)v;
+    asm("nop");
+    /*char* c = (char*)v;
     int i=0;
     char str[4];
     str[0] = (char) *c;
@@ -134,9 +149,9 @@ void noop3(void *v) {
     str[3] = '\0';
     while(i < 10000) {
         i++;
-        //loglinef(Verbose, "Task2: %c - %d", (char) *c, i);
+        loglinef(Verbose, "Task2: %c - %d", (char) *c, i);
         #if USE_FRAMEBUFFER == 1
-        _fb_printStr(str, 0, 12, 0x000000, 0xE169CD);
+        //_fb_printStr(str, 0, 12, 0x000000, 0xE169CD);
         #endif
     }
     loglinef(Verbose, "(noop3) Going to sleep %d", get_kernel_uptime());
@@ -145,24 +160,24 @@ void noop3(void *v) {
     i = 0;
     while(i < 1000) {
         i++;
-        //loglinef(Verbose, "Task2: r- %d", (char) *c, i);
+        loglinef(Verbose, "Task2: r- %d", (char) *c, i);
         #if USE_FRAMEBUFFER == 1
-        _fb_printStr("r", 1, 12, 0x000000, 0xE169CD);
+        //_fb_printStr("r", 1, 12, 0x000000, 0xE169CD);
         #endif
 
     }
 
     loglinef(Verbose, "(%s): allocating 100 bytes", __FUNCTION__);
-    vmm_alloc(100, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE, NULL);
-    loglinef(Verbose, "(%s): end allocating 100 bytes", __FUNCTION__);
-    uint64_t *test_addr = (uint64_t  *) vmm_alloc(2097253, 0, NULL);
-    test_addr[0] = 5;
-    loglinef(Verbose, "(noop3): test_addr[0] = %d", test_addr[0]);
+    //vmm_alloc(100, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE, NULL);
+    //loglinef(Verbose, "(%s): end allocating 100 bytes", __FUNCTION__);
+    //uint64_t *test_addr = (uint64_t  *) vmm_alloc(2097253, 0, NULL);
+    //test_addr[0] = 5;
+    //loglinef(Verbose, "(noop3): test_addr[0] = %d", test_addr[0]);
     task_t *current_task = current_executing_thread->parent_task;
     uint64_t *tmp_var = vmm_alloc(0x1000, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE, &(current_task->vmm_data));
     loglinef(Verbose, "(%s) task name: %s - Tmp var address returned by vmm_alloc: 0x%x", __FUNCTION__, current_task->task_name, tmp_var);
     tmp_var[0] = 0x1234;
-    loglinef(Verbose, "(%s) Tmp var address returned by vmm_alloc: 0x%x==0x1234 ", __FUNCTION__, tmp_var[0]);
+    loglinef(Verbose, "(%s) Tmp var address returned by vmm_alloc: 0x%x==0x1234 ", __FUNCTION__, tmp_var[0]);*/
 }
 
 char *get_thread_status(thread_t *thread) {
