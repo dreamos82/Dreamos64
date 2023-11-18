@@ -35,17 +35,17 @@ size_t cur_fb_line;
 void map_framebuffer(struct framebuffer_info fbdata) {
     uint32_t fb_entries = fbdata.memory_size / PAGE_SIZE_IN_BYTES;
     uint32_t fb_entries_mod =  fbdata.memory_size % PAGE_SIZE_IN_BYTES;
-    
+
     uint64_t phys_address = (uint64_t) fbdata.phys_address;
 
-    uint32_t pd = PD_ENTRY(_FRAMEBUFFER_MEM_START); 
+    uint32_t pd = PD_ENTRY(_FRAMEBUFFER_MEM_START);
     uint32_t pdpr = PDPR_ENTRY(_FRAMEBUFFER_MEM_START);
     uint32_t pml4 = PML4_ENTRY(_FRAMEBUFFER_MEM_START);
 #if SMALL_PAGES == 1
     uint32_t fb_pd_entries = fb_entries / VM_PAGES_PER_TABLE;
     uint32_t pt = PT_ENTRY(_FRAMEBUFFER_MEM_START);
 #endif
-    
+
 
     if(p4_table[pml4] == 0x00l || p3_table_hh[pdpr] == 0x00l){
         loglinef(Verbose, "PANIC - PML4 or PDPR Empty - not supported for now\n");
@@ -56,6 +56,7 @@ void map_framebuffer(struct framebuffer_info fbdata) {
     uint64_t *current_page_table = pt_tables;
     for(uint32_t i = 0; i <= fb_pd_entries; i++){
         bool newly_allocated = false;
+        // Probably should be safer to rely on the direct map if possible?
         if(p2_table[pd] == 0x00){
             uint64_t *new_table = pmm_alloc_frame();
             p2_table[pd] = (uint64_t)new_table | (PRESENT_BIT | WRITE_BIT);
@@ -64,11 +65,11 @@ void map_framebuffer(struct framebuffer_info fbdata) {
             newly_allocated = true;
         }
         for(int j=0; j < VM_PAGES_PER_TABLE && fb_entries > 0; j++){
-            if(newly_allocated == false){                
-            } else {                
+            if(newly_allocated == false){
+            } else {
                 current_page_table[j] = phys_address + (((VM_PAGES_PER_TABLE * i) + j) * PAGE_SIZE_IN_BYTES) | PAGE_ENTRY_FLAGS;
             }
-            fb_entries--;            
+            fb_entries--;
         }
         newly_allocated = false;
         pd++;
@@ -80,8 +81,8 @@ void map_framebuffer(struct framebuffer_info fbdata) {
     }
     for(int j=0; fb_entries > 0; j++){
         fb_entries--;
-        if((p2_table[pd+j] < phys_address 
-                || p2_table[pd+j] > (phys_address + fbdata.memory_size)) 
+        if((p2_table[pd+j] < phys_address
+                || p2_table[pd+j] > (phys_address + fbdata.memory_size))
                 || p2_table[pd+j] == 0x00l){
                 p2_table[pd+j] = (phys_address + (j * PAGE_SIZE_IN_BYTES)) | PAGE_ENTRY_FLAGS;
         }
@@ -116,12 +117,12 @@ void _fb_putchar(char symbol, size_t cx, size_t cy, uint32_t fg, uint32_t bg){
     height = get_height(psf_font_version);
 
     //uint32_t charsize = default_font->height * ((default_font->width + 7)/8);
-    //uint8_t *glyph = (uint8_t*)&_binary_fonts_default_psf_start + 
+    //uint8_t *glyph = (uint8_t*)&_binary_fonts_default_psf_start +
     //    default_font->headersize + (symbol>0&&symbol<default_font->numglyph?symbol:0) * default_font->bytesperglyph;
     uint8_t *glyph = get_glyph(symbol, psf_font_version);
     //bytesperline is the number of bytes per each row of the glyph
     size_t bytesperline =  (width + 7)/8;
-    size_t offset = (cy * height * pitch) + 
+    size_t offset = (cy * height * pitch) +
         (cx * (width) * sizeof(PIXEL));
     // x,y = current coordinates on the glyph bitmap
 
@@ -134,7 +135,7 @@ void _fb_putchar(char symbol, size_t cx, size_t cy, uint32_t fg, uint32_t bg){
             //*((uint32_t*) (framebuffer + line)) = *((unsigned int*) glyph) & mask ? fg : bg;
             //We are plotting the pixel
             //0x80 = 0b10000000, it is shifted right at every iteration this for loop.
-            //glyph[x/8] if widht > 8, x/8 = byte selector 
+            //glyph[x/8] if widht > 8, x/8 = byte selector
             //(ie width = 16bits, when x < 8, x/8, so we read glyph[0]. if x>8 then x/8 = 1, and we read glyph[1]
             //if the bit at position x is 1 plot the foreground color if is 0 plot the background color
             *((PIXEL*) (framebuffer + line)) = glyph[x/8] & (0x80 >> (x & 7)) ? fg : bg;
@@ -161,7 +162,7 @@ void _fb_printStr(const char *string, size_t cx, size_t cy, uint32_t fg, uint32_
 
 void _fb_printStrAndNumber(const char *string, uint64_t number, size_t cx, size_t cy, uint32_t fg, uint32_t bg){
     char buffer[30];
-    
+
     _getHexString(buffer, number, true);
     _fb_printStr(string, cx, cy, fg, bg);
     int counter = 0;
@@ -198,7 +199,7 @@ void draw_logo(uint32_t start_x, uint32_t start_y) {
     char pixel[4];
     for (uint32_t i = 0; i < height; i++) {
         for(uint32_t j = 0; j < width; j++) {
-            HEADER_PIXEL(logo_data, pixel); 
+            HEADER_PIXEL(logo_data, pixel);
             pixel[3] = 0;
             uint32_t num = (uint32_t) pixel[0] << 24 |
               (uint32_t)pixel[1] << 16 |

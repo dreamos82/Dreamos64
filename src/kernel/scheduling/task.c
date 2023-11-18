@@ -14,7 +14,7 @@ extern uint64_t p4_table[];
 extern uint64_t p3_table[];
 extern uint64_t p3_table_hh[];
 
-task_t* create_task(char *name, void (*_entry_point)(void *), void *args) {
+task_t* create_task(char *name, void (*_entry_point)(void *), void *args, bool is_supervisor) {
     //disable interrupts while creating a task
     asm("cli");
     task_t* new_task = (task_t*) kmalloc(sizeof(task_t));
@@ -23,9 +23,14 @@ task_t* create_task(char *name, void (*_entry_point)(void *), void *args) {
     new_task->task_id = next_task_id++;
     loglinef(Verbose, "(create_task) Task created with name: %s - Task id: %d", new_task->task_name, new_task->task_id);
     prepare_virtual_memory_environment(new_task);
-    vmm_init(VMM_LEVEL_USER, &(new_task->vmm_data));
+    if ( is_supervisor ){
+        vmm_init(VMM_LEVEL_SUPERVISOR, &(new_task->vmm_data));
+    } else {
+        vmm_init(VMM_LEVEL_USER, &(new_task->vmm_data));
+    }
+
     if( _entry_point != NULL) {
-        thread_t* thread = create_thread(name, _entry_point, args, new_task);
+        thread_t* thread = create_thread(name, _entry_point, args, new_task, is_supervisor);
         new_task->threads = thread;
     }
     scheduler_add_task(new_task);
@@ -45,7 +50,7 @@ void prepare_virtual_memory_environment(task_t* task) {
     // Tecnically the vmm_allos is not needed, since i have the direct memory map already accessible, so i just need to access it through the direct map.
 
     //void* vm_root_vaddress = vmm_alloc(PAGE_SIZE_IN_BYTES, VMM_FLAGS_ADDRESS_ONLY, NULL);
-    void* vm_root_vaddress = hhdm_get_variable ((size_t) task->vm_root_page_table);
+    void* vm_root_vaddress = hhdm_get_variable ((uintptr_t) task->vm_root_page_table);
     task->vmm_data.root_table_hhdm = (uintptr_t) vm_root_vaddress;
     //map_phys_to_virt_addr(task->vm_root_page_table, vm_root_vaddress, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE, NULL);
 
@@ -130,7 +135,7 @@ void print_thread_list(size_t task_id) {
     if (task != NULL) {
         thread_t* thread = task->threads;
         while(thread != NULL) {
-            loglinef(Verbose, "(print_thread_list)\tThread; %d - %s", thread->tid, thread->thread_name);
+            loglinef(Verbose, "(%s)\tThread; %d - %s", __FUNCTION__, thread->tid, thread->thread_name);
             thread = thread->next;
         }
     }

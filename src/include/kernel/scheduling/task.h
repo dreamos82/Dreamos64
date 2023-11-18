@@ -27,7 +27,7 @@ struct task_t {
 
 extern size_t next_task_id;
 
-task_t* create_task( char *name, void (*_entry_point)(void *), void *args );
+task_t* create_task( char *name, void (*_entry_point)(void *), void *args, bool is_supervisor );
 task_t* get_task( size_t task_id );
 
 bool add_thread_to_task_by_id( size_t task_id, thread_t* thread );

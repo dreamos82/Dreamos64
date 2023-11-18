@@ -55,7 +55,7 @@ typedef struct VmmInfo {
 
     size_t start_of_vmm_space; /**< The starting addres ofthe vmm space */
 
-    uintptr_t root_table_hhdm;
+    uintptr_t root_table_hhdm; /** the root page table loaded from the direct map */
 
     struct VmmStatus {
         size_t vmm_items_per_page; /**< Number of page items contained in one page */

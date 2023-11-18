@@ -29,6 +29,7 @@ void init_apic() {
     loglinef(Verbose, "(init_apic): APIC MSR Base Address: 0x%X", (msr_output&APIC_BASE_ADDRESS_MASK));
     apic_base_address = (msr_output&APIC_BASE_ADDRESS_MASK);
     apic_hh_base_address = ensure_address_in_higher_half(apic_base_address);
+    loglinef(Verbose, "(%s): apic_hh_base_address: 0x%x", __FUNCTION__, apic_hh_base_address);
     if(apic_base_address == 0) {
         logline(Error, "(init_apic): ERROR: cannot determine apic base address");
     }
@@ -55,7 +56,7 @@ void init_apic() {
         kernel_settings.use_x2_apic = false;
 
         //registers are accessed via mmio, make sure they're identity mapped
-        map_phys_to_virt_addr(VPTR(apic_base_address), VPTR(apic_hh_base_address), VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE, NULL);
+        map_phys_to_virt_addr(VPTR(apic_base_address), VPTR(apic_hh_base_address), VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE);
     }
     else {
         kernel_settings.use_x2_apic = false;

@@ -42,7 +42,7 @@ struct thread_t {
 extern size_t next_thread_id;
 
 
-thread_t* create_thread(char* thread_name, void (*_entry_point)(void *) , void* arg, struct task_t* parent_task);
+thread_t* create_thread(char* thread_name, void (*_entry_point)(void *) , void* arg, struct task_t* parent_task, bool is_supervisor);
 void thread_execution_wrapper( void (*)(void *), void*);
 void thread_suicide_trap();
 void thread_sleep(size_t millis);
