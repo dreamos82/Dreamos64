@@ -46,7 +46,7 @@ cpu_status_t* schedule(cpu_status_t* cur_status) {
     // First let's check if the current task need to be scheduled or not;
     if (current_executing_thread->status == SLEEP) {
         // If the task has been placed to sleep it needs to be scheduled
-        //loglinef(Verbose, "Current thread %d status is sleeping!", current_executing_thread->tid);
+        //loglinef(Verbose, "(%s): Current thread %d status is sleeping!", __FUNCTION__ ,current_executing_thread->tid);
         current_executing_thread->ticks = SCHEDULER_NUMBER_OF_TICKS;
     }
 
@@ -66,6 +66,7 @@ cpu_status_t* schedule(cpu_status_t* cur_status) {
     prev_executing_thread = current_executing_thread;
     prev_thread_tid = prev_executing_thread->tid;
     current_thread = scheduler_get_next_thread();
+    loglinef(Verbose, "(%s): Current thread %d status is new, name: %s!", __FUNCTION__ ,current_thread->tid, current_thread->thread_name);
 
     while (current_thread->tid != prev_thread_tid) {
         if (current_thread->status == SLEEP) {
@@ -98,6 +99,7 @@ cpu_status_t* schedule(cpu_status_t* cur_status) {
     task_t *current_task = current_executing_thread->parent_task;
     // ... every task has it's own addressing space, so we need to update the cr3 register
     load_cr3(current_task->vm_root_page_table);
+    loglinef(Verbose, "(%s): current_thread->execution_frame->rsp: 0x%x", __FUNCTION__, current_executing_thread->execution_frame->rsp);
     // ... and finally we need to update the tss structure with the current thread rsp0
     kernel_tss.rsp0 = (uint64_t) current_executing_thread->rsp0;
     //loglinef(Verbose, "(schedule) leaving schedule...");

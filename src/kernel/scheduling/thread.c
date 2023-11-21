@@ -16,7 +16,7 @@ thread_t* create_thread(char* thread_name, void (*_entry_point)(void *), void* a
     // The first part is pretty trivial mostly bureaucray. Setting basic thread information like name, tid, parent...
     // Just like when registtering a new born child :D
     if ( parent_task == NULL) {
-        loglinef(Fatal, "(%s): Cannot create thread without parent task");
+        loglinef(Fatal, "(%s): Cannot create thread without parent task", __FUNCTION__);
     }
 
     thread_t *new_thread = kmalloc(sizeof(thread_t));
