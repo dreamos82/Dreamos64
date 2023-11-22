@@ -82,7 +82,7 @@ void vmm_init(vmm_level_t vmm_level, VmmInfo *vmm_info) {
 
     // Mapping the phyiscal address for the vmm structures
     map_phys_to_virt_addr_hh(vmm_root_phys, vmm_info->status.vmm_container_root, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE, root_table_hh);
-
+    loglinef(Verbose, "(%s): Leaving vmm_init", __FUNCTION__);
     vmm_info->status.vmm_container_root->next = NULL;
     vmm_info->status.vmm_cur_container = vmm_info->status.vmm_container_root;
 }

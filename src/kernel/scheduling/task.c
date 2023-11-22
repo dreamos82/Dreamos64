@@ -28,9 +28,13 @@ task_t* create_task(char *name, void (*_entry_point)(void *), void *args, bool i
     } else {
         vmm_init(VMM_LEVEL_USER, &(new_task->vmm_data));
     }
-
-    if( _entry_point != NULL) {
+    if( is_supervisor) {
+        loglinef(Verbose, "(%s): creating new thread", __FUNCTION__);
         thread_t* thread = create_thread(name, _entry_point, args, new_task, is_supervisor);
+        new_task->threads = thread;
+    } else {
+        loglinef(Verbose, "(%s): creating new thread  userspace", __FUNCTION__);
+        thread_t* thread = create_thread(name, NULL, args, new_task, is_supervisor);
         new_task->threads = thread;
     }
     scheduler_add_task(new_task);
@@ -52,6 +56,7 @@ void prepare_virtual_memory_environment(task_t* task) {
     //void* vm_root_vaddress = vmm_alloc(PAGE_SIZE_IN_BYTES, VMM_FLAGS_ADDRESS_ONLY, NULL);
     void* vm_root_vaddress = hhdm_get_variable ((uintptr_t) task->vm_root_page_table);
     task->vmm_data.root_table_hhdm = (uintptr_t) vm_root_vaddress;
+    loglinef(Verbose, "(%s) vm_root_vaddress: %x", __FUNCTION__, vm_root_vaddress);
     //map_phys_to_virt_addr(task->vm_root_page_table, vm_root_vaddress, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE, NULL);
 
     // 2. We will map the whole higher half of the kernel, this means from pml4 item 256 to 511

@@ -6,6 +6,7 @@
 #include <kheap.h>
 #include <logging.h>
 #include <kernel.h>
+#include <userspace.h>
 #include <vmm.h>
 
 unsigned char code_to_run[] = {
@@ -34,7 +35,14 @@ thread_t* create_thread(char* thread_name, void (*_entry_point)(void *), void* a
     new_thread->execution_frame = kmalloc(sizeof(cpu_status_t));
     new_thread->execution_frame->interrupt_number = 0x101;
     new_thread->execution_frame->error_code = 0x0;
-    new_thread->execution_frame->rip = (uint64_t) code_to_run;
+    if (!is_supervisor) {
+        loglinef(Verbose, "(%s): vmm_data address: 0x%x", __FUNCTION__, &(parent_task->vmm_data));
+        new_thread->execution_frame->rip = prepare_userspace_function(&(parent_task->vmm_data));
+        loglinef(Verbose, "(%s): using userspace function address: 0x%x", __FUNCTION__, new_thread->execution_frame->rip);
+    } else {
+        loglinef(Verbose, "(%s): using idle function", __FUNCTION__);
+        new_thread->execution_frame->rip = (uint64_t) code_to_run;
+    }
     // rdi and rsi are the two arguments passed to the thread_execution_wrapper function
     new_thread->execution_frame->rdi = 0;
     new_thread->execution_frame->rsi = 0;
