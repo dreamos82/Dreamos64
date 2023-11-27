@@ -114,78 +114,7 @@ void idle() {
 }
 
 void noop(void *v) {
-    char *c = (char*)v;
-    char str[2];
-    str[0] = *c;
-    str[1] = '\0';
-    //loglinef(Verbose, "(%s): inside noop2", __FUNCTION__);
-/*    while(1) {
-        //loglinef(Verbose, "Task: %c - %d", (char) *c, i);
-        #if USE_FRAMEBUFFER == 1
-        _fb_printStr(str, 0, 12, 0x000000, 0xE169CD);
-        #endif
-    }*/
     asm("nop");
-}
-
-void noop2(void *v) {
-    //loglinef(Verbose, "(%s): inside noop2", __FUNCTION__);
-    char* c = (char*)v;
-    int i=0;
-    char str[2];
-    str[0] = *c;
-    str[1] = '\0';
-    //thread_sleep(5000);
-    while(i < 100) {
-        i++;
-        //loglinef(Verbose, "Task2: %c - %d", (char) *c, i);
-        /*#if USE_FRAMEBUFFER == 1
-        _fb_printStr(str, 0, 12, 0x000000, 0xE169CD);
-        #endif*/
-
-    }
-}
-
-void noop3(void *v) {
-    asm("nop");
-    /*char* c = (char*)v;
-    int i=0;
-    char str[4];
-    str[0] = (char) *c;
-    str[1] = 'b';
-    str[2] = 'f';
-    str[3] = '\0';
-    while(i < 10000) {
-        i++;
-        loglinef(Verbose, "Task2: %c - %d", (char) *c, i);
-        #if USE_FRAMEBUFFER == 1
-        //_fb_printStr(str, 0, 12, 0x000000, 0xE169CD);
-        #endif
-    }
-    loglinef(Verbose, "(noop3) Going to sleep %d", get_kernel_uptime());
-    thread_sleep(5000);
-    loglinef(Verbose, "(test_task noop3): Wakeup %d - %d", get_kernel_uptime(), current_executing_thread->wakeup_time);
-    i = 0;
-    while(i < 1000) {
-        i++;
-        loglinef(Verbose, "Task2: r- %d", (char) *c, i);
-        #if USE_FRAMEBUFFER == 1
-        //_fb_printStr("r", 1, 12, 0x000000, 0xE169CD);
-        #endif
-
-    }
-
-    loglinef(Verbose, "(%s): allocating 100 bytes", __FUNCTION__);
-    //vmm_alloc(100, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE, NULL);
-    //loglinef(Verbose, "(%s): end allocating 100 bytes", __FUNCTION__);
-    //uint64_t *test_addr = (uint64_t  *) vmm_alloc(2097253, 0, NULL);
-    //test_addr[0] = 5;
-    //loglinef(Verbose, "(noop3): test_addr[0] = %d", test_addr[0]);
-    task_t *current_task = current_executing_thread->parent_task;
-    uint64_t *tmp_var = vmm_alloc(0x1000, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE, &(current_task->vmm_data));
-    loglinef(Verbose, "(%s) task name: %s - Tmp var address returned by vmm_alloc: 0x%x", __FUNCTION__, current_task->task_name, tmp_var);
-    tmp_var[0] = 0x1234;
-    loglinef(Verbose, "(%s) Tmp var address returned by vmm_alloc: 0x%x==0x1234 ", __FUNCTION__, tmp_var[0]);*/
 }
 
 char *get_thread_status(thread_t *thread) {
