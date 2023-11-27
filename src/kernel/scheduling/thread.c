@@ -57,7 +57,7 @@ thread_t* create_thread(char* thread_name, void (*_entry_point)(void *), void* a
     }
 
     // Every thread need it's kernel stack allocated (aka rsp0 field of the TSS)
-    new_thread->rsp0 = kmalloc(THREAD_DEFAULT_STACK_SIZE);
+    new_thread->rsp0 = kmalloc(THREAD_DEFAULT_STACK_SIZE) + THREAD_DEFAULT_STACK_SIZE;
     if (new_thread->rsp0 == NULL) {
           loglinef(Fatal, "(create_thread): rsp0 is null - PANIC!");
           while(1);
