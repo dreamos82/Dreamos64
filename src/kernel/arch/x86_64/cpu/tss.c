@@ -66,7 +66,5 @@ void load_tss() {
     gdt64[TSS_ENTRY_HIGH] = entry_high;
     loglinef(Verbose, "(%s) Loading TSS Register", __FUNCTION__);
     loglinef(Verbose, "(%s) kernel_tss address = 0x%x", __FUNCTION__, &kernel_tss);
-    loglinef(Verbose, "(%s) gdt64[4] = 0x%x", __FUNCTION__, (uint64_t)gdt64[TSS_ENTRY_LOW]);
-    loglinef(Verbose, "(%s) gdt64[5] = 0x%x", __FUNCTION__,  (uint64_t)gdt64[TSS_ENTRY_HIGH]);
     _load_task_register();
 }

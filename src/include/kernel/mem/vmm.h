@@ -27,7 +27,8 @@ typedef enum {
     VMM_FLAGS_PRESENT = (1 << 0),
     VMM_FLAGS_WRITE_ENABLE = (1 << 1),
     VMM_FLAGS_USER_LEVEL = (1 << 2),
-    VMM_FLAGS_ADDRESS_ONLY = (1 << 7)
+    VMM_FLAGS_ADDRESS_ONLY = (1 << 7),
+    VMM_FLAGS_STACK = (1 << 8)
 } paging_flags_t;
 
 typedef enum {
@@ -86,6 +87,7 @@ uint8_t check_virt_address_status(uint64_t virtual_address);
 void vmm_direct_map_physical_memory();
 
 bool is_address_only(size_t  flags);
+bool is_address_stack(size_t flags);
 
 void *vmm_get_variable_from_direct_map ( size_t phys_address );
 

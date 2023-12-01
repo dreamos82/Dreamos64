@@ -2,7 +2,7 @@
 
 ## Loading the kernel
 
-The kernel is loaded by grub2, using the multibtoo2 specifications.
+The kernel is loaded by grub2, using the multiboot2 specifications.
 
 The tags that are enabled at boot are:
 

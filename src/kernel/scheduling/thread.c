@@ -64,14 +64,14 @@ thread_t* create_thread(char* thread_name, void (*_entry_point)(void *), void* a
     }
     // We need to allocate a new stack for each thread
     //void* stack_pointer = kmalloc(THREAD_DEFAULT_STACK_SIZE);
-    void* stack_pointer = vmm_alloc(THREAD_DEFAULT_STACK_SIZE, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE, &(parent_task->vmm_data));
+    void* stack_pointer = vmm_alloc(THREAD_DEFAULT_STACK_SIZE, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE | VMM_FLAGS_STACK, &(parent_task->vmm_data));
     if (stack_pointer == NULL) {
         loglinef(Fatal, "(create_thread): rsp is null - PANIC!");
         while(1);
     }
 
     // The stack grow backward, so the pointer will be the end of the stack
-    new_thread->stack = (uintptr_t)stack_pointer + THREAD_DEFAULT_STACK_SIZE;
+    new_thread->stack = (uintptr_t)stack_pointer;
     new_thread->execution_frame->rsp = (uint64_t) new_thread->stack;
     new_thread->execution_frame->rbp = 0;
     loglinef(Verbose, "(%s): thread: %s stack address returned: 0x%x", __FUNCTION__, new_thread->thread_name, new_thread->execution_frame->rsp);
