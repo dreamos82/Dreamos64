@@ -52,7 +52,7 @@ void hhdm_map_physical_memory() {
     }
 
     while ( address_to_map < memory_size_in_bytes) {
-        //loglinef(Verbose, "(direct_map_physical_memory) Mapping physical address: 0x%x", address_to_map);
+        //loglinef(Verbose, "(%s) Mapping physical address: 0x%x - virtual address: 0x%x", __FUNCTION__ ,address_to_map, virtual_address);
         //p4_table[current_entry] = address_to_map | HUGEPAGE_BIT| WRITE_BIT | PRESENT_BIT;
         map_phys_to_virt_addr((void*)address_to_map, (void*)virtual_address, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE);
         address_to_map += PAGE_SIZE_IN_BYTES;

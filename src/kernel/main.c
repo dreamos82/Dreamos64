@@ -33,8 +33,6 @@
 #include <scheduler.h>
 #include <thread.h>
 #include <rtc.h>
-#include <fcntl.h>
-#include <unistd.h>
 #include <spinlock.h>
 #include <task.h>
 #include <tss.h>
@@ -42,6 +40,7 @@
 #include <vm.h>
 #include <vmm.h>
 #include <vmm_mapping.h>
+#include <userspace.h>
 //#include <runtime_tests.h>
 
 extern uint32_t FRAMEBUFFER_MEMORY_SIZE;
@@ -190,40 +189,25 @@ void kernel_start(unsigned long addr, unsigned long magic){
     loglinef(Verbose, "(kernel_main) (END of Mapped memory: 0x%x)", end_of_mapped_memory);
     vfs_init();
     uint64_t unix_timestamp = read_rtc_time();
+
     #if USE_FRAMEBUFFER == 1
     _fb_printStrAndNumber("Epoch time: ", unix_timestamp, 0, 5, 0xf5c4f1, 0x000000);
     #endif
     init_scheduler();
     char a = 'a';
-    char b = 'b';
-    char c = 'c';
-    char d = 'd';
     task_t* idle_task = create_task("idle", noop, &a, true);
     idle_thread = idle_task->threads;
     //task_t* eldi_task = create_task("eldi", noop2, &b);
+    task_t* userspace_task = create_task("userspace_idle", NULL, &a, false);
     //create_thread("ledi", noop2, &c, eldi_task);
     //create_task("sleeper", noop3, &d);
     //print_thread_list(eldi_task->task_id);
-    /*int fd_id = open("/home/ivan/testfile.txt", 0);
-    loglinef(Verbose, "(kernel_main) Obtained fd id: %d fs_fd_id: %d", fd_id, vfs_opened_files[fd_id].fs_specific_id);
-    char buffer[15] = "";
-    read(fd_id, buffer, 15);
-    loglinef(Verbose, "(kernel_main) Output of read: %s", buffer);
-    int result = close(fd_id);
-    loglinef(Verbose, "(kernel_main) Closing file with id: %d", result);*/
     //execute_runtime_tests();
     start_apic_timer(kernel_settings.apic_timer.timer_ticks_base, APIC_TIMER_SET_PERIODIC, kernel_settings.apic_timer.timer_divisor);
     loglinef(Verbose, "(kernel_main) (END of Mapped memory: 0x%x)", end_of_mapped_memory);
     loglinef(Verbose, "(kernel_main) init_basic_system: Memory lower (in kb): %d - upper (in kb): %d", tagmem->mem_lower, tagmem->mem_upper);
-    // Testing that the hhdm is actually working
     struct multiboot_tag_basic_meminfo *virt_phys_addr = (struct multiboot_tag_basic_meminfo *) hhdm_get_variable( (size_t) multiboot_basic_meminfo );
-    loglinef(Verbose, "(kernel_main) init_basic_system: Memory lower (in kb): %d - upper (in kb): %d", virt_phys_addr->mem_lower, virt_phys_addr->mem_upper);
     logline(Info, "(kernel_main) Init end!! Starting infinite loop");
-    //uint64_t* vm_root_vaddress = (uint64_t *) vmm_alloc(PAGE_SIZE_IN_BYTES, VMM_FLAGS_ADDRESS_ONLY, NULL);
-    //void* temp_var = pmm_alloc_frame();
-    //map_phys_to_virt_addr_hh(temp_var, (void *) vm_root_vaddress, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE, NULL);
-    //vm_root_vaddress[0] = 5;
-    //loglinef(Verbose, "(%s): vm_root_vaddress value: 0x%x", __FUNCTION__, vm_root_vaddress[0]);
-    //map_phys_to_hh();
+
     while(1);
 }

@@ -7,6 +7,7 @@ CFLAGS := -std=gnu99 \
         -Wextra \
         -I src/include \
         -I src/include/base \
+        -I src/include/userspace \
         -I src/include/kernel \
         -I src/include/kernel/mem \
         -I src/include/kernel/arch/x86_64 \

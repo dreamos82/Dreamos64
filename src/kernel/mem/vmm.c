@@ -3,6 +3,7 @@
 #include <logging.h>
 #include <main.h>
 #include <pmm.h>
+#include <thread.h>
 #include <video.h>
 #include <vm.h>
 #include <vmm.h>
@@ -82,7 +83,7 @@ void vmm_init(vmm_level_t vmm_level, VmmInfo *vmm_info) {
 
     // Mapping the phyiscal address for the vmm structures
     map_phys_to_virt_addr_hh(vmm_root_phys, vmm_info->status.vmm_container_root, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE, root_table_hh);
-
+    loglinef(Verbose, "(%s): Leaving vmm_init", __FUNCTION__);
     vmm_info->status.vmm_container_root->next = NULL;
     vmm_info->status.vmm_cur_container = vmm_info->status.vmm_container_root;
 }
@@ -157,11 +158,23 @@ void *vmm_alloc(size_t size, size_t flags, VmmInfo *vmm_info) {
     loglinef(Verbose, "(vmm_alloc) newly allocated item base: %x, next available address: %x", vmm_info->status.vmm_cur_container->vmm_root[vmm_info->status.vmm_cur_index].base, vmm_info->status.next_available_address);
     vmm_info->status.vmm_cur_index++;
 
+    if ( is_address_stack(flags) ) {
+        loglinef(Verbose, "(%s): The address will be a stack", __FUNCTION__);
+        return (void *) address_to_return + THREAD_DEFAULT_STACK_SIZE;
+    }
+
     return (void *) address_to_return;
 }
 
 bool is_address_only(size_t  flags) {
-    if(flags & VMM_FLAGS_ADDRESS_ONLY) {
+    if ( flags & VMM_FLAGS_ADDRESS_ONLY ) {
+        return true;
+    }
+    return false;
+}
+
+bool is_address_stack(size_t flags) {
+    if ( flags & VMM_FLAGS_STACK ) {
         return true;
     }
     return false;
