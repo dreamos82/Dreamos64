@@ -61,7 +61,7 @@ void *pmm_alloc_frame(){
 void *pmm_alloc_area(size_t size) {
     size_t requested_frames = get_number_of_pages_from_size(size);
 
-    loglinef(Verbose, "(%s): requested_frames: %x\n", __FUNCTION__, requested_frames);
+    pretty_logf(Verbose, "requested_frames: %x\n", requested_frames);
     spinlock_acquire(&memory_spinlock);
     uint64_t frames = _bitmap_request_frames(requested_frames);
 
