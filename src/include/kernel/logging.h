@@ -19,6 +19,9 @@ typedef enum {
     Fatal = 4,
 } log_level_t;
 
+#define pretty_logf(level, msg, ...)  loglinef(level, "(%s): "msg,  __FUNCTION__, __VA_ARGS__);
+#define pretty_log(level, msg)  loglinef(level, "(%s): "msg,  __FUNCTION__);
+
 #define LOG_OUTPUT_DONT_CARE (size_t)-1
 #define LOG_OUTPUT_SERIAL (1 << 0)
 #define LOG_OUTPUT_DEBUGCON (1 << 1)
