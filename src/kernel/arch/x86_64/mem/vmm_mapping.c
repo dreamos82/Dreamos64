@@ -18,7 +18,7 @@ void *map_phys_to_virt_addr_hh(void* physical_address, void* address, size_t fla
     uint8_t user_mode_status = 0;
 
     if ( !is_address_higher_half((uint64_t) address) ) {
-        loglinef(Verbose, "(%s) address is in lower half", __FUNCTION__);
+        pretty_log(Verbose, "address is in lower half");
         flags = flags | VMM_FLAGS_USER_LEVEL;
         user_mode_status = VMM_FLAGS_USER_LEVEL;
     }
@@ -29,33 +29,31 @@ void *map_phys_to_virt_addr_hh(void* physical_address, void* address, size_t fla
 
     if (pml4_root != NULL) {
         pml4_table = pml4_root;
-        loglinef(Verbose, "(%s): Entries values pml4_e: 0x%d pdpr_e: 0x%d pd_e: 0x%d", __FUNCTION__, pml4_e, pdpr_e, pd_e);
-        loglinef(Verbose, "(%s):\taddress: 0x%x, phys_address: 0x%x", __FUNCTION__, address, physical_address);
-        //loglinef(Verbose, "(%s):\tpml4_root address: 0x%x", __FUNCTION__, pml4_root);
-        //loglinef(Verbose, "(%s):\tpml4_root[pml4_e] = 0x%x pml4_table[pml4_e] = 0x%x", __FUNCTION__, pml4_root[pml4_e], pml4_table[pml4_e]);
-        loglinef(Verbose, "(%s):\tpdpr base_address: 0x%x", __FUNCTION__, pml4_root[pml4_e] & VM_PAGE_TABLE_BASE_ADDRESS_MASK);
+        pretty_logf(Verbose, "Entries values pml4_e: 0x%d pdpr_e: 0x%d pd_e: 0x%d", pml4_e, pdpr_e, pd_e);
+        pretty_logf(Verbose, "\taddress: 0x%x, phys_address: 0x%x", address, physical_address);
+        pretty_logf(Verbose, "\tpdpr base_address: 0x%x", pml4_root[pml4_e] & VM_PAGE_TABLE_BASE_ADDRESS_MASK);
 
         if ( !(pml4_root[pml4_e] & 0b1) ) {
-            loglinef(Verbose, "(%s): We should allocate a new table at pml4_e: %d", __FUNCTION__, pml4_e);
+            pretty_logf(Verbose, " We should allocate a new table at pml4_e: %d", pml4_e);
             uint64_t *new_table = pmm_alloc_frame();
             pml4_root[pml4_e] = (uint64_t) new_table | user_mode_status | WRITE_BIT | PRESENT_BIT;
             uint64_t *new_table_hhdm = hhdm_get_variable((uintptr_t) new_table);
             clean_new_table(new_table_hhdm);
             pdpr_root = new_table_hhdm;
         } else {
-            loglinef(Verbose, "(%s) No need to allocate pml4", __FUNCTION__);
+            pretty_log(Verbose, "No need to allocate pml4");
             pdpr_root =  (uint64_t *) hhdm_get_variable((uintptr_t) pml4_root[pml4_e] & VM_PAGE_TABLE_BASE_ADDRESS_MASK);
         }
 
         if ( !(pdpr_root[pdpr_e] & 0b1) ) {
-            loglinef(Verbose, "(%s): We should allocate a new table at pdpr_e: %d", __FUNCTION__, pdpr_e);
+            pretty_logf(Verbose, " We should allocate a new table at pdpr_e: %d", pdpr_e);
             uint64_t *new_table = pmm_alloc_frame();
             pdpr_root[pdpr_e] = (uint64_t) new_table | user_mode_status | WRITE_BIT | PRESENT_BIT;
             uint64_t *new_table_hhdm = hhdm_get_variable((uintptr_t) new_table);
             clean_new_table(new_table_hhdm);
             pd_root = new_table_hhdm;
         } else {
-            loglinef(Verbose, "(%s) No need to allocate pdpr", __FUNCTION__);
+            pretty_log(Verbose, "No need to allocate pdpr");
              pd_root =  (uint64_t *) hhdm_get_variable((uintptr_t) pdpr_root[pdpr_e] & VM_PAGE_TABLE_BASE_ADDRESS_MASK);
         }
 
@@ -68,7 +66,7 @@ void *map_phys_to_virt_addr_hh(void* physical_address, void* address, size_t fla
             pt_root = new_table_hhdm;
 #elif SMALL_PAGES == 0
             pd_root[pd_e] = (uint64_t) (physical_address) | HUGEPAGE_BIT | flags | user_mode_status;
-            loglinef(Verbose, "(%s): PD Flags: 0x%x entry value pd_root[0x%x]: 0x%x", __FUNCTION__, flags, pd_e, pd_root[pd_e]);
+            pretty_logf(Verbose, " PD Flags: 0x%x entry value pd_root[0x%x]: 0x%x", flags, pd_e, pd_root[pd_e]);
 #endif
         }
 
@@ -122,7 +120,7 @@ void *map_phys_to_virt_addr(void* physical_address, void* address, size_t flags)
 
     uint64_t *pdpr_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l,510l,510l, (uint64_t) pml4_e));
     uint64_t *pd_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l,510l, (uint64_t) pml4_e, (uint64_t) pdpr_e));
-    //loglinef(Verbose, "(map_phys_to_virt_addr) Pml4: %u - pdpr: %u - pd: %u - flags: 0x%x to address: 0x%x", pml4_e, pdpr_e, pd_e, flags, address);
+    //pretty_logf(Verbose, "(map_phys_to_virt_addr) Pml4: %u - pdpr: %u - pd: %u - flags: 0x%x to address: 0x%x", pml4_e, pdpr_e, pd_e, flags, address);
 
     #if SMALL_PAGES == 1
 
@@ -136,7 +134,7 @@ void *map_phys_to_virt_addr(void* physical_address, void* address, size_t flags)
     if( !(pml4_table[pml4_e] & 0b1) ) {
         uint64_t *new_table = pmm_alloc_frame();
         pml4_table[pml4_e] = (uint64_t) new_table | user_mode_status | WRITE_BIT | PRESENT_BIT;
-       // loglinef(Verbose, "(%s): need to allocate pml4 for address: 0x%x - Entry value: 0x%x - phys_address: 0x%x", __FUNCTION__, (uint64_t) address, pml4_table[pml4_e], new_table);
+       // pretty_logf(Verbose, " need to allocate pml4 for address: 0x%x - Entry value: 0x%x - phys_address: 0x%x", (uint64_t) address, pml4_table[pml4_e], new_table);
         clean_new_table(pdpr_table);
     }
 
@@ -145,7 +143,7 @@ void *map_phys_to_virt_addr(void* physical_address, void* address, size_t flags)
     if( !(pdpr_table[pdpr_e] & 0b1) ) {
         uint64_t *new_table = pmm_alloc_frame();
         pdpr_table[pdpr_e] = (uint64_t) new_table | user_mode_status | WRITE_BIT | PRESENT_BIT;
-//        loglinef(Verbose, "(%s): PDPR entry value: 0x%x", __FUNCTION__, pdpr_table[pdpr_e]);
+//        pretty_logf(Verbose, " PDPR entry value: 0x%x", pdpr_table[pdpr_e]);
         clean_new_table(pd_table);
     }
 
@@ -158,7 +156,7 @@ void *map_phys_to_virt_addr(void* physical_address, void* address, size_t flags)
         clean_new_table(pt_table);
 #elif SMALL_PAGES == 0
         pd_table[pd_e] = (uint64_t) (physical_address) | HUGEPAGE_BIT | flags | user_mode_status;
-//       loglinef(Verbose, "(%s): PD Flags: 0x%x entry value: 0x%x", __FUNCTION__, flags, pd_table[pd_e]);
+//       pretty_logf(Verbose, " PD Flags: 0x%x entry value: 0x%x", flags, pd_table[pd_e]);
 #endif
     }
 
@@ -174,7 +172,7 @@ void *map_phys_to_virt_addr(void* physical_address, void* address, size_t flags)
 }
 
 void *map_vaddress(void *virtual_address, size_t flags, uint64_t *pml4_root){
-    loglinef(Verbose, "(map_vaddress) address: 0x%x", virtual_address);
+    pretty_logf(Verbose, "address: 0x%x", virtual_address);
     void *new_addr = pmm_alloc_frame();
     return map_phys_to_virt_addr_hh(new_addr, virtual_address, flags, pml4_root);
 }
@@ -203,7 +201,7 @@ int unmap_vaddress(void *address){
 	}
 
 	#if SMALL_PAGES == 0
-	logline(Verbose, "Freeing page");
+	pretty_log(Verbose, "Freeing page");
 	pd_table[pd_e] = 0x0l;
 	invalidate_page_table(pd_table);
 	#elif SMALL_PAGES == 1

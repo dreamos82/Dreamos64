@@ -20,11 +20,11 @@ void initialize_kheap(){
     uint64_t *kheap_vaddress = vmm_alloc(PAGE_SIZE_IN_BYTES, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE, NULL);
 
     kernel_heap_start = (KHeapMemoryNode *) ((uint64_t) kheap_vaddress);
-    loglinef(Verbose, "(initialize_kheap) Start address using vmm_alloc: %x, and using end of vmm_space: %x", kheap_vaddress, kernel_heap_start);
+    pretty_logf(Verbose, "Start address using vmm_alloc: %x, and using end of vmm_space: %x", kheap_vaddress, kernel_heap_start);
 
     #else
         #pragma message "(initialize_kheap) Using test specific initialization"
-        loglinef(Verbose, "(initialize_kheap) Test suite initialization");
+        pretty_logf(Verbose, "Test suite initialization");
         kernel_heap_start = (KHeapMemoryNode *) ((uint64_t)&_kernel_end + KERNEL_MEMORY_PADDING);
     #endif
 
@@ -35,7 +35,7 @@ void initialize_kheap(){
     kernel_heap_current_pos->is_free = true;
     kernel_heap_current_pos->next = NULL;
     kernel_heap_current_pos->prev = NULL;
-    loglinef(Verbose, "(initialize_kheap) PAGESIZE: 0x%x - val: %x", PAGE_SIZE_IN_BYTES, kernel_heap_start->size);
+    pretty_logf(Verbose, "PAGESIZE: 0x%x - val: %x", PAGE_SIZE_IN_BYTES, kernel_heap_start->size);
 }
 
 size_t align(size_t size) {
@@ -46,11 +46,11 @@ void *kmalloc(size_t size) {
     KHeapMemoryNode *current_node = kernel_heap_start;
     // If size is 0 we don't need to do anything
     if( size == 0 ) {
-        loglinef(Verbose, "(kmalloc) Size is null");
+        pretty_logf(Verbose, "Size is null");
         return NULL;
     }
 
-    //loglinef(Verbose, "(kmalloc) Current heap free size: 0x%x - Required: 0x%x", current_node->size, align(size + sizeof(KHeapMemoryNode)));
+    //pretty_logf(Verbose, "(kmalloc) Current heap free size: 0x%x - Required: 0x%x", current_node->size, align(size + sizeof(KHeapMemoryNode)));
 
     while( current_node != NULL ) {
         // The size of a node contains also the size of the header, so when creating nodes we add headers
@@ -95,7 +95,7 @@ void *kmalloc(size_t size) {
 
 void expand_heap(size_t required_size) {
     //  This function expand the heap in case more space is needed.
-    loglinef(Verbose, "(expand_heap) called size: %d current_end: 0x%x - end_of_mapped_memory: 0x%x", required_size, kernel_heap_end, end_of_mapped_memory);
+    pretty_logf(Verbose, "called size: %d current_end: 0x%x - end_of_mapped_memory: 0x%x", required_size, kernel_heap_end, end_of_mapped_memory);
     // The first thing to do is compute how many page we need for this expansion
     size_t number_of_pages = get_number_of_pages_from_size(required_size);
     // Then check where the heap ends
