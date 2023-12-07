@@ -46,7 +46,7 @@ void *kmalloc(size_t size) {
     KHeapMemoryNode *current_node = kernel_heap_start;
     // If size is 0 we don't need to do anything
     if( size == 0 ) {
-        pretty_logf(Verbose, "Size is null");
+        pretty_log(Verbose, "Size is null");
         return NULL;
     }
 
