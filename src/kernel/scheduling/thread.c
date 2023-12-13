@@ -36,6 +36,7 @@ thread_t* create_thread(char* thread_name, void (*_entry_point)(void *), void* a
     new_thread->execution_frame->interrupt_number = 0x101;
     new_thread->execution_frame->error_code = 0x0;
     if (!is_supervisor) {
+        // This piece of code is temporary, just to test a userspace task, it run just an infinite loop.
         pretty_logf(Verbose, "vmm_data address: 0x%x", &(parent_task->vmm_data));
         new_thread->execution_frame->rip = prepare_userspace_function(&(parent_task->vmm_data));
         pretty_logf(Verbose, "using userspace function address: 0x%x", new_thread->execution_frame->rip);

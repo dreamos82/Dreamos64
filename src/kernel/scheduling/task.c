@@ -29,11 +29,11 @@ task_t* create_task(char *name, void (*_entry_point)(void *), void *args, bool i
         vmm_init(VMM_LEVEL_USER, &(new_task->vmm_data));
     }
     if( is_supervisor) {
-        pretty_log(Verbose, "creating new thread");
+        pretty_log(Verbose, "creating new supervisor thread");
         thread_t* thread = create_thread(name, _entry_point, args, new_task, is_supervisor);
         new_task->threads = thread;
     } else {
-        pretty_log(Verbose, "creating new thread  userspace");
+        pretty_log(Verbose, "creating new userspace thread");
         thread_t* thread = create_thread(name, NULL, args, new_task, is_supervisor);
         new_task->threads = thread;
     }
@@ -48,7 +48,7 @@ void prepare_virtual_memory_environment(task_t* task) {
     // 1. Prepare resources: allocatin an array of VM_PAGES_PER_TABLE
     // Make sure this address is physical, then it needs to be mapped to a virtual one.a
     task->vm_root_page_table = pmm_alloc_frame();
-    pretty_logf(Verbose, "vm_root_page_table address: %x", task->vm_root_page_table);
+    //pretty_logf(Verbose, "vm_root_page_table address: %x", task->vm_root_page_table);
     //identity_map_phys_address(task->vm_root_page_table, 0);
     // I will get the page frame first, then get virtual address to map it to with vmm_alloc, and then do the mapping on the virtual address.
     // Tecnically the vmm_allos is not needed, since i have the direct memory map already accessible, so i just need to access it through the direct map.
@@ -71,7 +71,7 @@ void prepare_virtual_memory_environment(task_t* task) {
             ((uint64_t *)vm_root_vaddress)[i] = p4_table[i];
         }
         if (p4_table[i] != 0) {
-            pretty_logf(Verbose, "(prepare_virtual_memory_environment): %d: o:0x%x - c:0x%x - t:0x%x", i, p4_table[i], kernel_settings.paging.page_root_address[i], ((uint64_t*)vm_root_vaddress)[i]);
+            pretty_logf(Verbose, "\t%d: o:0x%x - c:0x%x - t:0x%x", i, p4_table[i], kernel_settings.paging.page_root_address[i], ((uint64_t*)vm_root_vaddress)[i]);
         }
     }
 }
@@ -126,7 +126,7 @@ task_t* get_task(size_t task_id) {
     }
     task_t* cur_task = root_task;
     while ( cur_task != NULL ) {
-        pretty_logf(Verbose, "(get_task) Searching task: %d", cur_task->task_id);
+        pretty_logf(Verbose, "Searching task: %d", cur_task->task_id);
         if ( cur_task->task_id == task_id ) {
             return cur_task;
         }
