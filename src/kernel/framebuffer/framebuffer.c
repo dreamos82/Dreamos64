@@ -48,7 +48,7 @@ void map_framebuffer(struct framebuffer_info fbdata) {
 
 
     if(p4_table[pml4] == 0x00l || p3_table_hh[pdpr] == 0x00l){
-        loglinef(Verbose, "PANIC - PML4 or PDPR Empty - not supported for now\n");
+        pretty_log(Verbose, "PANIC - PML4 or PDPR Empty - not supported for now\n");
         asm("hlt");
     }
 

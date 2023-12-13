@@ -74,7 +74,6 @@ cpu_status_t* interrupts_handler(cpu_status_t *status){
             write_apic_register(APIC_EOI_REGISTER_OFFSET, 0x00l);
             break;
         case PIT_INTERRUPT:
-            //printf("PIT IRQ receivedi\n");
             pit_irq_handler();
             write_apic_register(APIC_EOI_REGISTER_OFFSET, 0x00l);
             break;

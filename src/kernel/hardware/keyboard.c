@@ -18,7 +18,7 @@ TAB, Q, W, E, R, T, Y, U, I, O, P, SQBRACKET_OPEN, SQBRACKET_CLOSE, ENTER,
 LEFT_CTRL, A, S, D, F, G, H, J, K, L, SEMICOLON, SINGLE_QUOTE, BACK_TICK,
 LEFT_SHIFT, SLASH, Z, X, C, V, B, N, M, COMMA, DOT, BACKSLASH, RIGHT_SHIFT,
 KEYPAD_STAR, LEFT_ALT, SPACE, CAPS_LOCK,
-F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, 
+F1, F2, F3, F4, F5, F6, F7, F8, F9, F10,
 F11, F12, NUM_LOCK, SCROLL_LOCK,
 KEYPAD_D7, KEYPAD_D8, KEYPAD_D9, KEYPAD_MINUS, KEYPAD_D4, KEYPAD_D5, KEYPAD_D6, KEYPAD_PLUS, KEYPAD_D1, KEYPAD_D2, KEYPAD_D3, KEYPAD_D0, KEYPAD_DOT,
 };
@@ -30,7 +30,7 @@ char keymap[] = {
 0, 'a', 's', 'd', 'f', 'g', 'h', 'j' , 'k', 'l', ';', '\'', '`',
 0, '\\', 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/', 0,
 0, 0, ' ', 0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 0, 0, 0, 0,
 '7', '8', '9', '-', '4', '5', '6', '+', '1', '2', '3', '0', '.',
 
@@ -49,46 +49,46 @@ void init_keyboard() {
     current_modifiers = no_keys;
     uint8_t status_read = inportb(KEYBOARD_ENCODER_PORT);
     if(status_read == KEYBOARD_ACK_BYTE) {
-        status_read = inportb(KEYBOARD_ENCODER_PORT);    
-        loglinef(Verbose, "Found scancode set: 0x%x", status_read);
+        status_read = inportb(KEYBOARD_ENCODER_PORT);
+        pretty_logf(Verbose, "Found scancode set: 0x%x", status_read);
         kernel_settings.keyboard.scancode_set = status_read;
     } else {
-        logline(Verbose, "Unable to read from keyboard");
+        pretty_log(Verbose, "Unable to read from keyboard");
     }
     outportb(0x64, PS2_READ_CONFIGURATION_COMMAND);
     status_read = inportb(PS2_STATUS_REGISTER);
     while((status_read & 2) != 0) {
-        loglinef(Verbose, "Not ready yet... %x", status_read);
+        pretty_logf(Verbose, "Not ready yet... %x", status_read);
         status_read = inportb(PS2_STATUS_REGISTER);
     }
-    uint8_t configuration_byte = inportb(PS2_DATA_REGISTER);    
+    uint8_t configuration_byte = inportb(PS2_DATA_REGISTER);
     if((configuration_byte & (1 << 6)) != 0) {
-        logline(Verbose, "Translation enabled");
+        pretty_log(Verbose, "Translation enabled");
         kernel_settings.keyboard.translation_enabled = true;
     } else {
-        kernel_settings.keyboard.translation_enabled = false;        
+        kernel_settings.keyboard.translation_enabled = false;
     }
     buf_position = 0;
-    
+
 }
 
 uint8_t update_modifiers(key_modifiers modifier, bool is_pressed) {
-    loglinef(Verbose, "modifier: %x", modifier);
+    pretty_logf(Verbose, "modifier: %x", modifier);
     if ( is_pressed == true ) {
         current_modifiers |= modifier;
     } else {
         current_modifiers = current_modifiers  & ~(modifier);
     }
-    
+
     return current_modifiers;
 }
 
 void handle_keyboard_interrupt() {
-    
+
     uint8_t scancode = inportb(KEYBOARD_ENCODER_PORT);
-  
+
     if(kernel_settings.keyboard.translation_enabled == true || kernel_settings.keyboard.scancode_set == 1) {
-        uint8_t read_scancode = keyboard_buffer[buf_position].code = translate(scancode);        
+        uint8_t read_scancode = keyboard_buffer[buf_position].code = translate(scancode);
         if( scancode != EXTENDED_PREFIX ) {
             keyboard_buffer[buf_position].code = read_scancode;
             keyboard_buffer[buf_position].modifiers = current_modifiers;
@@ -107,11 +107,11 @@ void handle_keyboard_interrupt() {
                         _fb_printStr(string, 0, 10, 0x000000, 0x1ad652);
                     }
                 #endif
-                loglinef(Verbose, "+ Key is pressed pos %d: SC: %x - Code: %x - Mod: %x %c", buf_position, scancode, keyboard_buffer[buf_position].code, keyboard_buffer[buf_position].modifiers, kgetch(keyboard_buffer[buf_position]));
+                pretty_logf(Verbose, "\t+ Key is pressed pos %d: SC: %x - Code: %x - Mod: %x %c", buf_position, scancode, keyboard_buffer[buf_position].code, keyboard_buffer[buf_position].modifiers, kgetch(keyboard_buffer[buf_position]));
             }
             buf_position = BUF_STEP(buf_position);
-        } 
-    } 
+        }
+    }
 }
 
 char kgetch(key_status char_item) {
@@ -121,7 +121,7 @@ char kgetch(key_status char_item) {
             const char offset = 'a' - 'A';
             return keymap[char_code] - offset;
         } else {
-            if ( (keymap[char_code] >='0' && keymap[char_code] <= '9') && (char_item.modifiers & 0b00000011) ) {                
+            if ( (keymap[char_code] >='0' && keymap[char_code] <= '9') && (char_item.modifiers & 0b00000011) ) {
                 return keymap[char_code] - ASCII_DIGIT_OFFSET;
             }
 
@@ -161,7 +161,7 @@ key_codes translate(uint8_t scancode) {
             read_scancode = 0;
             break;
         case LEFT_SHIFT:
-            update_modifiers(left_shift, is_pressed);       
+            update_modifiers(left_shift, is_pressed);
             break;
         case RIGHT_SHIFT:
             update_modifiers(right_shift, is_pressed);

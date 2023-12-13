@@ -14,12 +14,12 @@ uint32_t apic_calibrated_ticks;
 
 uint32_t calibrate_apic() {
     //Configuration byte value is: 0b00'11'010'0 where: bits 6-7 are the channel (0), 4-5 the access mode (read/load lsb first then msb)
-    // 1-3 mode of operation (we are using mode 2 rate generator), 0: BCD/Binary mode (0 we are using 16bit binary mode) 
+    // 1-3 mode of operation (we are using mode 2 rate generator), 0: BCD/Binary mode (0 we are using 16bit binary mode)
     pitTicks = 0;
     outportb(PIT_MODE_COMMAND_REGISTER, 0b00110100);
 
     //Sending the counter value to the channel 0 data port
-    //The value is 1139 (~1ms) obtained from PIT Clock rate (1193180) / 1000 
+    //The value is 1139 (~1ms) obtained from PIT Clock rate (1193180) / 1000
     outportb(PIT_CHANNEL_0_DATA_PORT, PIT_COUNTER_VALUE & 0xFF);
     outportb(PIT_CHANNEL_0_DATA_PORT, (PIT_COUNTER_VALUE >> 8));
     //First let's make sure that the APIC timer is stopped, this is achieved by writing 0 to the initial count register.
@@ -33,7 +33,7 @@ uint32_t calibrate_apic() {
     write_apic_register(APIC_TIMER_INITIAL_COUNT_REGISTER_OFFSET, (uint32_t)-1);
     //Now it's time to enable interrupts...
     //Now we need to decide how many milliseconds  we want the pit irq to be fired...
-    while(pitTicks < CALIBRATION_MS_TO_WAIT);   
+    while(pitTicks < CALIBRATION_MS_TO_WAIT);
     // We waited enough... let's read the apic counter...
     uint32_t current_apic_count = read_apic_register(APIC_TIMER_CURRENT_COUNT_REGISTER_OFFSET);
     // Disable the irqs first
@@ -44,7 +44,7 @@ uint32_t calibrate_apic() {
     // First: we need to know how many ticks were done in the apic
     // the current count register is a countdown, so we need basically to do: INITIAL_COUNT - CURRENT_COUNT
     uint32_t time_elapsed = ((uint32_t)-1) - current_apic_count;
-    // now we want to know how many apic ticks are in 1ms so we divide per CALIBRATION_MS_TO_WAIT 
+    // now we want to know how many apic ticks are in 1ms so we divide per CALIBRATION_MS_TO_WAIT
     apic_calibrated_ticks = time_elapsed / CALIBRATION_MS_TO_WAIT;
     //Let's store the result along with the divider in the kernel_settings.
     kernel_settings.apic_timer.timer_ticks_base = apic_calibrated_ticks;
@@ -56,10 +56,10 @@ uint32_t calibrate_apic() {
 void start_apic_timer(uint32_t initial_count, uint32_t flags, uint8_t divider) {
 
     if(apic_base_address == 0) {
-        logline(Error, "(start_apic_timer): Apic_base_address not found, or apic not initialized");
+        pretty_log(Error, "Apic_base_address not found, or apic not initialized");
     }
 
-    loglinef(Verbose, "(start_apic_timer): Read apic_register: 0x%x", read_apic_register(APIC_TIMER_LVT_OFFSET));
+    pretty_logf(Verbose, "Read apic_register: 0x%x", read_apic_register(APIC_TIMER_LVT_OFFSET));
 
     write_apic_register(APIC_TIMER_INITIAL_COUNT_REGISTER_OFFSET, initial_count);
     write_apic_register(APIC_TIMER_CONFIGURATION_OFFSET, divider);

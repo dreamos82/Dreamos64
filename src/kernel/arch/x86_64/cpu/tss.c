@@ -8,7 +8,7 @@ tss_t kernel_tss;
 
 void initialize_tss(){
 
-    loglinef(Verbose, "(%s) Initializing tss", __FUNCTION__);
+    pretty_log(Verbose, "Initializing tss");
 
     // These fields are reserved and must be set to 0
     kernel_tss.reserved0 = 0x00;
@@ -64,7 +64,7 @@ void load_tss() {
 
     gdt64[TSS_ENTRY_LOW] = entry_low;
     gdt64[TSS_ENTRY_HIGH] = entry_high;
-    loglinef(Verbose, "(%s) Loading TSS Register", __FUNCTION__);
-    loglinef(Verbose, "(%s) kernel_tss address = 0x%x", __FUNCTION__, &kernel_tss);
+    pretty_log(Verbose, "Loading TSS Register");
+    pretty_logf(Verbose, "kernel_tss address = 0x%x", &kernel_tss);
     _load_task_register();
 }
