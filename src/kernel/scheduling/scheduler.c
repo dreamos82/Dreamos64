@@ -99,7 +99,7 @@ cpu_status_t* schedule(cpu_status_t* cur_status) {
     current_executing_thread = thread_to_execute;
     task_t *current_task = current_executing_thread->parent_task;
     // ... every task has it's own addressing space, so we need to update the cr3 register
-    pretty_logf(Verbose, "Loading cr3: 0x%x", current_task->vm_root_page_table);
+    //pretty_logf(Verbose, "Loading cr3: 0x%x", current_task->vm_root_page_table);
     load_cr3(current_task->vm_root_page_table);
     pretty_logf(Verbose, "current_thread->execution_frame->rip: 0x%x, vmm_data is: 0x%x", current_executing_thread->execution_frame->rip, &(current_task->vmm_data));
     // ... and finally we need to update the tss structure with the current thread rsp0
@@ -184,7 +184,7 @@ size_t scheduler_get_queue_size() {
 }
 
 void scheduler_yield() {
-    pretty_log(Verbose, "(scheulder_yield) Interrupting current_thread");
+    pretty_log(Verbose, "Interrupting current_thread");
     asm("int $0x20");
 }
 

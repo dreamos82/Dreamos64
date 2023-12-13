@@ -160,7 +160,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
     kernel_settings.paging.page_root_address = p4_table;
     uint64_t p4_table_phys_address = (uint64_t) p4_table - _HIGHER_HALF_KERNEL_MEM_START;
     kernel_settings.paging.hhdm_page_root_address = (uint64_t*) hhdm_get_variable( (uintptr_t) p4_table_phys_address);
-    pretty_logf(Verbose, "(kernel_main) p4_table[510]: %x - ADDRESS: %x", p4_table[510], kernel_settings.paging.hhdm_page_root_address[510]);
+    //pretty_logf(Verbose, "p4_table[510]: %x - ADDRESS: %x", p4_table[510], kernel_settings.paging.hhdm_page_root_address[510]);
     vmm_init(VMM_LEVEL_SUPERVISOR, NULL);
 
     initialize_kheap();
@@ -168,8 +168,8 @@ void kernel_start(unsigned long addr, unsigned long magic){
     init_apic();
     //The table containing the IOAPIC information is called MADT
     MADT* madt_table = (MADT*) get_SDT_item(MADT_ID);
-    pretty_logf(Verbose, "(kernel_main) Madt SIGNATURE: %x - ADDRESS: %.4s", madt_table->header.Signature, madt_table);
-    pretty_logf(Verbose, "(kernel_main) MADT local apic base: %x - Madt Length: %d", madt_table->local_apic_base, madt_table->header.Length);
+    pretty_logf(Verbose, "Madt SIGNATURE: %x - ADDRESS: %.4s", madt_table->header.Signature, madt_table);
+    pretty_logf(Verbose, "MADT local apic base: %x - Madt Length: %d", madt_table->local_apic_base, madt_table->header.Length);
     print_madt_table(madt_table);
     init_ioapic(madt_table);
     init_keyboard();
@@ -181,8 +181,8 @@ void kernel_start(unsigned long addr, unsigned long magic){
 
     uint32_t apic_ticks = calibrate_apic();
     kernel_settings.apic_timer.timer_ticks_base = apic_ticks;
-    pretty_logf(Verbose, "(kernel_main) Calibrated apic value: %u", apic_ticks);
-    pretty_logf(Verbose, "(kernel_main) (END of Mapped memory: 0x%x)", end_of_mapped_memory);
+    pretty_logf(Verbose, "Calibrated apic value: %u", apic_ticks);
+    pretty_logf(Verbose, "(END of Mapped memory: 0x%x)", end_of_mapped_memory);
     vfs_init();
     uint64_t unix_timestamp = read_rtc_time();
 
