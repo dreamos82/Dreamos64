@@ -24,7 +24,7 @@ void initialize_kheap(){
 
     #else
         #pragma message "(initialize_kheap) Using test specific initialization"
-        pretty_logf(Verbose, "Test suite initialization");
+        pretty_log(Verbose, "Test suite initialization");
         kernel_heap_start = (KHeapMemoryNode *) ((uint64_t)&_kernel_end + KERNEL_MEMORY_PADDING);
     #endif
 
