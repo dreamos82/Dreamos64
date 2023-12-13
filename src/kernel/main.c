@@ -64,23 +64,21 @@ uintptr_t higherHalfDirectMapBase;
 void _init_basic_system(unsigned long addr){
     struct multiboot_tag* tag;
     uint32_t mbi_size = *(uint32_t *) (addr + _HIGHER_HALF_KERNEL_MEM_START);
-    pretty_log(Verbose, "Initialize basic system");
+    pretty_log(Verbose, "Initialize base system");
     //These data structure are initialized durinig the boot process.
     tagmem  = (struct multiboot_tag_basic_meminfo *)(multiboot_basic_meminfo + _HIGHER_HALF_KERNEL_MEM_START);
     tagmmap = (struct multiboot_tag_mmap *) (multiboot_mmap_data + _HIGHER_HALF_KERNEL_MEM_START);
     tagfb   = (struct multiboot_tag_framebuffer *) (multiboot_framebuffer_data + _HIGHER_HALF_KERNEL_MEM_START);
     //Print basic mem Info data
-    pretty_logf(Verbose, "Mem info type: 0x%x", tagmem->type);
-    pretty_logf(Verbose, "Memory lower (in kb): %d - upper (in kb): %d", tagmem->mem_lower, tagmem->mem_upper);
+    pretty_logf(Verbose, "Available memory: lower (in kb): %d - upper (in kb): %d", tagmem->mem_lower, tagmem->mem_upper);
     memory_size_in_bytes = (tagmem->mem_upper + 1024) * 1024;
     //Print mmap_info
-    pretty_logf(Verbose, "Memory map entry: 0x%x",  tagmmap->type);
-    pretty_logf(Verbose, "Mmap Size: 0x%x, Entry size: 0x%x, EntryVersion: 0x%x", tagmmap->size, tagmmap->entry_size, tagmmap->entry_version);
+    pretty_logf(Verbose, "Memory map Size: 0x%x, Entry size: 0x%x, EntryVersion: 0x%x", tagmmap->size, tagmmap->entry_size, tagmmap->entry_version);
     _mmap_parse(tagmmap);
     pmm_setup(addr, mbi_size);
 
     //Print framebuffer info
-    pretty_logf(Verbose, "Frambueffer info: (type: 0x%x) Address: 0x%x", tagfb->common.framebuffer_type, tagfb->common.framebuffer_addr);
+    pretty_logf(Verbose, "Framebuffer info: (type: 0x%x) Address: 0x%x", tagfb->common.framebuffer_type, tagfb->common.framebuffer_addr);
     pretty_logf(Verbose, "width: 0x%x - height: 0x%x - bpp: 0x%x - pitch: 0x%x", tagfb->common.framebuffer_width, tagfb->common.framebuffer_height, tagfb->common.framebuffer_bpp, tagfb->common.framebuffer_pitch);
     set_fb_data(tagfb);
     pretty_logf(Verbose, "Total framebuffer size is: 0x%x", framebuffer_data.memory_size);
@@ -134,14 +132,13 @@ void kernel_start(unsigned long addr, unsigned long magic){
     if(get_PSF_version(_binary_fonts_default_psf_start) == 1){
         pretty_log(Verbose, "PSF v1 found");
         PSFv1_Font *font = (PSFv1_Font*)_binary_fonts_default_psf_start;
-        pretty_logf(Verbose, "PSF v1: Magic: [%x %x] - Flags: 0x%x - Charsize: 0x%x", font->magic[1], font->magic[0], font->mode, font->charsize);
+        pretty_logf(Verbose, "\tMagic: [%x %x] - Flags: 0x%x - Charsize: 0x%x", font->magic[1], font->magic[0], font->mode, font->charsize);
     }  else {
         PSF_font *font = (PSF_font*)&_binary_fonts_default_psf_start;
         pretty_log(Verbose, "PSF v2 found");
-        pretty_logf(Verbose, "Version: 0x%x - Magic: 0x%x", font->version, font->magic);
-        pretty_logf(Verbose, "Number of glyphs: 0x%x - Bytes per glyphs: 0x%x", font->numglyph, font->bytesperglyph);
-        pretty_logf(Verbose, "Header size: 0x%x - flags: 0x%x", font->headersize, font->flags);
-        pretty_logf(Verbose, "Width: 0x%x - Height: 0x%x", font->width, font->height);
+        pretty_logf(Verbose, "\tVersion: [0x%x] - Magic: [0x%x] - Header size: 0x%x - flags: 0x%x", font->version, font->magic, font->headersize, font->flags);
+        pretty_logf(Verbose, "\tNumber of glyphs: [0x%x] - Bytes per glyphs: [0x%x]", font->numglyph, font->bytesperglyph);
+        pretty_logf(Verbose, "\tWidth: [0x%x] - Height: [0x%x]", font->width, font->height);
     }
 
     uint32_t pw, ph, cw, ch;
