@@ -64,36 +64,35 @@ uintptr_t higherHalfDirectMapBase;
 void _init_basic_system(unsigned long addr){
     struct multiboot_tag* tag;
     uint32_t mbi_size = *(uint32_t *) (addr + _HIGHER_HALF_KERNEL_MEM_START);
+    pretty_log(Verbose, "Initialize base system");
     //These data structure are initialized durinig the boot process.
     tagmem  = (struct multiboot_tag_basic_meminfo *)(multiboot_basic_meminfo + _HIGHER_HALF_KERNEL_MEM_START);
     tagmmap = (struct multiboot_tag_mmap *) (multiboot_mmap_data + _HIGHER_HALF_KERNEL_MEM_START);
     tagfb   = (struct multiboot_tag_framebuffer *) (multiboot_framebuffer_data + _HIGHER_HALF_KERNEL_MEM_START);
     //Print basic mem Info data
-    loglinef(Verbose, "(kernel_main) init_basic_system: Found basic mem Mem info type: 0x%x", tagmem->type);
-    loglinef(Verbose, "(kernel_main) init_basic_system: Memory lower (in kb): %d - upper (in kb): %d", tagmem->mem_lower, tagmem->mem_upper);
+    pretty_logf(Verbose, "Available memory: lower (in kb): %d - upper (in kb): %d", tagmem->mem_lower, tagmem->mem_upper);
     memory_size_in_bytes = (tagmem->mem_upper + 1024) * 1024;
     //Print mmap_info
-    loglinef(Verbose, "(kernel_main) init_basic_system: Memory map entry: 0x%x",  tagmmap->type);
-    loglinef(Verbose, "(kernel_main) init_basic_system: Mmap Size: 0x%x, Entry size: 0x%x, EntryVersion: 0x%x", tagmmap->size, tagmmap->entry_size, tagmmap->entry_version);
+    pretty_logf(Verbose, "Memory map Size: 0x%x, Entry size: 0x%x, EntryVersion: 0x%x", tagmmap->size, tagmmap->entry_size, tagmmap->entry_version);
     _mmap_parse(tagmmap);
     pmm_setup(addr, mbi_size);
 
     //Print framebuffer info
-    loglinef(Verbose, "(kernel_main) init_basic_system: Frambueffer info: (type: 0x%x) Address: 0x%x", tagfb->common.framebuffer_type, tagfb->common.framebuffer_addr);
-    loglinef(Verbose, "(kernel_main) init_basic_system: width: 0x%x - height: 0x%x - bpp: 0x%x - pitch: 0x%x", tagfb->common.framebuffer_width, tagfb->common.framebuffer_height, tagfb->common.framebuffer_bpp, tagfb->common.framebuffer_pitch);
+    pretty_logf(Verbose, "Framebuffer info: (type: 0x%x) Address: 0x%x", tagfb->common.framebuffer_type, tagfb->common.framebuffer_addr);
+    pretty_logf(Verbose, "width: 0x%x - height: 0x%x - bpp: 0x%x - pitch: 0x%x", tagfb->common.framebuffer_width, tagfb->common.framebuffer_height, tagfb->common.framebuffer_bpp, tagfb->common.framebuffer_pitch);
     set_fb_data(tagfb);
-    loglinef(Verbose, "(kernel_main) init_basic_system: Total framebuffer size is: 0x%x", framebuffer_data.memory_size);
+    pretty_logf(Verbose, "Total framebuffer size is: 0x%x", framebuffer_data.memory_size);
 
     tagacpi = (struct multiboot_tag *) (multiboot_acpi_info + _HIGHER_HALF_KERNEL_MEM_START);
     if(tagacpi->type == MULTIBOOT_TAG_TYPE_ACPI_OLD){
         tagold_acpi = (struct multiboot_tag_old_acpi *)tagacpi;
-        loglinef(Info, "(kernel_main) init_basic_system: Found acpi RSDP: %x - Address: 0x%x", tagold_acpi->type, (unsigned long) &tagold_acpi);
+        pretty_logf(Info, "Found acpi RSDP: %x - Address: 0x%x", tagold_acpi->type, (unsigned long) &tagold_acpi);
         RSDPDescriptor *descriptor = (RSDPDescriptor *)(tagacpi+1);
         parse_SDT((uint64_t) descriptor, MULTIBOOT_TAG_TYPE_ACPI_OLD);
         validate_SDT((char *) descriptor, sizeof(RSDPDescriptor));
     } else if(tagacpi->type == MULTIBOOT_TAG_TYPE_ACPI_NEW){
         tagnew_acpi = (struct multiboot_tag_new_acpi *)tagacpi;
-        loglinef(Info, "(kernel_main) init_basic_system: Found acpi RSDPv2: %x - Address: 0x%x", tagnew_acpi->type, (unsigned long) &tagnew_acpi);
+        pretty_logf(Info, "Found acpi RSDPv2: %x - Address: 0x%x", tagnew_acpi->type, (unsigned long) &tagnew_acpi);
         RSDPDescriptor20 *descriptor = (RSDPDescriptor20 *) (tagacpi+1);
         parse_SDT((uint64_t) descriptor, MULTIBOOT_TAG_TYPE_ACPI_NEW);
         validate_SDT((char *) descriptor, sizeof(RSDPDescriptor20));
@@ -105,7 +104,7 @@ void _init_basic_system(unsigned long addr){
 										+ ((tag->size + 7) & ~7))){
         switch(tag->type){
             default:
-                loglinef(Verbose, "(kernel_main) init_basic_system: [Tag 0x%x] Size: 0x%x", tag->type, tag->size);
+                pretty_logf(Verbose, "\t[Tag 0x%x] Size: 0x%x", tag->type, tag->size);
                 break;
         }
     }
@@ -118,36 +117,33 @@ void kernel_start(unsigned long addr, unsigned long magic){
     load_idt();
     init_log(LOG_OUTPUT_SERIAL, Verbose, false);
     _init_basic_system(addr);
-    loglinef(Verbose, "(kernel_start): Kernel End: 0x%x - Physical: %x", (unsigned long)&_kernel_end, (unsigned long)&_kernel_physical_end);
+    pretty_logf(Verbose, "Kernel End: 0x%x - Physical: %x", (unsigned long)&_kernel_end, (unsigned long)&_kernel_physical_end);
     // Reminder here: The first 8 bytes have a fixed structure in the multiboot info:
     // They are: 0-4: size of the boot information in bytes
     //           4-8: Reserved (0)
     unsigned size = *(unsigned*)(addr + _HIGHER_HALF_KERNEL_MEM_START);
 
-    if(magic == 0x36d76289){
-        loglinef(Verbose, "(kernel_start): Magic number verified Size:  %x - Magic: %x", size, magic);
-    } else {
-        logline(Verbose, "(kernel_start): Failed to verify magic number. Something is wrong");
+    if(magic != 0x36d76289){
+        pretty_log(Fatal, "Failed to verify magic number. Something is wrong");
     }
 
 #if USE_FRAMEBUFFER == 1
 
     if(get_PSF_version(_binary_fonts_default_psf_start) == 1){
-        logline(Verbose, "(kernel_start): PSF v1 found");
+        pretty_log(Verbose, "PSF v1 found");
         PSFv1_Font *font = (PSFv1_Font*)_binary_fonts_default_psf_start;
-        loglinef(Verbose, "(kernel_start): PSF v1: Magic: [%x %x] - Flags: 0x%x - Charsize: 0x%x", font->magic[1], font->magic[0], font->mode, font->charsize);
+        pretty_logf(Verbose, "\tMagic: [%x %x] - Flags: 0x%x - Charsize: 0x%x", font->magic[1], font->magic[0], font->mode, font->charsize);
     }  else {
         PSF_font *font = (PSF_font*)&_binary_fonts_default_psf_start;
-        logline(Verbose, "(kernel_start): PSF v2 found");
-        loglinef(Verbose, "(kernel_start): Version: 0x%x - Magic: 0x%x", font->version, font->magic);
-        loglinef(Verbose, "(kernel_start): Number of glyphs: 0x%x - Bytes per glyphs: 0x%x", font->numglyph, font->bytesperglyph);
-        loglinef(Verbose, "(kernel_start): Header size: 0x%x - flags: 0x%x", font->headersize, font->flags);
-        loglinef(Verbose, "(kernel_start): Width: 0x%x - Height: 0x%x", font->width, font->height);
+        pretty_log(Verbose, "PSF v2 found");
+        pretty_logf(Verbose, "\tVersion: [0x%x] - Magic: [0x%x] - Header size: 0x%x - flags: 0x%x", font->version, font->magic, font->headersize, font->flags);
+        pretty_logf(Verbose, "\tNumber of glyphs: [0x%x] - Bytes per glyphs: [0x%x]", font->numglyph, font->bytesperglyph);
+        pretty_logf(Verbose, "\tWidth: [0x%x] - Height: [0x%x]", font->width, font->height);
     }
 
     uint32_t pw, ph, cw, ch;
     get_framebuffer_mode(&pw, &ph, &cw, &ch);
-    loglinef(Verbose, "(kernel_start): Number of lines: %d", ch);
+    pretty_logf(Verbose, "Number of lines: %d", ch);
 
     _fb_printStr("Ciao!", 1, 0, 0x000000, 0xFFFFFF);
     _fb_printStr("Dreamos64", 0, 1, 0xFFFFFF, 0x3333ff);
@@ -164,7 +160,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
     kernel_settings.paging.page_root_address = p4_table;
     uint64_t p4_table_phys_address = (uint64_t) p4_table - _HIGHER_HALF_KERNEL_MEM_START;
     kernel_settings.paging.hhdm_page_root_address = (uint64_t*) hhdm_get_variable( (uintptr_t) p4_table_phys_address);
-    loglinef(Verbose, "(kernel_main) p4_table[510]: %x - ADDRESS: %x", p4_table[510], kernel_settings.paging.hhdm_page_root_address[510]);
+    //pretty_logf(Verbose, "p4_table[510]: %x - ADDRESS: %x", p4_table[510], kernel_settings.paging.hhdm_page_root_address[510]);
     vmm_init(VMM_LEVEL_SUPERVISOR, NULL);
 
     initialize_kheap();
@@ -172,8 +168,8 @@ void kernel_start(unsigned long addr, unsigned long magic){
     init_apic();
     //The table containing the IOAPIC information is called MADT
     MADT* madt_table = (MADT*) get_SDT_item(MADT_ID);
-    loglinef(Verbose, "(kernel_main) Madt SIGNATURE: %x - ADDRESS: %.4s", madt_table->header.Signature, madt_table);
-    loglinef(Verbose, "(kernel_main) MADT local apic base: %x - Madt Length: %d", madt_table->local_apic_base, madt_table->header.Length);
+    pretty_logf(Verbose, "Madt SIGNATURE: %x - ADDRESS: %.4s", madt_table->header.Signature, madt_table);
+    pretty_logf(Verbose, "MADT local apic base: %x - Madt Length: %d", madt_table->local_apic_base, madt_table->header.Length);
     print_madt_table(madt_table);
     init_ioapic(madt_table);
     init_keyboard();
@@ -185,8 +181,8 @@ void kernel_start(unsigned long addr, unsigned long magic){
 
     uint32_t apic_ticks = calibrate_apic();
     kernel_settings.apic_timer.timer_ticks_base = apic_ticks;
-    loglinef(Verbose, "(kernel_main) Calibrated apic value: %u", apic_ticks);
-    loglinef(Verbose, "(kernel_main) (END of Mapped memory: 0x%x)", end_of_mapped_memory);
+    pretty_logf(Verbose, "Calibrated apic value: %u", apic_ticks);
+    pretty_logf(Verbose, "(END of Mapped memory: 0x%x)", end_of_mapped_memory);
     vfs_init();
     uint64_t unix_timestamp = read_rtc_time();
 
@@ -201,13 +197,12 @@ void kernel_start(unsigned long addr, unsigned long magic){
     task_t* userspace_task = create_task("userspace_idle", NULL, &a, false);
     //create_thread("ledi", noop2, &c, eldi_task);
     //create_task("sleeper", noop3, &d);
-    //print_thread_list(eldi_task->task_id);
     //execute_runtime_tests();
     start_apic_timer(kernel_settings.apic_timer.timer_ticks_base, APIC_TIMER_SET_PERIODIC, kernel_settings.apic_timer.timer_divisor);
-    loglinef(Verbose, "(kernel_main) (END of Mapped memory: 0x%x)", end_of_mapped_memory);
-    loglinef(Verbose, "(kernel_main) init_basic_system: Memory lower (in kb): %d - upper (in kb): %d", tagmem->mem_lower, tagmem->mem_upper);
+    pretty_logf(Verbose, "(END of Mapped memory: 0x%x)", end_of_mapped_memory);
+    pretty_logf(Info, "init_basic_system: Memory lower (in kb): %d - upper (in kb): %d", tagmem->mem_lower, tagmem->mem_upper);
     struct multiboot_tag_basic_meminfo *virt_phys_addr = (struct multiboot_tag_basic_meminfo *) hhdm_get_variable( (size_t) multiboot_basic_meminfo );
-    logline(Info, "(kernel_main) Init end!! Starting infinite loop");
+    pretty_log(Info, "Init end!! Starting infinite loop");
 
     while(1);
 }

@@ -42,7 +42,7 @@ ISO_IMAGE_FILENAME := $(IMAGE_BASE_NAME)-$(ARCH_PREFIX)-$(VERSION).iso
 
 default: build
 
-.PHONY: default build run clean debug tests gdb
+.PHONY: default build run clean debug tests gdb todolist
 
 build: $(BUILD_FOLDER)/$(ISO_IMAGE_FILENAME)
 
@@ -57,7 +57,7 @@ debug: DEBUG=1
 debug: CFLAGS += $(C_DEBUG_FLAGS)
 debug: ASM_FLAGS += $(ASM_DEBUG_FLAGS)
 debug: $(BUILD_FOLDER)/$(ISO_IMAGE_FILENAME)
-# qemu-system-x86_64 -monitor unix:qemu-monitor-socket,server,nowait -cpu qemu64,+x2apic  -cdrom build/DreamOs64.iso -serial file:dreamos64.log -m 1G -d int -no-reboot -no-shutdown
+	# qemu-system-x86_64 -monitor unix:qemu-monitor-socket,server,nowait -cpu qemu64,+x2apic  -cdrom $(BUILD_FOLDER)/$(ISO_IMAGE_FILENAME) -serial file:dreamos64.log -m 1G -d int -no-reboot -no-shutdown
 	$(QEMU_SYSTEM) -monitor unix:qemu-monitor-socket,server,nowait -cpu qemu64,+x2apic  -cdrom $(BUILD_FOLDER)/$(ISO_IMAGE_FILENAME) -serial stdio -m 2G  -no-reboot -no-shutdown
 
 $(BUILD_FOLDER)/$(ISO_IMAGE_FILENAME): $(BUILD_FOLDER)/kernel.bin grub.cfg
@@ -103,4 +103,9 @@ tests:
 	gcc ${TESTFLAGS} tests/test_vfs.c tests/test_common.c src/fs/vfs.c src/drivers/fs/ustar.c -o tests/test_vfs.o
 	gcc ${TESTFLAGS} tests/test_utils.c src/kernel/mem/vmm_util.c -o tests/test_utils.o
 	./tests/test_mem.o && ./tests/test_kheap.o && ./tests/test_number_conversion.o && ./tests/test_vm.o && ./tests/test_vfs.o && ./tests/test_utils.o
+
+todolist:
+	@echo "List of todos and fixme in sources: "
+	-@for file in $(SRC_C_FILES:Makefile=); do fgrep -H -e TODO -e FIXME $$file; done; true
+
 

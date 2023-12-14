@@ -21,7 +21,7 @@ task_t* create_task(char *name, void (*_entry_point)(void *), void *args, bool i
     strcpy(new_task->task_name, name);
     new_task->parent = NULL;
     new_task->task_id = next_task_id++;
-    loglinef(Verbose, "(create_task) Task created with name: %s - Task id: %d", new_task->task_name, new_task->task_id);
+    pretty_logf(Verbose, "Task created with name: %s - Task id: %d", new_task->task_name, new_task->task_id);
     prepare_virtual_memory_environment(new_task);
     if ( is_supervisor ){
         vmm_init(VMM_LEVEL_SUPERVISOR, &(new_task->vmm_data));
@@ -29,11 +29,11 @@ task_t* create_task(char *name, void (*_entry_point)(void *), void *args, bool i
         vmm_init(VMM_LEVEL_USER, &(new_task->vmm_data));
     }
     if( is_supervisor) {
-        loglinef(Verbose, "(%s): creating new thread", __FUNCTION__);
+        pretty_log(Verbose, "creating new supervisor thread");
         thread_t* thread = create_thread(name, _entry_point, args, new_task, is_supervisor);
         new_task->threads = thread;
     } else {
-        loglinef(Verbose, "(%s): creating new thread  userspace", __FUNCTION__);
+        pretty_log(Verbose, "creating new userspace thread");
         thread_t* thread = create_thread(name, NULL, args, new_task, is_supervisor);
         new_task->threads = thread;
     }
@@ -48,7 +48,7 @@ void prepare_virtual_memory_environment(task_t* task) {
     // 1. Prepare resources: allocatin an array of VM_PAGES_PER_TABLE
     // Make sure this address is physical, then it needs to be mapped to a virtual one.a
     task->vm_root_page_table = pmm_alloc_frame();
-    loglinef(Verbose, "(%s) vm_root_page_table address: %x", __FUNCTION__, task->vm_root_page_table);
+    //pretty_logf(Verbose, "vm_root_page_table address: %x", task->vm_root_page_table);
     //identity_map_phys_address(task->vm_root_page_table, 0);
     // I will get the page frame first, then get virtual address to map it to with vmm_alloc, and then do the mapping on the virtual address.
     // Tecnically the vmm_allos is not needed, since i have the direct memory map already accessible, so i just need to access it through the direct map.
@@ -56,7 +56,7 @@ void prepare_virtual_memory_environment(task_t* task) {
     //void* vm_root_vaddress = vmm_alloc(PAGE_SIZE_IN_BYTES, VMM_FLAGS_ADDRESS_ONLY, NULL);
     void* vm_root_vaddress = hhdm_get_variable ((uintptr_t) task->vm_root_page_table);
     task->vmm_data.root_table_hhdm = (uintptr_t) vm_root_vaddress;
-    loglinef(Verbose, "(%s) vm_root_vaddress: %x", __FUNCTION__, vm_root_vaddress);
+    pretty_logf(Verbose, "vm_root_vaddress: %x", vm_root_vaddress);
     //map_phys_to_virt_addr(task->vm_root_page_table, vm_root_vaddress, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE, NULL);
 
     // 2. We will map the whole higher half of the kernel, this means from pml4 item 256 to 511
@@ -66,12 +66,12 @@ void prepare_virtual_memory_environment(task_t* task) {
             ((uint64_t *)vm_root_vaddress)[i] = 0x00;
         } else if ( i == 510 ) {
             ((uint64_t *)vm_root_vaddress)[i] = (uint64_t) (task->vm_root_page_table) | VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE;
-            loglinef(Verbose, "(%s): Mapping recursive entry: 0x%x", __FUNCTION__, ((uint64_t *)vm_root_vaddress)[i]);
+            pretty_logf(Verbose, "Mapping recursive entry: 0x%x", ((uint64_t *)vm_root_vaddress)[i]);
         } else {
             ((uint64_t *)vm_root_vaddress)[i] = p4_table[i];
         }
         if (p4_table[i] != 0) {
-            loglinef(Verbose, "(prepare_virtual_memory_environment): %d: o:0x%x - c:0x%x - t:0x%x", i, p4_table[i], kernel_settings.paging.page_root_address[i], ((uint64_t*)vm_root_vaddress)[i]);
+            pretty_logf(Verbose, "\t%d: o:0x%x - c:0x%x - t:0x%x", i, p4_table[i], kernel_settings.paging.page_root_address[i], ((uint64_t*)vm_root_vaddress)[i]);
         }
     }
 }
@@ -91,16 +91,16 @@ bool remove_thread_from_task(size_t thread_id, task_t *task) {
     // We don't freethe thread here, because is the scheduler in charge of deleting DEAD threads
     thread_t *cur_thread = task->threads;
     thread_t *prev_thread = cur_thread;
-    loglinef( Verbose, "(%s) Removing thread with thread id: %d, from task: %d with name: %s", __FUNCTION__, thread_id, task->task_id, task->task_name);
+    pretty_logf( Verbose, "Removing thread with thread id: %d, from task: %d with name: %s", thread_id, task->task_id, task->task_name);
     while ( cur_thread != NULL ) {
         if ( cur_thread->tid == thread_id ) {
-            loglinef( Verbose, "(%s) Found thread to remove thread name: %s", __FUNCTION__, cur_thread->thread_name);
+            pretty_logf( Verbose, "Found thread to remove thread name: %s", cur_thread->thread_name);
             if ( cur_thread == task->threads) {
-                loglinef( Verbose, "(%s), Is the first thread in the queue addr_value: 0x%x", __FUNCTION__, cur_thread->next_sibling);
+                pretty_logf( Verbose, "Is the first thread in the queue addr_value: 0x%x", cur_thread->next_sibling);
                 task->threads = cur_thread->next_sibling;
                 return true;;
             } else {
-                loglinef( Verbose, "(%s), Is in the middle, mergin prev and cur->next_sibling", __FUNCTION__);
+                pretty_log( Verbose, "Is in the middle, merging prev and cur->next_sibling");
                 prev_thread->next_sibling = cur_thread->next_sibling;
             }
         }
@@ -126,7 +126,7 @@ task_t* get_task(size_t task_id) {
     }
     task_t* cur_task = root_task;
     while ( cur_task != NULL ) {
-        loglinef(Verbose, "(get_task) Searching task: %d", cur_task->task_id);
+        pretty_logf(Verbose, "Searching task: %d", cur_task->task_id);
         if ( cur_task->task_id == task_id ) {
             return cur_task;
         }
@@ -140,7 +140,7 @@ void print_thread_list(size_t task_id) {
     if (task != NULL) {
         thread_t* thread = task->threads;
         while(thread != NULL) {
-            loglinef(Verbose, "(%s)\tThread; %d - %s", __FUNCTION__, thread->tid, thread->thread_name);
+            pretty_logf(Verbose, "\tThread; %d - %s", thread->tid, thread->thread_name);
             thread = thread->next;
         }
     }

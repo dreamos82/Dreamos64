@@ -1,22 +1,22 @@
-#include <vfs.h>
 #include <fcntl.h>
 #include <logging.h>
 #include <string.h>
+#include <vfs.h>
 
 vfs_file_descriptor_t vfs_opened_files[OPENEDFILES_MAX];
 
 int open(const char *path, int flags) {
-    loglinef(Verbose, "(open) Try to open file: %s", path);
+    pretty_logf(Verbose, "(open) Try to open file: %s", path);
     int mountpoint_id = get_mountpoint_id(path);
     if (mountpoint_id < 0) {
         return -1;
     }
 
-    loglinef(Verbose, "(open) --- mountpoint id for file: %d and flags: %d ", mountpoint_id, flags);
+    pretty_logf(Verbose, "(open) --- mountpoint id for file: %d and flags: %d ", mountpoint_id, flags);
     mountpoint_t mountpoint = mountpoints[mountpoint_id];
-    loglinef(Verbose, "(open) --- mountpoint id for file: %s", mountpoint.mountpoint);
+    pretty_logf(Verbose, "(open) --- mountpoint id for file: %s", mountpoint.mountpoint);
     char *relative_path = get_relative_path(mountpoint.mountpoint, path);
-    loglinef(Verbose, "(open) --- relative path is: %s", relative_path);
+    pretty_logf(Verbose, "(open) --- relative path is: %s", relative_path);
     if (mountpoint.file_operations.open == NULL) {
         return -1;
     }

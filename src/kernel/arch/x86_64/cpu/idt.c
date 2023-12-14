@@ -51,11 +51,11 @@ IDT_descriptor idt_table[IDT_SIZE];
 cpu_status_t* interrupts_handler(cpu_status_t *status){
     switch(status->interrupt_number){
         case PAGE_FAULT:
-            logline(Verbose, "(interrupts_handler): Page fault");
+            pretty_log(Verbose, "Page fault");
             page_fault_handler(status->error_code);
             break;
         case GENERAL_PROTECTION:
-            loglinef(Verbose, "(interrupts_handler): #GP Error code: 0x%x", status->error_code);
+            pretty_logf(Verbose, "#GP Error code: 0x%x", status->error_code);
             asm("hlt");
             break;
         case APIC_TIMER_INTERRUPT:
@@ -65,7 +65,7 @@ cpu_status_t* interrupts_handler(cpu_status_t *status){
             write_apic_register(APIC_EOI_REGISTER_OFFSET, 0x0l);
             break;
         case APIC_SPURIOUS_INTERRUPT:
-            logline(Verbose, "(interrupts_handler):  Spurious interrupt received");
+            pretty_log(Verbose, "Spurious interrupt received");
             //should i send an eoi on a spurious interrupt?
             write_apic_register(APIC_EOI_REGISTER_OFFSET, 0x00l);
             break;
@@ -74,14 +74,13 @@ cpu_status_t* interrupts_handler(cpu_status_t *status){
             write_apic_register(APIC_EOI_REGISTER_OFFSET, 0x00l);
             break;
         case PIT_INTERRUPT:
-            //printf("PIT IRQ receivedi\n");
             pit_irq_handler();
             write_apic_register(APIC_EOI_REGISTER_OFFSET, 0x00l);
             break;
         default:
             qemu_write_string((char *) exception_names[status->interrupt_number]);
             qemu_write_string("\n");
-            loglinef(Fatal, "(interrupts_handler):  Actually i don't know what to do... Better going crazy... asdfasdasdsD - Interrupt number 0x%x", status->interrupt_number);
+            pretty_logf(Fatal, "Actually i don't know what to do... Better going crazy... asdfasdasdsD - Interrupt number 0x%x", status->interrupt_number);
             asm("hlt");
             break;
     }

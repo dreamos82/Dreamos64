@@ -41,12 +41,12 @@ cpu_status_t* schedule(cpu_status_t* cur_status) {
     thread_t* prev_executing_thread;
     thread_t* thread_to_execute = idle_thread;
     uint16_t prev_thread_tid = -1;
-    //loglinef(Verbose, "Cur thread: %u %s", current_thread->tid, current_thread->thread_name);
-    //loglinef(Verbose, "(schedule) ---Cur stack: 0x%x", cur_status->rsp);
+    //pretty_logf(Verbose, "Cur thread: %u %s", current_thread->tid, current_thread->thread_name);
+    //pretty_logf(Verbose, "---Cur stack: 0x%x", cur_status->rsp);
     // First let's check if the current task need to be scheduled or not;
     if (current_executing_thread->status == SLEEP) {
         // If the task has been placed to sleep it needs to be scheduled
-        //loglinef(Verbose, "(%s): Current thread %d status is sleeping!", __FUNCTION__ ,current_executing_thread->tid);
+        //loglinef(Verbose, "Current thread %d status is sleeping!" ,current_executing_thread->tid);
         current_executing_thread->ticks = SCHEDULER_NUMBER_OF_TICKS;
     }
 
@@ -69,10 +69,10 @@ cpu_status_t* schedule(cpu_status_t* cur_status) {
 
     while (current_thread->tid != prev_thread_tid) {
         if (current_thread->status == SLEEP) {
-            loglinef(Verbose, "(schedule) This thread %d is sleeping", current_thread->tid);
-            //loglinef(Verbose, "Current uptime: %d - wakeup: %d", get_kernel_uptime(), current_thread->wakeup_time);
+            pretty_logf(Verbose, "This thread %d is sleeping", current_thread->tid);
+            //pretty_logf(Verbose, "Current uptime: %d - wakeup: %d", get_kernel_uptime(), current_thread->wakeup_time);
             if ( get_kernel_uptime() > current_thread->wakeup_time) {
-                //loglinef(Verbose, "(schedule) --->WAKING UP: %d - thread_name: %s", current_thread->tid, current_thread->thread_name);
+                //pretty_logf(Verbose, "--->WAKING UP: %d - thread_name: %s", current_thread->tid, current_thread->thread_name);
                 current_thread->status = READY;
                 thread_to_execute = current_thread;
                 break;
@@ -90,7 +90,7 @@ cpu_status_t* schedule(cpu_status_t* cur_status) {
         current_thread = scheduler_get_next_thread();
     }
 
-    loglinef(Verbose, "(%s): Current thread %d status: %d name: %s!", __FUNCTION__ , current_thread->status, current_thread->tid, current_thread->thread_name);
+    pretty_logf(Verbose, "Current thread %d status: %d name: %s!", current_thread->status, current_thread->tid, current_thread->thread_name);
 
     // We have found a thread to run, let's update it's status
     thread_to_execute->status = RUN;
@@ -99,19 +99,19 @@ cpu_status_t* schedule(cpu_status_t* cur_status) {
     current_executing_thread = thread_to_execute;
     task_t *current_task = current_executing_thread->parent_task;
     // ... every task has it's own addressing space, so we need to update the cr3 register
-    loglinef(Verbose, "(%s) Loading cr3: 0x%x", __FUNCTION__, current_task->vm_root_page_table);
+    //pretty_logf(Verbose, "Loading cr3: 0x%x", current_task->vm_root_page_table);
     load_cr3(current_task->vm_root_page_table);
-    loglinef(Verbose, "(%s): current_thread->execution_frame->rip: 0x%x, vmm_data is: 0x%x", __FUNCTION__, current_executing_thread->execution_frame->rip, &(current_task->vmm_data));
+    pretty_logf(Verbose, "current_thread->execution_frame->rip: 0x%x, vmm_data is: 0x%x", current_executing_thread->execution_frame->rip, &(current_task->vmm_data));
     // ... and finally we need to update the tss structure with the current thread rsp0
     kernel_tss.rsp0 = (uint64_t) current_executing_thread->rsp0;
-    //loglinef(Verbose, "(schedule) leaving schedule...");
-    loglinef(Verbose, "(schedule) next task to run: %d->(%s)", current_executing_thread->tid, current_executing_thread->thread_name);
+    //pretty_log(Verbose, "leaving schedule...");
+    pretty_logf(Verbose, "next task to run: %d->(%s)", current_executing_thread->tid, current_executing_thread->thread_name);
     return current_executing_thread->execution_frame;
 }
 
 void scheduler_add_task(task_t* task) {
     if (root_task == NULL) {
-        loglinef(Verbose, "(scheduler_add_task) First task being added: %s", task->task_name);
+        pretty_logf(Verbose, "(scheduler_add_task) First task being added: %s", task->task_name);
     }
     task->next = root_task;
     root_task = task;
@@ -121,7 +121,7 @@ void scheduler_add_thread(thread_t* thread) {
     thread->next = thread_list;
     thread_list_size++;
     thread_list = thread;
-    loglinef(Verbose, "(scheduler_add_thread) Adding thread: %s - %d", thread_list->thread_name, thread_list->tid);
+    pretty_logf(Verbose, "(scheduler_add_thread) Adding thread: %s - %d", thread_list->thread_name, thread_list->tid);
     if (current_executing_thread == NULL) {
         //This means that there are no tasks on the queue yet.
         current_executing_thread = thread;
@@ -129,7 +129,7 @@ void scheduler_add_thread(thread_t* thread) {
 }
 
 void scheduler_delete_thread(size_t thread_id) {
-    loglinef(Verbose, "(scheduler_delete_thread) Called with thread id: %d", thread_id);
+    pretty_logf(Verbose, "(scheduler_delete_thread) Called with thread id: %d", thread_id);
     thread_t *thread_item = thread_list;
     thread_t *prev_item = NULL;
 
@@ -184,7 +184,7 @@ size_t scheduler_get_queue_size() {
 }
 
 void scheduler_yield() {
-    logline(Verbose, "(scheulder_yield) Interrupting current_thread");
+    pretty_log(Verbose, "Interrupting current_thread");
     asm("int $0x20");
 }
 

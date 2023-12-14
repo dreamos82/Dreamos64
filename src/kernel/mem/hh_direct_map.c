@@ -20,10 +20,10 @@ extern uint64_t pt_tables[];
  */
 void *hhdm_get_variable ( uintptr_t phys_address ) {
     if ( phys_address < memory_size_in_bytes) {
-        loglinef(Verbose, "(%s): Phys address: 0x%x Returning address: 0x%x", __FUNCTION__, phys_address, (void *) (phys_address + higherHalfDirectMapBase));
+        pretty_logf(Verbose, "Phys address: 0x%x Returning address: 0x%x", phys_address, (void *) (phys_address + higherHalfDirectMapBase));
         return (void*)(phys_address + higherHalfDirectMapBase);
     }
-    loglinef(Verbose, "(%s): Not in physical memory. Faulting address: 0x%x", __FUNCTION__, (uint64_t)phys_address);
+    pretty_logf(Verbose, "(%s): Not in physical memory. Faulting address: 0x%x", (uint64_t)phys_address);
     return NULL;
 }
 
@@ -32,7 +32,6 @@ void hhdm_map_physical_memory() {
     // This function should be called only once, and the hhdm shouldn't chnage during the kernel uptime
     // This function needs to map the entire phyisical memory inside the virtual memory environment.
     // The starting address is _HIGHER_HALF_KERNEL_MEM_START
-    loglinef(Verbose, "(%s) End of memory_mapping phys: 0x%x, memory_size: 0x%x", __FUNCTION__, end_of_mapped_memory - _HIGHER_HALF_KERNEL_MEM_START, memory_size_in_bytes);
     uint64_t end_of_mapped_physical_memory = end_of_mapped_memory - _HIGHER_HALF_KERNEL_MEM_START;
     if (is_phyisical_address_mapped(end_of_mapped_physical_memory, end_of_mapped_physical_memory)) {
         end_of_mapped_memory = end_of_mapped_memory + PAGE_SIZE_IN_BYTES;
@@ -42,13 +41,12 @@ void hhdm_map_physical_memory() {
     uint64_t address_to_map = 0;
     uint64_t virtual_address = higherHalfDirectMapBase;
 
-    loglinef(Verbose, "(%s): HigherHalf Initial entries: pml4: %d, pdpr: %d, pd: %d", __FUNCTION__, PML4_ENTRY((uint64_t) higherHalfDirectMapBase), PDPR_ENTRY((uint64_t) higherHalfDirectMapBase), PD_ENTRY((uint64_t) higherHalfDirectMapBase));
+    pretty_logf(Verbose, "HigherHalf Initial entries: pml4: %d, pdpr: %d, pd: %d", PML4_ENTRY((uint64_t) higherHalfDirectMapBase), PDPR_ENTRY((uint64_t) higherHalfDirectMapBase), PD_ENTRY((uint64_t) higherHalfDirectMapBase));
 
     size_t current_pml4_entry = PML4_ENTRY((uint64_t) higherHalfDirectMapBase);
-    loglinef(Verbose, "(%s): p4_table: 0x%x - current_entry: %d", __FUNCTION__, p4_table, current_pml4_entry);
 
     if (!(p4_table[current_pml4_entry] & 0b1) ) {
-        loglinef(Verbose, "(%s): This shouldn't happen", __FUNCTION__);
+        pretty_log(Fatal, "This shouldn't happen");
     }
 
     while ( address_to_map < memory_size_in_bytes) {
@@ -59,6 +57,6 @@ void hhdm_map_physical_memory() {
         virtual_address += PAGE_SIZE_IN_BYTES;
     }
 
-    loglinef(Verbose, "(%s) Physical memory mapped end: 0x%x - Virtual memory direct end: 0x%x - counter: %d", __FUNCTION__, end_of_mapped_physical_memory, end_of_mapped_memory, current_pml4_entry);
+    pretty_logf(Verbose, "Physical memory mapped end: 0x%x - Virtual memory direct end: 0x%x - counter: %d", end_of_mapped_physical_memory, end_of_mapped_memory, current_pml4_entry);
 
 }
