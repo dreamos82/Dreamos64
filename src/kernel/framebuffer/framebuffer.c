@@ -160,7 +160,7 @@ void _fb_printStrAt( const char *string, size_t cx, size_t cy, uint32_t fg, uint
             cy++;
             cur_fb_line = cy;
         } else if (*string == '\t'){
-            cx = 4;
+            cx += 4;
         } else {
             _fb_putchar(*string, cx, cy, fg, bg);
             cx++;
