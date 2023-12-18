@@ -57,6 +57,7 @@ debug: DEBUG=1
 debug: CFLAGS += $(C_DEBUG_FLAGS)
 debug: ASM_FLAGS += $(ASM_DEBUG_FLAGS)
 debug: $(BUILD_FOLDER)/$(ISO_IMAGE_FILENAME)
+	# TODO could be useful to use  stdio as both log output and monitor input
 	# qemu-system-x86_64 -monitor unix:qemu-monitor-socket,server,nowait -cpu qemu64,+x2apic  -cdrom $(BUILD_FOLDER)/$(ISO_IMAGE_FILENAME) -serial file:dreamos64.log -m 1G -d int -no-reboot -no-shutdown
 	$(QEMU_SYSTEM) -monitor unix:qemu-monitor-socket,server,nowait -cpu qemu64,+x2apic  -cdrom $(BUILD_FOLDER)/$(ISO_IMAGE_FILENAME) -serial stdio -m 2G  -no-reboot -no-shutdown
 

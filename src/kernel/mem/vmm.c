@@ -36,11 +36,11 @@ void vmm_init(vmm_level_t vmm_level, VmmInfo *vmm_info) {
     uint64_t *root_table_hh;
 
     if ( vmm_info == NULL ) {
-        pretty_log(Verbose, "kernel vmm initialization");
+        pretty_log(Verbose, "Kernel vmm initialization");
         vmm_info = &vmm_kernel;
         root_table_hh = kernel_settings.paging.hhdm_page_root_address;
     } else {
-        pretty_logf(Verbose, "task vmm initialization: root_table_hhdm: 0x%x", vmm_info->root_table_hhdm);
+        pretty_logf(Verbose, "Task vmm initialization: root_table_hhdm: 0x%x", vmm_info->root_table_hhdm);
         root_table_hh = (uint64_t *) vmm_info->root_table_hhdm;
     }
 

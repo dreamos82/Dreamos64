@@ -147,11 +147,20 @@ void _fb_putchar(char symbol, size_t cx, size_t cy, uint32_t fg, uint32_t bg){
     }
 }
 
-void _fb_printStr(const char *string, size_t cx, size_t cy, uint32_t fg, uint32_t bg){
+void _fb_printStr( const char *string, uint32_t fg, uint32_t bg ) {
+    _fb_printStrAt(string, 0, cur_fb_line, fg, bg);
+    cur_fb_line++;
+    // TODO: compute numer of rows in a framebuffer
+}
+
+void _fb_printStrAt( const char *string, size_t cx, size_t cy, uint32_t fg, uint32_t bg ){
     while (*string != '\0'){
         if (*string == '\n'){
             cx=0;
             cy++;
+            cur_fb_line = cy;
+        } else if (*string == '\t'){
+            cx = 4;
         } else {
             _fb_putchar(*string, cx, cy, fg, bg);
             cx++;
@@ -164,14 +173,14 @@ void _fb_printStrAndNumber(const char *string, uint64_t number, size_t cx, size_
     char buffer[30];
 
     _getHexString(buffer, number, true);
-    _fb_printStr(string, cx, cy, fg, bg);
+    _fb_printStrAt(string, cx, cy, fg, bg);
     int counter = 0;
     while(*string != '\0') {
         counter++;
         string++;
     }
 
-    _fb_printStr(buffer, cx + counter, cy, fg, bg);
+    _fb_printStrAt(buffer, cx + counter, cy, fg, bg);
 }
 
 void get_framebuffer_mode(uint32_t* pixels_w, uint32_t* pixels_h, uint32_t* chars_w, uint32_t* chars_h)
