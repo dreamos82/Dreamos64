@@ -74,6 +74,7 @@ void logline(log_level_t level, const char* msg){
                     fbCurrentLine++;
                 }
                 else {
+                    //TODO: fbCurrentLine should be aligned with cur_fbLine in the framebuffer case.
                     _fb_printStrAt(logLevelStrings[level], 0, fbCurrentLine, 0xFFFFFFFF, 0);
                     _fb_printStrAt(msg, logLevelStrLen, fbCurrentLine, 0xFFFFFFFF, 0);
                     fbCurrentLine++;
