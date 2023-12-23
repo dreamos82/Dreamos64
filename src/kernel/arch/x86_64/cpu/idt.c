@@ -82,9 +82,7 @@ cpu_status_t* interrupts_handler(cpu_status_t *status){
             write_apic_register(APIC_EOI_REGISTER_OFFSET, 0x00l);
             break;
         default:
-            //qemu_write_string((char *) exception_names[status->interrupt_number]);
-            //qemu_write_string("\n");
-            pretty_logf(Verbose, "Exception: [%s]", exception_names[status->interrupt_number]);
+            pretty_logf(Verbose, "Exception: [%s]", (status->interrupt_number < 32) ? exception_names[status->interrupt_number] : "Unrecognized Error");
             printStackTrace(10, false);
             pretty_logf(Fatal, "Actually i don't know what to do... Better going crazy... asdfasdasdsD - Interrupt number 0x%x", status->interrupt_number);
             asm("hlt");
