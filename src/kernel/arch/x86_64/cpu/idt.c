@@ -1,15 +1,17 @@
 #include <idt.h>
-#include <video.h>
 #include <kernel/qemu.h>
-#include <stdint.h>
-#include <vm.h>
-#include <lapic.h>
-#include <stdio.h>
 #include <keyboard.h>
-#include <timer.h>
-#include <scheduler.h>
 #include <kernel.h>
+#include <lapic.h>
+#include <scheduler.h>
 #include <logging.h>
+#include <stacktrace.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <video.h>
+#include <timer.h>
+#include <vm.h>
 
 static const char *exception_names[] = {
   "Divide by Zero Error",
@@ -56,6 +58,8 @@ cpu_status_t* interrupts_handler(cpu_status_t *status){
             break;
         case GENERAL_PROTECTION:
             pretty_logf(Verbose, "#GP Error code: 0x%x", status->error_code);
+            pretty_logf(Verbose, "Exception: [%s]", exception_names[status->interrupt_number]);
+            printStackTrace(10, false);
             asm("hlt");
             break;
         case APIC_TIMER_INTERRUPT:
@@ -78,8 +82,8 @@ cpu_status_t* interrupts_handler(cpu_status_t *status){
             write_apic_register(APIC_EOI_REGISTER_OFFSET, 0x00l);
             break;
         default:
-            qemu_write_string((char *) exception_names[status->interrupt_number]);
-            qemu_write_string("\n");
+            pretty_logf(Verbose, "Exception: [%s]", (status->interrupt_number < 32) ? exception_names[status->interrupt_number] : "Unrecognized Error");
+            printStackTrace(10, false);
             pretty_logf(Fatal, "Actually i don't know what to do... Better going crazy... asdfasdasdsD - Interrupt number 0x%x", status->interrupt_number);
             asm("hlt");
             break;
