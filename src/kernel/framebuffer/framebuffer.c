@@ -154,7 +154,17 @@ void _fb_putchar(char symbol, size_t cx, size_t cy, uint32_t fg, uint32_t bg){
 void _fb_printStr( const char *string, uint32_t fg, uint32_t bg ) {
     _fb_printStrAt(string, 0, cur_fb_line, fg, bg);
     cur_fb_line++;
-    // TODO: compute number of rows in a framebuffer, and check when last line has been reached
+        if ( cur_fb_line > framebuffer_data.number_of_lines ) {
+        pretty_log(Verbose, "Exceeding number of lines, cycling");
+    }
+}
+
+void _fb_printStrAndNumber(const char *string, uint64_t number, uint32_t fg, uint32_t bg) {
+    _fb_printStrAndNumberAt(string, number, 0, cur_fb_line, fg, bg);
+    cur_fb_line++;
+    if ( cur_fb_line > framebuffer_data.number_of_lines ) {
+        pretty_log(Verbose, "Exceeding number of lines, cycling");
+    }
 }
 
 void _fb_printStrAt( const char *string, size_t cx, size_t cy, uint32_t fg, uint32_t bg ){
@@ -173,7 +183,7 @@ void _fb_printStrAt( const char *string, size_t cx, size_t cy, uint32_t fg, uint
     }
 }
 
-void _fb_printStrAndNumber(const char *string, uint64_t number, size_t cx, size_t cy, uint32_t fg, uint32_t bg){
+void _fb_printStrAndNumberAt(const char *string, uint64_t number, size_t cx, size_t cy, uint32_t fg, uint32_t bg){
     char buffer[30];
 
     _getHexString(buffer, number, true);

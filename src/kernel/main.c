@@ -192,7 +192,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
     uint64_t unix_timestamp = read_rtc_time();
 
     #if USE_FRAMEBUFFER == 1
-    _fb_printStrAndNumber("Epoch time: ", unix_timestamp, 0, 11, 0xf5c4f1, 0x000000);
+    _fb_printStrAndNumberAt("Epoch time: ", unix_timestamp, 0, 11, 0xf5c4f1, 0x000000);
     #endif
     init_scheduler();
     char a = 'a';
