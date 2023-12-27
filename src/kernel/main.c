@@ -79,7 +79,7 @@ void _init_basic_system(unsigned long addr){
 
     //Print framebuffer info
     pretty_logf(Verbose, "Framebuffer info: (type: 0x%x) Address: 0x%x", tagfb->common.framebuffer_type, tagfb->common.framebuffer_addr);
-    pretty_logf(Verbose, "width: 0x%x - height: 0x%x - bpp: 0x%x - pitch: 0x%x", tagfb->common.framebuffer_width, tagfb->common.framebuffer_height, tagfb->common.framebuffer_bpp, tagfb->common.framebuffer_pitch);
+    pretty_logf(Verbose, "width: 0x%d - height: 0x%d - bpp: 0x%x - pitch: 0x%x", tagfb->common.framebuffer_width, tagfb->common.framebuffer_height, tagfb->common.framebuffer_bpp, tagfb->common.framebuffer_pitch);
     set_fb_data(tagfb);
     pretty_logf(Verbose, "Total framebuffer size is: 0x%x", framebuffer_data.memory_size);
 
@@ -111,10 +111,24 @@ void _init_basic_system(unsigned long addr){
 
 void kernel_start(unsigned long addr, unsigned long magic){
     qemu_init_debug();
-    psf_font_version = get_PSF_version(_binary_fonts_default_psf_start);
+    psf_font_version = _psf_get_version(_binary_fonts_default_psf_start);
     init_idt();
     load_idt();
     init_log(LOG_OUTPUT_SERIAL, Verbose, false);
+    #if USE_FRAMEBUFFER == 1
+    uint8_t psf_type = _psf_get_version(_binary_fonts_default_psf_start);
+    pretty_logf(Verbose, "PSF v%d found", psf_type);
+
+    if(psf_type == 1){
+        PSFv1_Font *font = (PSFv1_Font*)_binary_fonts_default_psf_start;
+        pretty_logf(Verbose, "\tMagic: [%x %x] - Flags: 0x%x - Charsize: 0x%x", font->magic[1], font->magic[0], font->mode, font->charsize);
+    }  else {
+        PSF_font *font = (PSF_font*)&_binary_fonts_default_psf_start;
+        pretty_logf(Verbose, "\tVersion: [0x%x] - Magic: [0x%x] - Header size: 0x%x - flags: 0x%x", font->version, font->magic, font->headersize, font->flags);
+        pretty_logf(Verbose, "\tNumber of glyphs: [0x%x] - Bytes per glyphs: [0x%x]", font->numglyph, font->bytesperglyph);
+        pretty_logf(Verbose, "\tWidth: [0x%x] - Height: [0x%x]", font->width, font->height);
+    }
+
     _init_basic_system(addr);
     pretty_logf(Verbose, "Kernel End: 0x%x - Physical: %x", (unsigned long)&_kernel_end, (unsigned long)&_kernel_physical_end);
     // Reminder here: The first 8 bytes have a fixed structure in the multiboot info:
@@ -124,19 +138,6 @@ void kernel_start(unsigned long addr, unsigned long magic){
 
     if(magic != 0x36d76289){
         pretty_log(Fatal, "Failed to verify magic number. Something is wrong");
-    }
-
-#if USE_FRAMEBUFFER == 1
-    uint8_t psf_type = get_PSF_version(_binary_fonts_default_psf_start);
-    pretty_logf(Verbose, "PSF v%d found", psf_type);
-    if(psf_type == 1){
-        PSFv1_Font *font = (PSFv1_Font*)_binary_fonts_default_psf_start;
-        pretty_logf(Verbose, "\tMagic: [%x %x] - Flags: 0x%x - Charsize: 0x%x", font->magic[1], font->magic[0], font->mode, font->charsize);
-    }  else {
-        PSF_font *font = (PSF_font*)&_binary_fonts_default_psf_start;
-        pretty_logf(Verbose, "\tVersion: [0x%x] - Magic: [0x%x] - Header size: 0x%x - flags: 0x%x", font->version, font->magic, font->headersize, font->flags);
-        pretty_logf(Verbose, "\tNumber of glyphs: [0x%x] - Bytes per glyphs: [0x%x]", font->numglyph, font->bytesperglyph);
-        pretty_logf(Verbose, "\tWidth: [0x%x] - Height: [0x%x]", font->width, font->height);
     }
 
     uint32_t pw, ph, cw, ch;

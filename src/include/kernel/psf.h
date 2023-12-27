@@ -6,7 +6,7 @@
 #define MAGIC_V1_0 0x36
 #define MAGIC_V1_1 0x04
 
-#define MAGIC_V2 0x864ab572 
+#define MAGIC_V2 0x864ab572
 
 #define PSF1_MODE512    0x01
 #define PSF1_MODEHASTAB 0x02
@@ -37,10 +37,10 @@ extern char _binary_fonts_default_psf_size;
 extern char _binary_fonts_default_psf_start[];
 extern char _binary_fonts_default_psf_end;
 
-uint8_t get_PSF_version(char *);
+uint8_t _psf_get_version(char *);
 
-uint8_t* get_glyph(uint8_t, uint8_t);
-uint32_t get_height(uint8_t);
-uint32_t get_width(uint8_t);
+uint8_t* _psf_get_glyph(uint8_t, uint8_t);
+uint32_t _psf_get_height(uint8_t);
+uint32_t _psf_get_width(uint8_t);
 
 #endif
