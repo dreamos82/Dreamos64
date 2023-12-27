@@ -31,6 +31,7 @@ uint32_t FRAMEBUFFER_HEIGHT;
 struct framebuffer_info framebuffer_data;
 
 size_t cur_fb_line;
+uint32_t number_of_lines;
 
 void map_framebuffer(struct framebuffer_info fbdata) {
     uint32_t fb_entries = fbdata.memory_size / PAGE_SIZE_IN_BYTES;
@@ -103,6 +104,8 @@ void set_fb_data(struct multiboot_tag_framebuffer *fbtag){
     framebuffer_data.width = fbtag->common.framebuffer_width;
     framebuffer_data.height = fbtag->common.framebuffer_height;
     framebuffer_data.phys_address = fbtag->common.framebuffer_addr;
+
+    number_of_lines = 0;
 
     map_framebuffer(framebuffer_data);
     cur_fb_line = 0;
