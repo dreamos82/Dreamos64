@@ -156,6 +156,7 @@ void _fb_printStr( const char *string, uint32_t fg, uint32_t bg ) {
     cur_fb_line++;
         if ( cur_fb_line > framebuffer_data.number_of_lines ) {
         pretty_log(Verbose, "Exceeding number of lines, cycling");
+        cur_fb_line = 0;
     }
 }
 
@@ -164,6 +165,7 @@ void _fb_printStrAndNumber(const char *string, uint64_t number, uint32_t fg, uin
     cur_fb_line++;
     if ( cur_fb_line > framebuffer_data.number_of_lines ) {
         pretty_log(Verbose, "Exceeding number of lines, cycling");
+        cur_fb_line = 0;
     }
 }
 
