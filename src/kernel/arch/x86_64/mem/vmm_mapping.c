@@ -143,7 +143,7 @@ void *map_phys_to_virt_addr(void* physical_address, void* address, size_t flags)
     if( !(pdpr_table[pdpr_e] & 0b1) ) {
         uint64_t *new_table = pmm_alloc_frame();
         pdpr_table[pdpr_e] = (uint64_t) new_table | user_mode_status | WRITE_BIT | PRESENT_BIT;
-//        pretty_logf(Verbose, " PDPR entry value: 0x%x", pdpr_table[pdpr_e]);
+        //pretty_logf(Verbose, " PDPR entry value: 0x%x", pdpr_table[pdpr_e]);
         clean_new_table(pd_table);
     }
 

@@ -233,10 +233,9 @@ higher_half:
     lgdt [gdt64.pointer]
 
     ; The two lines below are needed to un map the kernel in the lower half
-    ; But i'll leave them commented for now because the code in the kernel need
-    ; to be changed and some addresses need to be updated (i.e. multiboot stuff)
     mov eax, 0x0
     mov dword [(p4_table - KERNEL_VIRTUAL_ADDR) + 0], eax
+
     mov rax, cr3
     mov cr3, rax
     call kernel_start

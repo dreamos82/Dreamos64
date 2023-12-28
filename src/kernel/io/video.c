@@ -6,7 +6,7 @@
 	#include <qemu.h>
 #endif
 //#include <image.h>
-
+//TODO: Remove legacy VGA support
 char *VIDEO_MEM = (char *) _VIDEO_MEM_START;
 char *VIDEO_PTR = (char *) _VIDEO_MEM_START;
 
@@ -21,7 +21,7 @@ char *VIDEO_PTR = (char *) _VIDEO_MEM_START;
             px_addr[j*4+1] = MagickImage[i+j+1 + k];
             px_addr[j*4+2] = MagickImage[i+j+2 + k];
             k +=3;
-            //px_addr = FRAMEBUFFER_MEM + row + j * FRAMEBUFFER_BPP; 
+            //px_addr = FRAMEBUFFER_MEM + row + j * FRAMEBUFFER_BPP;
         }
         px_addr +=3200;
     }
@@ -59,14 +59,13 @@ void _printStringAndNumber(char *string, unsigned long number){
 
 void _printNumber(char *buffer, unsigned long number, int base){
     switch(base){
-        case 10: 
-            break;        
+        case 10:
+            break;
         case 16:
             _getHexString(buffer, number, false);
             break;
     }
     _printStr(buffer);
-
 }
 
 void _printHex(char *buffer, unsigned long hexnumber){

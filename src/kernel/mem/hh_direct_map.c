@@ -29,7 +29,7 @@ void *hhdm_get_variable ( uintptr_t phys_address ) {
 
 
 void hhdm_map_physical_memory() {
-    // This function should be called only once, and the hhdm shouldn't chnage during the kernel uptime
+    // This function should be called only once, and the hhdm shouldn't change during the kernel uptime
     // This function needs to map the entire phyisical memory inside the virtual memory environment.
     // The starting address is _HIGHER_HALF_KERNEL_MEM_START
     uint64_t end_of_mapped_physical_memory = end_of_mapped_memory - _HIGHER_HALF_KERNEL_MEM_START;

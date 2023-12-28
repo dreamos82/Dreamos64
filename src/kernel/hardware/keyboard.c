@@ -104,7 +104,7 @@ void handle_keyboard_interrupt() {
                         string[9] = read_char;
                         string[10] = '-';
                         //printf("%s\n", string);
-                        _fb_printStr(string, 0, 10, 0x000000, 0x1ad652);
+                        _fb_printStrAt(string, 0, 10, 0x000000, 0x1ad652);
                     }
                 #endif
                 pretty_logf(Verbose, "\t+ Key is pressed pos %d: SC: %x - Code: %x - Mod: %x %c", buf_position, scancode, keyboard_buffer[buf_position].code, keyboard_buffer[buf_position].modifiers, kgetch(keyboard_buffer[buf_position]));
