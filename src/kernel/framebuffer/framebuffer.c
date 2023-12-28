@@ -154,7 +154,7 @@ void _fb_putchar(char symbol, size_t cx, size_t cy, uint32_t fg, uint32_t bg){
 void _fb_printStr( const char *string, uint32_t fg, uint32_t bg ) {
     _fb_printStrAt(string, 0, cur_fb_line, fg, bg);
     cur_fb_line++;
-        if ( cur_fb_line > framebuffer_data.number_of_lines ) {
+        if ( cur_fb_line >= framebuffer_data.number_of_lines ) {
         pretty_log(Verbose, "Exceeding number of lines, cycling");
         cur_fb_line = 0;
     }
@@ -163,7 +163,7 @@ void _fb_printStr( const char *string, uint32_t fg, uint32_t bg ) {
 void _fb_printStrAndNumber(const char *string, uint64_t number, uint32_t fg, uint32_t bg) {
     _fb_printStrAndNumberAt(string, number, 0, cur_fb_line, fg, bg);
     cur_fb_line++;
-    if ( cur_fb_line > framebuffer_data.number_of_lines ) {
+    if ( cur_fb_line >= framebuffer_data.number_of_lines ) {
         pretty_log(Verbose, "Exceeding number of lines, cycling");
         cur_fb_line = 0;
     }
