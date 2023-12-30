@@ -46,7 +46,7 @@ void _mmap_setup(){
         while(counter < mmap_number_of_entries){
             if(mmap_entries[counter].addr < mem_limit &&
                     mmap_entries[counter].type > 1){
-                pretty_logf(Verbose, "Found unusable entry at addr: %x", mmap_entries[counter].addr);
+                pretty_logf(Verbose, "\tFound unusable entry at addr: %x", mmap_entries[counter].addr);
                 pmm_reserve_area(mmap_entries[counter].addr, mmap_entries[counter].len);
                 count_physical_reserved++;
             }
@@ -80,6 +80,6 @@ uintptr_t _mmap_determine_bitmap_region(uint64_t lower_limit, size_t bytes_neede
     }
 
     //BOOM! D:
-    pretty_log(Verbose, "Could not find a space big enough to hold the pmm bitmap! This should not happen.");
+    pretty_log(Fatal, "Could not find a space big enough to hold the pmm bitmap! This should not happen.");
     return 0;
 }

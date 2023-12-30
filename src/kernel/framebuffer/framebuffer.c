@@ -199,6 +199,16 @@ void _fb_printStrAndNumberAt(const char *string, uint64_t number, size_t cx, siz
     _fb_printStrAt(buffer, cx + counter, cy, fg, bg);
 }
 
+/**
+ * This function return the hhdm pointer of the physycal address provided
+ *
+ *
+ * @param pixels_w this parameter will contain the width in pixels
+ * @param pixels_h this parameter will contain the height in pixels
+ * @param chars_w this parameter will contain the number of columns according to the char loaded
+ * @param chars_h this parameter will contain the number of rows according to the char loaded
+ * @return hhdm virtual address of the physical address or NULL in case of error
+ */
 void get_framebuffer_mode(uint32_t* pixels_w, uint32_t* pixels_h, uint32_t* chars_w, uint32_t* chars_h)
 {
     if (pixels_w != NULL)

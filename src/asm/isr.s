@@ -30,8 +30,6 @@ interrupt_service_routine_error_code_%1:
     iretq
 %endmacro
 
-
-
 %macro save_context 0
     push rax
     push rbx
@@ -90,4 +88,5 @@ interrupt_service_routine 18
 interrupt_service_routine 32
 interrupt_service_routine 33
 interrupt_service_routine 34
+interrupt_service_routine 128
 interrupt_service_routine 255

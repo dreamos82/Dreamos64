@@ -34,6 +34,7 @@
 #include <thread.h>
 #include <rtc.h>
 #include <spinlock.h>
+#include <syscalls.h>
 #include <task.h>
 #include <tss.h>
 #include <vfs.h>
@@ -157,6 +158,9 @@ void kernel_start(unsigned long addr, unsigned long magic){
 
     draw_logo(0, 400);
 #endif
+    _syscalls_init();
+    //_sc_putc('c', 0);
+    //asm("int $0x80");
     //higherHalfDirectMapBase is where we will the Direct Mapping of physical memory will start.
     higherHalfDirectMapBase = ((uint64_t) HIGHER_HALF_ADDRESS_OFFSET + VM_KERNEL_MEMORY_PADDING);
     _mmap_setup();
