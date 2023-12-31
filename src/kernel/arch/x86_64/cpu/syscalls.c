@@ -19,10 +19,10 @@ cpu_status_t *do_syscall(cpu_status_t* regs) {
     return regs;
 }
 
-void _sc_putc(char ch, size_t arg) {
+/*void _sc_putc(char ch, size_t arg) {
     size_t syscall_num = 1;
     asm("int $0x80"
         : "+S"(syscall_num)
         : "D"(ch), "S"(arg)
     );
-}
+}*/
