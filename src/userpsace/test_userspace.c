@@ -26,7 +26,7 @@ uint64_t prepare_userspace_function(VmmInfo *vmm_info) {
     map_phys_to_virt_addr_hh(temp_var, (void *) code_page, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE, NULL);
     //code_page[0] = infinite_loop[0];
     //code_page[1] = infinite_loop[1];
-    for (int i=0; i < 13; i++) {
+    for (int i=0; i < 14; i++) {
         code_page[i] = test_syscall[i];
     }
     char *user_code_page = vmm_alloc(PAGE_SIZE_IN_BYTES, VMM_FLAGS_ADDRESS_ONLY | VMM_FLAGS_WRITE_ENABLE | VMM_FLAGS_PRESENT | VMM_FLAGS_USER_LEVEL, vmm_info);

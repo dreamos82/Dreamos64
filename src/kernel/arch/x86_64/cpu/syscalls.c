@@ -20,7 +20,6 @@ cpu_status_t *do_syscall(cpu_status_t* regs) {
 }
 
 void _sc_putc(char ch, size_t arg) {
-    pretty_log(Verbose, " putchar called");
     size_t syscall_num = 1;
     asm("int $0x80"
         : "+S"(syscall_num)
