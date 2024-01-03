@@ -24,5 +24,5 @@ size_t syscall_dispatcher( size_t syscall_num, size_t  arg0, size_t arg1, size_t
         : "=S"(arg2)
         : "D"(syscall_num), "S"(arg0), "rdx"(arg1), "rcx"(arg2)
     );
-    return arg;
+    return arg2;
 }
