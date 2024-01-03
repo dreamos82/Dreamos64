@@ -5,7 +5,7 @@
 bool _syscalls_init() {
     pretty_log(Verbose, "Initializing sycalls");
     set_idt_entry(SYSCALL_VECTOR_NUMBER, IDT_PRESENT_FLAG | IDT_INTERRUPT_TYPE_FLAG | IDT_DPL_USER_FLAG, KERNEL_CS, 0, interrupt_service_routine_128);
-    return false;
+    return true;
 }
 
 cpu_status_t *do_syscall(cpu_status_t* regs) {
@@ -19,10 +19,18 @@ cpu_status_t *do_syscall(cpu_status_t* regs) {
     return regs;
 }
 
+size_t syscall_dispatcher( size_t syscall_num, size_t  arg0, size_t arg1, size_t arg2 ) {
+    asm("int $0x80"
+        : "=S"(arg2)
+        : "D"(syscall_num), "S"(arg0), "rdx"(arg1), "rcx"(arg2)
+    );
+
+}
+
 /*void _sc_putc(char ch, size_t arg) {
     size_t syscall_num = 1;
     asm("int $0x80"
-        : "+S"(syscall_num)
+        : "=S"(syscall_num)
         : "D"(ch), "S"(arg)
     );
 }*/
