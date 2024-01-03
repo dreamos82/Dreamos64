@@ -24,13 +24,5 @@ size_t syscall_dispatcher( size_t syscall_num, size_t  arg0, size_t arg1, size_t
         : "=S"(arg2)
         : "D"(syscall_num), "S"(arg0), "rdx"(arg1), "rcx"(arg2)
     );
-
+    return arg;
 }
-
-/*void _sc_putc(char ch, size_t arg) {
-    size_t syscall_num = 1;
-    asm("int $0x80"
-        : "=S"(syscall_num)
-        : "D"(ch), "S"(arg)
-    );
-}*/
