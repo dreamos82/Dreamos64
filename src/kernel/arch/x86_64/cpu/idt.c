@@ -84,7 +84,7 @@ cpu_status_t* interrupts_handler(cpu_status_t *status){
             break;
         case SYSCALL_VECTOR_NUMBER:
             pretty_log(Verbose, "Serving syscall.");
-            do_syscall(status);
+            syscall_dispatch(status);
             break;
         default:
             pretty_logf(Verbose, "Exception: [%s]", (status->interrupt_number < 32) ? exception_names[status->interrupt_number] : "Unrecognized Error");

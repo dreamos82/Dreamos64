@@ -38,7 +38,7 @@ The sequence of component that are intialized (refer to `src/main.c`):
 * Basic System Initialization:
     - Parse the multiboot information received from the bootloader.
     - Parse the mmap and initialize the physical memory manager, marking the pmm areas as busy.
-    - Initialize the physical mermoy manager, marking the area in the mmap as already taken.
+    - Initialize the physical memory manager, marking the area in the mmap as already taken.
     - Validate and parse the SDT tables
     - This section needs to be reviewed and check if all the steps are required
 * Finish mapping the Framebuffer (there is a potential bug here, need to chek what i do while mapping it)

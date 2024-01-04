@@ -4,16 +4,18 @@
 %define PRESENT_BIT 1
 %define WRITE_BIT 0b10
 %define HUGEPAGE_BIT 0b10000000
+
 %if SMALL_PAGES == 1
-%define PAGE_SIZE 0x1000
-%define PAGE_TABLE_ENTRY WRITE_BIT | PRESENT_BIT
+%define PAGE_SIZE 0x1000 ; PAGE_SIZE is 4k
+%define PAGE_TABLE_ENTRY WRITE_BIT | PRESENT_BIT ;PAGE_TABLE_ENTRY for 4k pages, huge page bit is left to 0
 %define LOOP_LIMIT 1024
 %define PD_LOOP_LIMIT 2
 %elif SMALL_PAGES == 0
 %define PAGE_SIZE 0x200000
-%define PAGE_TABLE_ENTRY HUGEPAGE_BIT | WRITE_BIT | PRESENT_BIT
+%define PAGE_TABLE_ENTRY HUGEPAGE_BIT | WRITE_BIT | PRESENT_BIT ;PAGE_TABLE (pd table) entry for 2M pages, huge page bit is set.
 %define LOOP_LIMIT 512
 %endif
+
 section .multiboot.text
 global start
 global p2_table

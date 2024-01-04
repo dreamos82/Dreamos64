@@ -8,18 +8,25 @@ bool _syscalls_init() {
     return true;
 }
 
-cpu_status_t *do_syscall(cpu_status_t* regs) {
+cpu_status_t *syscall_dispatch(cpu_status_t* regs) {
     size_t sc_num = regs->rsi;
     pretty_logf(Verbose, "Syscall handler called: %d", sc_num);
     switch(sc_num) {
         case 1:
             pretty_log(Verbose, "example");
             break;
+        case 2:
+            char *input_string = (char *) regs->rsi;
+            pretty_logf(Verbose, "%s", input_string);
+            break;
+        default:
+            regs->rax = E_NO_SYSCALL;
+            break;
     }
     return regs;
 }
 
-size_t syscall_dispatcher( size_t syscall_num, size_t  arg0, size_t arg1, size_t arg2 ) {
+size_t execute_syscall( size_t syscall_num, size_t  arg0, size_t arg1, size_t arg2 ) {
     asm("int $0x80"
         : "=S"(arg2)
         : "D"(syscall_num), "S"(arg0), "rdx"(arg1), "rcx"(arg2)
