@@ -16,8 +16,8 @@ cpu_status_t *syscall_dispatch(cpu_status_t* regs) {
             pretty_log(Verbose, "example");
             break;
         case 2:
-            char *input_string = (char *) regs->rsi;
-            pretty_logf(Verbose, "%s", input_string);
+            //char *input_string = (char *) regs->rsi;
+            //pretty_logf(Verbose, "%s", input_string);
             break;
         default:
             regs->rax = E_NO_SYSCALL;
