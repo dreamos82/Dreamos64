@@ -1,5 +1,7 @@
+#include <framebuffer.h>
 #include <idt.h>
 #include <logging.h>
+#include <rtc.h>
 #include <syscalls.h>
 
 bool _syscalls_init() {
@@ -9,11 +11,14 @@ bool _syscalls_init() {
 }
 
 cpu_status_t *syscall_dispatch(cpu_status_t* regs) {
+    //TODO: add mapping / unmapping memory syscall
     size_t sc_num = regs->rsi;
-    pretty_logf(Verbose, "Syscall handler called: %d", sc_num);
+    //pretty_logf(Verbose, "Syscall handler called: %d", sc_num);
     switch(sc_num) {
         case 1:
-            pretty_log(Verbose, "example");
+            //_fb_printStrAndNumberAt("Epoch time: ", read_rtc_time(), 0, 11, 0xf5c4f1, 0x000000);
+            _fb_printStrAt("Hello from user world (through a syscall...)", 0, 15, 0xf5c4f1, 0x000000);
+            //pretty_log(Verbose, "example");
             break;
         case 2:
             //char *input_string = (char *) regs->rsi;

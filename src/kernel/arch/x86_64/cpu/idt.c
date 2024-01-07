@@ -83,7 +83,7 @@ cpu_status_t* interrupts_handler(cpu_status_t *status){
             write_apic_register(APIC_EOI_REGISTER_OFFSET, 0x00l);
             break;
         case SYSCALL_VECTOR_NUMBER:
-            pretty_log(Verbose, "Serving syscall.");
+            //pretty_log(Verbose, "Serving syscall.");
             syscall_dispatch(status);
             break;
         default:
