@@ -207,7 +207,6 @@ void _fb_printStrAndNumberAt(const char *string, uint64_t number, size_t cx, siz
  * @param pixels_h this parameter will contain the height in pixels
  * @param chars_w this parameter will contain the number of columns according to the char loaded
  * @param chars_h this parameter will contain the number of rows according to the char loaded
- * @return hhdm virtual address of the physical address or NULL in case of error
  */
 void get_framebuffer_mode(uint32_t* pixels_w, uint32_t* pixels_h, uint32_t* chars_w, uint32_t* chars_h)
 {
