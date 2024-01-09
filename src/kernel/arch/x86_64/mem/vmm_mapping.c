@@ -218,6 +218,22 @@ int unmap_vaddress(void *address){
 	return 0;
 }
 
+int unmap_vadress_hh(void *address, uint64_t *pml4_root) {
+    if ( pml4_root != NULL && address != NULL) {
+        uint16_t pml4_e = PML4_ENTRY((uint64_t) address);
+        uint64_t *pml4_table = pml4_root;
+
+        if (pml4_table[pml4_e] & 0b01) {
+            return -1;
+        }
+
+        uint16_t pdpr_e = PDPR_ENTRY((uint64_t) address);
+
+    }
+    pretty_log(Verbose, "Either address or pml4_root are null, returning error");
+    return -1;
+}
+
 void identity_map_phys_address(void *physical_address, size_t flags) {
     map_phys_to_virt_addr(physical_address, physical_address, flags);
 }
