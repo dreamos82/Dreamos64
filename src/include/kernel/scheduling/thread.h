@@ -50,5 +50,4 @@ void thread_wakeup(thread_t* thread);
 char *get_thread_status(thread_t *thread);
 // Functions below are for tests purposes
 void noop(void *c);
-
 #endif
