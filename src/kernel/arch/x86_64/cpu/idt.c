@@ -3,14 +3,15 @@
 #include <keyboard.h>
 #include <kernel.h>
 #include <lapic.h>
-#include <scheduler.h>
 #include <logging.h>
+#include <scheduler.h>
 #include <stacktrace.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
-#include <video.h>
+#include <syscalls.h>
 #include <timer.h>
+#include <video.h>
 #include <vm.h>
 
 static const char *exception_names[] = {
@@ -80,6 +81,10 @@ cpu_status_t* interrupts_handler(cpu_status_t *status){
         case PIT_INTERRUPT:
             pit_irq_handler();
             write_apic_register(APIC_EOI_REGISTER_OFFSET, 0x00l);
+            break;
+        case SYSCALL_VECTOR_NUMBER:
+            //pretty_log(Verbose, "Serving syscall.");
+            syscall_dispatch(status);
             break;
         default:
             pretty_logf(Verbose, "Exception: [%s]", (status->interrupt_number < 32) ? exception_names[status->interrupt_number] : "Unrecognized Error");

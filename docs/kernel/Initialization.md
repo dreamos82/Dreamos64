@@ -8,7 +8,7 @@ The tags that are enabled at boot are:
 
 * Framebuffer
 
-Although it is optional, in the mid term, support for legacy VGA driver will be dropped.
+Although it is optional, in the mid term, support for legacy VGA driver will be dropped (and is not guaranteed to work anymore).
 
 The header is defined in the `src/asm/multiboot_header.s`
 
@@ -34,13 +34,13 @@ The sequence of component that are intialized (refer to `src/main.c`):
 
 * Qemu debug (the main output for now)
 * IDT
-* Basic System:
+* Load the PSF font from memory
+* Basic System Initialization:
     - Parse the multiboot information received from the bootloader.
     - Parse the mmap and initialize the physical memory manager, marking the pmm areas as busy.
-    - Initialize the physical mermoy manager, marking the area in the mmap as already taken.
+    - Initialize the physical memory manager, marking the area in the mmap as already taken.
     - Validate and parse the SDT tables
     - This section needs to be reviewed and check if all the steps are required
-* Load the PSF font from memory
 * Finish mapping the Framebuffer (there is a potential bug here, need to chek what i do while mapping it)
 * Set the Higher Half direct map
 * Initialize the kernel VMM

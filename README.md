@@ -39,6 +39,7 @@ But at kernel level several things have been implemented:
 * Thread switching, thread_sleep and basic spinlock implementation
 * Basic Virtual Memory implementation
 * Initial Userspace support (so far can run only an idle userspace thread)
+* Basic syscall mechanism (altough no real syscalls are implemented, just one that prints the string "example")
 
 ## Prerequisites:
 
@@ -127,7 +128,7 @@ This means that the fonts folder is missing (you need either a psf v2 or v1 font
 
 ### And now show time! :)
 
-![ezgif com-gif-maker (2)](https://user-images.githubusercontent.com/59960116/163857438-bb5e3ad5-47c5-40d3-9d63-a85381449425.gif)
+![image](https://github.com/dreamos82/Dreamos64/assets/59960116/02ae132c-08c8-47a9-9e4d-7bea0e07865f)
 
 
 ### Acknowledgements

@@ -7,12 +7,13 @@
 #define IDT_SIZE 256
 
 #define IDT_PRESENT_FLAG 0x80
-#define IDT_INTERRUPT_TYPE_FLAG 0x0E
+#define IDT_INTERRUPT_TYPE_FLAG 0x0E //Interrupt gate: 0b1110.
 #define IDT_SEGMENT_SELECTOR 0x08
+#define IDT_DPL_USER_FLAG  0x60
 
 #define KERNEL_CS   0x8
 
-// Define Interrupts labels 
+// Define Interrupts labels
 #define DIVIDE_ERROR 0
 #define DEBUG_EXC 1
 #define NMI_INTERRUPT 2
@@ -57,7 +58,7 @@ typedef struct IDT_reg {
 
 void init_idt();
 void load_idt();
-void set_idt_entry(uint16_t , uint8_t, uint16_t, uint8_t, void (*)());
+void set_idt_entry(uint16_t idx, uint8_t flags, uint16_t selector, uint8_t ist, void (*handler)() );
 
 cpu_status_t* interrupts_handler(cpu_status_t*);
 
@@ -89,6 +90,7 @@ extern void interrupt_service_routine_18();
 extern void interrupt_service_routine_32();
 extern void interrupt_service_routine_33();
 extern void interrupt_service_routine_34();
+extern void interrupt_service_routine_128();
 extern void interrupt_service_routine_255();
 
 #endif
