@@ -200,9 +200,9 @@ void kernel_start(unsigned long addr, unsigned long magic){
     #endif
     init_scheduler();
     char a = 'a';
-    task_t* idle_task = create_task("idle", noop, &a, true);
+    task_t* idle_task = create_task("idle", idle, &a, true);
     idle_thread = idle_task->threads;
-    //task_t* eldi_task = create_task("eldi", noop2, &a,  false);
+    task_t* eldi_task = create_task("unmapper", noop2, &a,  true);
     task_t* userspace_task = create_task("userspace_idle", NULL, &a, false);
     //create_thread("ledi", noop2, &c, eldi_task);
     //create_task("sleeper", noop3, &d);

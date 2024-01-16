@@ -17,7 +17,7 @@ void page_fault_handler(uint64_t error_code) {
     pretty_logf(Verbose, "-- Error code value: %d", error_code);
     pretty_logf(Verbose, "--  Faulting address: 0x%X", cr2_content);
     cr2_content = cr2_content & VM_OFFSET_MASK;
-    pretty_logf(Verbose, "-- Address prepared for PD/PT extraction: %x", cr2_content);
+    pretty_logf(Verbose, "-- Address prepared for PD/PT extraction (CR2): 0x%x", cr2_content);
     pd = PD_ENTRY(cr2_content);
     pdpr = PDPR_ENTRY(cr2_content);
     pml4 = PML4_ENTRY(cr2_content);

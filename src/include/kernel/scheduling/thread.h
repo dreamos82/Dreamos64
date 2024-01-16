@@ -48,6 +48,8 @@ void thread_suicide_trap();
 void thread_sleep(size_t millis);
 void thread_wakeup(thread_t* thread);
 char *get_thread_status(thread_t *thread);
+void idle(void *c);
 // Functions below are for tests purposes
 void noop(void *c);
+void noop2(void *v);
 #endif

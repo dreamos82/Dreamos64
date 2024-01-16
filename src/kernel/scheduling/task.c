@@ -29,11 +29,11 @@ task_t* create_task(char *name, void (*_entry_point)(void *), void *args, bool i
         vmm_init(VMM_LEVEL_USER, &(new_task->vmm_data));
     }
     if( is_supervisor) {
-        pretty_log(Verbose, "creating new supervisor thread");
+        pretty_logf(Verbose, "creating new supervisor thread: %s", name);
         thread_t* thread = create_thread(name, _entry_point, args, new_task, is_supervisor);
         new_task->threads = thread;
     } else {
-        pretty_log(Verbose, "creating new userspace thread");
+        pretty_logf(Verbose, "creating new userspace thread %s", name);
         thread_t* thread = create_thread(name, NULL, args, new_task, is_supervisor);
         new_task->threads = thread;
     }

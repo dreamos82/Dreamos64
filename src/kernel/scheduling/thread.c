@@ -40,13 +40,16 @@ thread_t* create_thread(char* thread_name, void (*_entry_point)(void *), void* a
         pretty_logf(Verbose, "vmm_data address: 0x%x", &(parent_task->vmm_data));
         new_thread->execution_frame->rip = prepare_userspace_function(&(parent_task->vmm_data));
         pretty_logf(Verbose, "using userspace function address: 0x%x", new_thread->execution_frame->rip);
+        new_thread->execution_frame->rdi = 0;
+        new_thread->execution_frame->rsi = 0;
     } else {
-        pretty_log(Verbose, "using idle function");
-        new_thread->execution_frame->rip = (uint64_t) code_to_run;
+        pretty_logf(Verbose, "using idle function: 0x%x", _entry_point);
+        //new_thread->execution_frame->rip = (uint64_t) code_to_run;
+        new_thread->execution_frame->rip = (uint64_t) thread_execution_wrapper;
+        new_thread->execution_frame->rdi = (uint64_t) _entry_point;
+        new_thread->execution_frame->rsi = (uint64_t) arg;
     }
     // rdi and rsi are the two arguments passed to the thread_execution_wrapper function
-    new_thread->execution_frame->rdi = 0;
-    new_thread->execution_frame->rsi = 0;
     new_thread->execution_frame->rflags = 0x202;
     if ( is_supervisor ) {
         new_thread->execution_frame->ss = 0x10;
@@ -105,17 +108,26 @@ void thread_suicide_trap() {
 }
 
 void thread_execution_wrapper( void (*_thread_function)(void *), void* arg) {
+    pretty_logf(Verbose, "Calling function %x",  _thread_function);
     _thread_function(arg);
     thread_suicide_trap();
     return;
 }
 
-void idle() {
+void idle(void *c) {
     while(1);
 }
 
 void noop(void *v) {
     asm("nop");
+}
+
+void noop2(void *v) {
+    pretty_log(Verbose, "Called2");
+    task_t *current_task = current_executing_thread->parent_task;
+    uint64_t *tmp_var = vmm_alloc(0x1000, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE, &(current_task->vmm_data));
+    //tmp_var[0] = 0x50;
+    pretty_logf(Verbose, " End of noop2: 0x%x", tmp_var[0] );
 }
 
 char *get_thread_status(thread_t *thread) {
