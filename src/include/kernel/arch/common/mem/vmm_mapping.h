@@ -11,6 +11,6 @@ void map_vaddress_range(void *virtual_address, size_t flags, size_t required_pag
 
 void *map_vaddress(void *address, size_t flags, uint64_t *pml4_root);
 int unmap_vaddress(void *address);
-int unmap_vadress_hh(void *address);
+int unmap_vaddress_hh(void *address, uint64_t *pml4_root);
 
 #endif

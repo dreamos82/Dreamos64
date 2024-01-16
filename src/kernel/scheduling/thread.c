@@ -8,6 +8,7 @@
 #include <kernel.h>
 #include <userspace.h>
 #include <vmm.h>
+#include <vmm_mapping.h>
 
 unsigned char code_to_run[] = {
     0xeb, 0xfe
@@ -44,10 +45,10 @@ thread_t* create_thread(char* thread_name, void (*_entry_point)(void *), void* a
         new_thread->execution_frame->rsi = 0;
     } else {
         pretty_logf(Verbose, "using idle function: 0x%x", _entry_point);
-        //new_thread->execution_frame->rip = (uint64_t) code_to_run;
-        new_thread->execution_frame->rip = (uint64_t) thread_execution_wrapper;
-        new_thread->execution_frame->rdi = (uint64_t) _entry_point;
-        new_thread->execution_frame->rsi = (uint64_t) arg;
+        new_thread->execution_frame->rip = (uint64_t) code_to_run;
+        //new_thread->execution_frame->rip = (uint64_t) thread_execution_wrapper;
+        //new_thread->execution_frame->rdi = (uint64_t) _entry_point;
+        //new_thread->execution_frame->rsi = (uint64_t) arg;
     }
     // rdi and rsi are the two arguments passed to the thread_execution_wrapper function
     new_thread->execution_frame->rflags = 0x202;
@@ -120,14 +121,6 @@ void idle(void *c) {
 
 void noop(void *v) {
     asm("nop");
-}
-
-void noop2(void *v) {
-    pretty_log(Verbose, "Called2");
-    task_t *current_task = current_executing_thread->parent_task;
-    uint64_t *tmp_var = vmm_alloc(0x1000, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE, &(current_task->vmm_data));
-    //tmp_var[0] = 0x50;
-    pretty_logf(Verbose, " End of noop2: 0x%x", tmp_var[0] );
 }
 
 char *get_thread_status(thread_t *thread) {
