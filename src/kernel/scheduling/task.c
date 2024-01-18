@@ -29,11 +29,11 @@ task_t* create_task(char *name, void (*_entry_point)(void *), void *args, bool i
         vmm_init(VMM_LEVEL_USER, &(new_task->vmm_data));
     }
     if( is_supervisor) {
-        pretty_log(Verbose, "creating new supervisor thread");
+        pretty_logf(Verbose, "creating new supervisor thread: %s", name);
         thread_t* thread = create_thread(name, _entry_point, args, new_task, is_supervisor);
         new_task->threads = thread;
     } else {
-        pretty_log(Verbose, "creating new userspace thread");
+        pretty_logf(Verbose, "creating new userspace thread %s", name);
         thread_t* thread = create_thread(name, NULL, args, new_task, is_supervisor);
         new_task->threads = thread;
     }
@@ -51,7 +51,7 @@ void prepare_virtual_memory_environment(task_t* task) {
     //pretty_logf(Verbose, "vm_root_page_table address: %x", task->vm_root_page_table);
     //identity_map_phys_address(task->vm_root_page_table, 0);
     // I will get the page frame first, then get virtual address to map it to with vmm_alloc, and then do the mapping on the virtual address.
-    // Tecnically the vmm_allos is not needed, since i have the direct memory map already accessible, so i just need to access it through the direct map.
+    // Technically the vmm_alloc is not needed, since i have the direct memory map already accessible, so i just need to access it through the direct map.
 
     //void* vm_root_vaddress = vmm_alloc(PAGE_SIZE_IN_BYTES, VMM_FLAGS_ADDRESS_ONLY, NULL);
     void* vm_root_vaddress = hhdm_get_variable ((uintptr_t) task->vm_root_page_table);

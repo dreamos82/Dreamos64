@@ -218,6 +218,42 @@ int unmap_vaddress(void *address){
 	return 0;
 }
 
+int unmap_vaddress_hh(void *address, uint64_t *pml4_root) {
+    if ( pml4_root == NULL || address == NULL ) {
+        return -1;
+    }
+
+    uint16_t pml4_e = PML4_ENTRY((uint64_t) address);
+    uint64_t *pml4_table = pml4_root;
+    pretty_logf(Verbose, " pml4_table[%d] = 0x%x", pml4_e, pml4_table[pml4_e]);
+    if (!(pml4_table[pml4_e] & 0b01)) {
+        return -1;
+    }
+    uint16_t pdpr_e = PDPR_ENTRY((uint64_t) address);
+    uint64_t *pdpr_table =  (uint64_t *) hhdm_get_variable((uintptr_t) pml4_table[pml4_e] & VM_PAGE_TABLE_BASE_ADDRESS_MASK);
+    pretty_logf(Verbose, " pdpr_table[%d] = 0x%x", pdpr_e, pdpr_table[pdpr_e]);
+    if (!(pdpr_table[pdpr_e] & 0b01)) {
+        return -1;
+    }
+    uint16_t pd_e = PD_ENTRY((uint64_t) address);
+    uint64_t *pd_table = (uint64_t *) hhdm_get_variable((uintptr_t) pdpr_table[pdpr_e] & VM_PAGE_TABLE_BASE_ADDRESS_MASK);
+    pretty_logf(Verbose, " pd_table[%d] = 0x%x", pd_e, pd_table[pd_e]);
+    #if SMALL_PAGES == 0
+    if (!(pd_table[pd_e] &0b01)) {
+        return -1;
+    }
+
+    pretty_logf(Verbose, " Unmapping address: 0x%x, pd_entry: %d", address, pd_e);
+    pd_table[pd_e] = 0x0l;
+    invalidate_page_table(address);
+    return 0;
+    #endif
+
+    pretty_log(Verbose, "Either address or pml4_root are null, returning error");
+    return -1;
+}
+
+//TODO This function is no longer used, it may be removed in the future
 void identity_map_phys_address(void *physical_address, size_t flags) {
     map_phys_to_virt_addr(physical_address, physical_address, flags);
 }

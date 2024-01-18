@@ -8,6 +8,7 @@
 #include <kernel.h>
 #include <userspace.h>
 #include <vmm.h>
+#include <vmm_mapping.h>
 
 unsigned char code_to_run[] = {
     0xeb, 0xfe
@@ -40,13 +41,16 @@ thread_t* create_thread(char* thread_name, void (*_entry_point)(void *), void* a
         pretty_logf(Verbose, "vmm_data address: 0x%x", &(parent_task->vmm_data));
         new_thread->execution_frame->rip = prepare_userspace_function(&(parent_task->vmm_data));
         pretty_logf(Verbose, "using userspace function address: 0x%x", new_thread->execution_frame->rip);
+        new_thread->execution_frame->rdi = 0;
+        new_thread->execution_frame->rsi = 0;
     } else {
-        pretty_log(Verbose, "using idle function");
+        pretty_logf(Verbose, "using idle function: 0x%x", _entry_point);
         new_thread->execution_frame->rip = (uint64_t) code_to_run;
+        //new_thread->execution_frame->rip = (uint64_t) thread_execution_wrapper;
+        //new_thread->execution_frame->rdi = (uint64_t) _entry_point;
+        //new_thread->execution_frame->rsi = (uint64_t) arg;
     }
     // rdi and rsi are the two arguments passed to the thread_execution_wrapper function
-    new_thread->execution_frame->rdi = 0;
-    new_thread->execution_frame->rsi = 0;
     new_thread->execution_frame->rflags = 0x202;
     if ( is_supervisor ) {
         new_thread->execution_frame->ss = 0x10;
@@ -105,12 +109,13 @@ void thread_suicide_trap() {
 }
 
 void thread_execution_wrapper( void (*_thread_function)(void *), void* arg) {
+    pretty_logf(Verbose, "Calling function %x",  _thread_function);
     _thread_function(arg);
     thread_suicide_trap();
     return;
 }
 
-void idle() {
+void idle(void *c) {
     while(1);
 }
 

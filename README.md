@@ -12,9 +12,9 @@ I started this project because i was missing the excitement of low-level program
 
 ## What it does
 
-Actually nothing (more or less)! :D
+Actually not much! :D
 
-It just prints the OS name and few other string.
+It just prints the OS name, a logo and few other string.
 
 But at kernel level several things have been implemented:
 
@@ -57,7 +57,7 @@ To build _Dreamos64_, a toolchain that supports the target architecture is requi
 
 A complete guide on how to build the `gcc` cross-compiler, can be found [here](https://github.com/dreamos82/Osdev-Notes/blob/master/99_Appendices/E_Cross_Compilers.md), for `DreamOS64` the target architecture will be `x86-64`.
 
-For `clang` we just need to install the `llvm`and the `lld` packages (the exact package name depends on the distribution used)..
+For `clang` we just need to install the `llvm`and the `lld` packages (the exact package name depends on the distribution used).
 
 ## Compiling and Running the OS
 
@@ -135,4 +135,6 @@ This means that the fonts folder is missing (you need either a psf v2 or v1 font
 
 Well so far a big thank you goes to [DeanoBurrito](https://github.com/DeanoBurrito) that implemented several stuff for Dreamos64 (x2apic, fixed some bugs, logging, and more to come...) not to mention his precious help explaining things and reviewing my crappy code :)
 And his operating system is worth a mention too: [NorthPort](https://github.com/DeanoBurrito/northport)
+
+Finally if you are interested in how to develop a kernel from scratch, you can head to [https://github.com/dreamportdev/Osdev-Notes/](https://github.com/dreamportdev/Osdev-Notes/) a project mantainde by me, and [DeanoBurrito](https://github.com/DeanoBurrito) on how to write a kernel from scratch.
 
