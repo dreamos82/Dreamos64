@@ -23,7 +23,7 @@ void *hhdm_get_variable ( uintptr_t phys_address ) {
         pretty_logf(Verbose, "Phys address: 0x%x Returning address: 0x%x", phys_address, (void *) (phys_address + higherHalfDirectMapBase));
         return (void*)(phys_address + higherHalfDirectMapBase);
     }
-    pretty_logf(Verbose, "(%s): Not in physical memory. Faulting address: 0x%x", (uint64_t)phys_address);
+    pretty_logf(Verbose, "Not in physical memory. Faulting address: 0x%x", (uint64_t)phys_address);
     return NULL;
 }
 

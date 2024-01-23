@@ -70,7 +70,7 @@ void vmm_init(vmm_level_t vmm_level, VmmInfo *vmm_info) {
 
     pretty_logf(Verbose, "\tvmm_container_root starts at: 0x%x - %x", vmm_info->status.vmm_container_root, is_address_aligned(vmm_info->vmmDataStart, PAGE_SIZE_IN_BYTES));
     pretty_logf(Verbose, "\tvmmDataStart  starts at: 0x%x - %x (end_of_vmm_data)", vmm_info->vmmDataStart, vmm_info->status.end_of_vmm_data);
-    pretty_logf(Verbose, "\thigherHalfDirectMapBase: %x, is_aligned: %d", (uint64_t) higherHalfDirectMapBase, is_address_aligned(higherHalfDirectMapBase, PAGE_SIZE_IN_BYTES));
+    pretty_logf(Verbose, "\thigherHalfDirectMapBase: %x", (uint64_t) higherHalfDirectMapBase, is_address_aligned(higherHalfDirectMapBase, PAGE_SIZE_IN_BYTES));
     pretty_logf(Verbose, "\tvmmSpaceStart: %x - start_of_vmm_space: (%x)", (uint64_t) vmm_info->vmmSpaceStart, vmm_info->start_of_vmm_space);
     pretty_logf(Verbose, "\tsizeof VmmContainer: 0x%x", sizeof(VmmContainer));
 
@@ -124,7 +124,7 @@ void *vmm_alloc(size_t size, size_t flags, VmmInfo *vmm_info) {
 
     // Now i need to align the requested length to a page
     size_t new_size = align_value_to_page(size);
-    pretty_logf(Verbose, "size: %d - aligned: %d", size, new_size);
+    //pretty_logf(Verbose, "size: %d - aligned: %d", size, new_size);
 
     uintptr_t address_to_return = vmm_info->status.next_available_address;
     vmm_info->status.vmm_cur_container->vmm_root[vmm_info->status.vmm_cur_index].base = address_to_return;
@@ -139,12 +139,11 @@ void *vmm_alloc(size_t size, size_t flags, VmmInfo *vmm_info) {
     pretty_logf(Verbose, "Flags PRESENT(%d) - WRITE(%d) - USER(%d)", flags & VMM_FLAGS_PRESENT, flags & VMM_FLAGS_WRITE_ENABLE, flags & VMM_FLAGS_USER_LEVEL);
 
     if  (!is_address_only(flags) ) {
-        pretty_log(Verbose, "This means that we want the address to be mapped directly with physical memory.");
 
         size_t required_pages = get_number_of_pages_from_size(size);
         size_t arch_flags = vm_parse_flags(flags);
 
-        pretty_logf(Verbose, "address: 0x%x", vmm_info->root_table_hhdm);
+        pretty_logf(Verbose, "No physical memory needed: mapping address: 0x%x", vmm_info->root_table_hhdm);
 
         for  ( size_t i = 0; i < required_pages; i++ )  {
             void *frame = pmm_alloc_frame();
@@ -154,7 +153,7 @@ void *vmm_alloc(size_t size, size_t flags, VmmInfo *vmm_info) {
     }
 
     //pretty_logf(Verbose, "(vmm_alloc) newly allocated item base: %x, next available address: %x", vmm_cur_container->vmm_root[vmm_cur_index].base, next_available_address);
-    pretty_logf(Verbose, "newly allocated item base: %x, next available address: %x", vmm_info->status.vmm_cur_container->vmm_root[vmm_info->status.vmm_cur_index].base, vmm_info->status.next_available_address);
+    //pretty_logf(Verbose, "newly allocated item base: %x, next available address: %x", vmm_info->status.vmm_cur_container->vmm_root[vmm_info->status.vmm_cur_index].base, vmm_info->status.next_available_address);
     vmm_info->status.vmm_cur_index++;
 
     if ( is_address_stack(flags) ) {
@@ -180,11 +179,11 @@ bool is_address_stack(size_t flags) {
 }
 
 void vmm_free(void *address) {
-    pretty_logf(Verbose, "(vmm_free) To Be implemented address provided is: 0x%x", address);
+    pretty_logf(Verbose, "To Be implemented address provided is: 0x%x", address);
     VmmContainer *selected_container = vmm_container_root;
 
     if (vmm_items_per_page <= 0) {
-        pretty_log(Verbose, "(vmm_free) Error: vmm_items_per_page can't be equal or less than 0)");
+        pretty_log(Verbose, "Error: vmm_items_per_page can't be equal or less than 0");
         return;
     }
 

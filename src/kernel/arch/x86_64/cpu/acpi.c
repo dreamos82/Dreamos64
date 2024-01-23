@@ -34,8 +34,7 @@ void parse_RSDT(RSDPDescriptor *descriptor){
     _bitmap_set_bit_from_address(ALIGN_PHYSADDRESS(descriptor->RsdtAddress));
     rsdt_root = (RSDT *) ensure_address_in_higher_half((uint64_t) descriptor->RsdtAddress);
     ACPISDTHeader header = rsdt_root->header;
-    pretty_logf(Verbose, "- RSDT_Signature: %.4s", header.Signature);
-    pretty_logf(Verbose, "- RSDT_Lenght: %d", header.Length);
+    pretty_logf(Verbose, "- RSDT_Signature: %.4s - Length: %d", header.Signature, header.Length);
     sdt_version = RSDT_V1;
 
     // Ok here we are,  and we have mapped the "head of rsdt", it will stay most likely in one page, but there is no way
@@ -55,7 +54,7 @@ void parse_RSDT(RSDPDescriptor *descriptor){
     for(uint32_t i=0; i < rsdtTablesTotal; i++) {
         map_phys_to_virt_addr((void *) ALIGN_PHYSADDRESS(rsdt_root->tables[i]), (void *) ensure_address_in_higher_half(rsdt_root->tables[i]), VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE);
         ACPISDTHeader *tableHeader = (ACPISDTHeader *) ensure_address_in_higher_half(rsdt_root->tables[i]);
-        pretty_logf(Verbose, "\tTable header %d: Signature: %.4s", i, tableHeader->Signature);
+        pretty_logf(Verbose, "\t%d): Signature: %.4s", i, tableHeader->Signature);
     }
 }
 
@@ -86,7 +85,7 @@ void parse_RSDTv2(RSDPDescriptor20 *descriptor){
         map_phys_to_virt_addr((uint64_t *) ALIGN_PHYSADDRESS(xsdt_root->tables[i]), (uint64_t *) ensure_address_in_higher_half(xsdt_root->tables[i]), VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE);
         _bitmap_set_bit_from_address(ALIGN_PHYSADDRESS(xsdt_root->tables[i]));
         ACPISDTHeader *tableHeader = (ACPISDTHeader *) ensure_address_in_higher_half(xsdt_root->tables[i]);
-        pretty_logf(Verbose, "\tTable header %d: Signature: %.4s", i, tableHeader->Signature);
+        pretty_logf(Verbose, "\t%d): Signature: %.4s", i, tableHeader->Signature);
     }
 
 }

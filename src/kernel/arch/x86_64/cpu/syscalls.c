@@ -16,6 +16,7 @@ cpu_status_t *syscall_dispatch(cpu_status_t* regs) {
     //pretty_logf(Verbose, "Syscall handler called: %d", sc_num);
     switch(sc_num) {
         case 1:
+            // sc_num 1 is reserved for tests purposes
             //_fb_printStrAndNumberAt("Epoch time: ", read_rtc_time(), 0, 11, 0xf5c4f1, 0x000000);
             _fb_printStrAt("Hello from user world (through a syscall...)", 0, 15, 0xf5c4f1, 0x000000);
             //pretty_log(Verbose, "example");

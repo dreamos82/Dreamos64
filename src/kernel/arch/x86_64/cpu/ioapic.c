@@ -17,15 +17,14 @@ void init_ioapic(MADT *madt_table){
     MADT_Item* item = get_MADT_item(madt_table, MADT_IO_APIC, 0);
     io_apic_source_override_array_size = 0;
     if(item != NULL) {
-        pretty_logf(Verbose, "Item type: 0x%x", item->type);
-        pretty_logf(Verbose, "IOAPIC Item address: 0x%x - length: 0x%x", item, item->length);
+        pretty_logf(Verbose, "IOAPIC Item address: 0x%x Type: 0x%x - length: 0x%x", item, item->type, item->length);
         IO_APIC_Item *ioapic_item = (IO_APIC_Item *) ( ensure_address_in_higher_half((uint64_t) item + sizeof(MADT_Item)));
         if (is_phyisical_address_mapped(ALIGN_PHYSADDRESS((uint64_t) item), ensure_address_in_higher_half((uint64_t) item)) == PHYS_ADDRESS_NOT_MAPPED) {
             map_phys_to_virt_addr((void *) ALIGN_PHYSADDRESS((uint64_t) item), (void *)ensure_address_in_higher_half((uint64_t) item),VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE);
         }
         pretty_logf(Verbose, "IOAPIC_ID: 0x%x, Address: 0x%x", ioapic_item->ioapic_id, ioapic_item->address );
-        pretty_logf(Verbose, "IOApic_Global_System_Interrupt_Base: 0x%x", ioapic_item->global_system_interrupt_base);
-        pretty_logf(Verbose, "IOApic Higher Half Address: 0x%x", ensure_address_in_higher_half(ioapic_item->address));
+        pretty_logf(Verbose, "Global_System_Interrupt_Base: 0x%x", ioapic_item->global_system_interrupt_base);
+        pretty_logf(Verbose, "Higher Half Address: 0x%x", ensure_address_in_higher_half(ioapic_item->address));
         io_apic_base_address = ioapic_item->address;
         io_apic_hh_base_address = ensure_address_in_higher_half(ioapic_item->address);
         // This one should be mapped in the higher half ??

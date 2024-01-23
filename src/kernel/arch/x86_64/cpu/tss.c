@@ -64,7 +64,6 @@ void load_tss() {
 
     gdt64[TSS_ENTRY_LOW] = entry_low;
     gdt64[TSS_ENTRY_HIGH] = entry_high;
-    pretty_log(Verbose, "Loading TSS Register");
-    pretty_logf(Verbose, "kernel_tss address = 0x%x", &kernel_tss);
+    pretty_logf(Verbose, "Loading TSS Register, kernel_tss address = 0x%x", &kernel_tss);
     _load_task_register();
 }

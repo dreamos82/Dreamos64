@@ -65,13 +65,13 @@ uintptr_t higherHalfDirectMapBase;
 void _init_basic_system(unsigned long addr){
     struct multiboot_tag* tag;
     uint32_t mbi_size = *(uint32_t *) (addr + _HIGHER_HALF_KERNEL_MEM_START);
-    pretty_log(Verbose, "Initialize base system");
+    pretty_log(Info, "Initialize base system");
     //These data structure are initialized during the boot process.
     tagmem  = (struct multiboot_tag_basic_meminfo *)(multiboot_basic_meminfo + _HIGHER_HALF_KERNEL_MEM_START);
     tagmmap = (struct multiboot_tag_mmap *) (multiboot_mmap_data + _HIGHER_HALF_KERNEL_MEM_START);
     tagfb   = (struct multiboot_tag_framebuffer *) (multiboot_framebuffer_data + _HIGHER_HALF_KERNEL_MEM_START);
     //Print basic mem Info data
-    pretty_logf(Verbose, "Available memory: lower (in kb): %d - upper (in kb): %d", tagmem->mem_lower, tagmem->mem_upper);
+    pretty_logf(Info, "Available memory: lower (in kb): %d - upper (in kb): %d", tagmem->mem_lower, tagmem->mem_upper);
     memory_size_in_bytes = (tagmem->mem_upper + 1024) * 1024;
     //Print mmap_info
     pretty_logf(Verbose, "Memory map Size: 0x%x, Entry size: 0x%x, EntryVersion: 0x%x", tagmmap->size, tagmmap->entry_size, tagmmap->entry_version);
@@ -126,7 +126,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
     init_log(LOG_OUTPUT_SERIAL, Verbose, false);
     #if USE_FRAMEBUFFER == 1
     uint8_t psf_type = _psf_get_version(_binary_fonts_default_psf_start);
-    pretty_logf(Verbose, "PSF v%d found", psf_type);
+    pretty_logf(Info, "PSF v%d found", psf_type);
 
     if(psf_type == 1){
         PSFv1_Font *font = (PSFv1_Font*)_binary_fonts_default_psf_start;

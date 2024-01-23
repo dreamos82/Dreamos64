@@ -35,7 +35,7 @@ void initialize_kheap(){
     kernel_heap_current_pos->is_free = true;
     kernel_heap_current_pos->next = NULL;
     kernel_heap_current_pos->prev = NULL;
-    pretty_logf(Verbose, "PAGESIZE: 0x%x - val: %x", PAGE_SIZE_IN_BYTES, kernel_heap_start->size);
+    //pretty_logf(Verbose, "PAGESIZE: 0x%x - val: %x", PAGE_SIZE_IN_BYTES, kernel_heap_start->size);
 }
 
 size_t align(size_t size) {

@@ -79,7 +79,7 @@ void init_apic() {
     if(apic_base_address < memory_size_in_bytes) {
         //I think that ideally it should be relocated above the physical memory (that should be possible)
         //but for now i'll mark that location as used
-        pretty_log(Verbose, "Apic base address in physical memory area");
+        //pretty_log(Verbose, "Apic base address in physical memory area");
         _bitmap_set_bit(ADDRESS_TO_BITMAP_ENTRY(apic_base_address));
     }
     uint32_t version_register = read_apic_register(APIC_VERSION_REGISTER_OFFSET);

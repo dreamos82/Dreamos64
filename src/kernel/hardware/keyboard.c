@@ -98,12 +98,10 @@ void handle_keyboard_interrupt() {
                 keyboard_buffer[buf_position].is_pressed = true;
                 char read_char = kgetch(keyboard_buffer[buf_position]);
                 #if USE_FRAMEBUFFER == 1
-                    //_fb_printStrAndNumber("  Key pressed: 0x", keyboard_buffer[buf_position].code, 0, 10, 0x000000, 0xE169CD);
                     if (read_char != 0) {
                         char string[13] = "Pressed: ";
                         string[9] = read_char;
                         string[10] = '-';
-                        //printf("%s\n", string);
                         _fb_printStrAt(string, 0, 10, 0x000000, 0x1ad652);
                     }
                 #endif
