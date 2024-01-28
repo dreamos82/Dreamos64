@@ -42,6 +42,7 @@
 #include <vmm.h>
 #include <vmm_mapping.h>
 #include <userspace.h>
+#include <utils.h>
 //#include <runtime_tests.h>
 
 extern uint32_t FRAMEBUFFER_MEMORY_SIZE;
@@ -59,6 +60,7 @@ struct multiboot_tag_old_acpi *tagold_acpi = NULL;
 struct multiboot_tag_new_acpi *tagnew_acpi = NULL;
 struct multiboot_tag_mmap *tagmmap = NULL;
 struct multiboot_tag *tagacpi = NULL;
+struct multiboot_tag_module *loaded_module = NULL;
 
 uintptr_t higherHalfDirectMapBase;
 
@@ -111,6 +113,10 @@ void _init_basic_system(unsigned long addr){
         tag->type != MULTIBOOT_TAG_TYPE_END;
         tag = (struct multiboot_tag *) ((multiboot_uint8_t *) tag + ((tag->size + 7) & ~7))){
         switch(tag->type){
+            case MULTIBOOT_TAG_TYPE_MODULE:
+                loaded_module = (struct multiboot_tag_module *) tag;
+                pretty_logf(Verbose, " \t[Tag 0x%x] Size: 0x%x - mod_start: 0x%x : mod_end: 0x%x" , loaded_module->type, loaded_module->size, loaded_module->mod_start, loaded_module->mod_end);
+                break;
             default:
                 pretty_logf(Verbose, "\t[Tag 0x%x] Size: 0x%x", tag->type, tag->size);
                 break;
@@ -175,6 +181,9 @@ void kernel_start(unsigned long addr, unsigned long magic){
     initialize_kheap();
     kernel_settings.paging.page_generation = 0;
     init_apic();
+    if (loaded_module != NULL) {
+        load_module_hh(loaded_module);
+    }
     //The table containing the IOAPIC information is called MADT
     MADT* madt_table = (MADT*) get_SDT_item(MADT_ID);
     pretty_logf(Verbose, "MADT SIGNATURE: %x - ADDRESS: %.4s", madt_table->header.Signature, madt_table);

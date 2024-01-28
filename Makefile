@@ -66,6 +66,7 @@ $(BUILD_FOLDER)/$(ISO_IMAGE_FILENAME): $(BUILD_FOLDER)/kernel.bin grub.cfg
 	cp grub.cfg $(BUILD_FOLDER)/isofiles/boot/grub
 	cp $(BUILD_FOLDER)/kernel.bin $(BUILD_FOLDER)/isofiles/boot
 	cp $(BUILD_FOLDER)/kernel.map $(BUILD_FOLDER)/isofiles/boot
+	cp example.elf $(BUILD_FOLDER)/isofiles
 	grub-mkrescue -o $(BUILD_FOLDER)/$(ISO_IMAGE_FILENAME) $(BUILD_FOLDER)/isofiles
 
 $(BUILD_FOLDER)/%.o: src/%.s

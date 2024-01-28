@@ -16,6 +16,7 @@ CFLAGS := -std=gnu99 \
         -I src/include/kernel/arch/common/mem \
         -I src/include/kernel/hardware \
         -I src/include/kernel/scheduling \
+        -I src/include/utils \
         -I src/include/libc \
         -I src/include/fs \
         -I src/include/drivers/fs \
