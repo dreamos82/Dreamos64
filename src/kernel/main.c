@@ -3,6 +3,7 @@
  * Kernel entry point from bootloader
  * */
 
+#include <elf.h>
 #include <main.h>
 #include <idt.h>
 #include <multiboot.h>
