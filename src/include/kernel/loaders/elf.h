@@ -5,6 +5,7 @@
 #include <stdbool.h>
 
 #define EI_NIDENT   16
+#define ELF_MAGIC_SIZE 4
 
 extern const char _elf_header_mag[];
 
@@ -38,6 +39,6 @@ typedef struct {
 
 void load_elf(uintptr_t elf_start, uint64_t size);
 
-bool parse_section_header(uintptr_t elf_start, uint64_t size);
+bool parse_section_header(Elf64_Ehdr *elf_start, uint64_t size);
 
 #endif

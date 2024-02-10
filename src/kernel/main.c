@@ -133,6 +133,11 @@ void kernel_start(unsigned long addr, unsigned long magic){
     init_log(LOG_OUTPUT_SERIAL, Verbose, false);
     #if USE_FRAMEBUFFER == 1
     uint8_t psf_type = _psf_get_version(_binary_fonts_default_psf_start);
+    pretty_log(Info, "Welcome to:");
+    pretty_log(Info, "\t____                    ______ ______");
+    pretty_log(Info, "\t|    \\ ___ ___ ___ _____|     |   __|");
+    pretty_log(Info, "\t|  |  |  _| -_| = |     |  |  |__   |");
+    pretty_log(Info, "\t|____/|_| |___|__||_|_|_|_____|_____|");
     pretty_logf(Info, "PSF v%d found", psf_type);
 
     if(psf_type == 1){
