@@ -1,11 +1,32 @@
 #ifndef __ELF_H__
 #define __ELF_H__
 
+#define X86_64
+
 #include <stdint.h>
 #include <stdbool.h>
 
 #define EI_NIDENT   16
+
+#define EI_CLASS 4
+#define EI_DATA 5
+#define EI_VERSION 6
+#define EI_OSABI 7
+#define EI_ABI 8
+#define EI_PAD 9
+
 #define ELF_MAGIC_SIZE 4
+
+#define ELFCLASS64   2
+
+#define ELFDATA2LSB     1
+
+#define EV_CURRENT      1
+
+#ifdef X86_64
+#define ELF_MACHINE     62
+#endif
+
 
 extern const char _elf_header_mag[];
 
@@ -19,6 +40,10 @@ typedef uint64_t Elf64_Xword;
 typedef int64_t Elf64_Sxword;
 typedef uint8_t Elf64_UnsignedChar;
 // until here
+
+typedef enum {
+        ELF
+} executable_loader_type;
 
 typedef struct {
         unsigned char e_ident[EI_NIDENT];
@@ -39,6 +64,7 @@ typedef struct {
 
 void load_elf(uintptr_t elf_start, uint64_t size);
 
-bool parse_section_header(Elf64_Ehdr *elf_start, uint64_t size);
+// This function maybe will  change, and it will be a wrapper for supporting different executable formats. This is the reasaon of the type parameter
+bool parse_section_header(Elf64_Ehdr *elf_start, uint64_t size, executable_loader_type type);
 
 #endif
