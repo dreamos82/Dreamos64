@@ -62,9 +62,22 @@ typedef struct {
         Elf64_Half      e_shstrndx;
 } Elf64_Ehdr;
 
+typedef struct {
+        Elf64_Word      p_type;
+        Elf64_Word      p_flags;
+        Elf64_Off       p_offset;
+        Elf64_Addr      p_vaddr;
+        Elf64_Addr      p_paddr;
+        Elf64_Xword     p_filesz;
+        Elf64_Xword     p_memsz;
+        Elf64_Xword     p_align;
+} Elf64_Phdr;
+
 void load_elf(uintptr_t elf_start, uint64_t size);
 
 // This function maybe will  change, and it will be a wrapper for supporting different executable formats. This is the reasaon of the type parameter
 bool parse_section_header(Elf64_Ehdr *elf_start, uint64_t size, executable_loader_type type);
+
+void loop_phdrs(Elf64_Ehdr* e_phdr, Elf64_Half phdr_entries);
 
 #endif

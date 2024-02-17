@@ -8,6 +8,22 @@ void load_elf(uintptr_t elf_start, uint64_t size) {
     Elf64_Ehdr *elf_header = (Elf64_Ehdr *) elf_start;
     bool is_elf_valid = parse_section_header(elf_header, size, ELF);
     pretty_logf(Verbose, " The elf is valid? %s" , is_elf_valid ? "True" : "False" );
+    if (is_elf_valid) {
+        pretty_log(Verbose, " Going to load headers");
+        Elf64_Half phdr_entries = elf_header->e_phnum;
+        Elf64_Half phdr_entsize = elf_header->e_phentsize;
+        pretty_logf(Verbose, " Number of PHDR entries: 0x%x", phdr_entries);
+        pretty_logf(Verbose, " PHDR Entry Size: 0x%x", phdr_entsize );
+        loop_phdrs(elf_header, phdr_entries);
+    }
+}
+
+void loop_phdrs(Elf64_Ehdr* e_hdr, Elf64_Half phdr_entries) {
+    Elf64_Phdr *phdr_list = (Elf64_Phdr*) ((uintptr_t) e_hdr + e_hdr->e_phoff);
+    for (size_t i = 0; i < phdr_entries; i++) {
+        Elf64_Phdr phdr = phdr_list[i];
+        pretty_logf(Verbose, "\t[%d]: Type: 0x%x, Flags: 0x%x", i, phdr.p_type, phdr.p_flags);
+    }
 }
 
 bool parse_section_header(Elf64_Ehdr *elf_start, uint64_t size, executable_loader_type type) {
@@ -35,10 +51,12 @@ bool parse_section_header(Elf64_Ehdr *elf_start, uint64_t size, executable_loade
             return false;
         }
 
-        pretty_logf(Verbose, "\tMACHINE 0x%x - 0x%x", elf_start->e_machine);
+        pretty_logf(Verbose, "\tMACHINE: 0x%x", elf_start->e_machine);
         if ( elf_start->e_machine != ELF_MACHINE ) {
             return false;
         }
+
+        pretty_logf(Verbose, "\tTYPE: 0x%x", elf_start->e_type);
 
         pretty_logf(Verbose, "\tOS ABI: 0x%x", elf_start->e_ident[EI_OSABI]);
         pretty_logf(Verbose, "\tABI: 0x%x", elf_start->e_ident[EI_ABI]);
