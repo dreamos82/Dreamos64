@@ -14,17 +14,35 @@ void load_elf(uintptr_t elf_start, uint64_t size) {
         Elf64_Half phdr_entsize = elf_header->e_phentsize;
         pretty_logf(Verbose, " Number of PHDR entries: 0x%x", phdr_entries);
         pretty_logf(Verbose, " PHDR Entry Size: 0x%x", phdr_entsize );
-        loop_phdrs(elf_header, phdr_entries);
+        Elf64_Half result = loop_phdrs(elf_header, phdr_entries);
+        pretty_logf(Verbose, " Number of PT_LOAD entries: %d", result);
     }
 }
 
-void loop_phdrs(Elf64_Ehdr* e_hdr, Elf64_Half phdr_entries) {
+Elf64_Half loop_phdrs(Elf64_Ehdr* e_hdr, Elf64_Half phdr_entries) {
     Elf64_Phdr *phdr_list = (Elf64_Phdr*) ((uintptr_t) e_hdr + e_hdr->e_phoff);
+    Elf64_Half number_of_pt_loads = 0;
     for (size_t i = 0; i < phdr_entries; i++) {
         Elf64_Phdr phdr = phdr_list[i];
-        pretty_logf(Verbose, "\t[%d]: Type: 0x%x, Flags: 0x%x", i, phdr.p_type, phdr.p_flags);
+        pretty_logf(Verbose, "\t[%d]: Type: 0x%x, Flags: 0x%x  -  Vaddr: 0x%x ", i, phdr.p_type, phdr.p_flags, phdr.p_vaddr);
+        if ( phdr.p_type == PT_LOAD ) number_of_pt_loads++;
     }
+    return number_of_pt_loads;
 }
+
+Elf64_Phdr *read_phdr(Elf64_Ehdr* e_hdr, Elf64_Half phdr_entry_number) {
+    Elf64_Half phdr_entries = e_hdr->e_phnum;
+
+    if ( phdr_entry_number <  phdr_entries) {
+        Elf64_Phdr *phdr_list = (Elf64_Phdr*) ((uintptr_t) e_hdr + e_hdr->e_phoff);
+        return &phdr_list[phdr_entry_number];
+    }
+
+    return NULL;
+
+}
+
+
 
 bool parse_section_header(Elf64_Ehdr *elf_start, uint64_t size, executable_loader_type type) {
     bool value_to_return = false;

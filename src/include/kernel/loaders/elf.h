@@ -23,6 +23,8 @@
 
 #define EV_CURRENT      1
 
+#define PT_LOAD 1
+
 #ifdef X86_64
 #define ELF_MACHINE     62
 #endif
@@ -73,11 +75,17 @@ typedef struct {
         Elf64_Xword     p_align;
 } Elf64_Phdr;
 
+#define PT_LOAD 1
+
+#define FF_X    1
+#define FF_R    2
+#define FF_W    4
+
 void load_elf(uintptr_t elf_start, uint64_t size);
 
 // This function maybe will  change, and it will be a wrapper for supporting different executable formats. This is the reasaon of the type parameter
 bool parse_section_header(Elf64_Ehdr *elf_start, uint64_t size, executable_loader_type type);
 
-void loop_phdrs(Elf64_Ehdr* e_phdr, Elf64_Half phdr_entries);
+Elf64_Half loop_phdrs(Elf64_Ehdr* e_phdr, Elf64_Half phdr_entries);
 
 #endif
