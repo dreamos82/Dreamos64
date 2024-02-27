@@ -63,6 +63,8 @@ struct multiboot_tag_mmap *tagmmap = NULL;
 struct multiboot_tag *tagacpi = NULL;
 struct multiboot_tag_module *loaded_module = NULL;
 
+uint64_t elf_module_start_hh = 0;
+
 uintptr_t higherHalfDirectMapBase;
 
 void _init_basic_system(unsigned long addr){
@@ -126,6 +128,8 @@ void _init_basic_system(unsigned long addr){
 }
 
 void kernel_start(unsigned long addr, unsigned long magic){
+    uint64_t elf_module_start_phys  = 0;
+    uint64_t elf_module_start_hh = 0;
     qemu_init_debug();
     psf_font_version = _psf_get_version(_binary_fonts_default_psf_start);
     init_idt();
@@ -188,7 +192,10 @@ void kernel_start(unsigned long addr, unsigned long magic){
     kernel_settings.paging.page_generation = 0;
     init_apic();
     if (loaded_module != NULL) {
-        load_module_hh(loaded_module);
+        if ( load_module_hh(loaded_module) ) {
+            pretty_log(Verbose, " The ELF module can be loaded succesfully" );
+            elf_module_start_phys = loaded_module->mod_start;
+        }
     }
     //The table containing the IOAPIC information is called MADT
     MADT* madt_table = (MADT*) get_SDT_item(MADT_ID);

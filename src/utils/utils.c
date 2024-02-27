@@ -22,7 +22,8 @@ bool load_module_hh (struct multiboot_tag_module *loaded_module) {
     if (_is_elf == true) {
         pretty_log(Verbose, " The module is an ELF" );
         load_elf((uintptr_t) hhdm_get_variable(module_phys_start), module_size);
+        return _is_elf;
     }
     //pretty_logf(Verbose, " loaded_module_address: 0x%x", &loaded_module);
-    return false;
+    return _is_elf;
 }

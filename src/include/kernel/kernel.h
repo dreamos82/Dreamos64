@@ -41,6 +41,8 @@ extern kernel_status_t kernel_settings;
 extern uint64_t _kernel_end;
 extern uint64_t _kernel_physical_end;
 
+uint64_t elf_module_start_hh;
+
 void init_kernel_settings();
 uint64_t get_kernel_uptime();
 #endif
