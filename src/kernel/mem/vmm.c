@@ -87,7 +87,7 @@ void vmm_init(vmm_level_t vmm_level, VmmInfo *vmm_info) {
     vmm_info->status.vmm_cur_container = vmm_info->status.vmm_container_root;
 }
 
-void *vmm_alloc(size_t size, size_t flags, VmmInfo *vmm_info) {
+void *vmm_alloc_at(uint64_t base_address, size_t size, size_t flags, VmmInfo *vmm_info) {
 
     if ( vmm_info == NULL ) {
         vmm_info = &vmm_kernel;
@@ -127,6 +127,11 @@ void *vmm_alloc(size_t size, size_t flags, VmmInfo *vmm_info) {
     //pretty_logf(Verbose, "size: %d - aligned: %d", size, new_size);
 
     uintptr_t address_to_return = vmm_info->status.next_available_address;
+    if (base_address != 0 && base_address > address_to_return) {
+        pretty_log(Fatal, " Something wrong - To be implemented");
+        return NULL;
+    }
+
     vmm_info->status.vmm_cur_container->vmm_root[vmm_info->status.vmm_cur_index].base = address_to_return;
     vmm_info->status.vmm_cur_container->vmm_root[vmm_info->status.vmm_cur_index].flags = flags;
     vmm_info->status.vmm_cur_container->vmm_root[vmm_info->status.vmm_cur_index].size = new_size;
@@ -162,6 +167,14 @@ void *vmm_alloc(size_t size, size_t flags, VmmInfo *vmm_info) {
     }
 
     return (void *) address_to_return;
+}
+
+void *vmm_alloc(size_t size, size_t flags, VmmInfo *vmm_info) {
+    // 1. The address should be page aligned
+    // 2. check if possible to reuse the vmm_alloc
+    // 3. I totally forgot how my memory allocator work :)
+    return vmm_alloc_at(0, size, flags, vmm_info);
+
 }
 
 bool is_address_only(size_t  flags) {

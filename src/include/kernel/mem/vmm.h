@@ -80,6 +80,7 @@ extern uintptr_t higherHalfDirectMapBase; /**< The start of the physical memory 
 void vmm_init(vmm_level_t vmm_level, VmmInfo *vmm_info);
 
 void *vmm_alloc(size_t size, size_t flags, VmmInfo *vmm_info);
+void *vmm_alloc_at(uint64_t base_address, size_t size, size_t flags, VmmInfo *vmm_info);
 void vmm_free(void *address);
 
 uint8_t is_phyisical_address_mapped(uintptr_t physical_address, uintptr_t virtual_address);
