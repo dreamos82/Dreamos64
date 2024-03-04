@@ -128,8 +128,12 @@ void *vmm_alloc_at(uint64_t base_address, size_t size, size_t flags, VmmInfo *vm
 
     uintptr_t address_to_return = vmm_info->status.next_available_address;
     if (base_address != 0 && base_address > address_to_return) {
-        pretty_log(Fatal, " Something wrong - To be implemented");
-        return NULL;
+        if ( !is_address_aligned(base_address, PAGE_SIZE_IN_BYTES) ) {
+            pretty_logf(Fatal, " Error: base_address 0x%x is not aligned with: 0x%x", base_address, PAGE_SIZE_IN_BYTES);
+        }
+        pretty_logf(Verbose, " Allocating address: 0x%x" , base_address);
+        vmm_info->status.next_available_address = base_address;
+        address_to_return = base_address;
     }
 
     vmm_info->status.vmm_cur_container->vmm_root[vmm_info->status.vmm_cur_index].base = address_to_return;

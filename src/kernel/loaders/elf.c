@@ -1,6 +1,8 @@
+#include <bitmap.h>
 #include <elf.h>
 #include <logging.h>
 #include <utils.h>
+#include <vmm_util.h>
 
 const char _elf_header_mag[ELF_MAGIC_SIZE]={0x7f, 'E', 'L', 'F'};
 
@@ -15,7 +17,9 @@ void load_elf(uintptr_t elf_start, uint64_t size) {
         pretty_logf(Verbose, " Number of PHDR entries: 0x%x", phdr_entries);
         pretty_logf(Verbose, " PHDR Entry Size: 0x%x", phdr_entsize );
         Elf64_Half result = loop_phdrs(elf_header, phdr_entries);
-        pretty_logf(Verbose, " Number of PT_LOAD entries: %d", result);
+        if (result > 0) {
+            pretty_logf(Verbose, " Number of PT_LOAD entries: %d", result);
+        }
     }
 }
 
@@ -24,7 +28,12 @@ Elf64_Half loop_phdrs(Elf64_Ehdr* e_hdr, Elf64_Half phdr_entries) {
     Elf64_Half number_of_pt_loads = 0;
     for (size_t i = 0; i < phdr_entries; i++) {
         Elf64_Phdr phdr = phdr_list[i];
-        pretty_logf(Verbose, "\t[%d]: Type: 0x%x, Flags: 0x%x  -  Vaddr: 0x%x ", i, phdr.p_type, phdr.p_flags, phdr.p_vaddr);
+        pretty_logf(Verbose, "\t[%d]: Type: 0x%x, Flags: 0x%x  -  Vaddr: 0x%x - aligned: 0x%x ", i, phdr.p_type, phdr.p_flags, phdr.p_vaddr, align_value_to_page(phdr.p_vaddr));
+        if ( is_address_aligned(phdr.p_vaddr, PAGE_SIZE_IN_BYTES) ) {
+            pretty_log(Verbose, "\tThe address is aligned");
+        } else {
+            pretty_log(Verbose, "\tThe address is not aligned");
+        }
         if ( phdr.p_type == PT_LOAD ) number_of_pt_loads++;
     }
     return number_of_pt_loads;
