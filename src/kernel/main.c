@@ -3,6 +3,7 @@
  * Kernel entry point from bootloader
  * */
 
+#include <elf.h>
 #include <main.h>
 #include <idt.h>
 #include <multiboot.h>
@@ -42,6 +43,7 @@
 #include <vmm.h>
 #include <vmm_mapping.h>
 #include <userspace.h>
+#include <utils.h>
 //#include <runtime_tests.h>
 
 extern uint32_t FRAMEBUFFER_MEMORY_SIZE;
@@ -59,6 +61,9 @@ struct multiboot_tag_old_acpi *tagold_acpi = NULL;
 struct multiboot_tag_new_acpi *tagnew_acpi = NULL;
 struct multiboot_tag_mmap *tagmmap = NULL;
 struct multiboot_tag *tagacpi = NULL;
+struct multiboot_tag_module *loaded_module = NULL;
+
+uint64_t elf_module_start_hh = 0;
 
 uintptr_t higherHalfDirectMapBase;
 
@@ -111,6 +116,10 @@ void _init_basic_system(unsigned long addr){
         tag->type != MULTIBOOT_TAG_TYPE_END;
         tag = (struct multiboot_tag *) ((multiboot_uint8_t *) tag + ((tag->size + 7) & ~7))){
         switch(tag->type){
+            case MULTIBOOT_TAG_TYPE_MODULE:
+                loaded_module = (struct multiboot_tag_module *) tag;
+                pretty_logf(Verbose, " \t[Tag 0x%x] Size: 0x%x - mod_start: 0x%x : mod_end: 0x%x" , loaded_module->type, loaded_module->size, loaded_module->mod_start, loaded_module->mod_end);
+                break;
             default:
                 pretty_logf(Verbose, "\t[Tag 0x%x] Size: 0x%x", tag->type, tag->size);
                 break;
@@ -119,6 +128,8 @@ void _init_basic_system(unsigned long addr){
 }
 
 void kernel_start(unsigned long addr, unsigned long magic){
+    uint64_t elf_module_start_phys  = 0;
+    uint64_t elf_module_start_hh = 0;
     qemu_init_debug();
     psf_font_version = _psf_get_version(_binary_fonts_default_psf_start);
     init_idt();
@@ -126,6 +137,11 @@ void kernel_start(unsigned long addr, unsigned long magic){
     init_log(LOG_OUTPUT_SERIAL, Verbose, false);
     #if USE_FRAMEBUFFER == 1
     uint8_t psf_type = _psf_get_version(_binary_fonts_default_psf_start);
+    pretty_log(Info, "Welcome to:");
+    pretty_log(Info, "\t____                    ______ ______");
+    pretty_log(Info, "\t|    \\ ___ ___ ___ _____|     |   __|");
+    pretty_log(Info, "\t|  |  |  _| -_| = |     |  |  |__   |");
+    pretty_log(Info, "\t|____/|_| |___|__||_|_|_|_____|_____|");
     pretty_logf(Info, "PSF v%d found", psf_type);
 
     if(psf_type == 1){
@@ -175,6 +191,12 @@ void kernel_start(unsigned long addr, unsigned long magic){
     initialize_kheap();
     kernel_settings.paging.page_generation = 0;
     init_apic();
+    if (loaded_module != NULL) {
+        if ( load_module_hh(loaded_module) ) {
+            pretty_log(Verbose, " The ELF module can be loaded succesfully" );
+            elf_module_start_phys = loaded_module->mod_start;
+        }
+    }
     //The table containing the IOAPIC information is called MADT
     MADT* madt_table = (MADT*) get_SDT_item(MADT_ID);
     pretty_logf(Verbose, "MADT SIGNATURE: %x - ADDRESS: %.4s", madt_table->header.Signature, madt_table);

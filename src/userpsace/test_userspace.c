@@ -32,5 +32,6 @@ uint64_t prepare_userspace_function(VmmInfo *vmm_info) {
     }
     char *user_code_page = vmm_alloc(PAGE_SIZE_IN_BYTES, VMM_FLAGS_ADDRESS_ONLY | VMM_FLAGS_WRITE_ENABLE | VMM_FLAGS_PRESENT | VMM_FLAGS_USER_LEVEL, vmm_info);
     map_phys_to_virt_addr_hh(temp_var, (void *) user_code_page,VMM_FLAGS_USER_LEVEL  |  VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE, (uint64_t *) vmm_info->root_table_hhdm);
+    pretty_logf(Verbose, "user code page address returned is: 0x%x", user_code_page);
     return (uint64_t) user_code_page;
 }
