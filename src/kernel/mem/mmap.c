@@ -74,7 +74,7 @@ uintptr_t _mmap_determine_bitmap_region(uint64_t lower_limit, size_t bytes_neede
 
         if (actual_available_space >= bytes_needed)
         {
-            pretty_logf(Verbose, "Found space for bitmap at address: 0x%x", current_entry->addr + entry_offset);
+            pretty_logf(Verbose, "Found space for bitmap at address: 0x%x requested size: 0x%x", current_entry->addr + entry_offset, bytes_needed);
             return current_entry->addr + entry_offset;
         }
     }

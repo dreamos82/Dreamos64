@@ -11,9 +11,14 @@ void *map_phys_to_virt_addr_hh(void* physical_address, void* address, size_t fla
     uint16_t pdpr_e = PDPR_ENTRY((uint64_t) address);
     uint16_t pd_e = PD_ENTRY((uint64_t) address);
 
-    uint64_t *pml4_table = NULL;
+    //uint64_t *pml4_table = NULL;
     uint64_t *pdpr_root = NULL;
     uint64_t *pd_root = NULL;
+
+#if SMALL_PAGES == 1
+    uint64_t *pt_table = NULL;
+    uint16_t pt_e = PT_ENTRY((uint64_t) address);
+#endif
 
     uint8_t user_mode_status = 0;
 
@@ -28,7 +33,7 @@ void *map_phys_to_virt_addr_hh(void* physical_address, void* address, size_t fla
     }
 
     if (pml4_root != NULL) {
-        pml4_table = pml4_root;
+        //pml4_table = pml4_root;
         pretty_logf(Verbose, "Entries values pml4_e: 0x%d pdpr_e: 0x%d pd_e: 0x%d", pml4_e, pdpr_e, pd_e);
         pretty_logf(Verbose, "\taddress: 0x%x, phys_address: 0x%x", address, physical_address);
         pretty_logf(Verbose, "\tpdpr base_address: 0x%x", pml4_root[pml4_e] & VM_PAGE_TABLE_BASE_ADDRESS_MASK);
@@ -54,43 +59,38 @@ void *map_phys_to_virt_addr_hh(void* physical_address, void* address, size_t fla
             pd_root = new_table_hhdm;
         } else {
             pretty_log(Verbose, "No need to allocate pdpr");
-             pd_root =  (uint64_t *) hhdm_get_variable((uintptr_t) pdpr_root[pdpr_e] & VM_PAGE_TABLE_BASE_ADDRESS_MASK);
+            pd_root =  (uint64_t *) hhdm_get_variable((uintptr_t) pdpr_root[pdpr_e] & VM_PAGE_TABLE_BASE_ADDRESS_MASK);
         }
 
         if( !(pd_root[pd_e] & 0b1) ) {
+
 #if SMALL_PAGES == 1
             uint64_t *new_table = pmm_alloc_frame();
             pd_root[pd_e] = (uint64_t) new_table | user_mode_status | WRITE_BIT | PRESENT_BIT;
             uint64_t *new_table_hhdm = hhdm_get_variable((uintptr_t) new_table);
             clean_new_table(new_table_hhdm);
-            pt_root = new_table_hhdm;
+            pt_table = new_table_hhdm;
+        } else {
+            pretty_log(Verbose, "No need to allocate pd");
+            pt_table = (uint64_t *) hhdm_get_variable((uintptr_t) pd_root[pd_e] & VM_PAGE_TABLE_BASE_ADDRESS_MASK);
+        }
+
+        // This case apply only for 4kb pages, if the pt_e entry is not present in the page table we need to allocate a new 4k page
+        // Every entry in the page table is a 4kb page of physical memory
+        if( !(pt_table[pt_e] & 0b1)) {
+            pt_table[pt_e] = (uint64_t) physical_address | flags;
+            return address;
+        }
 #elif SMALL_PAGES == 0
             pd_root[pd_e] = (uint64_t) (physical_address) | HUGEPAGE_BIT | flags | user_mode_status;
             pretty_logf(Verbose, " PD Flags: 0x%x entry value pd_root[0x%x]: 0x%x", flags, pd_e, pd_root[pd_e]);
-#endif
+            return address;
         }
-
-#if SMALL_PAGES == 1
-        //uint64_t *pt_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l, (uint64_t) pml4_e, (uint64_t) pdpr_e, (uint64_t) pd_e));
-        uint16_t pt_e = PT_ENTRY((uint64_t) address);
 #endif
-
-#if SMALL_PAGES == 1
-
-    // This case apply only for 4kb pages, if the pt_e entry is not present in the page table we need to allocate a new 4k page
-    // Every entry in the page table is a 4kb page of physical memory
-    if( !(pt_root[pt_e] & 0b1)) {
-        pt_root[pt_e] = (uint64_t) physical_address | flags;
-    }
-#endif
-
-        //pml4_table = pml4_root;
-
-        return address;
     }
 
+    //pml4_table = pml4_root
     return NULL;
-
 }
 
 
@@ -104,7 +104,7 @@ void *map_phys_to_virt_addr_hh(void* physical_address, void* address, size_t fla
  * @param pml4_root the pointer to the pml4 table, It should be the hhdm address. if null it will use the kernel default pml4 table.
  * @return address the virtual address specified in input, or NULL in case of error.
  */
-void *map_phys_to_virt_addr(void* physical_address, void* address, size_t flags){
+void *map_phys_to_virt_addr(void* physical_address, void* address, size_t flags) {
     uint16_t pml4_e = PML4_ENTRY((uint64_t) address);
     uint16_t pdpr_e = PDPR_ENTRY((uint64_t) address);
     uint16_t pd_e = PD_ENTRY((uint64_t) address);
@@ -161,7 +161,6 @@ void *map_phys_to_virt_addr(void* physical_address, void* address, size_t flags)
     }
 
 #if SMALL_PAGES == 1
-
     // This case apply only for 4kb pages, if the pt_e entry is not present in the page table we need to allocate a new 4k page
     // Every entry in the page table is a 4kb page of physical memory
     if( !(pt_table[pt_e] & 0b1)) {
@@ -200,12 +199,12 @@ int unmap_vaddress(void *address){
 		return -1;
 	}
 
-	#if SMALL_PAGES == 0
+#if SMALL_PAGES == 0
 	pretty_log(Verbose, "Freeing page");
 	pd_table[pd_e] = 0x0l;
 	invalidate_page_table(pd_table);
-	#elif SMALL_PAGES == 1
-	uint64_t *pt_table = SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l, (uint64_t)  pml4_e, (uint64_t)  pdpr_e, (uint64_t)  pd_e);
+#elif SMALL_PAGES == 1
+	uint64_t *pt_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l, (uint64_t)  pml4_e, (uint64_t)  pdpr_e, (uint64_t)  pd_e));
     uint16_t pt_e = PT_ENTRY((uint64_t) address);
 
 	if(!(pt_table[pt_e] & 0b1)) {
@@ -213,7 +212,7 @@ int unmap_vaddress(void *address){
 	}
 	pt_table[pt_e] = 0x0l;
 	invalidate_page_table(address);
-	#endif
+#endif
 
 	return 0;
 }
@@ -238,19 +237,28 @@ int unmap_vaddress_hh(void *address, uint64_t *pml4_root) {
     uint16_t pd_e = PD_ENTRY((uint64_t) address);
     uint64_t *pd_table = (uint64_t *) hhdm_get_variable((uintptr_t) pdpr_table[pdpr_e] & VM_PAGE_TABLE_BASE_ADDRESS_MASK);
     pretty_logf(Verbose, " pd_table[%d] = 0x%x", pd_e, pd_table[pd_e]);
-    #if SMALL_PAGES == 0
+
     if (!(pd_table[pd_e] &0b01)) {
         return -1;
     }
 
+#if SMALL_PAGES == 0
     pretty_logf(Verbose, " Unmapping address: 0x%x, pd_entry: %d", address, pd_e);
     pd_table[pd_e] = 0x0l;
     invalidate_page_table(address);
     return 0;
-    #endif
+#elif SMALL_PAGES == 1
+    uint64_t *pt_table = (uint64_t *) hhdm_get_variable((uintptr_t) pd_table[pd_e] & VM_PAGE_TABLE_BASE_ADDRESS_MASK);
+    uint16_t pt_e = PT_ENTRY((uint64_t) address);
+    pretty_logf(Verbose, " Unmapping address: 0x%x, pd_entry: %d", address, pt_e);
+    if ( !(pt_table[pt_e] & 0b01) ) {
+        return -1;
+    }
 
-    pretty_log(Verbose, "Either address or pml4_root are null, returning error");
-    return -1;
+    pt_table[pt_e] = 0x0l;
+    invalidate_page_table(address);
+    return 0;
+#endif
 }
 
 //TODO This function is no longer used, it may be removed in the future

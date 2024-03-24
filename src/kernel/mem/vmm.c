@@ -248,8 +248,8 @@ uint8_t is_phyisical_address_mapped(uintptr_t physical_address, uintptr_t virtua
 
 #if SMALL_PAGES == 1
     uint16_t pt_e = PT_ENTRY((uint64_t) virtual_address);
-    uint64_t *pt_table = (uint64_t) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l, (uint64_t)  pml4_e, (uint64_t)  pdpr_e, (uint64_t)  pd_e));
-    if ( !pt_table[pt_e] & PRESENT_BIT ) {
+    uint64_t *pt_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l, (uint64_t)  pml4_e, (uint64_t)  pdpr_e, (uint64_t)  pd_e));
+    if ( !(pt_table[pt_e] & PRESENT_BIT )) {
         return PHYS_ADDRESS_NOT_MAPPED;
     } else {
         if (ALIGN_PHYSADDRESS(pt_table[pt_e]) == ALIGN_PHYSADDRESS(physical_address)) {

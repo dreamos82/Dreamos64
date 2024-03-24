@@ -76,7 +76,7 @@ void _init_basic_system(unsigned long addr){
     tagmmap = (struct multiboot_tag_mmap *) (multiboot_mmap_data + _HIGHER_HALF_KERNEL_MEM_START);
     tagfb   = (struct multiboot_tag_framebuffer *) (multiboot_framebuffer_data + _HIGHER_HALF_KERNEL_MEM_START);
     //Print basic mem Info data
-    pretty_logf(Info, "Available memory: lower (in kb): %d - upper (in kb): %d", tagmem->mem_lower, tagmem->mem_upper);
+    pretty_logf(Info, "Available memory: lower (in kb): %d - upper (in kb): %d - mbi_size: 0x%x", tagmem->mem_lower, tagmem->mem_upper, mbi_size);
     memory_size_in_bytes = (tagmem->mem_upper + 1024) * 1024;
     //Print mmap_info
     pretty_logf(Verbose, "Memory map Size: 0x%x, Entry size: 0x%x, EntryVersion: 0x%x", tagmmap->size, tagmmap->entry_size, tagmmap->entry_version);
@@ -153,6 +153,8 @@ void kernel_start(unsigned long addr, unsigned long magic){
         pretty_logf(Verbose, "\tNumber of glyphs: [0x%x] - Bytes per glyphs: [0x%x]", font->numglyph, font->bytesperglyph);
         pretty_logf(Verbose, "\tWidth: [0x%x] - Height: [0x%x]", font->width, font->height);
     }
+    higherHalfDirectMapBase = ((uint64_t) HIGHER_HALF_ADDRESS_OFFSET + VM_KERNEL_MEMORY_PADDING);
+    pretty_logf(Verbose, "HigherHalf Initial entries: pml4: %d, pdpr: %d, pd: %d", PML4_ENTRY((uint64_t) higherHalfDirectMapBase), PDPR_ENTRY((uint64_t) higherHalfDirectMapBase), PD_ENTRY((uint64_t) higherHalfDirectMapBase));
 
     _init_basic_system(addr);
     pretty_logf(Verbose, "Kernel End: 0x%x - Physical: %x", (unsigned long)&_kernel_end, (unsigned long)&_kernel_physical_end);

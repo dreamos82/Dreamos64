@@ -9,6 +9,8 @@
 //#define WRITE_ENABLE 2
 //#define USER_LEVEL 4
 
+#define PAGE_DIR_SIZE   0x1000
+
 #define PHYS_ADDRESS_NOT_MAPPED  0 // Address is not mapped
 #define PHYS_ADDRESS_MAPPED 0b1
 #define PHYS_ADDRESS_MISMATCH 0b10 // This is returned when given a phys and virt address, the virt address does not contain the phys one

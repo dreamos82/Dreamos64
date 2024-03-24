@@ -1,15 +1,15 @@
 #include <multiboot.h>
-#include <kernel/framebuffer.h>
-#include <kernel/video.h>
-#include <kernel/psf.h>
-#include <kernel/mem/bitmap.h>
+#include <framebuffer.h>
+#include <pmm.h>
+#include <psf.h>
+#include <bitmap.h>
 #include <vm.h>
 #include <stdio.h>
 #include <numbers.h>
 //#ifdef DEBUG - This will be uncommented when the framebuffer library will be completed
 #include <qemu.h>
 //#endif
-
+#include <video.h>
 #include <dreamcatcher.h>
 #include <logging.h>
 
