@@ -1,16 +1,17 @@
 #include <bitmap.h>
+#include <hh_direct_map.h>
 #include <pmm.h>
 #include <multiboot.h>
 #include <stddef.h>
 #include <mmap.h>
 #include <logging.h>
 #ifndef _TEST_
-#include <video.h>
+#include <kernel.h>
 #include <main.h>
 #include <vm.h>
 #include <vmm.h>
 #include <vmm_mapping.h>
-#include <kernel.h>
+#include <video.h>
 #endif
 
 #ifdef _TEST_
@@ -31,9 +32,11 @@ uint32_t used_frames;
 uint64_t memory_map_phys_addr;
 
 
-void _initialize_bitmap ( unsigned long end_of_reserved_area ) {
+void _initialize_bitmap ( uint64_t end_of_reserved_area ) {
+    pretty_logf(Verbose, "\tend_of_reserved_area: 0x%x", end_of_reserved_area);
     uint64_t memory_size = (tagmem->mem_upper + 1024) * 1024;
     bitmap_size = memory_size / PAGE_SIZE_IN_BYTES + 1;
+    pretty_logf(Verbose, " bitmap_size: 0x%x", bitmap_size);
     used_frames = 0;
     number_of_entries = bitmap_size / 64 + 1;
     uint64_t memory_map_phys_addr;
@@ -41,22 +44,23 @@ void _initialize_bitmap ( unsigned long end_of_reserved_area ) {
     memory_map = malloc(bitmap_size / 8 + 1);
 #else
     memory_map_phys_addr = _mmap_determine_bitmap_region(end_of_reserved_area, bitmap_size / 8 + 1);
+    //pretty_logf(Verbose, "memory_map_phys_addr: 0x%x", memory_map_phys_addr);
+    //uint64_t *test_var = hhdm_get_variable(memory_map_phys_addr);
+    //test_var[0] = 5;
+    //pretty_logf(Verbose, "0x%x: test_var: 0x%x", test_var, test_var[0]);
     //memory_map = memory_map_phys_addr;
-    uint64_t end_of_mapped_physical_memory = end_of_mapped_memory - _HIGHER_HALF_KERNEL_MEM_START;
-    if(memory_map_phys_addr > end_of_mapped_physical_memory) {
-        pretty_logf(Verbose, "The address 0x%x is above the initially mapped memory: 0x%x", memory_map_phys_addr, end_of_mapped_physical_memory);
-        //TODO: This need to be fixed map_phys_to_virt_addr can't be used here since it relies on the bitmap, and it is not initialized yet.
-        map_phys_to_virt_addr((void*)ALIGN_PHYSADDRESS(memory_map_phys_addr), (void*)(memory_map_phys_addr + _HIGHER_HALF_KERNEL_MEM_START), VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE);
-    } else {
-        pretty_logf(Verbose, "The address 0x%x is not above the initially mapped memory: 0x%x", memory_map_phys_addr, end_of_mapped_physical_memory);
-    }
-    memory_map = (uint64_t *) (memory_map_phys_addr + _HIGHER_HALF_KERNEL_MEM_START);
+    memory_map = (uint64_t *) hhdm_get_variable(memory_map_phys_addr);
+    pretty_logf(Verbose, "memory_map: 0x%x - memory_map_phys_addr: 0x%x", memory_map,memory_map_phys_addr);
+    //uint64_t end_of_mapped_physical_memory = end_of_mapped_memory - _HIGHER_HALF_KERNEL_MEM_START;
+    //memory_map = (uint64_t *) (memory_map_phys_addr + _HIGHER_HALF_KERNEL_MEM_START);
 
 #endif
+    pretty_logf(Verbose, "Number of entries: 0x%d", number_of_entries);
     for (uint32_t i=0; i<number_of_entries; i++){
+        //pretty_logf(Verbose, "(%d)", i, number_of_entries);
         memory_map[i] = 0x0;
     }
-
+    pretty_logf(Verbose, "Number of entries: 0x%d", number_of_entries);
     uint32_t kernel_entries = _compute_kernel_entries(end_of_reserved_area);
     uint32_t number_of_bitmap_rows = kernel_entries/64;
     uint32_t j=0;

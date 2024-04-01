@@ -40,7 +40,7 @@ void *map_phys_to_virt_addr_hh(void* physical_address, void* address, size_t fla
 
         if ( !(pml4_root[pml4_e] & 0b1) ) {
             pretty_logf(Verbose, " We should allocate a new table at pml4_e: %d", pml4_e);
-            uint64_t *new_table = pmm_alloc_frame();
+            uint64_t *new_table = pmm_prepare_new_pagetable();
             pml4_root[pml4_e] = (uint64_t) new_table | user_mode_status | WRITE_BIT | PRESENT_BIT;
             uint64_t *new_table_hhdm = hhdm_get_variable((uintptr_t) new_table);
             clean_new_table(new_table_hhdm);
@@ -52,7 +52,7 @@ void *map_phys_to_virt_addr_hh(void* physical_address, void* address, size_t fla
 
         if ( !(pdpr_root[pdpr_e] & 0b1) ) {
             pretty_logf(Verbose, " We should allocate a new table at pdpr_e: %d", pdpr_e);
-            uint64_t *new_table = pmm_alloc_frame();
+            uint64_t *new_table = pmm_prepare_new_pagetable();
             pdpr_root[pdpr_e] = (uint64_t) new_table | user_mode_status | WRITE_BIT | PRESENT_BIT;
             uint64_t *new_table_hhdm = hhdm_get_variable((uintptr_t) new_table);
             clean_new_table(new_table_hhdm);
@@ -65,7 +65,7 @@ void *map_phys_to_virt_addr_hh(void* physical_address, void* address, size_t fla
         if( !(pd_root[pd_e] & 0b1) ) {
 
 #if SMALL_PAGES == 1
-            uint64_t *new_table = pmm_alloc_frame();
+            uint64_t *new_table = pmm_prepare_new_pagetable();
             pd_root[pd_e] = (uint64_t) new_table | user_mode_status | WRITE_BIT | PRESENT_BIT;
             uint64_t *new_table_hhdm = hhdm_get_variable((uintptr_t) new_table);
             clean_new_table(new_table_hhdm);
@@ -132,7 +132,7 @@ void *map_phys_to_virt_addr(void* physical_address, void* address, size_t flags)
     // If the pml4_e item in the pml4 table is not present, we need to create a new one.
     // Every entry in pml4 table points to a pdpr table
     if( !(pml4_table[pml4_e] & 0b1) ) {
-        uint64_t *new_table = pmm_alloc_frame();
+        uint64_t *new_table = pmm_prepare_new_pagetable();;
         pml4_table[pml4_e] = (uint64_t) new_table | user_mode_status | WRITE_BIT | PRESENT_BIT;
        // pretty_logf(Verbose, " need to allocate pml4 for address: 0x%x - Entry value: 0x%x - phys_address: 0x%x", (uint64_t) address, pml4_table[pml4_e], new_table);
         clean_new_table(pdpr_table);
@@ -141,7 +141,7 @@ void *map_phys_to_virt_addr(void* physical_address, void* address, size_t flags)
     // If the pdpr_e item in the pdpr table is not present, we need to create a new one.
     // Every entry in pdpr table points to a pdpr table
     if( !(pdpr_table[pdpr_e] & 0b1) ) {
-        uint64_t *new_table = pmm_alloc_frame();
+        uint64_t *new_table = pmm_prepare_new_pagetable();
         pdpr_table[pdpr_e] = (uint64_t) new_table | user_mode_status | WRITE_BIT | PRESENT_BIT;
         //pretty_logf(Verbose, " PDPR entry value: 0x%x", pdpr_table[pdpr_e]);
         clean_new_table(pd_table);
@@ -151,7 +151,7 @@ void *map_phys_to_virt_addr(void* physical_address, void* address, size_t flags)
     // Every entry in pdpr table points to a page table if using 4k pages, or to a 2mb memory area if using 2mb pages
     if( !(pd_table[pd_e] & 0b01) ) {
 #if SMALL_PAGES == 1
-        uint64_t *new_table = pmm_alloc_frame();
+        uint64_t *new_table = pmm_prepare_new_pagetable();
         pd_table[pd_e] = (uint64_t) new_table | user_mode_status | WRITE_BIT | PRESENT_BIT;
         clean_new_table(pt_table);
 #elif SMALL_PAGES == 0
@@ -172,7 +172,7 @@ void *map_phys_to_virt_addr(void* physical_address, void* address, size_t flags)
 
 void *map_vaddress(void *virtual_address, size_t flags, uint64_t *pml4_root){
     pretty_logf(Verbose, "address: 0x%x", virtual_address);
-    void *new_addr = pmm_alloc_frame();
+    void *new_addr = pmm_prepare_new_pagetable();
     return map_phys_to_virt_addr_hh(new_addr, virtual_address, flags, pml4_root);
 }
 

@@ -1,3 +1,5 @@
+#include <hh_direct_map.h>
+#include <kernel.h>
 #include <pmm.h>
 #include <bitmap.h>
 #include <stdbool.h>
@@ -20,8 +22,23 @@ extern size_t memory_size_in_bytes;
 
 spinlock_t memory_spinlock;
 
-void pmm_setup(unsigned long addr, uint32_t size){
-    _initialize_bitmap(addr + size);
+bool pmm_initialized = false;
+uint64_t anon_memory_loc;
+uint64_t anon_physical_memory_loc;
+
+void pmm_setup(uint64_t addr, uint32_t size){
+    // addr = address of multiboot structre
+    // size = size of the structure
+    pretty_logf(Verbose, "addr: 0x%x, size: 0x%x", addr,size);
+    anon_memory_loc = (uint64_t) (&_kernel_end + PAGE_SIZE_IN_BYTES);
+    anon_physical_memory_loc = (uint64_t) (&_kernel_physical_end + PAGE_SIZE_IN_BYTES)  ;
+
+    pretty_logf(Verbose, "anon_memory_loc: 0x%x, anon_physical_memory_loc: 0x%x", anon_memory_loc, anon_physical_memory_loc);
+
+    hhdm_map_physical_memory();
+    pretty_log(Verbose, "HHDM setup finished");
+
+    _initialize_bitmap(anon_physical_memory_loc + PAGE_SIZE_IN_BYTES);
     uint64_t bitmap_start_addr;
     size_t bitmap_size;
     _bitmap_get_region(&bitmap_start_addr, &bitmap_size, ADDRESS_TYPE_PHYSICAL);
@@ -34,6 +51,7 @@ void pmm_setup(unsigned long addr, uint32_t size){
 #endif
 
     //_map_pmm();
+    pmm_initialized = true;
 }
 
 /**
@@ -56,6 +74,37 @@ void *pmm_alloc_frame(){
     }
     spinlock_release(&memory_spinlock);
     return NULL;
+}
+
+
+void *pmm_prepare_new_pagetable() {
+    pretty_logf(Verbose, "pmm_initialized: %d", pmm_initialized );
+    if ( !pmm_initialized) {
+                if( _mmap_is_address_in_available_space(anon_physical_memory_loc, PAGE_DIR_SIZE) ) {
+                    // This space should be potentially safe
+                    //pretty_log(Verbose, " Current_address is mapped and in the available memory area" );
+                    if(anon_physical_memory_loc >= 0x18c000) {
+                        pretty_log(Verbose, "Overwriting the module");
+                    }
+                    anon_memory_loc += PAGE_DIR_SIZE;
+                    anon_physical_memory_loc += PAGE_DIR_SIZE;
+                    return (void *)  (anon_physical_memory_loc - PAGE_DIR_SIZE);
+                } else {
+                    // mmm... what should i do now?
+                    // i suppose this shouldn't happen
+                    pretty_log(Fatal, " New location is not in available area, this most likely shouldn't happen");
+                }
+            /*} /*else {
+                // This is the tricky part, i need to map new memory. still in the anon area
+                // I need to check that it is not any of the reserved memory locations (i.e. faramebuffer)
+                // If yes it should probably panic
+
+            }*/
+            // Get the first available address and check if is in mapped area?
+            //return NULL;
+    }
+    //pretty_log(Verbose, "The pmm is initialized, using pmm_alloc_frame");
+    return (void *) pmm_alloc_frame();
 }
 
 void *pmm_alloc_area(size_t size) {

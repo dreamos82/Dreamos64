@@ -70,6 +70,8 @@ uintptr_t higherHalfDirectMapBase;
 void _init_basic_system(unsigned long addr){
     struct multiboot_tag* tag;
     uint32_t mbi_size = *(uint32_t *) (addr + _HIGHER_HALF_KERNEL_MEM_START);
+    uint64_t end_of_mapped_physical_memory = end_of_mapped_memory - _HIGHER_HALF_KERNEL_MEM_START;
+    pretty_logf(Verbose, " Addr: 0x%x - Size: 0x%x end_of_mapped_memory: 0x%x - physical: 0x%x", addr, mbi_size, end_of_mapped_memory, end_of_mapped_physical_memory);
     pretty_log(Info, "Initialize base system");
     //These data structure are initialized during the boot process.
     tagmem  = (struct multiboot_tag_basic_meminfo *)(multiboot_basic_meminfo + _HIGHER_HALF_KERNEL_MEM_START);
@@ -156,8 +158,8 @@ void kernel_start(unsigned long addr, unsigned long magic){
     higherHalfDirectMapBase = ((uint64_t) HIGHER_HALF_ADDRESS_OFFSET + VM_KERNEL_MEMORY_PADDING);
     pretty_logf(Verbose, "HigherHalf Initial entries: pml4: %d, pdpr: %d, pd: %d", PML4_ENTRY((uint64_t) higherHalfDirectMapBase), PDPR_ENTRY((uint64_t) higherHalfDirectMapBase), PD_ENTRY((uint64_t) higherHalfDirectMapBase));
 
+    pretty_logf(Verbose, "Kernel End: 0x%x - Physical: 0x%x", (unsigned long)&_kernel_end, (unsigned long)&_kernel_physical_end);
     _init_basic_system(addr);
-    pretty_logf(Verbose, "Kernel End: 0x%x - Physical: %x", (unsigned long)&_kernel_end, (unsigned long)&_kernel_physical_end);
     // Reminder here: The first 8 bytes have a fixed structure in the multiboot info:
     // They are: 0-4: size of the boot information in bytes
     //           4-8: Reserved (0)

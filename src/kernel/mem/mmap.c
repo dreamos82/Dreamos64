@@ -55,6 +55,19 @@ void _mmap_setup(){
     }
 }
 
+bool _mmap_is_address_in_available_space(uint64_t address, uint64_t upper_limit) {
+    for (size_t i=0; i < mmap_number_of_entries; i++) {
+        multiboot_memory_map_t* current_entry = &mmap_entries[i];
+        if(current_entry->addr + current_entry->len < address + upper_limit) {
+            if(current_entry->type == _MMAP_AVAILABLE) {
+                //pretty_logf(Verbose, "Entry 0x%x is in an available space (with size: 0x%x", address, upper_limit );
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 uintptr_t _mmap_determine_bitmap_region(uint64_t lower_limit, size_t bytes_needed){
     //NOTE: lower_limit can be used to place the bitmap after the kernel, or after anything if need be.
     for (size_t i = 0; i < mmap_number_of_entries; i++){
