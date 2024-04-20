@@ -44,18 +44,8 @@ void _initialize_bitmap ( uint64_t end_of_reserved_area ) {
     memory_map = malloc(bitmap_size / 8 + 1);
 #else
     memory_map_phys_addr = _mmap_determine_bitmap_region(end_of_reserved_area, bitmap_size / 8 + 1);
-    //pretty_logf(Verbose, "memory_map_phys_addr: 0x%x", memory_map_phys_addr);
-    //uint64_t *test_var = hhdm_get_variable(memory_map_phys_addr);
-    //test_var[0] = 5;
-    //pretty_logf(Verbose, "0x%x: test_var: 0x%x", test_var, test_var[0]);
-    //memory_map = memory_map_phys_addr;
     memory_map = (uint64_t *) hhdm_get_variable(memory_map_phys_addr);
-    pretty_logf(Verbose, "memory_map: 0x%x - memory_map_phys_addr: 0x%x", memory_map,memory_map_phys_addr);
-    //uint64_t end_of_mapped_physical_memory = end_of_mapped_memory - _HIGHER_HALF_KERNEL_MEM_START;
-    //memory_map = (uint64_t *) (memory_map_phys_addr + _HIGHER_HALF_KERNEL_MEM_START);
-
 #endif
-    pretty_logf(Verbose, "Number of entries: 0x%d", number_of_entries);
     for (uint32_t i=0; i<number_of_entries; i++){
         //pretty_logf(Verbose, "(%d)", i, number_of_entries);
         memory_map[i] = 0x0;
@@ -70,7 +60,7 @@ void _initialize_bitmap ( uint64_t end_of_reserved_area ) {
     memory_map[j] = ~(~(0ul) << (kernel_entries - (number_of_bitmap_rows*64)));
     used_frames = kernel_entries;
     pretty_logf(Info, "Page size used by the kernel: %d", PAGE_SIZE_IN_BYTES);
-    pretty_logf(Verbose, "Physical size in bytes: %d", memory_size_in_bytes);
+    pretty_logf(Verbose, "Physical size in bytes: %u", memory_size_in_bytes);
     pretty_logf(Verbose, "Number of bit entries: %d - %d", bitmap_size, number_of_entries);
 }
 

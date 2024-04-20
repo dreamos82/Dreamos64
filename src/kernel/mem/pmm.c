@@ -78,23 +78,25 @@ void *pmm_alloc_frame(){
 
 
 void *pmm_prepare_new_pagetable() {
-    pretty_logf(Verbose, "pmm_initialized: %d", pmm_initialized );
     if ( !pmm_initialized) {
-                if( _mmap_is_address_in_available_space(anon_physical_memory_loc, PAGE_DIR_SIZE) ) {
+                while((!_mmap_is_address_in_available_space(anon_physical_memory_loc, PAGE_DIR_SIZE)) && anon_physical_memory_loc < memory_size_in_bytes) {
+                    pretty_logf(Verbose, " Current address: 0x%x not available trying next", anon_memory_loc);
+                    anon_memory_loc += PAGE_DIR_SIZE;
+                    anon_physical_memory_loc += PAGE_DIR_SIZE;
+                }
+                anon_memory_loc += PAGE_DIR_SIZE;
+                anon_physical_memory_loc += PAGE_DIR_SIZE;
+                return (void *)  (anon_physical_memory_loc - PAGE_DIR_SIZE);
+                /*if( _mmap_is_address_in_available_space(anon_physical_memory_loc, PAGE_DIR_SIZE) ) {
                     // This space should be potentially safe
-                    //pretty_log(Verbose, " Current_address is mapped and in the available memory area" );
-                    if(anon_physical_memory_loc >= 0x18c000) {
-                        pretty_log(Verbose, "Overwriting the module");
-                    }
                     anon_memory_loc += PAGE_DIR_SIZE;
                     anon_physical_memory_loc += PAGE_DIR_SIZE;
                     return (void *)  (anon_physical_memory_loc - PAGE_DIR_SIZE);
                 } else {
-                    // mmm... what should i do now?
                     // i suppose this shouldn't happen
                     pretty_log(Fatal, " New location is not in available area, this most likely shouldn't happen");
-                }
-            /*} /*else {
+                }*/
+            /*} else {
                 // This is the tricky part, i need to map new memory. still in the anon area
                 // I need to check that it is not any of the reserved memory locations (i.e. faramebuffer)
                 // If yes it should probably panic

@@ -62,10 +62,37 @@ struct multiboot_tag_new_acpi *tagnew_acpi = NULL;
 struct multiboot_tag_mmap *tagmmap = NULL;
 struct multiboot_tag *tagacpi = NULL;
 struct multiboot_tag_module *loaded_module = NULL;
+struct multiboot_tag *tag_start = NULL;
 
 uint64_t elf_module_start_hh = 0;
 
 uintptr_t higherHalfDirectMapBase;
+
+const char *multiboot_names[] = {
+    "Multiboot End",
+    "Boot command line",
+    "Boot loader name",
+    "Modules",
+    "Basic Memory Information",
+    "Bios Boot Device",
+    "Memory Map",
+    "VBE Info",
+    "Framebuffer Info",
+    "EFI amd64 entry address tag of Multiboot2 header",
+    "APM Table",
+    " ",
+    " ",
+    " ",
+    "ACPI Old RSDP",
+    "ACPI New RSDP",
+    " ",
+    " ",
+    " ",
+    " ",
+    " ",
+    "Image load base physical address",
+    " "
+};
 
 void _init_basic_system(unsigned long addr){
     struct multiboot_tag* tag;
@@ -82,6 +109,7 @@ void _init_basic_system(unsigned long addr){
     memory_size_in_bytes = (tagmem->mem_upper + 1024) * 1024;
     //Print mmap_info
     pretty_logf(Verbose, "Memory map Size: 0x%x, Entry size: 0x%x, EntryVersion: 0x%x", tagmmap->size, tagmmap->entry_size, tagmmap->entry_version);
+    tag_start = (struct multiboot_tag *) (addr + _HIGHER_HALF_KERNEL_MEM_START + 8);
     _mmap_parse(tagmmap);
     pmm_setup(addr, mbi_size);
 
@@ -113,17 +141,18 @@ void _init_basic_system(unsigned long addr){
         parse_SDT((uint64_t) descriptor, MULTIBOOT_TAG_TYPE_ACPI_NEW);
         validate_SDT((char *) descriptor, sizeof(RSDPDescriptor20));
     }
-
+    tag_start = (struct multiboot_tag *) (addr + _HIGHER_HALF_KERNEL_MEM_START + 8);
+    pretty_logf(Verbose, " Tag start: 0x%x", tag_start);
     for (tag=(struct multiboot_tag *) (addr + _HIGHER_HALF_KERNEL_MEM_START + 8);
         tag->type != MULTIBOOT_TAG_TYPE_END;
         tag = (struct multiboot_tag *) ((multiboot_uint8_t *) tag + ((tag->size + 7) & ~7))){
         switch(tag->type){
             case MULTIBOOT_TAG_TYPE_MODULE:
                 loaded_module = (struct multiboot_tag_module *) tag;
-                pretty_logf(Verbose, " \t[Tag 0x%x] Size: 0x%x - mod_start: 0x%x : mod_end: 0x%x" , loaded_module->type, loaded_module->size, loaded_module->mod_start, loaded_module->mod_end);
+                pretty_logf(Verbose, " \t[Tag 0x%x] (%s): Size: 0x%x - mod_start: 0x%x : mod_end: 0x%x" , loaded_module->type, multiboot_names[loaded_module->type], loaded_module->size, loaded_module->mod_start, loaded_module->mod_end);
                 break;
             default:
-                pretty_logf(Verbose, "\t[Tag 0x%x] Size: 0x%x", tag->type, tag->size);
+                pretty_logf(Verbose, "\t[Tag 0x%x] (%s): Size: 0x%x",  tag->type, multiboot_names[tag->type], tag->size);
                 break;
         }
     }
@@ -181,10 +210,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
     _syscalls_init();
     //_sc_putc('c', 0);
     //asm("int $0x80");
-    //higherHalfDirectMapBase is where we will the Direct Mapping of physical memory will start.
-    higherHalfDirectMapBase = ((uint64_t) HIGHER_HALF_ADDRESS_OFFSET + VM_KERNEL_MEMORY_PADDING);
     _mmap_setup();
-    hhdm_map_physical_memory();
     kernel_settings.kernel_uptime = 0;
     kernel_settings.paging.page_root_address = p4_table;
     uint64_t p4_table_phys_address = (uint64_t) p4_table - _HIGHER_HALF_KERNEL_MEM_START;
