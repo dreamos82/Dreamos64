@@ -172,6 +172,7 @@ void *map_phys_to_virt_addr(void* physical_address, void* address, size_t flags)
 
 void *map_vaddress(void *virtual_address, size_t flags, uint64_t *pml4_root){
     pretty_logf(Verbose, "address: 0x%x", virtual_address);
+    //TODO need to check if i can just use the phys alloc here
     void *new_addr = pmm_prepare_new_pagetable();
     return map_phys_to_virt_addr_hh(new_addr, virtual_address, flags, pml4_root);
 }
@@ -264,4 +265,48 @@ int unmap_vaddress_hh(void *address, uint64_t *pml4_root) {
 //TODO This function is no longer used, it may be removed in the future
 void identity_map_phys_address(void *physical_address, size_t flags) {
     map_phys_to_virt_addr(physical_address, physical_address, flags);
+}
+
+uint8_t is_phyisical_address_mapped(uintptr_t physical_address, uintptr_t virtual_address) {
+    uint16_t pml4_e = PML4_ENTRY((uint64_t) virtual_address);
+    uint64_t *pml4_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l, 510l, 510l, 510l));
+    if (!(pml4_table[pml4_e] & PRESENT_BIT)) {
+        return PHYS_ADDRESS_NOT_MAPPED;
+    }
+
+    uint16_t pdpr_e = PDPR_ENTRY((uint64_t) virtual_address);
+    uint64_t *pdpr_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l, 510l, 510l, (uint64_t)  pml4_e));
+    if (!(pdpr_table[pdpr_e] & PRESENT_BIT)) {
+        return PHYS_ADDRESS_NOT_MAPPED;
+    }
+
+    uint16_t pd_e = PD_ENTRY((uint64_t) virtual_address);
+    uint64_t *pd_table = (uint64_t*) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l, 510l, pml4_e, (uint64_t)  pdpr_e));
+    if (!(pd_table[pd_e] & PRESENT_BIT)) {
+        return PHYS_ADDRESS_NOT_MAPPED;
+    }
+#if SMALL_PAGES == 0
+    else {
+        if (ALIGN_PHYSADDRESS(pd_table[pd_e]) == ALIGN_PHYSADDRESS(physical_address)) {
+            return PHYS_ADDRESS_MAPPED;
+        } else {
+            return PHYS_ADDRESS_MISMATCH;
+        }
+    }
+#endif
+
+#if SMALL_PAGES == 1
+    uint16_t pt_e = PT_ENTRY((uint64_t) virtual_address);
+    uint64_t *pt_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l, (uint64_t)  pml4_e, (uint64_t)  pdpr_e, (uint64_t)  pd_e));
+    if ( !(pt_table[pt_e] & PRESENT_BIT )) {
+        return PHYS_ADDRESS_NOT_MAPPED;
+    } else {
+        if (ALIGN_PHYSADDRESS(pt_table[pt_e]) == ALIGN_PHYSADDRESS(physical_address)) {
+            return PHYS_ADDRESS_MAPPED;
+        } else {
+            return PHYS_ADDRESS_MISMATCH;
+        }
+    }
+#endif
+    return 0;
 }

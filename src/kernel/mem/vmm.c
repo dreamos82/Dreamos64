@@ -216,52 +216,6 @@ void vmm_free(void *address) {
     return;
 }
 
-
-// TODO: maybe thsi should be moved in the arch/mapping part and use the hhdm?
-uint8_t is_phyisical_address_mapped(uintptr_t physical_address, uintptr_t virtual_address) {
-    uint16_t pml4_e = PML4_ENTRY((uint64_t) virtual_address);
-    uint64_t *pml4_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l, 510l, 510l, 510l));
-    if (!(pml4_table[pml4_e] & PRESENT_BIT)) {
-        return PHYS_ADDRESS_NOT_MAPPED;
-    }
-
-    uint16_t pdpr_e = PDPR_ENTRY((uint64_t) virtual_address);
-    uint64_t *pdpr_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l, 510l, 510l, (uint64_t)  pml4_e));
-    if (!(pdpr_table[pdpr_e] & PRESENT_BIT)) {
-        return PHYS_ADDRESS_NOT_MAPPED;
-    }
-
-    uint16_t pd_e = PD_ENTRY((uint64_t) virtual_address);
-    uint64_t *pd_table = (uint64_t*) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l, 510l, pml4_e, (uint64_t)  pdpr_e));
-    if (!(pd_table[pd_e] & PRESENT_BIT)) {
-        return PHYS_ADDRESS_NOT_MAPPED;
-    }
-#if SMALL_PAGES == 0
-    else {
-        if (ALIGN_PHYSADDRESS(pd_table[pd_e]) == ALIGN_PHYSADDRESS(physical_address)) {
-            return PHYS_ADDRESS_MAPPED;
-        } else {
-            return PHYS_ADDRESS_MISMATCH;
-        }
-    }
-#endif
-
-#if SMALL_PAGES == 1
-    uint16_t pt_e = PT_ENTRY((uint64_t) virtual_address);
-    uint64_t *pt_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l, (uint64_t)  pml4_e, (uint64_t)  pdpr_e, (uint64_t)  pd_e));
-    if ( !(pt_table[pt_e] & PRESENT_BIT )) {
-        return PHYS_ADDRESS_NOT_MAPPED;
-    } else {
-        if (ALIGN_PHYSADDRESS(pt_table[pt_e]) == ALIGN_PHYSADDRESS(physical_address)) {
-            return PHYS_ADDRESS_MAPPED;
-        } else {
-            return PHYS_ADDRESS_MISMATCH;
-        }
-    }
-#endif
-    return 0;
-}
-
 //TODO implement this function or remove it
 uint8_t check_virt_address_status(uint64_t virtual_address) {
     (void)virtual_address;
