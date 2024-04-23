@@ -31,7 +31,7 @@ void initialize_kheap(){
     kernel_heap_current_pos = kernel_heap_start;
     kernel_heap_end = kernel_heap_start;
     //TODO: Should we use PAGE_SIZE for the initial heap size?
-    kernel_heap_current_pos->size = 0x1000;
+    kernel_heap_current_pos->size = PAGE_SIZE_IN_BYTES;
     kernel_heap_current_pos->is_free = true;
     kernel_heap_current_pos->next = NULL;
     kernel_heap_current_pos->prev = NULL;
@@ -94,22 +94,16 @@ void *kmalloc(size_t size) {
 }
 
 void expand_heap(size_t required_size) {
-    //  This function expand the heap in case more space is needed.
-    pretty_logf(Verbose, "called size: %d current_end: 0x%x - end_of_mapped_memory: 0x%x", required_size, kernel_heap_end, end_of_mapped_memory);
     // The first thing to do is compute how many page we need for this expansion
     size_t number_of_pages = get_number_of_pages_from_size(required_size);
+    //  This function expand the heap in case more space is needed.
+    pretty_logf(Verbose, "called size: 0x%x number of pages: 0x%x current_end: 0x%x - end_of_mapped_memory: 0x%x", required_size, number_of_pages, kernel_heap_end, end_of_mapped_memory);
     // Then check where the heap ends
     uint64_t heap_end = compute_kheap_end();
-        if ( heap_end > end_of_mapped_memory ) {
-        //end_of_mapped memory marks the end of the memory mapped by the kernel loader.
-        //if the new heap address is above that, we need to map a new one, otherwise we can just mark it as used.
-        //That part temporary, it needs to be reviewed when the memory mapping will be reviewed.
-        // This function no longer need to use end_of_mapped_memory, since now the heap reside somewhere else.
-        map_vaddress_range((uint64_t *) heap_end, VMM_FLAGS_WRITE_ENABLE | VMM_FLAGS_PRESENT, number_of_pages, NULL);
-    }
-    // We need to update the tail first
-    // It starts at the end of the current heap
-    KHeapMemoryNode *new_tail = (KHeapMemoryNode *) heap_end;
+    pretty_logf(Verbose, "heap_end: 0x%x - end_of_mapped_memory: 0x%x", heap_end, end_of_mapped_memory);
+    //To expand the heap we can just rely on the VMM, since this is the kernel HEAP we pass null as vmm_info data.
+    KHeapMemoryNode *new_tail = (KHeapMemoryNode *) vmm_alloc(required_size, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE, NULL);
+    //TODO check that the list navigation is still working
     new_tail->next = NULL;
     new_tail->prev = kernel_heap_end;
     new_tail->size = KERNEL_PAGE_SIZE * number_of_pages;
@@ -121,7 +115,6 @@ void expand_heap(size_t required_size) {
     if ( available_merges & MERGE_LEFT) {
         merge_memory_nodes(new_tail->prev, new_tail);
     }
-
 }
 
 uint64_t compute_kheap_end() {
@@ -192,7 +185,6 @@ uint8_t can_merge(KHeapMemoryNode *cur_node) {
         }
 
     }
-
     return available_merges;
 }
 
