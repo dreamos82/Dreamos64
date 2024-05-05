@@ -150,7 +150,7 @@ void *vmm_alloc_at(uint64_t base_address, size_t size, size_t flags, VmmInfo *vm
 
     pretty_logf(Verbose, "Flags PRESENT(%d) - WRITE(%d) - USER(%d)", flags & VMM_FLAGS_PRESENT, flags & VMM_FLAGS_WRITE_ENABLE, flags & VMM_FLAGS_USER_LEVEL);
 
-    if  (!is_address_only(flags) ) {
+    if  ( !is_address_only(flags) ) {
 
         size_t required_pages = get_number_of_pages_from_size(size);
         size_t arch_flags = vm_parse_flags(flags);

@@ -1,8 +1,9 @@
-#include <vm.h>
-#include <video.h>
 #include <framebuffer.h>
-#include <main.h>
 #include <logging.h>
+#include <main.h>
+#include <video.h>
+#include <vm.h>
+#include <vmm.h>
 
 extern uint32_t FRAMEBUFFER_MEMORY_SIZE;
 
@@ -63,13 +64,25 @@ void invalidate_page_table( uint64_t *table_address ) {
  *
  *
  * @param address the physical address we want to map
+ * @param type the accepted values are: #VM_TYPE_MEMORY #VM_TYPE_MMIO
  * @return virtuial address in the higher half
  */
-uint64_t ensure_address_in_higher_half( uint64_t address ) {
-    if ( address > HIGHER_HALF_ADDRESS_OFFSET ) {
-        return address;
+uint64_t ensure_address_in_higher_half( uint64_t address, uint8_t type) {
+    uint64_t offset = 0;
+
+    if ( type == VM_TYPE_MEMORY ) {
+        offset = HIGHER_HALF_ADDRESS_OFFSET;
+    } else if ( type == VM_TYPE_MMIO ){
+        offset = MMIO_HIGHER_HALF_ADDRESS_OFFSET;
+    } else {
+        return 0;
     }
-    return address + HIGHER_HALF_ADDRESS_OFFSET;
+
+    if ( address > offset + VM_KERNEL_MEMORY_PADDING) {
+            return address;
+    } else {
+        return address + offset + VM_KERNEL_MEMORY_PADDING;
+    }
 }
 
 bool is_address_higher_half(uint64_t address) {

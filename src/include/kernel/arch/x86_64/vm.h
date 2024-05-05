@@ -16,7 +16,9 @@
 
 #define ALIGN_PHYSADDRESS(address)(address & (~(PAGE_ALIGNMENT_MASK)))
 
-#define HIGHER_HALF_ADDRESS_OFFSET 0xFFFF800000000000
+#define MMIO_HIGHER_HALF_ADDRESS_OFFSET 0xFFFF800000000000
+#define MMIO_RESERVED_SPACE_SIZE 0x280000000
+#define HIGHER_HALF_ADDRESS_OFFSET  (MMIO_HIGHER_HALF_ADDRESS_OFFSET + MMIO_RESERVED_SPACE_SIZE)
 
 #define PRESENT_BIT 1
 #define WRITE_BIT 0b10
@@ -40,6 +42,9 @@
 #define PAGE_ENTRY_FLAGS PRESENT_BIT | WRITE_BIT
 #endif
 
+#define VM_TYPE_MEMORY 0
+#define VM_TYPE_MMIO 1
+
 void page_fault_handler( uint64_t error_code );
 
 void initialize_vm();
@@ -50,7 +55,7 @@ void invalidate_page_table( uint64_t *table_address );
 
 void load_cr3( void* cr3_value );
 
-uint64_t ensure_address_in_higher_half( uint64_t address);
+uint64_t ensure_address_in_higher_half( uint64_t address, uint8_t type);
 
 bool is_address_higher_half(uint64_t address);
 #endif

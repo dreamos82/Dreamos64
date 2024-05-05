@@ -112,6 +112,12 @@ void _init_basic_system(unsigned long addr){
     tag_start = (struct multiboot_tag *) (addr + _HIGHER_HALF_KERNEL_MEM_START + 8);
     _mmap_parse(tagmmap);
     pmm_setup(addr, mbi_size);
+     kernel_settings.kernel_uptime = 0;
+    kernel_settings.paging.page_root_address = p4_table;
+    uint64_t p4_table_phys_address = (uint64_t) p4_table - _HIGHER_HALF_KERNEL_MEM_START;
+    kernel_settings.paging.hhdm_page_root_address = (uint64_t*) hhdm_get_variable( (uintptr_t) p4_table_phys_address);
+    //pretty_logf(Verbose, "p4_table[510]: %x - ADDRESS: %x", p4_table[510], kernel_settings.paging.hhdm_page_root_address[510]);
+    vmm_init(VMM_LEVEL_SUPERVISOR, NULL);
 
     //Print framebuffer info
     pretty_logf(Verbose, "Framebuffer info: (type: 0x%x) Address: 0x%x", tagfb->common.framebuffer_type, tagfb->common.framebuffer_addr);
@@ -186,6 +192,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
     }
     higherHalfDirectMapBase = ((uint64_t) HIGHER_HALF_ADDRESS_OFFSET + VM_KERNEL_MEMORY_PADDING);
     pretty_logf(Verbose, "HigherHalf Initial entries: pml4: %d, pdpr: %d, pd: %d", PML4_ENTRY((uint64_t) higherHalfDirectMapBase), PDPR_ENTRY((uint64_t) higherHalfDirectMapBase), PD_ENTRY((uint64_t) higherHalfDirectMapBase));
+    pretty_logf(Verbose, "Using page size: 0x%x" , PAGE_SIZE_IN_BYTES);
 
     pretty_logf(Verbose, "Kernel End: 0x%x - Physical: 0x%x", (unsigned long)&_kernel_end, (unsigned long)&_kernel_physical_end);
     _init_basic_system(addr);
@@ -211,12 +218,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
     //_sc_putc('c', 0);
     //asm("int $0x80");
     _mmap_setup();
-    kernel_settings.kernel_uptime = 0;
-    kernel_settings.paging.page_root_address = p4_table;
-    uint64_t p4_table_phys_address = (uint64_t) p4_table - _HIGHER_HALF_KERNEL_MEM_START;
-    kernel_settings.paging.hhdm_page_root_address = (uint64_t*) hhdm_get_variable( (uintptr_t) p4_table_phys_address);
-    //pretty_logf(Verbose, "p4_table[510]: %x - ADDRESS: %x", p4_table[510], kernel_settings.paging.hhdm_page_root_address[510]);
-    vmm_init(VMM_LEVEL_SUPERVISOR, NULL);
+
 
     initialize_kheap();
     kernel_settings.paging.page_generation = 0;
