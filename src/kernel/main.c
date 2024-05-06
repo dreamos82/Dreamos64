@@ -80,18 +80,18 @@ const char *multiboot_names[] = {
     "Framebuffer Info",
     "EFI amd64 entry address tag of Multiboot2 header",
     "APM Table",
-    " ",
-    " ",
-    " ",
+    "EFI 32-bit system table pointer",
+    "EFI 64-bit system table pointer",
+    "SMBIOS tables",
     "ACPI Old RSDP",
     "ACPI New RSDP",
-    " ",
-    " ",
-    " ",
-    " ",
-    " ",
+    "Networking information",
+    "EFI memory map",
+    "EFI boot services not terminated",
+    "EFI 32-bit image handle pointer",
+    "EFI 64-bit image handle pointer",
     "Image load base physical address",
-    " "
+    "Image load base physical address"
 };
 
 void _init_basic_system(unsigned long addr){
