@@ -20,9 +20,14 @@ typedef enum {
 
 int main() {
     test_is_address_higher_half();
+    test_ensure_address_in_higher_half();
     test_vm_parse_flags();
 }
-    
+
+void test_ensure_address_in_higher_half() {
+
+}
+
 
 void test_is_address_higher_half() {
     printf("Testing is address higher_half\n");

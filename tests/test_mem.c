@@ -1,5 +1,8 @@
 #include <bitmap.h>
+#include <kernel.h>
 #include <mmap.h>
+#include <test_mem.h>
+#include <test_common.h>
 #include <pmm.h>
 #include <multiboot.h>
 #include <stdlib.h>
@@ -8,15 +11,7 @@
 #include <stdbool.h>
 #include <video.h>
 #include <inttypes.h>
-#include <test_mem.h>
-#include <test_common.h>
 #include <main.h>
-
-struct multiboot_tag_basic_meminfo *tagmem;
-struct multiboot_tag_mmap *mmap_root;
-//unsigned long _kernel_physical_end __attribute__((section(".mySection"))) = 0x9ABCDEF0;
-unsigned long _kernel_physical_end = 0x1190AC;
-uint64_t _kernel_end = 0x1190AC;
 
 extern uint64_t *memory_map;
 extern uint32_t number_of_entries;
@@ -24,6 +19,12 @@ extern uint32_t bitmap_size;
 extern uint32_t used_frames;
 extern uint32_t mmap_number_of_entries;
 extern multiboot_memory_map_t *mmap_entries;
+
+struct multiboot_tag_basic_meminfo *tagmem;
+struct multiboot_tag_mmap *mmap_root;
+//unsigned long _kernel_physical_end __attribute__((section(".mySection"))) = 0x9ABCDEF0;
+uint64_t _kernel_end = 0x1190AC;
+uint64_t _kernel_physical_end = 0x1190AC;
 
 int main() {
     test_pmm_initialize();
