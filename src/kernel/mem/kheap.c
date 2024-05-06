@@ -94,6 +94,7 @@ void *kmalloc(size_t size) {
 }
 
 void expand_heap(size_t required_size) {
+#ifndef _TEST_
     // The first thing to do is compute how many page we need for this expansion
     size_t number_of_pages = get_number_of_pages_from_size(required_size);
     //  This function expand the heap in case more space is needed.
@@ -115,6 +116,7 @@ void expand_heap(size_t required_size) {
     if ( available_merges & MERGE_LEFT) {
         merge_memory_nodes(new_tail->prev, new_tail);
     }
+#endif
 }
 
 uint64_t compute_kheap_end() {
