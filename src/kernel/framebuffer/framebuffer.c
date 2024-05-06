@@ -36,7 +36,6 @@ uint32_t number_of_lines;
 
 void map_framebuffer(struct framebuffer_info fbdata) {
     uint32_t fb_entries = fbdata.memory_size / PAGE_SIZE_IN_BYTES;
-    uint32_t fb_entries_mod =  fbdata.memory_size % PAGE_SIZE_IN_BYTES;
 
     uint64_t phys_address = (uint64_t) fbdata.phys_address;
 
@@ -45,7 +44,7 @@ void map_framebuffer(struct framebuffer_info fbdata) {
     uint32_t pml4 = PML4_ENTRY(_FRAMEBUFFER_MEM_START);
 #if SMALL_PAGES == 1
     uint32_t fb_pd_entries = fb_entries / VM_PAGES_PER_TABLE;
-    uint32_t pt = PT_ENTRY(_FRAMEBUFFER_MEM_START);
+    //uint32_t pt = PT_ENTRY(_FRAMEBUFFER_MEM_START);
 #endif
 
     if(p4_table[pml4] == 0x00l || p3_table_hh[pdpr] == 0x00l){
@@ -78,14 +77,15 @@ void map_framebuffer(struct framebuffer_info fbdata) {
 
     }
 #elif SMALL_PAGES == 0
+    uint32_t fb_entries_mod =  fbdata.memory_size % PAGE_SIZE_IN_BYTES;
     if(fb_entries_mod != 0){
         fb_entries++;
     }
     for(int j=0; fb_entries > 0; j++){
         fb_entries--;
-        if((p2_table[pd+j] < phys_address
-                || p2_table[pd+j] > (phys_address + fbdata.memory_size))
-                || p2_table[pd+j] == 0x00l){
+        if( (p2_table[pd+j] < phys_address
+                || p2_table[pd+j] > (phys_address + fbdata.memory_size) )
+                || p2_table[pd+j] == 0x00l ) {
                 p2_table[pd+j] = (phys_address + (j * PAGE_SIZE_IN_BYTES)) | PAGE_ENTRY_FLAGS;
         }
     }

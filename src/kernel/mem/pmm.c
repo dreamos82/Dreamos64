@@ -30,8 +30,8 @@ void pmm_setup(uint64_t addr, uint32_t size){
     // addr = address of multiboot structre
     // size = size of the structure
     pretty_logf(Verbose, "addr: 0x%x, size: 0x%x", addr,size);
-    anon_memory_loc = (uint64_t) (&_kernel_end + PAGE_SIZE_IN_BYTES);
-    anon_physical_memory_loc = (uint64_t) (&_kernel_physical_end + PAGE_SIZE_IN_BYTES)  ;
+    anon_memory_loc = (uint64_t) align_up( (size_t) (&_kernel_end + PAGE_SIZE_IN_BYTES), PAGE_SIZE_IN_BYTES);
+    anon_physical_memory_loc = (uint64_t) align_up( (size_t) (&_kernel_physical_end + PAGE_SIZE_IN_BYTES), PAGE_SIZE_IN_BYTES );
 
     pretty_logf(Verbose, "anon_memory_loc: 0x%x, anon_physical_memory_loc: 0x%x", anon_memory_loc, anon_physical_memory_loc);
 
