@@ -21,9 +21,9 @@ uint32_t _compute_kernel_entries(uint64_t end_of_kernel_area){
     printf("kernel_mod_entries: 0x%X\n", kernel_mod_entries);
     if (  kernel_mod_entries != 0){
         return kernel_entries + 2;
-    } 
+    }
     return kernel_entries + 1;
-   
+
 }
 
 void *map_vaddress(void *address, unsigned int flags){
@@ -58,6 +58,13 @@ void spinlock_acquire(spinlock_t *lock) {
 
 void spinlock_release(spinlock_t *lock) {
     return;
+}
+
+void hhdm_map_physical_memory() {
+}
+
+bool _is_address_in_multiboot(uint64_t address) {
+    return false;
 }
 
 void spinlock_free(spinlock_t* spinlock) {

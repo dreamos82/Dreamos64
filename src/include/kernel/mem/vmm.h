@@ -9,6 +9,8 @@
 //#define WRITE_ENABLE 2
 //#define USER_LEVEL 4
 
+#define PAGE_DIR_SIZE   0x1000
+
 #define PHYS_ADDRESS_NOT_MAPPED  0 // Address is not mapped
 #define PHYS_ADDRESS_MAPPED 0b1
 #define PHYS_ADDRESS_MISMATCH 0b10 // This is returned when given a phys and virt address, the virt address does not contain the phys one
@@ -18,7 +20,8 @@
 
 #define VM_KERNEL_MEMORY_PADDING PAGE_SIZE_IN_BYTES
 
-#define VMM_RESERVED_SPACE_SIZE 0x14480000000
+#define VMM_RESERVED_SPACE_SIZE 0x14200000000
+// #define VMM_RESERVED_SPACE_SIZE 0x14480000000
 
 #define VPTR(x) (void*)((uint64_t)(x))
 
@@ -28,7 +31,7 @@ typedef enum {
     VMM_FLAGS_WRITE_ENABLE = (1 << 1),
     VMM_FLAGS_USER_LEVEL = (1 << 2),
     VMM_FLAGS_ADDRESS_ONLY = (1 << 7),
-    VMM_FLAGS_STACK = (1 << 8)
+    VMM_FLAGS_STACK = (1 << 8),
 } paging_flags_t;
 
 typedef enum {
@@ -56,7 +59,7 @@ typedef struct VmmInfo {
 
     size_t start_of_vmm_space; /**< The starting addres ofthe vmm space */
 
-    uintptr_t root_table_hhdm; /** the root page table loaded from the direct map */
+    uintptr_t root_table_hhdm; /**< the root page table loaded from the direct map */
 
     struct VmmStatus {
         size_t vmm_items_per_page; /**< Number of page items contained in one page */

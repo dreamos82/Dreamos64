@@ -62,26 +62,62 @@ struct multiboot_tag_new_acpi *tagnew_acpi = NULL;
 struct multiboot_tag_mmap *tagmmap = NULL;
 struct multiboot_tag *tagacpi = NULL;
 struct multiboot_tag_module *loaded_module = NULL;
+struct multiboot_tag *tag_start = NULL;
 
 uint64_t elf_module_start_hh = 0;
 
 uintptr_t higherHalfDirectMapBase;
 
+const char *multiboot_names[] = {
+    "Multiboot End",
+    "Boot command line",
+    "Boot loader name",
+    "Modules",
+    "Basic Memory Information",
+    "Bios Boot Device",
+    "Memory Map",
+    "VBE Info",
+    "Framebuffer Info",
+    "EFI amd64 entry address tag of Multiboot2 header",
+    "APM Table",
+    "EFI 32-bit system table pointer",
+    "EFI 64-bit system table pointer",
+    "SMBIOS tables",
+    "ACPI Old RSDP",
+    "ACPI New RSDP",
+    "Networking information",
+    "EFI memory map",
+    "EFI boot services not terminated",
+    "EFI 32-bit image handle pointer",
+    "EFI 64-bit image handle pointer",
+    "Image load base physical address",
+    "Image load base physical address"
+};
+
 void _init_basic_system(unsigned long addr){
     struct multiboot_tag* tag;
     uint32_t mbi_size = *(uint32_t *) (addr + _HIGHER_HALF_KERNEL_MEM_START);
+    uint64_t end_of_mapped_physical_memory = end_of_mapped_memory - _HIGHER_HALF_KERNEL_MEM_START;
+    pretty_logf(Verbose, " Addr: 0x%x - Size: 0x%x end_of_mapped_memory: 0x%x - physical: 0x%x", addr, mbi_size, end_of_mapped_memory, end_of_mapped_physical_memory);
     pretty_log(Info, "Initialize base system");
     //These data structure are initialized during the boot process.
     tagmem  = (struct multiboot_tag_basic_meminfo *)(multiboot_basic_meminfo + _HIGHER_HALF_KERNEL_MEM_START);
     tagmmap = (struct multiboot_tag_mmap *) (multiboot_mmap_data + _HIGHER_HALF_KERNEL_MEM_START);
     tagfb   = (struct multiboot_tag_framebuffer *) (multiboot_framebuffer_data + _HIGHER_HALF_KERNEL_MEM_START);
     //Print basic mem Info data
-    pretty_logf(Info, "Available memory: lower (in kb): %d - upper (in kb): %d", tagmem->mem_lower, tagmem->mem_upper);
+    pretty_logf(Info, "Available memory: lower (in kb): %d - upper (in kb): %d - mbi_size: 0x%x", tagmem->mem_lower, tagmem->mem_upper, mbi_size);
     memory_size_in_bytes = (tagmem->mem_upper + 1024) * 1024;
     //Print mmap_info
     pretty_logf(Verbose, "Memory map Size: 0x%x, Entry size: 0x%x, EntryVersion: 0x%x", tagmmap->size, tagmmap->entry_size, tagmmap->entry_version);
+    tag_start = (struct multiboot_tag *) (addr + _HIGHER_HALF_KERNEL_MEM_START + 8);
     _mmap_parse(tagmmap);
     pmm_setup(addr, mbi_size);
+     kernel_settings.kernel_uptime = 0;
+    kernel_settings.paging.page_root_address = p4_table;
+    uint64_t p4_table_phys_address = (uint64_t) p4_table - _HIGHER_HALF_KERNEL_MEM_START;
+    kernel_settings.paging.hhdm_page_root_address = (uint64_t*) hhdm_get_variable( (uintptr_t) p4_table_phys_address);
+    //pretty_logf(Verbose, "p4_table[510]: %x - ADDRESS: %x", p4_table[510], kernel_settings.paging.hhdm_page_root_address[510]);
+    vmm_init(VMM_LEVEL_SUPERVISOR, NULL);
 
     //Print framebuffer info
     pretty_logf(Verbose, "Framebuffer info: (type: 0x%x) Address: 0x%x", tagfb->common.framebuffer_type, tagfb->common.framebuffer_addr);
@@ -111,17 +147,18 @@ void _init_basic_system(unsigned long addr){
         parse_SDT((uint64_t) descriptor, MULTIBOOT_TAG_TYPE_ACPI_NEW);
         validate_SDT((char *) descriptor, sizeof(RSDPDescriptor20));
     }
-
+    tag_start = (struct multiboot_tag *) (addr + _HIGHER_HALF_KERNEL_MEM_START + 8);
+    pretty_logf(Verbose, " Tag start: 0x%x", tag_start);
     for (tag=(struct multiboot_tag *) (addr + _HIGHER_HALF_KERNEL_MEM_START + 8);
         tag->type != MULTIBOOT_TAG_TYPE_END;
         tag = (struct multiboot_tag *) ((multiboot_uint8_t *) tag + ((tag->size + 7) & ~7))){
         switch(tag->type){
             case MULTIBOOT_TAG_TYPE_MODULE:
                 loaded_module = (struct multiboot_tag_module *) tag;
-                pretty_logf(Verbose, " \t[Tag 0x%x] Size: 0x%x - mod_start: 0x%x : mod_end: 0x%x" , loaded_module->type, loaded_module->size, loaded_module->mod_start, loaded_module->mod_end);
+                pretty_logf(Verbose, " \t[Tag 0x%x] (%s): Size: 0x%x - mod_start: 0x%x : mod_end: 0x%x" , loaded_module->type, multiboot_names[loaded_module->type], loaded_module->size, loaded_module->mod_start, loaded_module->mod_end);
                 break;
             default:
-                pretty_logf(Verbose, "\t[Tag 0x%x] Size: 0x%x", tag->type, tag->size);
+                pretty_logf(Verbose, "\t[Tag 0x%x] (%s): Size: 0x%x",  tag->type, multiboot_names[tag->type], tag->size);
                 break;
         }
     }
@@ -153,9 +190,12 @@ void kernel_start(unsigned long addr, unsigned long magic){
         pretty_logf(Verbose, "\tNumber of glyphs: [0x%x] - Bytes per glyphs: [0x%x]", font->numglyph, font->bytesperglyph);
         pretty_logf(Verbose, "\tWidth: [0x%x] - Height: [0x%x]", font->width, font->height);
     }
+    higherHalfDirectMapBase = ((uint64_t) HIGHER_HALF_ADDRESS_OFFSET + VM_KERNEL_MEMORY_PADDING);
+    pretty_logf(Verbose, "HigherHalf Initial entries: pml4: %d, pdpr: %d, pd: %d", PML4_ENTRY((uint64_t) higherHalfDirectMapBase), PDPR_ENTRY((uint64_t) higherHalfDirectMapBase), PD_ENTRY((uint64_t) higherHalfDirectMapBase));
+    pretty_logf(Verbose, "Using page size: 0x%x" , PAGE_SIZE_IN_BYTES);
 
+    pretty_logf(Verbose, "Kernel End: 0x%x - Physical: 0x%x", (unsigned long)&_kernel_end, (unsigned long)&_kernel_physical_end);
     _init_basic_system(addr);
-    pretty_logf(Verbose, "Kernel End: 0x%x - Physical: %x", (unsigned long)&_kernel_end, (unsigned long)&_kernel_physical_end);
     // Reminder here: The first 8 bytes have a fixed structure in the multiboot info:
     // They are: 0-4: size of the boot information in bytes
     //           4-8: Reserved (0)
@@ -177,16 +217,8 @@ void kernel_start(unsigned long addr, unsigned long magic){
     _syscalls_init();
     //_sc_putc('c', 0);
     //asm("int $0x80");
-    //higherHalfDirectMapBase is where we will the Direct Mapping of physical memory will start.
-    higherHalfDirectMapBase = ((uint64_t) HIGHER_HALF_ADDRESS_OFFSET + VM_KERNEL_MEMORY_PADDING);
     _mmap_setup();
-    hhdm_map_physical_memory();
-    kernel_settings.kernel_uptime = 0;
-    kernel_settings.paging.page_root_address = p4_table;
-    uint64_t p4_table_phys_address = (uint64_t) p4_table - _HIGHER_HALF_KERNEL_MEM_START;
-    kernel_settings.paging.hhdm_page_root_address = (uint64_t*) hhdm_get_variable( (uintptr_t) p4_table_phys_address);
-    //pretty_logf(Verbose, "p4_table[510]: %x - ADDRESS: %x", p4_table[510], kernel_settings.paging.hhdm_page_root_address[510]);
-    vmm_init(VMM_LEVEL_SUPERVISOR, NULL);
+
 
     initialize_kheap();
     kernel_settings.paging.page_generation = 0;

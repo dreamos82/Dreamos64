@@ -37,12 +37,11 @@ The sequence of component that are intialized (refer to `src/main.c`):
 * Load the PSF font from memory
 * Basic System Initialization:
     - Parse the multiboot information received from the bootloader.
-    - Parse the mmap and initialize the physical memory manager, marking the pmm areas as busy.
+    - Parse the mmap and initialize
+    - Initia physical memory manager, marking the pmm areas as busy and setup the hhdm.
     - Initialize the physical memory manager, marking the area in the mmap as already taken.
     - Validate and parse the SDT tables
-    - This section needs to be reviewed and check if all the steps are required
 * Finish mapping the Framebuffer (there is a potential bug here, need to chek what i do while mapping it)
-* Set the Higher Half direct map
 * Initialize the kernel VMM
 * Initialize the kernel heap
 * Initialize the apic

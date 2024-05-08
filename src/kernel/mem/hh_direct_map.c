@@ -41,16 +41,17 @@ void hhdm_map_physical_memory() {
     uint64_t address_to_map = 0;
     uint64_t virtual_address = higherHalfDirectMapBase;
 
-    pretty_logf(Verbose, "HigherHalf Initial entries: pml4: %d, pdpr: %d, pd: %d", PML4_ENTRY((uint64_t) higherHalfDirectMapBase), PDPR_ENTRY((uint64_t) higherHalfDirectMapBase), PD_ENTRY((uint64_t) higherHalfDirectMapBase));
+    pretty_logf(Verbose, "Virtual address: 0x%x", virtual_address);
+    pretty_logf(Verbose, "Vaddress: 0x%x - HigherHalf Initial entries: pml4: %d, pdpr: %d, pd: %d", virtual_address, PML4_ENTRY((uint64_t) higherHalfDirectMapBase), PDPR_ENTRY((uint64_t) higherHalfDirectMapBase), PD_ENTRY((uint64_t) higherHalfDirectMapBase));
 
     size_t current_pml4_entry = PML4_ENTRY((uint64_t) higherHalfDirectMapBase);
 
-    if (!(p4_table[current_pml4_entry] & 0b1) ) {
+/*    if (!(p4_table[current_pml4_entry] & 0b1) ) {
         pretty_log(Fatal, "This shouldn't happen");
-    }
+    }*/
+
 
     while ( address_to_map < memory_size_in_bytes) {
-        //loglinef(Verbose, "(%s) Mapping physical address: 0x%x - virtual address: 0x%x", __FUNCTION__ ,address_to_map, virtual_address);
         //p4_table[current_entry] = address_to_map | HUGEPAGE_BIT| WRITE_BIT | PRESENT_BIT;
         map_phys_to_virt_addr((void*)address_to_map, (void*)virtual_address, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE);
         address_to_map += PAGE_SIZE_IN_BYTES;

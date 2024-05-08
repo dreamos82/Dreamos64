@@ -128,6 +128,9 @@ void *vmm_alloc_at(uint64_t base_address, size_t size, size_t flags, VmmInfo *vm
 
     uintptr_t address_to_return = vmm_info->status.next_available_address;
     if (base_address != 0 && base_address > address_to_return) {
+        // I have specified a base_address, so i want an allocationat that given address
+        // This design is problematic, it will be reimplemented in the future
+        // For now i rely in the fact that the address pace on a 64bit architecture is very big. And i don't  worry about holes, or overlapping.
         if ( !is_address_aligned(base_address, PAGE_SIZE_IN_BYTES) ) {
             pretty_logf(Fatal, " Error: base_address 0x%x is not aligned with: 0x%x", base_address, PAGE_SIZE_IN_BYTES);
         }
@@ -147,7 +150,7 @@ void *vmm_alloc_at(uint64_t base_address, size_t size, size_t flags, VmmInfo *vm
 
     pretty_logf(Verbose, "Flags PRESENT(%d) - WRITE(%d) - USER(%d)", flags & VMM_FLAGS_PRESENT, flags & VMM_FLAGS_WRITE_ENABLE, flags & VMM_FLAGS_USER_LEVEL);
 
-    if  (!is_address_only(flags) ) {
+    if  ( !is_address_only(flags) ) {
 
         size_t required_pages = get_number_of_pages_from_size(size);
         size_t arch_flags = vm_parse_flags(flags);
@@ -196,6 +199,7 @@ bool is_address_stack(size_t flags) {
 }
 
 void vmm_free(void *address) {
+    //TODO: not finished yet
     pretty_logf(Verbose, "To Be implemented address provided is: 0x%x", address);
     VmmContainer *selected_container = vmm_container_root;
 
@@ -214,52 +218,6 @@ void vmm_free(void *address) {
     // Remove that object
     // Mark the entry as not present at least if it is mapped
     return;
-}
-
-
-// TODO: maybe thsi should be moved in the arch/mapping part and use the hhdm?
-uint8_t is_phyisical_address_mapped(uintptr_t physical_address, uintptr_t virtual_address) {
-    uint16_t pml4_e = PML4_ENTRY((uint64_t) virtual_address);
-    uint64_t *pml4_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l, 510l, 510l, 510l));
-    if (!(pml4_table[pml4_e] & PRESENT_BIT)) {
-        return PHYS_ADDRESS_NOT_MAPPED;
-    }
-
-    uint16_t pdpr_e = PDPR_ENTRY((uint64_t) virtual_address);
-    uint64_t *pdpr_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l, 510l, 510l, (uint64_t)  pml4_e));
-    if (!(pdpr_table[pdpr_e] & PRESENT_BIT)) {
-        return PHYS_ADDRESS_NOT_MAPPED;
-    }
-
-    uint16_t pd_e = PD_ENTRY((uint64_t) virtual_address);
-    uint64_t *pd_table = (uint64_t*) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l, 510l, pml4_e, (uint64_t)  pdpr_e));
-    if (!(pd_table[pd_e] & PRESENT_BIT)) {
-        return PHYS_ADDRESS_NOT_MAPPED;
-    }
-#if SMALL_PAGES == 0
-    else {
-        if (ALIGN_PHYSADDRESS(pd_table[pd_e]) == ALIGN_PHYSADDRESS(physical_address)) {
-            return PHYS_ADDRESS_MAPPED;
-        } else {
-            return PHYS_ADDRESS_MISMATCH;
-        }
-    }
-#endif
-
-#if SMALL_PAGES == 1
-    uint16_t pt_e = PT_ENTRY((uint64_t) virtual_address);
-    uint64_t *pt_table = (uint64_t) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l, (uint64_t)  pml4_e, (uint64_t)  pdpr_e, (uint64_t)  pd_e));
-    if ( !pt_table[pt_e] & PRESENT_BIT ) {
-        return PHYS_ADDRESS_NOT_MAPPED;
-    } else {
-        if (ALIGN_PHYSADDRESS(pt_table[pt_e]) == ALIGN_PHYSADDRESS(physical_address)) {
-            return PHYS_ADDRESS_MAPPED;
-        } else {
-            return PHYS_ADDRESS_MISMATCH;
-        }
-    }
-#endif
-    return 0;
 }
 
 //TODO implement this function or remove it

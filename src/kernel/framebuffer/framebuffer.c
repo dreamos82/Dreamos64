@@ -1,15 +1,16 @@
 #include <multiboot.h>
-#include <kernel/framebuffer.h>
-#include <kernel/video.h>
-#include <kernel/psf.h>
-#include <kernel/mem/bitmap.h>
+#include <framebuffer.h>
+#include <hh_direct_map.h>
+#include <pmm.h>
+#include <psf.h>
+#include <bitmap.h>
 #include <vm.h>
 #include <stdio.h>
 #include <numbers.h>
 //#ifdef DEBUG - This will be uncommented when the framebuffer library will be completed
 #include <qemu.h>
 //#endif
-
+#include <video.h>
 #include <dreamcatcher.h>
 #include <logging.h>
 
@@ -35,7 +36,6 @@ uint32_t number_of_lines;
 
 void map_framebuffer(struct framebuffer_info fbdata) {
     uint32_t fb_entries = fbdata.memory_size / PAGE_SIZE_IN_BYTES;
-    uint32_t fb_entries_mod =  fbdata.memory_size % PAGE_SIZE_IN_BYTES;
 
     uint64_t phys_address = (uint64_t) fbdata.phys_address;
 
@@ -44,9 +44,8 @@ void map_framebuffer(struct framebuffer_info fbdata) {
     uint32_t pml4 = PML4_ENTRY(_FRAMEBUFFER_MEM_START);
 #if SMALL_PAGES == 1
     uint32_t fb_pd_entries = fb_entries / VM_PAGES_PER_TABLE;
-    uint32_t pt = PT_ENTRY(_FRAMEBUFFER_MEM_START);
+    //uint32_t pt = PT_ENTRY(_FRAMEBUFFER_MEM_START);
 #endif
-
 
     if(p4_table[pml4] == 0x00l || p3_table_hh[pdpr] == 0x00l){
         pretty_log(Verbose, "PANIC - PML4 or PDPR Empty - not supported for now\n");
@@ -59,10 +58,11 @@ void map_framebuffer(struct framebuffer_info fbdata) {
         bool newly_allocated = false;
         // Probably should be safer to rely on the direct map if possible?
         if(p2_table[pd] == 0x00){
-            uint64_t *new_table = pmm_alloc_frame();
+            uint64_t *new_table = pmm_prepare_new_pagetable();
             p2_table[pd] = (uint64_t)new_table | (PRESENT_BIT | WRITE_BIT);
-            current_page_table = new_table;
-            clean_new_table((uint64_t *)new_table);
+            uint64_t *new_table_hhdm = hhdm_get_variable((uintptr_t)new_table);
+            current_page_table = new_table_hhdm;
+            clean_new_table((uint64_t *)new_table_hhdm);
             newly_allocated = true;
         }
         for(int j=0; j < VM_PAGES_PER_TABLE && fb_entries > 0; j++){
@@ -77,14 +77,15 @@ void map_framebuffer(struct framebuffer_info fbdata) {
 
     }
 #elif SMALL_PAGES == 0
+    uint32_t fb_entries_mod =  fbdata.memory_size % PAGE_SIZE_IN_BYTES;
     if(fb_entries_mod != 0){
         fb_entries++;
     }
     for(int j=0; fb_entries > 0; j++){
         fb_entries--;
-        if((p2_table[pd+j] < phys_address
-                || p2_table[pd+j] > (phys_address + fbdata.memory_size))
-                || p2_table[pd+j] == 0x00l){
+        if( (p2_table[pd+j] < phys_address
+                || p2_table[pd+j] > (phys_address + fbdata.memory_size) )
+                || p2_table[pd+j] == 0x00l ) {
                 p2_table[pd+j] = (phys_address + (j * PAGE_SIZE_IN_BYTES)) | PAGE_ENTRY_FLAGS;
         }
     }
@@ -98,6 +99,7 @@ void set_fb_data(struct multiboot_tag_framebuffer *fbtag){
     //FRAMEBUFFER_MEM = (void*)(uint64_t)fbtag->common.framebuffer_addr;
 #if USE_FRAMEBUFFER == 1
     framebuffer_data.address = (void*)(uint64_t)_FRAMEBUFFER_MEM_START;
+    //framebuffer_data.address = hhdm_get_variable((uintptr_t) (fbtag->common.framebuffer_addr));
     framebuffer_data.pitch = fbtag->common.framebuffer_pitch;
     framebuffer_data.bpp = fbtag->common.framebuffer_bpp;
     framebuffer_data.memory_size = fbtag->common.framebuffer_pitch * fbtag->common.framebuffer_height;
@@ -229,11 +231,13 @@ void _fb_put_pixel(uint32_t x, uint32_t y, uint32_t color) {
 }
 
 void draw_logo(uint32_t start_x, uint32_t start_y) {
+    pretty_logf(Verbose, "Header_data: 0x%x", header_data);
     char *logo_data = header_data;
     char pixel[4];
     for (uint32_t i = 0; i < height; i++) {
         for(uint32_t j = 0; j < width; j++) {
             HEADER_PIXEL(logo_data, pixel);
+            //pretty_logf(Verbose, "(%d)[%d]: plotting pixel: 0x%x", i, j, pixel);
             pixel[3] = 0;
             uint32_t num = (uint32_t) pixel[0] << 24 |
               (uint32_t)pixel[1] << 16 |

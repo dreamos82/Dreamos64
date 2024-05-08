@@ -28,7 +28,7 @@ void init_apic() {
     pretty_logf(Verbose, "APIC MSR Return value: 0x%X", msr_output);
     pretty_logf(Verbose, "APIC MSR Base Address: 0x%X", (msr_output&APIC_BASE_ADDRESS_MASK));
     apic_base_address = (msr_output&APIC_BASE_ADDRESS_MASK);
-    apic_hh_base_address = ensure_address_in_higher_half(apic_base_address);
+    apic_hh_base_address = ensure_address_in_higher_half(apic_base_address, VM_TYPE_MMIO);
     pretty_logf(Verbose, "(%s): apic_hh_base_address: 0x%x", __FUNCTION__, apic_hh_base_address);
     if(apic_base_address == 0) {
         pretty_log(Error, "ERROR: cannot determine apic base address");

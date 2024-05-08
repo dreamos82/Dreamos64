@@ -2,6 +2,7 @@
 #include <bitmap.h>
 #include <cpu.h>
 #include <framebuffer.h>
+#include <hh_direct_map.h>
 #include <kheap.h>
 #include <logging.h>
 #include <numbers.h>
@@ -30,39 +31,47 @@ void parse_SDT(uint64_t address, uint8_t type) {
 
 void parse_RSDT(RSDPDescriptor *descriptor){
     pretty_logf(Verbose, "- descriptor Address: 0x%x", descriptor->RsdtAddress);
-    map_phys_to_virt_addr((void *) ALIGN_PHYSADDRESS(descriptor->RsdtAddress), (void *) ensure_address_in_higher_half(descriptor->RsdtAddress), VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE);
     _bitmap_set_bit_from_address(ALIGN_PHYSADDRESS(descriptor->RsdtAddress));
-    rsdt_root = (RSDT *) ensure_address_in_higher_half((uint64_t) descriptor->RsdtAddress);
+    rsdt_root = (RSDT *) ensure_address_in_higher_half((uint64_t) descriptor->RsdtAddress, VM_TYPE_MMIO);
+
+    //rsdt_root = (RSDT_*) vmm_alloc(KERNEL_PAGE_SIZE, VMM_FLAGS_MMIO | VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE);
+    //rsdt_root = (RSDT *) vmm_alloc(header.Length, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE | VMM_FLAGS_MMIO, NULL); //ensure_address_in_higher_half((uint64_t) descriptor->RsdtAddress);
+    map_phys_to_virt_addr((void *) ALIGN_PHYSADDRESS(descriptor->RsdtAddress), rsdt_root, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE);
+    //rsdt_root = (RSDT *) hhdm_get_variable((uintptr_t) descriptor->RsdtAddress);
     ACPISDTHeader header = rsdt_root->header;
-    pretty_logf(Verbose, "- RSDT_Signature: %.4s - Length: %d", header.Signature, header.Length);
+    pretty_logf(Verbose, "- RSDT_Signature: %.4s - Length: %d - HH addr: 0x%x", header.Signature, header.Length, rsdt_root);
+    //while(1)
     sdt_version = RSDT_V1;
 
     // Ok here we are,  and we have mapped the "head of rsdt", it will stay most likely in one page, but there is no way
     // to know the length of the whole table before mapping its header. So now we are able to check if we need to map extra pages
     size_t required_extra_pages = (header.Length / KERNEL_PAGE_SIZE) + 1;
     if (required_extra_pages > 1) {
+        //uintptr_t rsdt_extra = (uintptr_t) vmm_alloc(header.Length, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE | VMM_FLAGS_MMIO);
         //pretty_logf(Verbose, "- RSDT_PAGES_NEEDED: %d", required_extra_pages);
         for (size_t j = 1; j < required_extra_pages; j++) {
             uint64_t new_physical_address = descriptor->RsdtAddress + (j * KERNEL_PAGE_SIZE);
-            map_phys_to_virt_addr((void *) ALIGN_PHYSADDRESS(new_physical_address), (void *) ensure_address_in_higher_half(new_physical_address), VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE);
+            map_phys_to_virt_addr((void *) ALIGN_PHYSADDRESS(new_physical_address), (void *) ensure_address_in_higher_half(new_physical_address, VM_TYPE_MMIO), VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE);
+           // map_phys_to_virt_addr((void *) ALIGN_PHYSADDRESS(new_physical_address), (void *) rsdt_extra, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE);
             _bitmap_set_bit_from_address(ALIGN_PHYSADDRESS(new_physical_address));
+            //rsdt_extra += KERNEL_PAGE_SIZE);
         }
     }
     rsdtTablesTotal = (header.Length - sizeof(ACPISDTHeader)) / sizeof(uint32_t);
     pretty_logf(Verbose, "- Total rsdt Tables: %d", rsdtTablesTotal);
 
     for(uint32_t i=0; i < rsdtTablesTotal; i++) {
-        map_phys_to_virt_addr((void *) ALIGN_PHYSADDRESS(rsdt_root->tables[i]), (void *) ensure_address_in_higher_half(rsdt_root->tables[i]), VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE);
-        ACPISDTHeader *tableHeader = (ACPISDTHeader *) ensure_address_in_higher_half(rsdt_root->tables[i]);
-        pretty_logf(Verbose, "\t%d): Signature: %.4s", i, tableHeader->Signature);
+        map_phys_to_virt_addr((void *) ALIGN_PHYSADDRESS(rsdt_root->tables[i]), (void *) ensure_address_in_higher_half(rsdt_root->tables[i], VM_TYPE_MMIO), VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE);
+        ACPISDTHeader *tableHeader = (ACPISDTHeader *) ensure_address_in_higher_half(rsdt_root->tables[i], VM_TYPE_MMIO);
+        pretty_logf(Verbose, "\t%d): Signature: %.4s Length: %d phys_addr: 0x%x", i, tableHeader->Signature, tableHeader->Length, rsdt_root->tables[i]);
     }
 }
 
 void parse_RSDTv2(RSDPDescriptor20 *descriptor){
     pretty_logf(Verbose, "- Descriptor physical address: 0x%x", ALIGN_PHYSADDRESS(descriptor->XsdtAddress));
-    map_phys_to_virt_addr((void *) ALIGN_PHYSADDRESS(descriptor->XsdtAddress), (void *) ensure_address_in_higher_half(descriptor->XsdtAddress), VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE);
+    map_phys_to_virt_addr((void *) ALIGN_PHYSADDRESS(descriptor->XsdtAddress), (void *) ensure_address_in_higher_half(descriptor->XsdtAddress, VM_TYPE_MMIO), VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE);
     _bitmap_set_bit_from_address(ALIGN_PHYSADDRESS(descriptor->XsdtAddress));
-    xsdt_root = (XSDT *) ensure_address_in_higher_half((uint64_t) descriptor->XsdtAddress);
+    xsdt_root = (XSDT *) ensure_address_in_higher_half((uint64_t) descriptor->XsdtAddress, VM_TYPE_MMIO);
     pretty_logf(Verbose, "- XSDT_Length: 0x%x", descriptor->Length);
     ACPISDTHeader header = xsdt_root->header;
     pretty_logf(Verbose, "- XSDT_Signature: %.4s", header.Signature);
@@ -73,7 +82,7 @@ void parse_RSDTv2(RSDPDescriptor20 *descriptor){
     if (required_extra_pages > 1) {
         for (size_t j = 1; j < required_extra_pages; j++) {
             uint64_t new_physical_address = descriptor->XsdtAddress + (j * KERNEL_PAGE_SIZE);
-            map_phys_to_virt_addr((uint64_t *) new_physical_address, (uint64_t *) ensure_address_in_higher_half(new_physical_address), VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE);
+            map_phys_to_virt_addr((uint64_t *) new_physical_address, (uint64_t *) ensure_address_in_higher_half(new_physical_address, VM_TYPE_MMIO), VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE);
             _bitmap_set_bit_from_address(ALIGN_PHYSADDRESS(new_physical_address));
         }
     }
@@ -82,9 +91,9 @@ void parse_RSDTv2(RSDPDescriptor20 *descriptor){
     pretty_logf(Verbose, "- Total xsdt Tables: %d", rsdtTablesTotal);
 
     for(uint32_t i=0; i < rsdtTablesTotal; i++) {
-        map_phys_to_virt_addr((uint64_t *) ALIGN_PHYSADDRESS(xsdt_root->tables[i]), (uint64_t *) ensure_address_in_higher_half(xsdt_root->tables[i]), VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE);
+        map_phys_to_virt_addr((uint64_t *) ALIGN_PHYSADDRESS(xsdt_root->tables[i]), (uint64_t *) ensure_address_in_higher_half(xsdt_root->tables[i], VM_TYPE_MMIO), VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE);
         _bitmap_set_bit_from_address(ALIGN_PHYSADDRESS(xsdt_root->tables[i]));
-        ACPISDTHeader *tableHeader = (ACPISDTHeader *) ensure_address_in_higher_half(xsdt_root->tables[i]);
+        ACPISDTHeader *tableHeader = (ACPISDTHeader *) ensure_address_in_higher_half(xsdt_root->tables[i], VM_TYPE_MMIO);
         pretty_logf(Verbose, "\t%d): Signature: %.4s", i, tableHeader->Signature);
     }
 
@@ -99,10 +108,10 @@ ACPISDTHeader* get_SDT_item(char* table_name) {
         ACPISDTHeader *tableItem;
         switch(sdt_version) {
             case RSDT_V1:
-                tableItem = (ACPISDTHeader *) ensure_address_in_higher_half(rsdt_root->tables[i]);
+                tableItem = (ACPISDTHeader *) ensure_address_in_higher_half(rsdt_root->tables[i], VM_TYPE_MMIO);
                 break;
             case RSDT_V2:
-                tableItem = (ACPISDTHeader *) ensure_address_in_higher_half(xsdt_root->tables[i]);
+                tableItem = (ACPISDTHeader *) ensure_address_in_higher_half(xsdt_root->tables[i], VM_TYPE_MMIO);
                 break;
             default:
                 pretty_log(Fatal, "That should not happen, PANIC");

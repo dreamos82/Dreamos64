@@ -13,4 +13,6 @@ void *map_vaddress(void *address, size_t flags, uint64_t *pml4_root);
 int unmap_vaddress(void *address);
 int unmap_vaddress_hh(void *address, uint64_t *pml4_root);
 
+uint8_t is_phyisical_address_mapped(uintptr_t physical_address, uintptr_t virtual_address);
+
 #endif

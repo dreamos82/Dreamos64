@@ -14,6 +14,7 @@ struct multiboot_tag_basic_meminfo *tagmem;
 struct multiboot_tag_mmap *mmap_root;
 
 uint64_t _kernel_end = 0x1190AC;
+uint64_t _kernel_physical_end = 0x1190AC;
 uint64_t kheap_size = 8 * PAGE_SIZE;
 
 int main(){

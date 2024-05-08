@@ -40,6 +40,7 @@ TESTFLAGS := -std=gnu99 \
         -I src/include/kernel/arch/x86_64 \
         -I src/include/kernel/arch/common/mem \
         -I src/include/sys \
+        -I src/include/utils \
         -DSMALL_PAGES=$(SMALL_PAGES) \
         -D_TEST_=1
 
