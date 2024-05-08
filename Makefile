@@ -98,12 +98,12 @@ gdb: $(BUILD_FOLDER)/$(ISO_IMAGE_FILENAME)
 
 tests:
 	#rm -f tests/*.o
-	gcc ${TESTFLAGS} tests/test_mem.c tests/test_common.c src/kernel/mem/bitmap.c src/kernel/mem/vmm_util.c src/kernel/mem/pmm.c src/kernel/mem/mmap.c -o tests/test_mem.o
-	gcc ${TESTFLAGS} tests/test_number_conversion.c tests/test_common.c src/base/numbers.c -o tests/test_number_conversion.o
-	gcc ${TESTFLAGS} tests/test_kheap.c tests/test_common.c src/kernel/mem/kheap.c src/kernel/mem/bitmap.c src/kernel/mem/pmm.c src/kernel/mem/mmap.c src/kernel/mem/vmm_util.c -o tests/test_kheap.o
-	gcc ${TESTFLAGS} tests/test_vm.c tests/test_common.c src/kernel/arch/x86_64/system/vm.c src/kernel/mem/vmm_util.c  -o tests/test_vm.o
-	gcc ${TESTFLAGS} tests/test_vfs.c tests/test_common.c src/fs/vfs.c src/drivers/fs/ustar.c -o tests/test_vfs.o
-	gcc ${TESTFLAGS} tests/test_utils.c src/kernel/mem/vmm_util.c -o tests/test_utils.o
+	${TOOLCHAIN} ${TESTFLAGS} tests/test_mem.c tests/test_common.c src/kernel/mem/bitmap.c src/kernel/mem/vmm_util.c src/kernel/mem/pmm.c src/kernel/mem/mmap.c -o tests/test_mem.o
+	${TOOLCHAIN} ${TESTFLAGS} tests/test_number_conversion.c tests/test_common.c src/base/numbers.c -o tests/test_number_conversion.o
+	${TOOLCHAIN} ${TESTFLAGS} tests/test_kheap.c tests/test_common.c src/kernel/mem/kheap.c src/kernel/mem/bitmap.c src/kernel/mem/pmm.c src/kernel/mem/mmap.c src/kernel/mem/vmm_util.c -o tests/test_kheap.o
+	${TOOLCHAIN} ${TESTFLAGS} tests/test_vm.c tests/test_common.c src/kernel/arch/x86_64/system/vm.c src/kernel/mem/vmm_util.c  -o tests/test_vm.o
+	${TOOLCHAIN} ${TESTFLAGS} tests/test_vfs.c tests/test_common.c src/fs/vfs.c src/drivers/fs/ustar.c -o tests/test_vfs.o
+	${TOOLCHAIN} ${TESTFLAGS} tests/test_utils.c src/kernel/mem/vmm_util.c -o tests/test_utils.o
 	./tests/test_mem.o && ./tests/test_kheap.o && ./tests/test_number_conversion.o && ./tests/test_vm.o && ./tests/test_vfs.o && ./tests/test_utils.o
 
 todolist:
