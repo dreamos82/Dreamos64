@@ -13,5 +13,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: make tests
-      run: make tests
+    - name: Run tests with gcc
+      run: make tests TOOLCHAIN=gcc
+    - name: Run tests with clang
+      run: make tests TOOLCHAIN=clang
