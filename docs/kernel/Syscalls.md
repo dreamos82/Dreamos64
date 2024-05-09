@@ -2,7 +2,7 @@
 
 The syscalls are called using the interrupt vector `0x80`. Arguments depend on the syscalls being called. Below the list of available syscalls
 
-# Sycalls List
+# Syscalls List
 
 ## 0x01 TEST
 
