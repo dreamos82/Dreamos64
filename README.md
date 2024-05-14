@@ -136,5 +136,5 @@ This means that the fonts folder is missing (you need either a psf v2 or v1 font
 Well so far a big thank you goes to [DeanoBurrito](https://github.com/DeanoBurrito) that implemented several stuff for Dreamos64 (x2apic, fixed some bugs, logging, and more to come...) not to mention his precious help explaining things and reviewing my crappy code :)
 And his operating system is worth a mention too: [NorthPort](https://github.com/DeanoBurrito/northport)
 
-Finally if you are interested in how to develop a kernel from scratch, you can head to [https://github.com/dreamportdev/Osdev-Notes/](https://github.com/dreamportdev/Osdev-Notes/) a project mantainde by me, and [DeanoBurrito](https://github.com/DeanoBurrito) on how to write a kernel from scratch.
+Finally if you are interested in how to develop your own kernel, you can head to [https://github.com/dreamportdev/Osdev-Notes/](https://github.com/dreamportdev/Osdev-Notes/) a project  mantained by me, and [DeanoBurrito](https://github.com/DeanoBurrito) on how to write a kernel from scratch.
 
