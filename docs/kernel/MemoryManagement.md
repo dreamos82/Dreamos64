@@ -55,7 +55,7 @@ We are then in the scenario that to initalize the PMM we can risk of needing the
 A potential solution is to use the HHDM (a map of the whole phsical memory in the higher half that start at a specific offset), so in this way if we want to access any phyiscal address it is going to be very easy:
 
 ```c
-char *pointer_to_varyable = (char *) hhdm_get_variable(physical_address);
+char *pointer_to_variable = (char *) hhdm_get_variable(physical_address);
 ```
 
 And we will get access to the content of the `physical_address` variable using it's *higher half representative*
@@ -73,11 +73,27 @@ Once the _hhdm_  is initialized, we proceed with the PMM Initialization, but now
 
 ### pmm_setup()
 
-TBD
+The first thing that the `pmm_setup()` function is setting the start address of the `anon memory`  used for allocations of the page tables until the pmm is fully initialized and functional.
+
+These addresses are tracked in `anon_memory_loc` (for the virtual address to be returned) and `anon_physical_memory_loc` (for the physical counterpart).
+
+Then it calls the `hhdm_map_physical_memory()` function, thata prepare the mememory map inthe higher half. After this point we are able to access the whole physical memory using it's `hhdm` represenation. To clarify, a phyiscal address hhdm representation is given by a simple formula:
+
+```c
+hhdm_var_addres = var_address_phys + HHDM_OFFSET
+```
+
+Where `HHDM_OFFSET` is the starting addresss of the map.
+
+At this point is possible to initalize in the following order:
+
+* the physical memory bitmap: that keeps track of the physical memory that is allocated and free
+* then mark as reserved in the bitmap the memory used for the bitmap itself
+
 
 ### Physical Memory Management
 
-The physical memory level, is manged using a simple bitmap algorithm. The memory allocated is returned in chunks of PAGE_SIZE.
+The physical memory level, is manged using a simple bitmap algorithm. The memory allocated is returned in chunks of `PAGE_SIZE`.
 
 There are two levels on the physical memory manager:
 
