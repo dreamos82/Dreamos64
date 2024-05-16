@@ -71,7 +71,7 @@ And here is the solution, until the memory maanger is not initialized, we will k
 
 Once the _hhdm_  is initialized, we proceed with the PMM Initialization, but now reassured that we will not encounter any unexpected memory mapping, because we will use the memory map just initialized.
 
-### pmm_setup()
+#### pmm_setup()
 
 The first thing that the `pmm_setup()` function is setting the start address of the `anon memory`  used for allocations of the page tables until the pmm is fully initialized and functional.
 
@@ -89,6 +89,8 @@ At this point is possible to initalize in the following order:
 
 * the physical memory bitmap: that keeps track of the physical memory that is allocated and free
 * then mark as reserved in the bitmap the memory used for the bitmap itself
+
+Before returning this function set the status of the `pmm_initialized` variable as `true`, meaning that from now on, any page table allocation request from now on will pass through the pmm, instead of using the `anonymous allocation`.
 
 
 ### Physical Memory Management
