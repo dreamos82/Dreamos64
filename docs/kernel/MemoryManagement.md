@@ -92,6 +92,7 @@ At this point is possible to initalize in the following order:
 
 Before returning this function set the status of the `pmm_initialized` variable as `true`, meaning that from now on, any page table allocation request from now on will pass through the pmm, instead of using the `anonymous allocation`.
 
+This is also the end of the physical memory initialization.
 
 ### Physical Memory Management
 
