@@ -12,6 +12,7 @@ extern struct multiboot_tag_basic_meminfo *tagmem;
 uint32_t mmap_number_of_entries;
 multiboot_memory_map_t *mmap_entries;
 uint8_t count_physical_reserved;
+uint32_t _mmap_last_available_item;
 
 const char *mmap_types[] = {
     "Invalid",
@@ -25,28 +26,44 @@ const char *mmap_types[] = {
 // This function is apparently only printing the list of mmap items and their value.
 void _mmap_parse(struct multiboot_tag_mmap *mmap_root){
     int total_entries = 0;
+    size_t phys_memory_avail= 0;
+    size_t total_phys_memory = 0;
+    pretty_logf(Verbose, "size: 0x%x", sizeof(struct multiboot_tag_mmap));
     mmap_number_of_entries = (mmap_root->size - sizeof(*mmap_root))/mmap_root->entry_size;
+    size_t mmap_number_of_entries_2 = (mmap_root->size - sizeof(struct multiboot_tag_mmap))/mmap_root->entry_size;
+    //TODO i'm assuming that the mmap is sorted and sanitized, although this is not guaranted from the spec, grub is actually doing it, so for now i rely on it, in the future
+    // i will implement at least a sorting algorithm for the mmap
     mmap_entries = (multiboot_memory_map_t *)mmap_root->entries;
+    _mmap_last_available_item= 0;
     uint32_t i=0;
 
 #ifndef _TEST_
     while(i<mmap_number_of_entries){
         pretty_logf(Verbose, "\t[%d] Address: 0x%x - Len: 0x%x Type: (%d) %s", i, mmap_entries[i].addr, mmap_entries[i].len, mmap_entries[i].type, (char *) mmap_types[mmap_entries[i].type]);
+
+        if ( mmap_entries[i].type == 1 ) {
+            phys_memory_avail += mmap_entries[i].len;
+            _mmap_last_available_item = i;
+        }
+
+        total_phys_memory += mmap_entries[i].len;
+
         total_entries++;
         i++;
     }
-    pretty_logf(Verbose, "Total entries: %d", total_entries);
+    pretty_logf(Verbose, "Total entries: %d - Total phys_mem: 0x%u - Phys mem_avail: 0x%u", total_entries, total_phys_memory, phys_memory_avail );
 #endif
 }
 
 void _mmap_setup(){
     //TODO: see issue: https://github.com/dreamos82/Dreamos64/issues/209
+    bool is_first_hole_passed = false;
     count_physical_reserved=0;
     if(used_frames > 0){
         uint32_t counter = 0;
         uint64_t mem_limit = (tagmem->mem_upper + 1024) * 1024;
         while(counter < mmap_number_of_entries){
-            if(mmap_entries[counter].addr < mem_limit &&
+            if (mmap_entries[counter].addr < mem_limit &&
                     mmap_entries[counter].type > 1){
                 pretty_logf(Verbose, "\tFound unusable entry at addr: %x", mmap_entries[counter].addr);
                 pmm_reserve_area(mmap_entries[counter].addr, mmap_entries[counter].len);

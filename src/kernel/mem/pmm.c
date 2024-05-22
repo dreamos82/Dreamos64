@@ -30,11 +30,15 @@ void pmm_setup(uint64_t addr, uint32_t size){
     // addr = address of multiboot structre
     // size = size of the structure
     pretty_logf(Verbose, "addr: 0x%x, size: 0x%x", addr,size);
+    // anon_memory_loc is the memory just after the kernel end (virtual address)
+    // anon_physical_memory_loc is the physical address
     anon_memory_loc = (uint64_t) align_up( (size_t) (&_kernel_end + PAGE_SIZE_IN_BYTES), PAGE_SIZE_IN_BYTES);
     anon_physical_memory_loc = (uint64_t) align_up( (size_t) (&_kernel_physical_end + PAGE_SIZE_IN_BYTES), PAGE_SIZE_IN_BYTES );
 
     pretty_logf(Verbose, "anon_memory_loc: 0x%x, anon_physical_memory_loc: 0x%x", anon_memory_loc, anon_physical_memory_loc);
-
+    // This is similar to a chicken-egg problem, we need to initialize the physical memory manager, but for doing it we need to map some physical memory into the virtual space,
+    // But the mapping functions relies on the physical memory manager.
+    // The first thing we want to do is initialize the hhdm, since it is needed to for the memory mapping function to work properly
     hhdm_map_physical_memory();
     pretty_log(Verbose, "HHDM setup finished");
 
@@ -49,8 +53,7 @@ void pmm_setup(uint64_t addr, uint32_t size){
     //we could probably get around this hack by asking the host os to map the bitmap as it's expected address via it's vmm.
     pmm_reserve_area(bitmap_start_addr, bitmap_size);
 #endif
-
-    //_map_pmm();
+    _mmap_setup();
     pmm_initialized = true;
 }
 

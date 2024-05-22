@@ -1,6 +1,7 @@
 #include <hh_direct_map.h>
 #include <kernel.h>
 #include <logging.h>
+#include <mmap.h>
 #include <vm.h>
 #include <vmm.h>
 #include <vmm_mapping.h>
@@ -50,14 +51,17 @@ void hhdm_map_physical_memory() {
         pretty_log(Fatal, "This shouldn't happen");
     }*/
 
+    uint64_t upper_address_to_map = (mmap_entries[_mmap_last_available_item].addr + mmap_entries[_mmap_last_available_item].len);
+    pretty_logf(Verbose, "Last available item: %d -  Last address to map: 0x%x", _mmap_last_available_item, upper_address_to_map);
 
-    while ( address_to_map < memory_size_in_bytes) {
+    while ( address_to_map < upper_address_to_map) {
         //p4_table[current_entry] = address_to_map | HUGEPAGE_BIT| WRITE_BIT | PRESENT_BIT;
         map_phys_to_virt_addr((void*)address_to_map, (void*)virtual_address, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE);
         address_to_map += PAGE_SIZE_IN_BYTES;
         virtual_address += PAGE_SIZE_IN_BYTES;
     }
 
+    // This is the kernel mapped in -2G
     pretty_logf(Verbose, "Physical memory mapped end: 0x%x - Virtual memory direct end: 0x%x - counter: %d", end_of_mapped_physical_memory, end_of_mapped_memory, current_pml4_entry);
 
 }

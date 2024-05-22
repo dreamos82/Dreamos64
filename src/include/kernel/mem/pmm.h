@@ -8,7 +8,6 @@
 extern bool pmm_initialized;
 
 void pmm_setup(uint64_t addr, uint32_t size);
-void _map_pmm();
 void *pmm_prepare_new_pagetable();
 void *pmm_alloc_frame();
 void *pmm_alloc_area(size_t size);

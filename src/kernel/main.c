@@ -3,6 +3,7 @@
  * Kernel entry point from bootloader
  * */
 
+#include <dreamcatcher.h>
 #include <elf.h>
 #include <main.h>
 #include <idt.h>
@@ -105,10 +106,11 @@ void _init_basic_system(unsigned long addr){
     tagmmap = (struct multiboot_tag_mmap *) (multiboot_mmap_data + _HIGHER_HALF_KERNEL_MEM_START);
     tagfb   = (struct multiboot_tag_framebuffer *) (multiboot_framebuffer_data + _HIGHER_HALF_KERNEL_MEM_START);
     //Print basic mem Info data
-    pretty_logf(Info, "Available memory: lower (in kb): %d - upper (in kb): %d - mbi_size: 0x%x", tagmem->mem_lower, tagmem->mem_upper, mbi_size);
+    pretty_logf(Info, "Available memory: lower (in kb): %d - upper (in kb): %d (hex): 0x%x - mbi_size: 0x%x", tagmem->mem_lower, tagmem->mem_upper, tagmem->mem_upper, mbi_size);
+    //This size is temporary, it contains the memory avaiable up to the first hole in the memory map.
     memory_size_in_bytes = (tagmem->mem_upper + 1024) * 1024;
     //Print mmap_info
-    pretty_logf(Verbose, "Memory map Size: 0x%x, Entry size: 0x%x, EntryVersion: 0x%x", tagmmap->size, tagmmap->entry_size, tagmmap->entry_version);
+    pretty_logf(Verbose, "Memory map Size: 0x%x, Entry size: 0x%x, EntryVersion: 0x%x - size_of mmap struct: 0x%x", tagmmap->size, tagmmap->entry_size, tagmmap->entry_version, sizeof(*tagmmap));
     tag_start = (struct multiboot_tag *) (addr + _HIGHER_HALF_KERNEL_MEM_START + 8);
     _mmap_parse(tagmmap);
     pmm_setup(addr, mbi_size);
@@ -211,13 +213,12 @@ void kernel_start(unsigned long addr, unsigned long magic){
     _fb_printStr(" -- Bienvenidos --", 0x000000, 0xFF0000);
     _fb_printStr("\tDreamos64",  0xFFFFFF, 0x3333ff);
     _fb_printStr("Thanks\n\tfor\n using it", 0xFFFFFF, 0x3333ff);
-
-    draw_logo(0, 400);
+    //framebuffer_data.width - width
+    draw_logo(framebuffer_data.width - width, 0);
 #endif
     _syscalls_init();
     //_sc_putc('c', 0);
     //asm("int $0x80");
-    _mmap_setup();
 
 
     initialize_kheap();
