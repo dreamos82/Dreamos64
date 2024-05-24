@@ -37,10 +37,8 @@ void _mmap_parse(struct multiboot_tag_mmap *mmap_root){
     _mmap_last_available_item= 0;
     uint32_t i=0;
 
-#ifndef _TEST_
     while(i<mmap_number_of_entries){
         pretty_logf(Verbose, "\t[%d] Address: 0x%x - Len: 0x%x Type: (%d) %s", i, mmap_entries[i].addr, mmap_entries[i].len, mmap_entries[i].type, (char *) mmap_types[mmap_entries[i].type]);
-
         if ( mmap_entries[i].type == 1 ) {
             _mmap_phys_memory_avail += mmap_entries[i].len;
             _mmap_last_available_item = i;
@@ -50,7 +48,6 @@ void _mmap_parse(struct multiboot_tag_mmap *mmap_root){
         i++;
     }
     pretty_logf(Verbose, "Total entries: %d - Phys mem_avail: 0x%u", total_entries, _mmap_phys_memory_avail );
-#endif
 }
 
 void _mmap_setup(){
@@ -63,7 +60,7 @@ void _mmap_setup(){
             uint64_t upper_address_to_map = (mmap_entries[_mmap_last_available_item].addr + mmap_entries[_mmap_last_available_item].len);
             if (mmap_entries[counter].addr < upper_address_to_map &&
                     mmap_entries[counter].type > 1){
-                pretty_logf(Verbose, "\tFound unusable entry at addr: %x", mmap_entries[counter].addr);
+                pretty_logf(Verbose, "\t%d) Found unusable entry at addr: %x", counter, mmap_entries[counter].addr);
                 pmm_reserve_area(mmap_entries[counter].addr, mmap_entries[counter].len);
                 count_physical_reserved++;
             }
