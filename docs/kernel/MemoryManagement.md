@@ -30,14 +30,14 @@ What they do will be detailed in the next sections.
 
 #### mmap_parse()
 
-The first function, is very simple and it' s main purpose is to initialize the global variables that will contain the pointer to the `memory map` and the total number of entries in it.
+The first function, is very simple and it's main purpose is to initialize the global variables that will contain the pointer to the `memory map` and the total number of entries in it.
 
 The memory map is used to understand what parts of the physical memory are reserved and what are available to the kernel.
 
 
 #### Chicken Egg Problem: the HHDM and the PMM
 
-Before explaining what `pmm_setup`, does , let's see first an issue that arised and how we decided to fix it.
+Before explaining what `pmm_setup` does, let's see first an issue that arised and how we decided to fix it.
 
 So one of the problems, especially if we use 4k pages (it was not present using 2M pages) is that we need to map a lot of memory to cater for all the structures needed by the PMM, but also by the VMM, and everything else. When the kernel is loaded we usually have some space already mapped just after it's end, but it is pure coincidence, and if we eventually reach an unmapped part of memory, without considering the potential `#PF`, it requires the kernel to map that new region but that can be a problem on early stages, let' s see why.
 
