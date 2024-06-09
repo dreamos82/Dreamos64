@@ -122,7 +122,7 @@ void _init_basic_system(unsigned long addr){
     vmm_init(VMM_LEVEL_SUPERVISOR, NULL);
 
     //Print framebuffer info
-    pretty_logf(Verbose, "Framebuffer info: (type: 0x%x) Address: 0x%x", tagfb->common.framebuffer_type, tagfb->common.framebuffer_addr);
+    pretty_logf(Verbose, "Framebuffer info: (type: 0x%x) Address: 0x%x bpp: 0x%x", tagfb->common.framebuffer_type, tagfb->common.framebuffer_addr, tagfb->common.framebuffer_bpp);
     pretty_logf(Verbose, "width: 0x%d - height: 0x%d - bpp: 0x%x - pitch: 0x%x", tagfb->common.framebuffer_width, tagfb->common.framebuffer_height, tagfb->common.framebuffer_bpp, tagfb->common.framebuffer_pitch);
     set_fb_data(tagfb);
 

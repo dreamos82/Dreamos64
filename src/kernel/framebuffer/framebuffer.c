@@ -231,18 +231,20 @@ void _fb_put_pixel(uint32_t x, uint32_t y, uint32_t color) {
 }
 
 void draw_logo(uint32_t start_x, uint32_t start_y) {
-    pretty_logf(Verbose, "Header_data: 0x%x", header_data);
+    pretty_logf(Verbose, "Drawing logo at x:%d y: %d", start_x, start_y );
     char *logo_data = header_data;
-    char pixel[4];
+    char *data = header_data;
+    unsigned char pixel[4];
     for (uint32_t i = 0; i < height; i++) {
         for(uint32_t j = 0; j < width; j++) {
             HEADER_PIXEL(logo_data, pixel);
-            //pretty_logf(Verbose, "(%d)[%d]: plotting pixel: 0x%x", i, j, pixel);
             pixel[3] = 0;
-            uint32_t num = (uint32_t) pixel[0] << 24 |
-              (uint32_t)pixel[1] << 16 |
-              (uint32_t)pixel[2] << 8  |
-              (uint32_t)pixel[3];
+            uint32_t num =  ((uint32_t)pixel[3] << 24) |
+              ((uint32_t)pixel[0] << 16) |
+              ((uint32_t)pixel[1] << 8)  |
+              (uint32_t)pixel[2];
+
+
             _fb_put_pixel(start_x + j, start_y + i, num);
         }
     }
