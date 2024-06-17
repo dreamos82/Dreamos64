@@ -156,8 +156,8 @@ void _fb_putchar(char symbol, size_t cx, size_t cy, uint32_t fg, uint32_t bg){
 void _fb_printStr( const char *string, uint32_t fg, uint32_t bg ) {
     _fb_printStrAt(string, 0, cur_fb_line, fg, bg);
     cur_fb_line++;
-        if ( cur_fb_line >= framebuffer_data.number_of_lines ) {
-        pretty_log(Verbose, "Exceeding number of lines, cycling");
+    if ( cur_fb_line >= framebuffer_data.number_of_lines ) {
+        pretty_log(Verbose, "Exceeding number of lines, calling scroll_function");
         cur_fb_line = 0;
     }
 }
@@ -166,7 +166,8 @@ void _fb_printStrAndNumber(const char *string, uint64_t number, uint32_t fg, uin
     _fb_printStrAndNumberAt(string, number, 0, cur_fb_line, fg, bg);
     cur_fb_line++;
     if ( cur_fb_line >= framebuffer_data.number_of_lines ) {
-        pretty_log(Verbose, "Exceeding number of lines, cycling");
+        pretty_log(Verbose, "Exceeding number of lines, calling scroll_function");
+        _fb_scrollLine(0, 0, framebuffer_data.width,  framebuffer_data.height, _psf_get_height(psf_font_version), 1);
         cur_fb_line = 0;
     }
 }
@@ -243,9 +244,39 @@ void draw_logo(uint32_t start_x, uint32_t start_y) {
               ((uint32_t)pixel[0] << 16) |
               ((uint32_t)pixel[1] << 8)  |
               (uint32_t)pixel[2];
-
-
             _fb_put_pixel(start_x + j, start_y + i, num);
         }
+    }
+}
+
+void _fb_scrollLine(uint32_t x_origin, uint32_t y_origin, uint32_t window_width, uint32_t window_height, uint32_t line_height, uint32_t number_of_lines_to_scroll) {
+    uint32_t *framebuffer = (uint32_t *) framebuffer_data.address;
+    //uint32_t *framebuffer_dst;
+
+    //1. Start from framebuffer_start + x_origin + (line_number*line_height)
+    uint32_t cur_x = x_origin;
+    uint32_t cur_y = y_origin;
+    uint32_t line_s, line_d;
+    size_t offset =  ( line_height*window_width);
+    //framebuffer +=  offset;
+    line_s = y_origin * framebuffer_data.pitch;
+    line_d = offset;
+    //framebuffer_dst = framebuffer + offset;
+    pretty_logf(Verbose, "Scrolling line: window_height: %d - bpp: %d - pitch: 0x%x - window_width: %d - line_height: %d - offset: %d - pxl value: 0x%x - Fbaddr: 0x%x - line_s: 0x%d", window_height, framebuffer_data.bpp, framebuffer_data.pitch, window_width, line_height, offset, (uint32_t) *((PIXEL*) framebuffer), framebuffer, (uint32_t)line_s);
+    pretty_logf(Verbose, "Line y: %d - line height: ", y_origin, line_height);
+
+    uint32_t line_total_height = line_height * number_of_lines;
+    while ( cur_y < (window_height - line_total_height) ) {
+        //line_d = offset;
+        while (cur_x < window_width) {
+            //framebuffer = framebuffer_dst;
+            //pretty_logf(Verbose, "cur_y: 0x%x - line_d: 0x%x - line_s: 0x%x  addr: 0x%x", cur_y, line_d, line_s, framebuffer);
+            *((PIXEL*) framebuffer + (uint32_t)line_s) = *((PIXEL*) framebuffer + (uint32_t)line_d);
+            line_s++;
+            line_d++;
+            cur_x++;
+        }
+        cur_y++;
+        cur_x = x_origin;
     }
 }
