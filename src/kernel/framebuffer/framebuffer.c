@@ -251,26 +251,16 @@ void draw_logo(uint32_t start_x, uint32_t start_y) {
 
 void _fb_scrollLine(uint32_t x_origin, uint32_t y_origin, uint32_t window_width, uint32_t window_height, uint32_t line_height, uint32_t number_of_lines_to_scroll) {
     uint32_t *framebuffer = (uint32_t *) framebuffer_data.address;
-    //uint32_t *framebuffer_dst;
-
-    //1. Start from framebuffer_start + x_origin + (line_number*line_height)
     uint32_t cur_x = x_origin;
     uint32_t cur_y = y_origin;
     uint32_t line_s, line_d;
-    size_t offset =  ( line_height*window_width);
-    //framebuffer +=  offset;
+    size_t offset =  (line_height*window_width);
     line_s = y_origin * framebuffer_data.pitch;
-    line_d = offset;
-    //framebuffer_dst = framebuffer + offset;
-    pretty_logf(Verbose, "Scrolling line: window_height: %d - bpp: %d - pitch: 0x%x - window_width: %d - line_height: %d - offset: %d - pxl value: 0x%x - Fbaddr: 0x%x - line_s: 0x%d", window_height, framebuffer_data.bpp, framebuffer_data.pitch, window_width, line_height, offset, (uint32_t) *((PIXEL*) framebuffer), framebuffer, (uint32_t)line_s);
-    pretty_logf(Verbose, "Line y: %d - line height: ", y_origin, line_height);
-
+    line_d = number_of_lines_to_scroll * offset;
+    //pretty_logf(Verbose, "Scrolling line: window_height: %d - bpp: %d - pitch: 0x%x - window_width: %d - line_height: %d - offset: %d - pxl value: 0x%x - Fbaddr: 0x%x - line_s: 0x%d", window_height, framebuffer_data.bpp, framebuffer_data.pitch, window_width, line_height, offset, (uint32_t) *((PIXEL*) framebuffer), framebuffer, (uint32_t)line_s);
     uint32_t line_total_height = line_height * number_of_lines;
     while ( cur_y < (window_height - line_total_height) ) {
-        //line_d = offset;
         while (cur_x < window_width) {
-            //framebuffer = framebuffer_dst;
-            //pretty_logf(Verbose, "cur_y: 0x%x - line_d: 0x%x - line_s: 0x%x  addr: 0x%x", cur_y, line_d, line_s, framebuffer);
             *((PIXEL*) framebuffer + (uint32_t)line_s) = *((PIXEL*) framebuffer + (uint32_t)line_d);
             line_s++;
             line_d++;
