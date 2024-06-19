@@ -213,11 +213,13 @@ void kernel_start(unsigned long addr, unsigned long magic){
     _fb_printStr(" -- Bienvenidos --", 0x000000, 0xFF0000);
     _fb_printStr("\tDreamos64",  0xFFFFFF, 0x3333ff);
     _fb_printStr("Thanks\n\tfor\n using it", 0xFFFFFF, 0x3333ff);
+
+
     //framebuffer_data.width - width
 
     draw_logo(framebuffer_data.width - width, 0);
-    _fb_scrollLine(0, 0, framebuffer_data.width,  framebuffer_data.height, _psf_get_height(psf_font_version), 1);
-    _fb_scrollLine(0, 0, framebuffer_data.width,  framebuffer_data.height, _psf_get_height(psf_font_version), 1);
+    //_fb_scrollLine(0, 0, framebuffer_data.width,  framebuffer_data.height, _psf_get_height(psf_font_version), 1);
+    //_fb_scrollLine(0, 0, framebuffer_data.width,  framebuffer_data.height, _psf_get_height(psf_font_version), 1);
 #endif
     _syscalls_init();
     //_sc_putc('c', 0);
