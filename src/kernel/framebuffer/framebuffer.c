@@ -34,6 +34,9 @@ struct framebuffer_info framebuffer_data;
 size_t cur_fb_line;
 uint32_t number_of_lines;
 
+_fb_window_t framebuffer_main_window;
+_fb_window_t framebuffer_logo_area;
+
 void map_framebuffer(struct framebuffer_info fbdata) {
     uint32_t fb_entries = fbdata.memory_size / PAGE_SIZE_IN_BYTES;
 
@@ -111,6 +114,10 @@ void set_fb_data(struct multiboot_tag_framebuffer *fbtag){
 
     map_framebuffer(framebuffer_data);
     cur_fb_line = 0;
+    framebuffer_main_window.x_orig = 0;
+    framebuffer_main_window.y_orig = 0;
+    framebuffer_main_window.width = framebuffer_data.width;
+    framebuffer_main_window.height = framebuffer_data.height;
 
 #endif
 }
@@ -156,9 +163,10 @@ void _fb_putchar(char symbol, size_t cx, size_t cy, uint32_t fg, uint32_t bg){
 void _fb_printStr( const char *string, uint32_t fg, uint32_t bg ) {
     _fb_printStrAt(string, 0, cur_fb_line, fg, bg);
     cur_fb_line++;
-        if ( cur_fb_line >= framebuffer_data.number_of_lines ) {
-        pretty_log(Verbose, "Exceeding number of lines, cycling");
-        cur_fb_line = 0;
+    if ( cur_fb_line >= framebuffer_data.number_of_lines ) {
+        pretty_log(Verbose, "Exceeding number of lines, calling scroll_function");
+        _fb_scrollLine(&framebuffer_main_window, _psf_get_height(psf_font_version), 1, &framebuffer_logo_area);
+        cur_fb_line--;
     }
 }
 
@@ -166,8 +174,9 @@ void _fb_printStrAndNumber(const char *string, uint64_t number, uint32_t fg, uin
     _fb_printStrAndNumberAt(string, number, 0, cur_fb_line, fg, bg);
     cur_fb_line++;
     if ( cur_fb_line >= framebuffer_data.number_of_lines ) {
-        pretty_log(Verbose, "Exceeding number of lines, cycling");
-        cur_fb_line = 0;
+        pretty_log(Verbose, "Exceeding number of lines, calling scroll_function");
+        _fb_scrollLine(&framebuffer_main_window, _psf_get_height(psf_font_version), 1, &framebuffer_logo_area);
+        cur_fb_line--;
     }
 }
 
@@ -232,6 +241,10 @@ void _fb_put_pixel(uint32_t x, uint32_t y, uint32_t color) {
 
 void draw_logo(uint32_t start_x, uint32_t start_y) {
     pretty_logf(Verbose, "Drawing logo at x:%d y: %d", start_x, start_y );
+    framebuffer_logo_area.x_orig = start_x;
+    framebuffer_logo_area.y_orig = start_y;
+    framebuffer_logo_area.width = width;
+    framebuffer_logo_area.height = height;
     char *logo_data = header_data;
     char *data = header_data;
     unsigned char pixel[4];
@@ -243,9 +256,33 @@ void draw_logo(uint32_t start_x, uint32_t start_y) {
               ((uint32_t)pixel[0] << 16) |
               ((uint32_t)pixel[1] << 8)  |
               (uint32_t)pixel[2];
-
-
             _fb_put_pixel(start_x + j, start_y + i, num);
         }
+    }
+}
+
+void _fb_scrollLine(_fb_window_t *scrolling_window, uint32_t line_height, uint32_t number_of_lines_to_scroll, _fb_window_t *area_to_pin) {
+    uint32_t *framebuffer = (uint32_t *) framebuffer_data.address;
+    uint32_t cur_x = scrolling_window->x_orig;
+    uint32_t cur_y = scrolling_window->y_orig;
+    uint32_t line_s, line_d;
+    size_t offset =  (line_height*scrolling_window->width);
+    line_s = scrolling_window->y_orig * framebuffer_data.pitch;
+    line_d = number_of_lines_to_scroll * offset;
+    uint32_t line_total_height = line_height * number_of_lines;
+    bool to_ignore = false;
+
+    while ( cur_y < (scrolling_window->height - line_total_height) ) {
+        while (cur_x < scrolling_window->width) {
+            to_ignore = _fb_intersect_window(cur_x, cur_y, area_to_pin);
+            if (!to_ignore) {
+                *((PIXEL*) framebuffer + (uint32_t)line_s) = *((PIXEL*) framebuffer + (uint32_t)line_d);
+            }
+            line_s++;
+            line_d++;
+            cur_x++;
+        }
+        cur_y++;
+        cur_x = scrolling_window->x_orig;
     }
 }
