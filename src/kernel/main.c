@@ -215,11 +215,15 @@ void kernel_start(unsigned long addr, unsigned long magic){
     _fb_printStr("Thanks\n\tfor\n using it", 0xFFFFFF, 0x3333ff);
 
 
+
     //framebuffer_data.width - width
 
     draw_logo(framebuffer_data.width - width, 0);
+
     //_fb_scrollLine(0, 0, framebuffer_data.width,  framebuffer_data.height, _psf_get_height(psf_font_version), 1);
     //_fb_scrollLine(0, 0, framebuffer_data.width,  framebuffer_data.height, _psf_get_height(psf_font_version), 1);
+    //_fb_scrollLine(&framebuffer_main_window, _psf_get_height(psf_font_version), 1, &framebuffer_logo_area);
+    //_fb_scrollLine(&framebuffer_main_window, _psf_get_height(psf_font_version), 1, &framebuffer_logo_area);
 #endif
     _syscalls_init();
     //_sc_putc('c', 0);
