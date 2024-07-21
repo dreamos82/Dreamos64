@@ -18,5 +18,6 @@ typedef struct _fb_window_t {
 
 
 bool _fb_intersect_window(uint32_t x, uint32_t y, _fb_window_t *area_to_interesect);
+uint8_t _fb_get_rectangles(_fb_window_t *rectangles, _fb_window_t* main_window, _fb_window_t *area_to_intersect);
 
 #endif

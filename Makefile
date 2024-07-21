@@ -105,6 +105,7 @@ tests:
 	${TOOLCHAIN} ${TESTFLAGS} tests/test_vfs.c tests/test_common.c src/fs/vfs.c src/drivers/fs/ustar.c -o tests/test_vfs.o
 	${TOOLCHAIN} ${TESTFLAGS} tests/test_utils.c src/kernel/mem/vmm_util.c -o tests/test_utils.o
 	./tests/test_mem.o && ./tests/test_kheap.o && ./tests/test_number_conversion.o && ./tests/test_vm.o && ./tests/test_vfs.o && ./tests/test_utils.o
+	${TOOLCHAIN} ${TESTFLAGS} tests/test_window.c tests/test_common.c  src/kernel/graphics/window.c -o tests/test_window.o && ./tests/test_window.o
 
 todolist:
 	@echo "List of todos and fixme in sources: "

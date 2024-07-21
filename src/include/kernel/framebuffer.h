@@ -39,6 +39,6 @@ void _fb_printStrAndNumberAt(const char*, uint64_t, size_t, size_t, uint32_t, ui
 void get_framebuffer_mode(uint32_t* pixels_w, uint32_t* pixels_h, uint32_t* chars_w, uint32_t* chars_h);
 void draw_logo(uint32_t start_x, uint32_t start_y);
 
-void _fb_scrollLine_tmp(uint32_t x_origin, uint32_t y_origin, uint32_t window_width, uint32_t window_height, uint32_t line_height, uint32_t number_of_lines_to_scroll);
 void _fb_scrollLine(_fb_window_t *scrolling_window, uint32_t line_height, uint32_t number_of_lines_to_scroll, _fb_window_t *area_to_pin);
+//void _fb_scroll(_fb_window_t *scrolling_window, uint32_t line_height, uint32_t number_of_lines_to_scroll, _fb_window_t *area_to_pin);
 #endif

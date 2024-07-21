@@ -164,7 +164,7 @@ void _fb_printStr( const char *string, uint32_t fg, uint32_t bg ) {
     _fb_printStrAt(string, 0, cur_fb_line, fg, bg);
     cur_fb_line++;
     if ( cur_fb_line >= framebuffer_data.number_of_lines ) {
-        pretty_log(Verbose, "Exceeding number of lines, calling scroll_function");
+        //pretty_log(Verbose, "Exceeding number of lines, calling _fb_scrollLine");
         _fb_scrollLine(&framebuffer_main_window, _psf_get_height(psf_font_version), 1, &framebuffer_logo_area);
         cur_fb_line--;
     }
@@ -174,7 +174,7 @@ void _fb_printStrAndNumber(const char *string, uint64_t number, uint32_t fg, uin
     _fb_printStrAndNumberAt(string, number, 0, cur_fb_line, fg, bg);
     cur_fb_line++;
     if ( cur_fb_line >= framebuffer_data.number_of_lines ) {
-        pretty_log(Verbose, "Exceeding number of lines, calling scroll_function");
+        //pretty_log(Verbose, "Exceeding number of lines, calling _fb_scrollLine");
         _fb_scrollLine(&framebuffer_main_window, _psf_get_height(psf_font_version), 1, &framebuffer_logo_area);
         cur_fb_line--;
     }
@@ -184,9 +184,19 @@ void _fb_printStrAt( const char *string, size_t cx, size_t cy, uint32_t fg, uint
     while (*string != '\0'){
         if (*string == '\n'){
             cx=0;
-            cy++;
+            //cy++;
             cur_fb_line = cy;
+            if ( cur_fb_line+1 >= framebuffer_data.number_of_lines ) {
+                //pretty_log(Verbose, "Exceeding number of lines, calling _fb_scrollLine");
+                _fb_scrollLine(&framebuffer_main_window, _psf_get_height(psf_font_version), 1, &framebuffer_logo_area);
+            } else {
+                cy++;
+                cur_fb_line = cy;
+            }
         } else if (*string == '\t'){
+            for ( int i = 0; i++; i < 4 ) {
+                _fb_putchar(' ', cx+i, cy, fg, bg);
+            }
             cx += 4;
         } else {
             _fb_putchar(*string, cx, cy, fg, bg);
