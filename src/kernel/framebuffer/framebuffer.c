@@ -271,20 +271,53 @@ void draw_logo(uint32_t start_x, uint32_t start_y) {
     }
 }
 
+void _fb_scroll(_fb_window_t *scrolling_window, uint32_t line_height, uint32_t number_of_lines_to_scroll, _fb_window_t *area_to_pin) {
+    _fb_window_t rectangles[4];
+    uint32_t *framebuffer = (uint32_t *) framebuffer_data.address;
+    uint8_t n_rects = _fb_get_rectangles(rectangles, &framebuffer_main_window, area_to_pin);
+    uint32_t line_total_height = line_height * framebuffer_data.number_of_lines;
+    pretty_logf(Verbose, "Line total height: %d : %d", line_height, number_of_lines);
+    for (int i=0; i<n_rects; i++) {
+        uint32_t cur_x = rectangles[i].x_orig;
+        uint32_t cur_y = rectangles[i].y_orig;
+        size_t offset =  (line_height*framebuffer_data.width);
+        uint32_t line_s = cur_y * framebuffer_data.width + cur_x;
+        uint32_t line_d = (line_s + number_of_lines_to_scroll * offset) + cur_x;
+        pretty_logf(Verbose, "line height: %d - offset: %d", line_height, offset);
+        pretty_logf(Verbose, "Updating rectangle: %d - cur_x: %d cur_y: %d line_s: %d line_d: %d", i, cur_x, cur_y, line_s, line_d);
+        while ( cur_y <  (rectangles[i].y_orig + rectangles[i].height)) {
+            while (cur_x < (rectangles[i].x_orig + rectangles[i].width)) {
+                    *((PIXEL*) framebuffer + (uint32_t)line_s) = *((PIXEL*) framebuffer + (uint32_t)line_d);
+                line_s++;
+                line_d++;
+                cur_x++;
+            }
+            cur_y++;
+            cur_x = rectangles[i].x_orig;
+            line_s += cur_x + area_to_pin->width;
+            line_d += cur_x + area_to_pin->width;
+        }
+        pretty_logf(Verbose, "cur_x: %d cur_y: %d", cur_x, cur_y);
+    }
+}
+
 void _fb_scrollLine(_fb_window_t *scrolling_window, uint32_t line_height, uint32_t number_of_lines_to_scroll, _fb_window_t *area_to_pin) {
     uint32_t *framebuffer = (uint32_t *) framebuffer_data.address;
     uint32_t cur_x = scrolling_window->x_orig;
     uint32_t cur_y = scrolling_window->y_orig;
     uint32_t line_s, line_d;
     size_t offset =  (line_height*scrolling_window->width);
-    line_s = scrolling_window->y_orig * framebuffer_data.pitch;
-    line_d = number_of_lines_to_scroll * offset;
+    line_s = scrolling_window->y_orig * framebuffer_data.width+ cur_x;
+    line_d = number_of_lines_to_scroll * offset + cur_x;
     uint32_t line_total_height = line_height * number_of_lines;
     bool to_ignore = false;
+    pretty_logf(Verbose, "scrolling_window width: %d - %d", scrolling_window->width, line_total_height);
 
     while ( cur_y < (scrolling_window->height - line_total_height) ) {
         while (cur_x < scrolling_window->width) {
-            to_ignore = _fb_intersect_window(cur_x, cur_y, area_to_pin);
+            if (area_to_pin != NULL) {
+                to_ignore = _fb_intersect_window(cur_x, cur_y, area_to_pin);
+            }
             if (!to_ignore) {
                 *((PIXEL*) framebuffer + (uint32_t)line_s) = *((PIXEL*) framebuffer + (uint32_t)line_d);
             }

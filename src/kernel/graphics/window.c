@@ -12,6 +12,9 @@
  * @return true if the point (x,y) is within the rectangle specified by area_to_intersect
  */
 bool _fb_intersect_window(uint32_t x, uint32_t y, _fb_window_t *area_to_intersect) {
+    if ( area_to_intersect == NULL ) {
+        return false;
+    }
     if ( x > area_to_intersect->x_orig + area_to_intersect->width)
         return false;
     if ( x < area_to_intersect->x_orig)
