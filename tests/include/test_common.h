@@ -5,6 +5,12 @@
 #include <stddef.h>
 #include <stdbool.h>
 
+/*#define pretty_assert(msg, expected_value, returned_value) \
+    ( \
+        printf("\t[%s] %s Returned value: %d should be:  %d\n", __FUNCTION__, msg, expected_value, returned_value); \
+        assert(expected_value == returned_value); \
+    )*/
+
 typedef enum {
     Debug = 0,
     Verbose = 1,

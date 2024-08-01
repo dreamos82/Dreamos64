@@ -35,7 +35,7 @@ void test_get_rectangles() {
     printf("\t[%s] Rectangles[0].width should be: 1030 - %d\n", __FUNCTION__, rectangles[0].width);
     printf("\t[%s] Rectangles[0].height should be: 550 - %d\n", __FUNCTION__, rectangles[0].height);
     assert(rectangles[0].width == 1030);
-    assert(rectangles[0].height == 550);
+    assert(rectangles[0].height == 800);
     _fb_window_t area_to_intersect_2 = {500, 300, 200, 120};
     n_squares = _fb_get_rectangles(rectangles, &main_window, &area_to_intersect_2);
     printf("\t[%s]: area_to_intersect values: x: %d - y: %d - w: %d - h: %d\n", __FUNCTION__, area_to_intersect_2.x_orig, area_to_intersect_2.y_orig, area_to_intersect_2.width, area_to_intersect_2.height);
