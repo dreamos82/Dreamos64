@@ -40,5 +40,6 @@ void get_framebuffer_mode(uint32_t* pixels_w, uint32_t* pixels_h, uint32_t* char
 void draw_logo(uint32_t start_x, uint32_t start_y);
 
 void _fb_scrollLine(_fb_window_t *scrolling_window, uint32_t line_height, uint32_t number_of_lines_to_scroll, _fb_window_t *area_to_pin);
-//void _fb_scroll(_fb_window_t *scrolling_window, uint32_t line_height, uint32_t number_of_lines_to_scroll, _fb_window_t *area_to_pin);
+void _fb_scroll(_fb_window_t *scrolling_window, uint32_t line_height, uint32_t number_of_lines_to_scroll, _fb_window_t *area_to_pin);
+
 #endif

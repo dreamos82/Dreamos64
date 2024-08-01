@@ -276,15 +276,28 @@ void _fb_scroll(_fb_window_t *scrolling_window, uint32_t line_height, uint32_t n
     uint32_t *framebuffer = (uint32_t *) framebuffer_data.address;
     uint8_t n_rects = _fb_get_rectangles(rectangles, &framebuffer_main_window, area_to_pin);
     uint32_t line_total_height = line_height * framebuffer_data.number_of_lines;
-    pretty_logf(Verbose, "Line total height: %d : %d", line_height, number_of_lines);
-    for (int i=0; i<n_rects; i++) {
+    //pretty_logf(Verbose, "Line total height: %d : %d", line_height, number_of_lines);
+    uint32_t area_to_pin_width = 0;
+    uint32_t area_to_pin_height = 0;
+
+    if ( area_to_pin == NULL || n_rects == 0 ) {
+        rectangles[0] = *scrolling_window;
+        n_rects++;
+    } else {
+        area_to_pin_width = area_to_pin->width;
+        area_to_pin_height = area_to_pin->height;
+    }
+
+    pretty_log(Verbose, "Here");
+
+    for ( int i=0; i<n_rects; i++ ) {
         uint32_t cur_x = rectangles[i].x_orig;
         uint32_t cur_y = rectangles[i].y_orig;
         size_t offset =  (line_height*framebuffer_data.width);
         uint32_t line_s = cur_y * framebuffer_data.width + cur_x;
         uint32_t line_d = (line_s + number_of_lines_to_scroll * offset) + cur_x;
-        pretty_logf(Verbose, "line height: %d - offset: %d", line_height, offset);
-        pretty_logf(Verbose, "Updating rectangle: %d - cur_x: %d cur_y: %d line_s: %d line_d: %d", i, cur_x, cur_y, line_s, line_d);
+        //pretty_logf(Verbose, "line height: %d - offset: %d", line_height, offset);
+        //pretty_logf(Verbose, "Updating rectangle: %d - cur_x: %d cur_y: %d line_s: %d line_d: %d", i, cur_x, cur_y, line_s, line_d);
         while ( cur_y <  (rectangles[i].y_orig + rectangles[i].height)) {
             while (cur_x < (rectangles[i].x_orig + rectangles[i].width)) {
                     *((PIXEL*) framebuffer + (uint32_t)line_s) = *((PIXEL*) framebuffer + (uint32_t)line_d);
@@ -294,8 +307,8 @@ void _fb_scroll(_fb_window_t *scrolling_window, uint32_t line_height, uint32_t n
             }
             cur_y++;
             cur_x = rectangles[i].x_orig;
-            line_s += cur_x + area_to_pin->width;
-            line_d += cur_x + area_to_pin->width;
+            line_s += cur_x + area_to_pin_width;
+            line_d += cur_x + area_to_pin_height;
         }
         pretty_logf(Verbose, "cur_x: %d cur_y: %d", cur_x, cur_y);
     }
