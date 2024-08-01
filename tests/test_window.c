@@ -24,6 +24,12 @@ void test_get_rectangles() {
     uint8_t n_squares = _fb_get_rectangles(rectangles, &main_window, NULL);
     printf("\t[%s] n_squares should be 0 : %d\n", __FUNCTION__, n_squares);
     assert(n_squares == 0);
+    printf("\t[%s] Rectangles[0].x_orig should be: 0 - %d\n", __FUNCTION__, rectangles[0].x_orig);
+    printf("\t[%s] Rectangles[0].y_orig should be: 0 - %d\n", __FUNCTION__, rectangles[0].y_orig);
+    assert(rectangles[0].x_orig == 0);
+    assert(rectangles[0].y_orig == 0);
+    printf("\t[%s] Rectangles[0].width should be: 1030 - %d\n", __FUNCTION__, rectangles[0].width);
+    printf("\t[%s] Rectangles[0].height should be: 550 - %d\n", __FUNCTION__, rectangles[0].height);
     n_squares = _fb_get_rectangles(rectangles, &main_window, &area_to_intersect);
     printf("\t[%s] n_squares should be 2 : %d\n", __FUNCTION__, n_squares);
     assert(n_squares == 2);
