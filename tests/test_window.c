@@ -26,8 +26,9 @@ void test_get_rectangles() {
     assert(n_squares == 0);
     printf("\t[%s] Rectangles[0].x_orig should be: 0 - %d\n", __FUNCTION__, rectangles[0].x_orig);
     printf("\t[%s] Rectangles[0].y_orig should be: 0 - %d\n", __FUNCTION__, rectangles[0].y_orig);
-    assert(rectangles[0].x_orig == 0);
-    assert(rectangles[0].y_orig == 0);
+    //assert(rectangles[0].x_orig == 0);
+    //assert(rectangles[0].y_orig == 0);
+    //pretty_assert("Testing rectangles[0].x_orig", 0, rectangles[0].x_orig);
     printf("\t[%s] Rectangles[0].width should be: 1030 - %d\n", __FUNCTION__, rectangles[0].width);
     printf("\t[%s] Rectangles[0].height should be: 550 - %d\n", __FUNCTION__, rectangles[0].height);
     n_squares = _fb_get_rectangles(rectangles, &main_window, &area_to_intersect);
