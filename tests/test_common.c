@@ -3,7 +3,7 @@
 #include <bitmap.h>
 
 void _printStringAndNumber(char *string, unsigned long number){
-    printf("%s0x%X\n", string, number);
+    printf("%s0x%lX\n", string, number);
 }
 
 void _printStr(const char *string){
