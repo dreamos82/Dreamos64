@@ -57,7 +57,7 @@ uint8_t _fb_get_rectangles(_fb_window_t *rectangles, _fb_window_t* main_window, 
     if (area_to_intersect->x_orig + area_to_intersect->width < main_window->x_orig + main_window->width) {
         rectangles[cur_rectangle].x_orig = area_to_intersect->x_orig + area_to_intersect->width;
         rectangles[cur_rectangle].y_orig = main_window->y_orig;
-        rectangles[cur_rectangle].width = (main_window->x_orig + main_window->width) - area_to_intersect->x_orig;
+        rectangles[cur_rectangle].width = (main_window->x_orig + main_window->width) - (area_to_intersect->x_orig + area_to_intersect->width);
         rectangles[cur_rectangle].height = main_window->height;
         pretty_logf(Verbose, "2 rectangle: %d, x_orig: %d, y_orig: %d, widht: %d, height: %d", cur_rectangle, rectangles[cur_rectangle].x_orig, rectangles[cur_rectangle].y_orig, rectangles[cur_rectangle].width, rectangles[cur_rectangle].height);
         cur_rectangle++;

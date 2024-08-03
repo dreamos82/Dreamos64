@@ -229,8 +229,8 @@ void kernel_start(unsigned long addr, unsigned long magic){
     for (size_t i = 0; i < n_rects; i++) {
         _fb_draw_rectangle(main_area, squares[i], colours[i]);
     }*/
-     _fb_scroll(&framebuffer_main_window, _psf_get_height(psf_font_version), 1, &framebuffer_logo_area);
-     //_fb_scroll(&framebuffer_main_window, _psf_get_height(psf_font_version), 1, NULL);
+    _fb_scroll(&framebuffer_main_window, _psf_get_height(psf_font_version), 1, &framebuffer_logo_area);
+    //_fb_scroll(&framebuffer_main_window, _psf_get_height(psf_font_version), 1, NULL);
 #endif
     _syscalls_init();
 
