@@ -6,6 +6,7 @@
 #include <multiboot.h>
 #include <window.h>
 
+#define PIXEL uint32_t
 
 #define _FRAMEBUFFER_MEM_START 0xffffffffbd000000
 
@@ -29,7 +30,10 @@ extern _fb_window_t framebuffer_logo_area;
 void _fb_putchar(char symbol, size_t cx, size_t cy, uint32_t fg, uint32_t bg);
 void _fb_printStrAt(const char *string, size_t cx, size_t cy, uint32_t fg, uint32_t bg);
 void _fb_printStr(const char *string, uint32_t fg, uint32_t bg);
+
 void _fb_put_pixel(uint32_t, uint32_t, uint32_t);
+
+uint32_t _fb_get_pixel(uint32_t x, uint32_t y);
 
 /*void map_framebuffer(struct multiboot_tag_framebuffer *);*/
 void set_fb_data(struct multiboot_tag_framebuffer *);

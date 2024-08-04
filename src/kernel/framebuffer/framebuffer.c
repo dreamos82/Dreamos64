@@ -14,8 +14,6 @@
 #include <dreamcatcher.h>
 #include <logging.h>
 
-#define PIXEL uint32_t
-
 extern void *cur_framebuffer_pos;
 extern uint64_t p4_table[];
 extern uint64_t p3_table_hh[];
@@ -39,6 +37,7 @@ _fb_window_t framebuffer_logo_area;
 
 void map_framebuffer(struct framebuffer_info fbdata) {
     uint32_t fb_entries = fbdata.memory_size / PAGE_SIZE_IN_BYTES;
+    pretty_logf(Verbose, "Fbdata size: 0x%x", fbdata.memory_size);
 
     uint64_t phys_address = (uint64_t) fbdata.phys_address;
 
@@ -77,7 +76,6 @@ void map_framebuffer(struct framebuffer_info fbdata) {
         }
         newly_allocated = false;
         pd++;
-
     }
 #elif SMALL_PAGES == 0
     uint32_t fb_entries_mod =  fbdata.memory_size % PAGE_SIZE_IN_BYTES;
@@ -194,7 +192,7 @@ void _fb_printStrAt( const char *string, size_t cx, size_t cy, uint32_t fg, uint
                 cur_fb_line = cy;
             }
         } else if (*string == '\t'){
-            for ( int i = 0; i++; i < 4 ) {
+            for ( int i = 0; i < 4; i++ ) {
                 _fb_putchar(' ', cx+i, cy, fg, bg);
             }
             cx += 4;
@@ -249,6 +247,13 @@ void _fb_put_pixel(uint32_t x, uint32_t y, uint32_t color) {
     *((PIXEL*) (framebuffer + cy + cx)) = color;
 }
 
+uint32_t _fb_get_pixel(uint32_t x, uint32_t y) {
+    char *framebuffer = (char *) framebuffer_data.address;
+    uint32_t cy = y * framebuffer_data.pitch;
+    uint32_t cx = x * sizeof(PIXEL);
+    return *(((PIXEL*) (framebuffer + cy + cx)));
+}
+
 void draw_logo(uint32_t start_x, uint32_t start_y) {
     pretty_logf(Verbose, "Drawing logo at x:%d y: %d", start_x, start_y );
     framebuffer_logo_area.x_orig = start_x;
@@ -276,7 +281,6 @@ void _fb_scroll(_fb_window_t *scrolling_window, uint32_t line_height, uint32_t n
     uint32_t *framebuffer = (uint32_t *) framebuffer_data.address;
     uint8_t n_rects = _fb_get_rectangles(rectangles, &framebuffer_main_window, area_to_pin);
     uint32_t line_total_height = line_height * framebuffer_data.number_of_lines;
-    //pretty_logf(Verbose, "Line total height: %d : %d", line_height, number_of_lines);
     uint32_t area_to_pin_width = 0;
     uint32_t area_to_pin_height = 0;
 
@@ -288,29 +292,18 @@ void _fb_scroll(_fb_window_t *scrolling_window, uint32_t line_height, uint32_t n
         area_to_pin_height = area_to_pin->height;
     }
 
-    pretty_log(Verbose, "Here");
-
     for ( int i=0; i<n_rects; i++ ) {
         uint32_t cur_x = rectangles[i].x_orig;
         uint32_t cur_y = rectangles[i].y_orig;
-        size_t offset =  (line_height*framebuffer_data.width);
-        uint32_t line_s = cur_y * framebuffer_data.width + cur_x;
-        uint32_t line_d = (line_s + number_of_lines_to_scroll * offset) + cur_x;
-        //pretty_logf(Verbose, "line height: %d - offset: %d", line_height, offset);
-        //pretty_logf(Verbose, "Updating rectangle: %d - cur_x: %d cur_y: %d line_s: %d line_d: %d", i, cur_x, cur_y, line_s, line_d);
-        while ( cur_y <  (rectangles[i].y_orig + rectangles[i].height)) {
+        while ( cur_y <  (rectangles[i].y_orig + rectangles[i].height - line_height)) {
             while (cur_x < (rectangles[i].x_orig + rectangles[i].width)) {
-                    *((PIXEL*) framebuffer + (uint32_t)line_s) = *((PIXEL*) framebuffer + (uint32_t)line_d);
-                line_s++;
-                line_d++;
+                _fb_put_pixel(cur_x, cur_y, _fb_get_pixel(cur_x, cur_y + line_height));
+                _fb_put_pixel(cur_x, cur_y + line_height, 0x000000);
                 cur_x++;
             }
             cur_y++;
             cur_x = rectangles[i].x_orig;
-            line_s += cur_x + area_to_pin_width;
-            line_d += cur_x + area_to_pin_height;
         }
-        pretty_logf(Verbose, "cur_x: %d cur_y: %d", cur_x, cur_y);
     }
 }
 
