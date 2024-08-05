@@ -3,7 +3,10 @@
 # Kernel Configuration
 
 USE_FRAMEBUFFER ?= 1
-SMALL_PAGES ?= 0
+SMALL_PAGES ?= 1
+
+# PIN_LOGO set to 0 if we want the logo to be scrolled.
+PIN_LOGO ?= 1
 
 # Build Configuration
 

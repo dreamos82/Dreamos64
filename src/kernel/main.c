@@ -216,20 +216,12 @@ void kernel_start(unsigned long addr, unsigned long magic){
 
     draw_logo(framebuffer_data.width - width, 0);
     _fb_printStr("Thanks\n\tfor\n using it\n", 0xFFFFFF, 0x3333ff);
-    /*_fb_window_t squares[4];
-    uint8_t n_rectangles = _fb_get_rectangles(squares, &framebuffer_main_window, &framebuffer_logo_area);
-    for (int i = 0; i < n_rectangles; i++) {
-        pretty_logf(Verbose, "Square: %d, x_orig: %d, y_orig: %d, widht: %d, height: %d", i, squares[i].x_orig, squares[i].y_orig, squares[i].width, squares[i].height);
-    }
-    _fb_window_t rect_to_draw = {600, 500, 100, 120};
-    _fb_window_t main_area = {400, 300, 400, 400};
-    size_t n_rects = _fb_get_rectangles(squares, &main_area, &rect_to_draw);
-    pretty_logf(Verbose, "Checking size of rectangles returned: %d", n_rects);
-    uint32_t colours[4] = {0x83A06A, 0x465259, 0x8FD8F9, 0xF7E65A};
-    for (size_t i = 0; i < n_rects; i++) {
-        _fb_draw_rectangle(main_area, squares[i], colours[i]);
+    _fb_printStrAt("Test String", 0, 49, 0xff33aa, 0x000000);
+    /*pretty_logf(Verbose, "Framebuffer addr: 0x%x", framebuffer_data.address);
+    for (int i = 0; i < 60; i++) {
+        _fb_printStrAndNumber("Counting up to: ", i, 0xFF33AA+i, 0x000000);
     }*/
-    _fb_scroll(&framebuffer_main_window, _psf_get_height(psf_font_version), 1, &framebuffer_logo_area);
+    //_fb_scroll(&framebuffer_main_window, _psf_get_height(psf_font_version), 1, &framebuffer_logo_area, false);
     //_fb_scroll(&framebuffer_main_window, _psf_get_height(psf_font_version), 1, NULL);
 #endif
     _syscalls_init();
