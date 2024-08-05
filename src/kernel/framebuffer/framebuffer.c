@@ -318,32 +318,3 @@ void _fb_scroll(_fb_window_t *scrolling_window, uint32_t line_height, uint32_t n
         }
     }
 }
-
-void _fb_scrollLine(_fb_window_t *scrolling_window, uint32_t line_height, uint32_t number_of_lines_to_scroll, _fb_window_t *area_to_pin) {
-    uint32_t *framebuffer = (uint32_t *) framebuffer_data.address;
-    uint32_t cur_x = scrolling_window->x_orig;
-    uint32_t cur_y = scrolling_window->y_orig;
-    uint32_t line_s, line_d;
-    size_t offset =  (line_height*scrolling_window->width);
-    line_s = scrolling_window->y_orig * framebuffer_data.width+ cur_x;
-    line_d = number_of_lines_to_scroll * offset + cur_x;
-    uint32_t line_total_height = line_height * number_of_lines;
-    bool to_ignore = false;
-    pretty_logf(Verbose, "scrolling_window width: %d - %d", scrolling_window->width, line_total_height);
-
-    while ( cur_y < (scrolling_window->height - line_total_height) ) {
-        while (cur_x < scrolling_window->width) {
-            if (area_to_pin != NULL) {
-                to_ignore = _fb_intersect_window(cur_x, cur_y, area_to_pin);
-            }
-            if (!to_ignore) {
-                *((PIXEL*) framebuffer + (uint32_t)line_s) = *((PIXEL*) framebuffer + (uint32_t)line_d);
-            }
-            line_s++;
-            line_d++;
-            cur_x++;
-        }
-        cur_y++;
-        cur_x = scrolling_window->x_orig;
-    }
-}
