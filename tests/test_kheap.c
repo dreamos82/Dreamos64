@@ -31,11 +31,11 @@ int main(){
     kernel_heap_start->size = 8 * PAGE_SIZE;
     kernel_heap_start->next = NULL;
     kernel_heap_start->prev = NULL;
-    printf("\t [test_kheap] (Init)  Initialized heap of size: %d\n", kernel_heap_start->size);
+    printf("\t [test_kheap] (Init)  Initialized heap of size: %lu\n", kernel_heap_start->size);
     printf("\t [test_kheap] (Init) Address of kheap: 0x%X\n", kernel_heap_start);
     kernel_heap_end = kernel_heap_start;
     end_of_mapped_memory = (uint64_t) kernel_heap_end + 0x15000;
-    printf("\t [test_kheap] (Init) Initializing sizeof heap structure: ... %d\n", sizeof(KHeapMemoryNode));
+    printf("\t [test_kheap] (Init) Initializing sizeof heap structure: ... %lu\n", sizeof(KHeapMemoryNode));
     printf("\t [test_kheap] (Init) Address of kheap: 0x%X\n", kernel_heap_end);
     printf("\t [test_kheap] (Init) Kheap size: %d\n", get_kheap_size(kernel_heap_start));
     test_kmalloc();
@@ -60,7 +60,7 @@ void test_kmalloc(){
     printf("\t [test_kheap] (kmalloc) test_ptr value: 0x%x\n", test_ptr);
     assert(kernel_heap_start == (test_ptr - sizeof(KHeapMemoryNode)));
     assert((uint64_t)test_ptr == (((uint64_t)initial_end)  + sizeof(KHeapMemoryNode)));
-    printf("\t [test_kheap] (kmalloc) testing kheap size after kmalloc: 0x%X\n", kernel_heap_end->size);
+    printf("\t [test_kheap] (kmalloc) testing kheap size after kmalloc: 0x%lX\n", kernel_heap_end->size);
     assert(kernel_heap_end->size == (kheap_size - (0x30 + sizeof(KHeapMemoryNode))));
     printf("Finished\n");
 }
@@ -68,8 +68,8 @@ void test_kmalloc(){
 void test_kfree(){
     printf("Test kfree\n");
     KHeapMemoryNode *original_end = kernel_heap_end;
-    printf("\t [test_kheap] (kfree) Kernel heap end size: 0x%x\n", kernel_heap_end->size);
-    printf("\t [test_kheap] (kfree) KHeapMemoryNode size: 0x%x\n", sizeof(KHeapMemoryNode));
+    printf("\t [test_kheap] (kfree) Kernel heap end size: 0x%lx\n", kernel_heap_end->size);
+    printf("\t [test_kheap] (kfree) KHeapMemoryNode size: 0x%lx\n", sizeof(KHeapMemoryNode));
     kfree(NULL);
     assert(original_end == kernel_heap_end);
     printf("\t [test_kheap] (kfree) Testing kfree right after a malloc\n");
@@ -77,7 +77,7 @@ void test_kfree(){
     char *test_ptr = (char *) kmalloc(10);
     uint8_t heap_length = get_kheap_size(kernel_heap_start);
     printf("\t [test_kheap] (kfree) Kheap size: %d\n", heap_length);
-    printf("\t [test_kheap] (kfree) Kernel heap end size: 0x%x\n", kernel_heap_end->size);
+    printf("\t [test_kheap] (kfree) Kernel heap end size: 0x%lx\n", kernel_heap_end->size);
     printf("\t [test_kheap] (kfree) test_ptr: 0x%x\n", test_ptr);
     kfree(test_ptr);
     uint8_t new_heap_length = get_kheap_size(kernel_heap_start);

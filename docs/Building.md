@@ -30,6 +30,7 @@ They can change at any moment, or can be removed in the future
 
 * `USE_FRAMEBUFFER`   if set to 1 it use the framebuffer video mode, if set to 0 it use the legacy VGA driver.
 * `SMALL_PAGES` if set to 1 the virtual memory will use 4k pages if set to 0 it will use 2mb pages
+* `PIN_LOGO` if set to 1 the dreamos logo will stay on the top right corner when the frambuffer is scrolling, otherwise will scroll up with the rest of the screen.
 
 They are experimental temporary features, there are chances that they can be removed in the future.
 

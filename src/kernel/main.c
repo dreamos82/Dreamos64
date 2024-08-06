@@ -35,6 +35,7 @@
 #include <scheduler.h>
 #include <thread.h>
 #include <rtc.h>
+#include <shapes.h>
 #include <spinlock.h>
 #include <syscalls.h>
 #include <task.h>
@@ -212,14 +213,18 @@ void kernel_start(unsigned long addr, unsigned long magic){
     _fb_printStr(" -- Benvenuti --", 0x000000, 0xFFFFFF);
     _fb_printStr(" -- Bienvenidos --", 0x000000, 0xFF0000);
     _fb_printStr("\tDreamos64",  0xFFFFFF, 0x3333ff);
-    _fb_printStr("Thanks\n\tfor\n using it", 0xFFFFFF, 0x3333ff);
-    //framebuffer_data.width - width
+
     draw_logo(framebuffer_data.width - width, 0);
+    _fb_printStr("Thanks\n\tfor\n using it\n", 0xFFFFFF, 0x3333ff);
+    _fb_printStrAt("Test String", 0, 49, 0xff33aa, 0x000000);
+    /*pretty_logf(Verbose, "Framebuffer addr: 0x%x", framebuffer_data.address);
+    for (int i = 0; i < 60; i++) {
+        _fb_printStrAndNumber("Counting up to: ", i, 0xFF33AA+i, 0x000000);
+    }*/
+    //_fb_scroll(&framebuffer_main_window, _psf_get_height(psf_font_version), 1, &framebuffer_logo_area, false);
+    //_fb_scroll(&framebuffer_main_window, _psf_get_height(psf_font_version), 1, NULL);
 #endif
     _syscalls_init();
-    //_sc_putc('c', 0);
-    //asm("int $0x80");
-
 
     initialize_kheap();
     kernel_settings.paging.page_generation = 0;

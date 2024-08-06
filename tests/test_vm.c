@@ -28,11 +28,11 @@ int main() {
 void test_ensure_address_in_higher_half() {
     printf("Testing ensure_addres_in_higher_half\n");
     uint64_t test_address = 0x100000;
-    printf("\t [test_vm](%s): Should return (0) for type not recognized and address: 0x%x\n", __FUNCTION__,  test_address);
+    printf("\t [test_vm](%s): Should return (0) for type not recognized and address: 0x%lx\n", __FUNCTION__,  test_address);
     test_address = ensure_address_in_higher_half(test_address, 3);
     assert(test_address == 0);
     test_address = ensure_address_in_higher_half(0x100000, VM_TYPE_MMIO);
-    printf("\t [test_vm](%s): Should return (0x%x) for type MMIO and address=0x%x \n", __FUNCTION__,  test_address, 0x100000);
+    printf("\t [test_vm](%s): Should return (0x%lx) for type MMIO and address=0x%x \n", __FUNCTION__,  test_address, 0x100000);
     assert(test_address == 0xffff800000300000);
     test_address = ensure_address_in_higher_half(0x100000, VM_TYPE_MEMORY);
     printf("\t [test_vm](%s): Should return (0x%lx) for type MEMORY and address=0x%x\n", __FUNCTION__,  test_address, 0x100000);
@@ -60,12 +60,12 @@ void test_is_address_higher_half() {
 
 void test_vm_parse_flags() {
      printf("Testing test_vm_parse_flags\n");
-     printf("\t[test_vm](%s): Should return 0 - %d\n", __FUNCTION__, vm_parse_flags(VMM_FLAGS_ADDRESS_ONLY));
+     printf("\t[test_vm](%s): Should return 0 - %zu\n", __FUNCTION__, vm_parse_flags(VMM_FLAGS_ADDRESS_ONLY));
      assert(0 == vm_parse_flags(VMM_FLAGS_ADDRESS_ONLY));
-     printf("\t[test_vm](%s): Should return 3 - %d\n", __FUNCTION__, vm_parse_flags(VMM_FLAGS_ADDRESS_ONLY | VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE));
+     printf("\t[test_vm](%s): Should return 3 - %zu\n", __FUNCTION__, vm_parse_flags(VMM_FLAGS_ADDRESS_ONLY | VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE));
      assert(3 == vm_parse_flags(VMM_FLAGS_ADDRESS_ONLY | VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE));
-     printf("\t[test_vm](%s): Should return 2 - %d\n", __FUNCTION__, vm_parse_flags(VMM_FLAGS_WRITE_ENABLE));
+     printf("\t[test_vm](%s): Should return 2 - %zu\n", __FUNCTION__, vm_parse_flags(VMM_FLAGS_WRITE_ENABLE));
      assert(2 == vm_parse_flags( VMM_FLAGS_WRITE_ENABLE));
-     printf("\t[test_vm](%s): Should return 3 - %d\n", __FUNCTION__, vm_parse_flags(VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE));
+     printf("\t[test_vm](%s): Should return 3 - %zu\n", __FUNCTION__, vm_parse_flags(VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE));
      assert(3 == vm_parse_flags(VMM_FLAGS_ADDRESS_ONLY | VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE));
 }
