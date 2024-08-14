@@ -47,7 +47,7 @@ void _mmap_parse(struct multiboot_tag_mmap *mmap_root){
         total_entries++;
         i++;
     }
-    pretty_logf(Verbose, "Total entries: %d - Phys mem_avail: 0x%u", total_entries, _mmap_phys_memory_avail );
+    pretty_logf(Verbose, "Total entries: %d - Phys mem_avail: %u", total_entries, _mmap_phys_memory_avail );
 }
 
 void _mmap_setup(){
