@@ -7,9 +7,7 @@
 #include <vm.h>
 #include <stdio.h>
 #include <numbers.h>
-//#ifdef DEBUG - This will be uncommented when the framebuffer library will be completed
 #include <qemu.h>
-//#endif
 #include <video.h>
 #include <dreamcatcher.h>
 #include <logging.h>
@@ -18,7 +16,11 @@ extern void *cur_framebuffer_pos;
 extern uint64_t p4_table[];
 extern uint64_t p3_table_hh[];
 extern uint64_t p2_table[];
+
+#if SMALL_PAGES == 1
 extern uint64_t pt_tables[];
+#endif
+
 extern uint8_t psf_font_version;
 
 uint32_t FRAMEBUFFER_PITCH;
