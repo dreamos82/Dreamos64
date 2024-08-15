@@ -35,7 +35,7 @@ void _fb_put_pixel(uint32_t, uint32_t, uint32_t);
 
 uint32_t _fb_get_pixel(uint32_t x, uint32_t y);
 
-/*void map_framebuffer(struct multiboot_tag_framebuffer *);*/
+void map_framebuffer(struct framebuffer_info fbdata);
 void set_fb_data(struct multiboot_tag_framebuffer *);
 void _fb_printStrAndNumber(const char*, uint64_t, uint32_t, uint32_t);
 void _fb_printStrAndNumberAt(const char*, uint64_t, size_t, size_t, uint32_t, uint32_t);
@@ -46,4 +46,5 @@ void draw_logo(uint32_t start_x, uint32_t start_y);
 void _fb_scrollLine(_fb_window_t *scrolling_window, uint32_t line_height, uint32_t number_of_lines_to_scroll, _fb_window_t *area_to_pin);
 void _fb_scroll(_fb_window_t *scrolling_window, uint32_t line_height, uint32_t number_of_lines_to_scroll, _fb_window_t *area_to_pin, bool clear_last_line);
 
+void map_framebuffer_2(framebuffer_info fbdata);
 #endif

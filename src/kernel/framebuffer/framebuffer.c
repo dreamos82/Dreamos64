@@ -1,4 +1,3 @@
-#include <multiboot.h>
 #include <framebuffer.h>
 #include <hh_direct_map.h>
 #include <pmm.h>
@@ -29,7 +28,7 @@ uint8_t FRAMEBUFFER_BPP = 0;
 uint32_t FRAMEBUFFER_MEMORY_SIZE = 0;
 uint32_t FRAMEBUFFER_WIDTH;
 uint32_t FRAMEBUFFER_HEIGHT;
-struct framebuffer_info framebuffer_data;
+framebuffer_info framebuffer_data;
 
 size_t cur_fb_line;
 uint32_t number_of_lines;
@@ -38,7 +37,7 @@ _fb_window_t framebuffer_main_window;
 _fb_window_t framebuffer_logo_area;
 _fb_window_t *logo_area_ptr;
 
-void map_framebuffer(struct framebuffer_info fbdata) {
+void map_framebuffer(framebuffer_info fbdata) {
     uint32_t fb_entries = fbdata.memory_size / PAGE_SIZE_IN_BYTES;
     pretty_logf(Verbose, "Fbdata size: 0x%x", fbdata.memory_size);
 
@@ -93,8 +92,6 @@ void map_framebuffer(struct framebuffer_info fbdata) {
                 p2_table[pd+j] = (phys_address + (j * PAGE_SIZE_IN_BYTES)) | PAGE_ENTRY_FLAGS;
         }
     }
-
-
 #endif
 }
 
