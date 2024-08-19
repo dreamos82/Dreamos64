@@ -30,7 +30,7 @@ What they do will be detailed in the next sections.
 
 #### mmap_parse()
 
-The first function, is very simple and it's main purpose is to initialize the global variables that will contain the pointer to the `memory map` and the total number of entries in it.
+This function, is very simple and it's main purpose is to initialize the global variables that will contain the pointer to the `memory map` and the total number of entries in it.
 
 The memory map is used to understand what parts of the physical memory are reserved and what are available to the kernel.
 
@@ -67,13 +67,13 @@ And again we face the problem that the _HHDM_ needs to be initialized, and to do
 
 Another important thing that we already know is that usually any memory right after the kernel is usually free, and if it is not is because something is loaded there, and we should be able to tell it by parsing some data structures provided by grub (the memory map, and the modules). At this point we can safely assume that unless the addresses above the end of the kernel are reserved in the mmap, or used by some module (and that can be easily achieved by parsing the tables already present in memory), that area can be used.
 
-And here is the solution, until the memory maanger is not initialized, we will keep returning addresses that are just after the kernel for creating the page tables required for the `hhdm` Initialization (again with the exclusion of the parts that we already knows are marked as used by the bios/bootloader).
+And here is the solution, until the memory manager is not initialized, we will keep returning addresses that are just after the kernel for creating the page tables required for the `hhdm` Initialization (again with the exclusion of the parts that we already knows are marked as used by the bios/bootloader).
 
 Once the _hhdm_  is initialized, we proceed with the PMM Initialization, but now reassured that we will not encounter any unexpected memory mapping, because we will use the memory map just initialized.
 
 #### pmm_setup()
 
-The first thing that the `pmm_setup()` function is setting the start address of the `anon memory`  used for allocations of the page tables until the pmm is fully initialized and functional.
+The first thing that the `pmm_setup()` function does is setting the start address of the `anon memory`  used for allocations of the page tables until the pmm is fully initialized and functional.
 
 These addresses are tracked in `anon_memory_loc` (for the virtual address to be returned) and `anon_physical_memory_loc` (for the physical counterpart).
 
@@ -113,9 +113,9 @@ Paging is provided with fixed size paging (only one size of page is supported at
 
 It avails of `x86_64`paging mechanism.
 
-### Higher Hald Direct Map (HHDM)
+### Higher Half Direct Map (HHDM)
 
-An hhdm is provided to the kernel as convenience.
+An _hhdm_ is provided to the kernel as convenience.
 
 ## Virtual Memory  Manager
 
