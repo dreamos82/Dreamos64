@@ -1,3 +1,5 @@
+#include <framebuffer.h>
+#include <stacktrace.h>
 #include <bitmap.h>
 #include <hh_direct_map.h>
 #include <framebuffer.h>
@@ -17,14 +19,7 @@ extern uint64_t pt_tables[];
 #endif
 
 /*struct framebuffer_info framebuffer_data;*/
-void map_framebuffer_2(framebuffer_info fbdata) {
-}
-
-/*void map_framebuffer_2(struct framebuffer_info fbdata) {
-    uint32_t fb_entries = fbdata.memory_size / PAGE_SIZE_IN_BYTES;
-    pretty_logf(Verbose, "Fbdata size: 0x%x", fbdata.memory_size);
-}*/
-/*
+void map_framebuffer(framebuffer_info fbdata) {
     uint32_t fb_entries = fbdata.memory_size / PAGE_SIZE_IN_BYTES;
     pretty_logf(Verbose, "Fbdata size: 0x%x", fbdata.memory_size);
 
@@ -82,6 +77,7 @@ void map_framebuffer_2(framebuffer_info fbdata) {
 #endif
 }
 
+
 void set_fb_data(struct multiboot_tag_framebuffer *fbtag){
     //FRAMEBUFFER_MEM = (void*)(uint64_t)fbtag->common.framebuffer_addr;
 #if USE_FRAMEBUFFER == 1
@@ -106,4 +102,4 @@ void set_fb_data(struct multiboot_tag_framebuffer *fbtag){
 
 #endif
 }
-*/
+

@@ -1,6 +1,6 @@
 #include <bitmap.h>
-#include <kernel.h>
 #include <mmap.h>
+#include <kernel.h>
 #include <test_mem.h>
 #include <test_common.h>
 #include <pmm.h>
@@ -22,11 +22,14 @@ extern multiboot_memory_map_t *mmap_entries;
 
 struct multiboot_tag_basic_meminfo *tagmem;
 struct multiboot_tag_mmap *mmap_root;
+
 //unsigned long _kernel_physical_end __attribute__((section(".mySection"))) = 0x9ABCDEF0;
 uint64_t _kernel_end = 0x1190AC;
 uint64_t _kernel_physical_end = 0x1190AC;
 
 int main() {
+    multiboot_tag_start = 0x1ca000;
+    multiboot_tag_start = 0x9bf;
     test_pmm_initialize();
     test_pmm();
     test_mmap();

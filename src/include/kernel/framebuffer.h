@@ -27,6 +27,11 @@ typedef struct framebuffer_info {
 extern _fb_window_t framebuffer_main_window;
 extern _fb_window_t framebuffer_logo_area;
 
+extern size_t cur_fb_line;
+extern framebuffer_info framebuffer_data;
+extern uint32_t number_of_lines;
+extern _fb_window_t *logo_area_ptr;
+
 void _fb_putchar(char symbol, size_t cx, size_t cy, uint32_t fg, uint32_t bg);
 void _fb_printStrAt(const char *string, size_t cx, size_t cy, uint32_t fg, uint32_t bg);
 void _fb_printStr(const char *string, uint32_t fg, uint32_t bg);
@@ -46,5 +51,4 @@ void draw_logo(uint32_t start_x, uint32_t start_y);
 void _fb_scrollLine(_fb_window_t *scrolling_window, uint32_t line_height, uint32_t number_of_lines_to_scroll, _fb_window_t *area_to_pin);
 void _fb_scroll(_fb_window_t *scrolling_window, uint32_t line_height, uint32_t number_of_lines_to_scroll, _fb_window_t *area_to_pin, bool clear_last_line);
 
-void map_framebuffer_2(framebuffer_info fbdata);
 #endif
