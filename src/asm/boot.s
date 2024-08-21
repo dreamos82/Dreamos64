@@ -30,6 +30,8 @@ global multiboot_framebuffer_data
 global multiboot_mmap_data
 global multiboot_basic_meminfo
 global multiboot_acpi_info
+global multiboot_tag_start
+global multiboot_tag_end
 global read_multiboot
 global gdt64
 global stack
@@ -160,6 +162,7 @@ kernel_jumper:
 
     ;.bss section should be already 0  at least on unix and windows systems
     ;no need to initialize
+    mov [multiboot_tag_start], rax
 
 read_multiboot:
     ;Check if the tag is needed by the kernel, if yes store its address
@@ -225,6 +228,8 @@ read_multiboot:
         ; && multiboot_tag.size == 8?
         cmp dword [rax + multiboot_tag.size], 8
         jne read_multiboot
+        add rax, multiboot_tag.size
+        mov qword [multiboot_tag_end], rax
 
     mov rax, higher_half
     jmp rax
@@ -267,6 +272,10 @@ fbb_pt_tables:
 ; This section will be used to get the multiboot info
 align 4096
 end_of_mapped_memory:
+    resq 1
+multiboot_tag_end:
+    resq 1
+multiboot_tag_start:
     resq 1
 multiboot_framebuffer_data:
     resb 8

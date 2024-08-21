@@ -50,6 +50,5 @@ bool _is_address_in_multiboot(uint64_t address) {
         }
         //pretty_log(Verbose, " entry not corresponding" );
     }
-//
     return false;
 }

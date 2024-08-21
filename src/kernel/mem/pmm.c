@@ -83,7 +83,7 @@ void *pmm_alloc_frame(){
 void *pmm_prepare_new_pagetable() {
     if ( !pmm_initialized) {
                 while((!_mmap_is_address_in_available_space(anon_physical_memory_loc, PAGE_DIR_SIZE)) && anon_physical_memory_loc < memory_size_in_bytes) {
-                    pretty_logf(Verbose, " Current address: 0x%x not available trying next", anon_memory_loc);
+                    pretty_logf(Verbose, " Current address: 0x%x - phys: 0x%x not available trying next 0x%x", anon_memory_loc, anon_physical_memory_loc,  memory_size_in_bytes);
                     anon_memory_loc += PAGE_DIR_SIZE;
                     anon_physical_memory_loc += PAGE_DIR_SIZE;
                 }
