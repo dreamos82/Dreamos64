@@ -62,6 +62,6 @@ void hhdm_map_physical_memory() {
     }
 
     // This is the kernel mapped in -2G
-    pretty_logf(Verbose, "Physical memory mapped end: 0x%x - Virtual memory direct end: 0x%x - counter: %d", end_of_mapped_physical_memory, end_of_mapped_memory, current_pml4_entry);
-
+    pretty_logf(Verbose, "Physical memory mapped end: 0x%x - Virtual memory end: 0x%x - counter: %d", end_of_mapped_physical_memory, end_of_mapped_memory, current_pml4_entry);
+    pretty_logf(Verbose, "hhdm end: 0x%x", virtual_address);
 }

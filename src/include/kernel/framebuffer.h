@@ -40,7 +40,7 @@ void _fb_put_pixel(uint32_t, uint32_t, uint32_t);
 
 uint32_t _fb_get_pixel(uint32_t x, uint32_t y);
 
-void map_framebuffer(struct framebuffer_info fbdata);
+void* map_framebuffer(struct framebuffer_info fbdata);
 void set_fb_data(struct multiboot_tag_framebuffer *);
 void _fb_printStrAndNumber(const char*, uint64_t, uint32_t, uint32_t);
 void _fb_printStrAndNumberAt(const char*, uint64_t, size_t, size_t, uint32_t, uint32_t);
