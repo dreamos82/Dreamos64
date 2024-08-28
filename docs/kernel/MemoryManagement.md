@@ -127,4 +127,15 @@ Currently only the allocation of virtual memory is implemented. There is no `vmm
 
 This is the kernel heap, this is used by the kernel when it needs to allocate resources.
 
+## Memory Organization
+
+Below MMIO_HIGHER_HALF_ADDRESS_OFFSET the address space is reserved by user space memory.
+
+* `MMIO_HIGHER_HALF_ADDRESS_OFFSET = 0xFFFF800000000000`
+    - This address mark the start of the address space reserved for allocating MMIO devices
+    - The MMIO address space size is: `0x280000000` (defined in `MMIO_RESERVED_SPACE_SIZE`)
+* `HIGHER_HALF_ADDRESS_OFFSET = (MMIO_HIGHER_HALF_ADDRESS_OFFSET + MMIO_RESERVED_SPACE_SIZE) = 0xFFFF800280000000`
+    - This addres is the start of the address space that will be used by the kernel while in supervisor mode.
+* `KERNEL_VIRTUAL_ADDR =  0xFFFFFFFF80000000`
+    - From that address, we hae the original mapping of the kernel, in the higher half of memory.
 
