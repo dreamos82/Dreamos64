@@ -53,6 +53,8 @@ extern uint64_t multiboot_framebuffer_data;
 extern uint64_t multiboot_mmap_data;
 extern uint64_t multiboot_basic_meminfo;
 extern uint64_t multiboot_acpi_info;
+extern uint64_t multiboot_tag_end;
+extern uint64_t multiboot_tag_start;
 extern uint64_t end_of_mapped_memory;
 extern uint8_t psf_font_version;
 extern struct framebuffer_info framebuffer_data;
@@ -65,6 +67,7 @@ struct multiboot_tag_mmap *tagmmap = NULL;
 struct multiboot_tag *tagacpi = NULL;
 struct multiboot_tag_module *loaded_module = NULL;
 struct multiboot_tag *tag_start = NULL;
+
 
 uint64_t elf_module_start_hh = 0;
 
@@ -165,6 +168,7 @@ void _init_basic_system(unsigned long addr){
                 break;
         }
     }
+    multiboot_tag_end = (uint64_t) tag;
 }
 
 void kernel_start(unsigned long addr, unsigned long magic){

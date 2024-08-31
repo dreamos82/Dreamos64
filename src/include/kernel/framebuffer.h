@@ -27,6 +27,11 @@ typedef struct framebuffer_info {
 extern _fb_window_t framebuffer_main_window;
 extern _fb_window_t framebuffer_logo_area;
 
+extern size_t cur_fb_line;
+extern framebuffer_info framebuffer_data;
+extern uint32_t number_of_lines;
+extern _fb_window_t *logo_area_ptr;
+
 void _fb_putchar(char symbol, size_t cx, size_t cy, uint32_t fg, uint32_t bg);
 void _fb_printStrAt(const char *string, size_t cx, size_t cy, uint32_t fg, uint32_t bg);
 void _fb_printStr(const char *string, uint32_t fg, uint32_t bg);
@@ -35,7 +40,7 @@ void _fb_put_pixel(uint32_t, uint32_t, uint32_t);
 
 uint32_t _fb_get_pixel(uint32_t x, uint32_t y);
 
-/*void map_framebuffer(struct multiboot_tag_framebuffer *);*/
+void* map_framebuffer(struct framebuffer_info fbdata);
 void set_fb_data(struct multiboot_tag_framebuffer *);
 void _fb_printStrAndNumber(const char*, uint64_t, uint32_t, uint32_t);
 void _fb_printStrAndNumberAt(const char*, uint64_t, size_t, size_t, uint32_t, uint32_t);

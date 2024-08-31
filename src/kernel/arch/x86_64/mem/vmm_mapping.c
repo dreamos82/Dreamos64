@@ -4,6 +4,7 @@
 #include <pmm.h>
 #include <vm.h>
 #include <vmm.h>
+#include <vmm_mapping.h>
 
 void *map_phys_to_virt_addr_hh(void* physical_address, void* address, size_t flags, uint64_t *pml4_root) {
 
