@@ -172,3 +172,31 @@ key_codes translate(uint8_t scancode) {
     extended_read = false;
     return scancode_mappings[0];
 }
+
+// read single character
+char readSgCh() {
+    char ch;
+    printf("Enter a character: ");
+    ch = getchar();
+    getchar(); // erase "Enter" input
+    return ch;
+}
+
+// read string
+void readString(char *str, int size) {
+    printf("Enter a string: ");
+    fgets(str, size, stdin);
+    size_t len = strlen(str);
+    if (len > 0 && str[len - 1] == '\n') {
+        str[len - 1] = '\0';
+    }
+}
+
+// read integer
+int readInteger() {
+    int number;
+    printf("Enter an integer: ");
+    scanf("%d", &number);
+    while (getchar() != '\n'); 
+    return number;
+}
