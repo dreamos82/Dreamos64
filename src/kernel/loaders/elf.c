@@ -16,9 +16,13 @@ void load_elf(uintptr_t elf_start, uint64_t size) {
         Elf64_Half phdr_entsize = elf_header->e_phentsize;
         pretty_logf(Verbose, " Number of PHDR entries: 0x%x", phdr_entries);
         pretty_logf(Verbose, " PHDR Entry Size: 0x%x", phdr_entsize );
+        pretty_logf(Verbose, " ELF Entry point: 0x%x", elf_header->e_entry);
         Elf64_Half result = loop_phdrs(elf_header, phdr_entries);
         if (result > 0) {
             pretty_logf(Verbose, " Number of PT_LOAD entries: %d", result);
+            Elf64_Phdr *cur_phdr = read_phdr(elf_header, 0);
+            pretty_logf(Verbose, "\t[cur_phdr]: Type: 0x%x, Flags: 0x%x  -  Vaddr: 0x%x - aligned: 0x%x  - p_align: 0x%x - p_memsz: 0%x ", cur_phdr->p_type, cur_phdr->p_flags, cur_phdr->p_vaddr, align_value_to_page(cur_phdr->p_vaddr), cur_phdr->p_align, cur_phdr->p_memsz);
+            // Now is time to create a atask
         }
     }
 }
@@ -39,6 +43,14 @@ Elf64_Half loop_phdrs(Elf64_Ehdr* e_hdr, Elf64_Half phdr_entries) {
     return number_of_pt_loads;
 }
 
+/**
+ * This function return the hhdm pointer of the physycal address provided
+ *
+ *
+ * @param e_hdr the elf header
+ * @param phdr_entry_number the entry number we want to read
+ * @return  Elf64_Phdr * the selected P_hdr or NULL if not found.
+ */
 Elf64_Phdr *read_phdr(Elf64_Ehdr* e_hdr, Elf64_Half phdr_entry_number) {
     Elf64_Half phdr_entries = e_hdr->e_phnum;
 

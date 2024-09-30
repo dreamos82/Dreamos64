@@ -87,5 +87,5 @@ void load_elf(uintptr_t elf_start, uint64_t size);
 bool parse_section_header(Elf64_Ehdr *elf_start, uint64_t size, executable_loader_type type);
 
 Elf64_Half loop_phdrs(Elf64_Ehdr* e_phdr, Elf64_Half phdr_entries);
-
+Elf64_Phdr *read_phdr(Elf64_Ehdr* e_hdr, Elf64_Half phdr_entry_number);
 #endif
