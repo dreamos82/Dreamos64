@@ -264,9 +264,10 @@ void kernel_start(unsigned long addr, unsigned long magic){
     #endif
     init_scheduler();
     char a = 'a';
-    task_t* idle_task = create_task("idle", idle, &a, true);
+    task_t* idle_task = create_task_from_func("idle", idle, &a, true);
     idle_thread = idle_task->threads;
-    task_t* userspace_task = create_task("userspace_idle", NULL, &a, false);
+    task_t* userspace_task = create_task_from_func("userspace_idle", NULL, &a, false);
+    task_t* elf_task = create_task_from_elf("elf_idle", NULL, (Elf64_Ehdr *) (uintptr_t) hhdm_get_variable(elf_module_start_phys));
     //create_thread("ledi", noop2, &c, eldi_task);
     //create_task("sleeper", noop3, &d);
     //execute_runtime_tests();

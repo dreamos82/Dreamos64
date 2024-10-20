@@ -21,10 +21,13 @@ void load_elf(uintptr_t elf_start, uint64_t size) {
         if (result > 0) {
             pretty_logf(Verbose, " Number of PT_LOAD entries: %d", result);
             Elf64_Phdr *cur_phdr = read_phdr(elf_header, 0);
-            pretty_logf(Verbose, "\t[cur_phdr]: Type: 0x%x, Flags: 0x%x  -  Vaddr: 0x%x - aligned: 0x%x  - p_align: 0x%x - p_memsz: 0%x ", cur_phdr->p_type, cur_phdr->p_flags, cur_phdr->p_vaddr, align_value_to_page(cur_phdr->p_vaddr), cur_phdr->p_align, cur_phdr->p_memsz);
+            pretty_logf(Verbose, "\t[cur_phdr]: Type: 0x%x, Flags: 0x%x  -  Vaddr: 0x%x - aligned: 0x%x  - p_align: 0x%x - p_memsz: 0%x - p_offset: 0x%x", cur_phdr->p_type, cur_phdr->p_flags, cur_phdr->p_vaddr, align_value_to_page(cur_phdr->p_vaddr), cur_phdr->p_align, cur_phdr->p_memsz, cur_phdr->p_offset);
+            cur_phdr = read_phdr(elf_header, 1);
+            pretty_logf(Verbose, "\t[cur_phdr]: Type: 0x%x, Flags: 0x%x  -  Vaddr: 0x%x - aligned: 0x%x  - p_align: 0x%x - p_memsz: 0%x - p_offset: 0x%x", cur_phdr->p_type, cur_phdr->p_flags, cur_phdr->p_vaddr, align_value_to_page(cur_phdr->p_vaddr), cur_phdr->p_align, cur_phdr->p_memsz, cur_phdr->p_offset);
             // Now is time to create a atask
         }
     }
+    //while(1);
 }
 
 Elf64_Half loop_phdrs(Elf64_Ehdr* e_hdr, Elf64_Half phdr_entries) {
@@ -102,4 +105,14 @@ bool parse_section_header(Elf64_Ehdr *elf_start, uint64_t size, executable_loade
         return true;
     }
     return false;
+}
+
+uint64_t elf_flags_to_memory_flags(Elf64_Word flags) {
+    // Elf flags:
+    // 1 = Read
+    // 2 = Write
+    // 4 = Execute
+    // They can be mixed.
+    uint64_t flags_to_return = (flags & 0b10);
+    return flags_to_return;
 }

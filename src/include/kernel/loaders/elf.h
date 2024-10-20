@@ -88,4 +88,6 @@ bool parse_section_header(Elf64_Ehdr *elf_start, uint64_t size, executable_loade
 
 Elf64_Half loop_phdrs(Elf64_Ehdr* e_phdr, Elf64_Half phdr_entries);
 Elf64_Phdr *read_phdr(Elf64_Ehdr* e_hdr, Elf64_Half phdr_entry_number);
+
+uint64_t elf_flags_to_memory_flags(Elf64_Word flags);
 #endif

@@ -27,14 +27,21 @@ struct task_t {
 
 extern size_t next_task_id;
 
-task_t* create_task( char *name, void (*_entry_point)(void *), void *args, bool is_supervisor );
+task_t* create_task( char *name, bool is_supervisor );
+task_t *create_task_from_func(char *name, void (*_entry_point)(void *), void *args, bool is_supervisor);
+task_t *create_task_from_elf(char *name, void *args, Elf64_Ehdr *elf_header);
+
 task_t* get_task( size_t task_id );
 
 bool add_thread_to_task_by_id( size_t task_id, thread_t* thread );
 bool add_thread_to_task( task_t* task, thread_t* thread );
+
 bool delete_thread_from_task( size_t thread_id, task_t *task );
-void prepare_virtual_memory_environment( task_t* task );
+
+void prepare_virtual_memory_environment(task_t* task);
+
 void print_thread_list( size_t task_id );
+
 bool remove_thread_from_task(size_t thread_id, task_t *task);
 
 #endif

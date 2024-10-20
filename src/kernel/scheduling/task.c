@@ -1,34 +1,67 @@
+#include <elf.h>
 #include <hh_direct_map.h>
-#include <task.h>
-#include <scheduler.h>
+#include <kernel.h>
 #include <kheap.h>
-#include <string.h>
 #include <logging.h>
 #include <vm.h>
-#include <kernel.h>
+#include <pmm.h>
+#include <scheduler.h>
+#include <task.h>
+#include <string.h>
 #include <vmm.h>
 #include <vmm_mapping.h>
-#include <pmm.h>
 
 extern uint64_t p4_table[];
 extern uint64_t p3_table[];
 extern uint64_t p3_table_hh[];
 
-task_t* create_task(char *name, void (*_entry_point)(void *), void *args, bool is_supervisor) {
+task_t* create_task(char *name, bool is_supervisor) {
     //disable interrupts while creating a task
-    asm("cli");
     task_t* new_task = (task_t*) kmalloc(sizeof(task_t));
     strcpy(new_task->task_name, name);
     new_task->parent = NULL;
     new_task->task_id = next_task_id++;
     pretty_logf(Verbose, "Task created with name: %s - Task id: %d", new_task->task_name, new_task->task_id);
-    prepare_virtual_memory_environment(new_task);
+    //prepare_virtual_memory_environment(new_task);
     if ( is_supervisor ){
         vmm_init(VMM_LEVEL_SUPERVISOR, &(new_task->vmm_data));
     } else {
         vmm_init(VMM_LEVEL_USER, &(new_task->vmm_data));
     }
-    if( is_supervisor) {
+    //scheduler_add_task(new_task);
+    //re-enable interrupts
+    return new_task;
+}
+
+task_t *create_task_from_elf(char *name, void *args, Elf64_Ehdr *elf_header){
+    asm("cli");
+    // I will not create a task from elf if is_supervisor is true.
+    task_t* new_task = create_task(name,  false);
+    prepare_virtual_memory_environment(new_task);
+    if(elf_header != NULL) {
+        //Here i will put the code to handle the case where an Elf is passed.
+        Elf64_Half phdr_entries = elf_header->e_phnum;
+        Elf64_Half phdr_entsize = elf_header->e_phentsize;
+        pretty_logf(Verbose, " Number of PHDR entries: 0x%x", phdr_entries);
+        pretty_logf(Verbose, " PHDR Entry Size: 0x%x", phdr_entsize );
+        pretty_logf(Verbose, " ELF Entry point: 0x%x", elf_header->e_entry);
+        /*for ( int i = 0; i < phdr_entries; i++) {
+            // I need first to compute the number of pages required for each phdr
+            // clear all the memory not used
+            // compute the entries for each page and insert them into the page tables.
+        }*/
+    }
+    // Create a new thread
+    scheduler_add_task(new_task);
+    asm("sti");
+    return new_task;
+}
+
+task_t *create_task_from_func(char *name, void (*_entry_point)(void *), void *args, bool is_supervisor) {
+    asm("cli");
+    task_t* new_task = create_task(name,  is_supervisor);
+    prepare_virtual_memory_environment(new_task);
+        if( is_supervisor) {
         pretty_logf(Verbose, "creating new supervisor thread: %s", name);
         thread_t* thread = create_thread(name, _entry_point, args, new_task, is_supervisor);
         new_task->threads = thread;
@@ -38,9 +71,7 @@ task_t* create_task(char *name, void (*_entry_point)(void *), void *args, bool i
         new_task->threads = thread;
     }
     scheduler_add_task(new_task);
-    //re-enable interrupts
     asm("sti");
-    return new_task;
 }
 
 void prepare_virtual_memory_environment(task_t* task) {
@@ -51,8 +82,7 @@ void prepare_virtual_memory_environment(task_t* task) {
     //pretty_logf(Verbose, "vm_root_page_table address: %x", task->vm_root_page_table);
     //identity_map_phys_address(task->vm_root_page_table, 0);
     // I will get the page frame first, then get virtual address to map it to with vmm_alloc, and then do the mapping on the virtual address.
-    // Technically the vmm_alloc is not needed, since i have the direct memory map already accessible, so i just need to access it through the direct map.
-
+    // Technically the vmm_alloc is not needed, since i have the direct memory map already accessible, so i just need to access it through the direct m
     //void* vm_root_vaddress = vmm_alloc(PAGE_SIZE_IN_BYTES, VMM_FLAGS_ADDRESS_ONLY, NULL);
     void* vm_root_vaddress = hhdm_get_variable ((uintptr_t) task->vm_root_page_table);
     task->vmm_data.root_table_hhdm = (uintptr_t) vm_root_vaddress;
