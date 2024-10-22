@@ -45,11 +45,17 @@ task_t *create_task_from_elf(char *name, void *args, Elf64_Ehdr *elf_header){
         pretty_logf(Verbose, " Number of PHDR entries: 0x%x", phdr_entries);
         pretty_logf(Verbose, " PHDR Entry Size: 0x%x", phdr_entsize );
         pretty_logf(Verbose, " ELF Entry point: 0x%x", elf_header->e_entry);
-        /*for ( int i = 0; i < phdr_entries; i++) {
+        Elf64_Phdr *phdr_list = (Elf64_Phdr*) ((uintptr_t) elf_header + elf_header->e_phoff);
+        for ( int i = 0; i < phdr_entries; i++) {
             // I need first to compute the number of pages required for each phdr
             // clear all the memory not used
             // compute the entries for each page and insert them into the page tables.
-        }*/
+            Elf64_Phdr phdr = phdr_list[i];
+            pretty_logf(Verbose, "\t[%d]: Type: 0x%x, Flags: 0x%x  -  Vaddr: 0x%x - aligned: 0x%x ", i, phdr.p_type, phdr.p_flags, phdr.p_vaddr, align_value_to_page(phdr.p_vaddr));
+            pretty_logf(Verbose, "\t\t - FileSz: 0x%x, Memsz: 0x%x ", phdr.p_filesz, phdr.p_memsz);
+            Elf64_Half mem_pages = (Elf64_Half) get_number_of_pages_from_size(phdr.p_memsz);
+            Elf64_Half filesz_pages = (Elf64_Half) get_number_of_pages_from_size(phdr.p_filesz);
+        }
     }
     // Create a new thread
     scheduler_add_task(new_task);

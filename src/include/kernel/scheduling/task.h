@@ -1,6 +1,7 @@
 #ifndef _TASK_H
 #define _TASK_H
 
+#include <elf.h>
 #include <stddef.h>
 #include <stdbool.h>
 #include <thread.h>
