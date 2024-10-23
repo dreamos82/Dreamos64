@@ -107,7 +107,15 @@ bool parse_section_header(Elf64_Ehdr *elf_start, uint64_t size, executable_loade
     return false;
 }
 
+/**
+ * This function given an elf p_hdr flag  returns the architecture dependent vmm flags
+ *
+ *
+ * @param flags elf flags
+ * @return architecture dependant flags
+ */
 uint64_t elf_flags_to_memory_flags(Elf64_Word flags) {
+    // This function will be movede into the arch dependant code
     // Elf flags:
     // 1 = Read
     // 2 = Write
