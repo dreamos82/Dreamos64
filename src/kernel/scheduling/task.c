@@ -53,10 +53,19 @@ task_t *create_task_from_elf(char *name, void *args, Elf64_Ehdr *elf_header){
             Elf64_Phdr phdr = phdr_list[i];
             size_t vmm_hdr_flags = elf_flags_to_memory_flags(phdr.p_type);
             pretty_logf(Verbose, "\t[%d]: Type: 0x%x, Flags: 0x%x  -  Vaddr: 0x%x - aligned: 0x%x ", i, phdr.p_type, phdr.p_flags, phdr.p_vaddr, align_value_to_page(phdr.p_vaddr));
-            pretty_logf(Verbose, "\t\t - FileSz: 0x%x, Memsz: 0x%x, vmm flags: 0x%x", phdr.p_filesz, phdr.p_memsz, vmm_hdr_flags);
+            pretty_logf(Verbose, "\t\t - FileSz: 0x%x, Memsz: 0x%x, vmm flags: 0x%x - p_align: 0x%x", phdr.p_filesz, phdr.p_memsz, vmm_hdr_flags, phdr.p_align);
             Elf64_Half mem_pages = (Elf64_Half) get_number_of_pages_from_size(phdr.p_memsz);
             Elf64_Half filesz_pages = (Elf64_Half) get_number_of_pages_from_size(phdr.p_filesz);
-
+            uint64_t offset_address = elf_header + phdr.p_offset;
+            uint64_t vaddr_address = align_value_to_page(phdr.p_vaddr);
+            for (int i = 0; i < mem_pages; i++) {
+                pretty_logf(Verbose, "Mapping: offset: 0x%x in vaddr: 0x%x", hhdm_get_phys_address(offset_address), vaddr_address);
+                map_phys_to_virt_addr_hh(hhdm_get_phys_address(offset_address),  vaddr_address, vmm_hdr_flags, new_task->vmm_data.root_table_hhdm);
+                //I need a mem copy. I need to fopy the content of elf_header + phdr.p_offset into phdr.p_vaddr
+                offset_address += phdr.p_align;
+                vaddr_address += phdr.p_align;
+                //I need to allocate memory and map it into the new memory space,
+            }
         }
     }
     // Create a new thread

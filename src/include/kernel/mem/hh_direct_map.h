@@ -11,6 +11,7 @@
 void early_map_physical_memory(uint64_t end_of_reserved_area);
 
 void *hhdm_get_variable ( uintptr_t phys_address );
+void *hhdm_get_phys_address(uintptr_t hhdm_address);
 void hhdm_map_physical_memory();
 
 #endif

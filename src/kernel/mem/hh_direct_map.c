@@ -28,6 +28,17 @@ void *hhdm_get_variable ( uintptr_t phys_address ) {
     return NULL;
 }
 
+/**
+ * This is an helper function return the physical address given a hhdm one
+ *
+ *
+ * @return phys_address the physical address we want to retrieve
+ * @param hhdm_address of the physical address or NULL in case of error
+ */
+void *hhdm_get_phys_address(uintptr_t hhdm_address) {
+    return (void *)(hhdm_address - higherHalfDirectMapBase);
+}
+
 
 void hhdm_map_physical_memory() {
     // This function should be called only once, and the hhdm shouldn't change during the kernel uptime
