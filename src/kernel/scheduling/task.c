@@ -10,6 +10,7 @@
 #include <string.h>
 #include <vmm.h>
 #include <vmm_mapping.h>
+#include <vmm_util.h>
 
 extern uint64_t p4_table[];
 extern uint64_t p3_table[];
@@ -57,18 +58,17 @@ task_t *create_task_from_elf(char *name, void *args, Elf64_Ehdr *elf_header){
             Elf64_Half mem_pages = (Elf64_Half) get_number_of_pages_from_size(phdr.p_memsz);
             Elf64_Half filesz_pages = (Elf64_Half) get_number_of_pages_from_size(phdr.p_filesz);
             uint64_t offset_address = (uint64_t) ((uint64_t) elf_header + (uint64_t) phdr.p_offset);
-            pretty_logf(Verbose, "[%d]: offset_address: 0x%x (virtual: 0x%x) - elf_header: 0x%x", i, hhdm_get_phys_address(offset_address), offset_address, elf_header);
             uint64_t vaddr_address = align_value_to_page(phdr.p_vaddr);
             for (int j = 0; j < mem_pages; j++) {
-                pretty_logf(Verbose, "[%d]: Mapping: offset: 0x%x (virtual: 0x%x) in vaddr: 0x%x - elf_header: 0x%x", j, hhdm_get_phys_address(offset_address), offset_address, vaddr_address, hhdm_get_phys_address(elf_header));
-                map_phys_to_virt_addr_hh(hhdm_get_phys_address(offset_address),  vaddr_address, VMM_FLAGS_USER_LEVEL | vmm_hdr_flags | VMM_FLAGS_PRESENT, new_task->vmm_data.root_table_hhdm);
+                pretty_logf(Verbose, "[%d]: Mapping: offset: 0x%x (virtual: 0x%x) in vaddr: 0x%x", j, hhdm_get_phys_address((uintptr_t) offset_address), offset_address, vaddr_address);
+                map_phys_to_virt_addr_hh(hhdm_get_phys_address(offset_address), (void *) vaddr_address, VMM_FLAGS_USER_LEVEL | vmm_hdr_flags | VMM_FLAGS_PRESENT, (uint64_t *) new_task->vmm_data.root_table_hhdm);
                 //I need a mem copy. I need to fopy the content of elf_header + phdr.p_offset into phdr.p_vaddr
                 offset_address += (uint64_t) phdr.p_align;
                 vaddr_address += (uint64_t) phdr.p_align;
                 //I need to allocate memory and map it into the new memory space,
             }
         }
-        thread_t* thread = create_thread(name, elf_header->e_entry, args, new_task, false, true);
+        thread_t* thread = create_thread(name, (void (*)(void *))elf_header->e_entry, args, new_task, false, true);
         pretty_logf(Verbose, "Thread created: id: %d - Entry Point: 0x%x - elf header entry point: 0x%x", thread->tid, thread->execution_frame->rip, elf_header->e_entry);
     }
     // Create a new thread
