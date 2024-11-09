@@ -47,7 +47,7 @@ void *map_phys_to_virt_addr_hh(void* physical_address, void* address, size_t fla
             clean_new_table(new_table_hhdm);
             pdpr_root = new_table_hhdm;
         } else {
-            pretty_log(Verbose, "No need to allocate pml4");
+            //pretty_log(Verbose, "No need to allocate pml4");
             pdpr_root =  (uint64_t *) hhdm_get_variable((uintptr_t) pml4_root[pml4_e] & VM_PAGE_TABLE_BASE_ADDRESS_MASK);
         }
 
@@ -59,7 +59,7 @@ void *map_phys_to_virt_addr_hh(void* physical_address, void* address, size_t fla
             clean_new_table(new_table_hhdm);
             pd_root = new_table_hhdm;
         } else {
-            pretty_log(Verbose, "No need to allocate pdpr");
+            //pretty_log(Verbose, "No need to allocate pdpr");
             pd_root =  (uint64_t *) hhdm_get_variable((uintptr_t) pdpr_root[pdpr_e] & VM_PAGE_TABLE_BASE_ADDRESS_MASK);
         }
 
@@ -72,7 +72,7 @@ void *map_phys_to_virt_addr_hh(void* physical_address, void* address, size_t fla
             clean_new_table(new_table_hhdm);
             pt_table = new_table_hhdm;
         } else {
-            pretty_log(Verbose, "No need to allocate pd");
+            //pretty_log(Verbose, "No need to allocate pd");
             pt_table = (uint64_t *) hhdm_get_variable((uintptr_t) pd_root[pd_e] & VM_PAGE_TABLE_BASE_ADDRESS_MASK);
         }
 

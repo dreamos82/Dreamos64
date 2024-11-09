@@ -24,10 +24,8 @@ void load_elf(uintptr_t elf_start, uint64_t size) {
             pretty_logf(Verbose, "\t[cur_phdr]: Type: 0x%x, Flags: 0x%x  -  Vaddr: 0x%x - aligned: 0x%x  - p_align: 0x%x - p_memsz: 0%x - p_offset: 0x%x", cur_phdr->p_type, cur_phdr->p_flags, cur_phdr->p_vaddr, align_value_to_page(cur_phdr->p_vaddr), cur_phdr->p_align, cur_phdr->p_memsz, cur_phdr->p_offset);
             cur_phdr = read_phdr(elf_header, 1);
             pretty_logf(Verbose, "\t[cur_phdr]: Type: 0x%x, Flags: 0x%x  -  Vaddr: 0x%x - aligned: 0x%x  - p_align: 0x%x - p_memsz: 0%x - p_offset: 0x%x", cur_phdr->p_type, cur_phdr->p_flags, cur_phdr->p_vaddr, align_value_to_page(cur_phdr->p_vaddr), cur_phdr->p_align, cur_phdr->p_memsz, cur_phdr->p_offset);
-            // Now is time to create a atask
         }
     }
-    //while(1);
 }
 
 Elf64_Half loop_phdrs(Elf64_Ehdr* e_hdr, Elf64_Half phdr_entries) {
@@ -35,7 +33,7 @@ Elf64_Half loop_phdrs(Elf64_Ehdr* e_hdr, Elf64_Half phdr_entries) {
     Elf64_Half number_of_pt_loads = 0;
     for (size_t i = 0; i < phdr_entries; i++) {
         Elf64_Phdr phdr = phdr_list[i];
-        pretty_logf(Verbose, "\t[%d]: Type: 0x%x, Flags: 0x%x  -  Vaddr: 0x%x - aligned: 0x%x ", i, phdr.p_type, phdr.p_flags, phdr.p_vaddr, align_value_to_page(phdr.p_vaddr));
+        pretty_logf(Verbose, "\t[%d]: Type: 0x%x, Flags: 0x%x  -  Vaddr: 0x%x - aligned: 0x%x - offset: 0x%x ", i, phdr.p_type, phdr.p_flags, phdr.p_vaddr, align_value_to_page(phdr.p_vaddr), phdr.p_offset);
         if ( is_address_aligned(phdr.p_vaddr, PAGE_SIZE_IN_BYTES) ) {
             pretty_log(Verbose, "\tThe address is aligned");
         } else {
@@ -47,7 +45,7 @@ Elf64_Half loop_phdrs(Elf64_Ehdr* e_hdr, Elf64_Half phdr_entries) {
 }
 
 /**
- * This function return the hhdm pointer of the physycal address provided
+ * This function return the phdr entry at the pdhrd_entry_number provided.
  *
  *
  * @param e_hdr the elf header
@@ -63,7 +61,6 @@ Elf64_Phdr *read_phdr(Elf64_Ehdr* e_hdr, Elf64_Half phdr_entry_number) {
     }
 
     return NULL;
-
 }
 
 
