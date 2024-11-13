@@ -42,9 +42,9 @@ ISO_IMAGE_FILENAME := $(IMAGE_BASE_NAME)-$(ARCH_PREFIX)-$(VERSION).iso
 
 default: build
 
-.PHONY: default build run clean debug tests gdb todolist
+.PHONY: default build run clean debug tests gdb todolist examples
 
-build: $(BUILD_FOLDER)/$(ISO_IMAGE_FILENAME)
+build: examples $(BUILD_FOLDER)/$(ISO_IMAGE_FILENAME)
 
 clean:
 	-rm -rf $(BUILD_FOLDER)
@@ -52,6 +52,12 @@ clean:
 
 run: $(BUILD_FOLDER)/$(ISO_IMAGE_FILENAME)
 	$(QEMU_SYSTEM) -cdrom $(BUILD_FOLDER)/$(ISO_IMAGE_FILENAME)
+
+examples:
+	echo "Building Examples"
+	mkdir -p $(BUILD_FOLDER)/examples
+	${ASM_COMPILER} -g -felf64 -Fdwarf examples/example_syscall.s -o $(BUILD_FOLDER)/examples/example_syscall.o
+	$(X_LD) -g $(BUILD_FOLDER)/examples/example_syscall.o -o $(BUILD_FOLDER)/examples/example_syscall.elf -e loop -T examples/linker_script_$(SMALL_PAGES).ld
 
 debug: DEBUG=1
 debug: CFLAGS += $(C_DEBUG_FLAGS)
@@ -61,12 +67,12 @@ debug: $(BUILD_FOLDER)/$(ISO_IMAGE_FILENAME)
 	# qemu-system-x86_64 -monitor unix:qemu-monitor-socket,server,nowait -cpu qemu64,+x2apic  -cdrom $(BUILD_FOLDER)/$(ISO_IMAGE_FILENAME) -serial file:dreamos64.log -m 1G -d int -no-reboot -no-shutdown
 	$(QEMU_SYSTEM) -monitor unix:qemu-monitor-socket,server,nowait -cpu qemu64,+x2apic  -cdrom $(BUILD_FOLDER)/$(ISO_IMAGE_FILENAME) -serial stdio -m 2G  -no-reboot -no-shutdown
 
-$(BUILD_FOLDER)/$(ISO_IMAGE_FILENAME): $(BUILD_FOLDER)/kernel.bin grub.cfg
+$(BUILD_FOLDER)/$(ISO_IMAGE_FILENAME): examples $(BUILD_FOLDER)/kernel.bin grub.cfg
 	mkdir -p $(BUILD_FOLDER)/isofiles/boot/grub
 	cp grub.cfg $(BUILD_FOLDER)/isofiles/boot/grub
 	cp $(BUILD_FOLDER)/kernel.bin $(BUILD_FOLDER)/isofiles/boot
 	cp $(BUILD_FOLDER)/kernel.map $(BUILD_FOLDER)/isofiles/boot
-	cp example_syscall.elf $(BUILD_FOLDER)/isofiles
+	cp $(BUILD_FOLDER)/examples/example_syscall.elf $(BUILD_FOLDER)/isofiles
 	grub-mkrescue -o $(BUILD_FOLDER)/$(ISO_IMAGE_FILENAME) $(BUILD_FOLDER)/isofiles
 
 $(BUILD_FOLDER)/%.o: src/%.s
