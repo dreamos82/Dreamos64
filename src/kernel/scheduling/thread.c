@@ -42,7 +42,7 @@ thread_t* create_thread(char* thread_name, void (*_entry_point)(void *), void* a
         // This piece of code is temporary, just to test a userspace task, it run just an infinite loop.
         pretty_logf(Verbose, "vmm_data address: 0x%x", &(parent_task->vmm_data));
         if (is_elf ) {
-            pretty_logf(Verbose, "Preparing to launch an ELF. entry_pint = 0x%x", (uint64_t) _entry_point);
+            pretty_logf(Verbose, "Preparing to launch an ELF. entry_point = 0x%x", (uint64_t) _entry_point);
             new_thread->execution_frame->rip = (uint64_t)_entry_point;
         } else {
             new_thread->execution_frame->rip = prepare_userspace_function(&(parent_task->vmm_data));
@@ -75,7 +75,6 @@ thread_t* create_thread(char* thread_name, void (*_entry_point)(void *), void* a
           while(1);
     }
     // We need to allocate a new stack for each thread
-    //void* stack_pointer = kmalloc(THREAD_DEFAULT_STACK_SIZE);
     void* stack_pointer = vmm_alloc(THREAD_DEFAULT_STACK_SIZE, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE | VMM_FLAGS_STACK, &(parent_task->vmm_data));
     if (stack_pointer == NULL) {
         pretty_log(Fatal, "rsp is null - PANIC!");

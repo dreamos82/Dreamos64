@@ -61,6 +61,10 @@ task_t *create_task_from_elf(char *name, void *args, Elf64_Ehdr *elf_header){
             uint64_t vaddr_address = align_value_to_page(phdr.p_vaddr);
             for (int j = 0; j < mem_pages; j++) {
                 pretty_logf(Verbose, "[%d]: Mapping: offset: 0x%x (virtual: 0x%x) in vaddr: 0x%x", j, hhdm_get_phys_address((uintptr_t) offset_address), offset_address, vaddr_address);
+                if ( !is_address_aligned((size_t) hhdm_get_phys_address(offset_address), PAGE_SIZE_IN_BYTES)) {
+                    pretty_log(Fatal, "Error: module elf phys address is not page aligned");
+                }
+
                 map_phys_to_virt_addr_hh(hhdm_get_phys_address(offset_address), (void *) vaddr_address, VMM_FLAGS_USER_LEVEL | vmm_hdr_flags | VMM_FLAGS_PRESENT, (uint64_t *) new_task->vmm_data.root_table_hhdm);
                 //I need a mem copy. I need to fopy the content of elf_header + phdr.p_offset into phdr.p_vaddr
                 offset_address += (uint64_t) phdr.p_align;

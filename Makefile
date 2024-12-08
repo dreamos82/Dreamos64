@@ -58,6 +58,7 @@ examples:
 	mkdir -p $(BUILD_FOLDER)/examples
 	${ASM_COMPILER} -g -felf64 -Fdwarf examples/example_syscall.s -o $(BUILD_FOLDER)/examples/example_syscall.o
 	$(X_LD) -g $(BUILD_FOLDER)/examples/example_syscall.o -o $(BUILD_FOLDER)/examples/example_syscall.elf -e loop -T examples/linker_script_$(SMALL_PAGES).ld
+	#ld --section-alignment 0x200000 -g $(BUILD_FOLDER)/examples/example_syscall.o -o $(BUILD_FOLDER)/examples/example_syscall.elf -e loop
 
 debug: DEBUG=1
 debug: CFLAGS += $(C_DEBUG_FLAGS)
@@ -67,7 +68,7 @@ debug: $(BUILD_FOLDER)/$(ISO_IMAGE_FILENAME)
 	# qemu-system-x86_64 -monitor unix:qemu-monitor-socket,server,nowait -cpu qemu64,+x2apic  -cdrom $(BUILD_FOLDER)/$(ISO_IMAGE_FILENAME) -serial file:dreamos64.log -m 1G -d int -no-reboot -no-shutdown
 	$(QEMU_SYSTEM) -monitor unix:qemu-monitor-socket,server,nowait -cpu qemu64,+x2apic  -cdrom $(BUILD_FOLDER)/$(ISO_IMAGE_FILENAME) -serial stdio -m 2G  -no-reboot -no-shutdown
 
-$(BUILD_FOLDER)/$(ISO_IMAGE_FILENAME): examples $(BUILD_FOLDER)/kernel.bin grub.cfg
+$(BUILD_FOLDER)/$(ISO_IMAGE_FILENAME): $(BUILD_FOLDER)/kernel.bin grub.cfg examples
 	mkdir -p $(BUILD_FOLDER)/isofiles/boot/grub
 	cp grub.cfg $(BUILD_FOLDER)/isofiles/boot/grub
 	cp $(BUILD_FOLDER)/kernel.bin $(BUILD_FOLDER)/isofiles/boot
@@ -109,7 +110,7 @@ tests:
 	${TOOLCHAIN} ${TESTFLAGS} tests/test_kheap.c tests/test_common.c src/kernel/mem/kheap.c src/kernel/mem/bitmap.c src/kernel/mem/pmm.c src/kernel/mem/mmap.c src/kernel/mem/vmm_util.c -o tests/test_kheap.o
 	${TOOLCHAIN} ${TESTFLAGS} tests/test_vm.c tests/test_common.c src/kernel/arch/x86_64/system/vm.c src/kernel/mem/vmm_util.c  -o tests/test_vm.o
 	${TOOLCHAIN} ${TESTFLAGS} tests/test_vfs.c tests/test_common.c src/fs/vfs.c src/drivers/fs/ustar.c -o tests/test_vfs.o
-	${TOOLCHAIN} ${TESTFLAGS} tests/test_utils.c src/kernel/mem/vmm_util.c -o tests/test_utils.o
+	${TOOLCHAIN} ${TESTFLAGS} tests/test_utils.c tests/test_common.c  src/kernel/mem/vmm_util.c -o tests/test_utils.o
 	${TOOLCHAIN} ${TESTFLAGS} tests/test_window.c tests/test_common.c  src/kernel/graphics/window.c -o tests/test_window.o
 	./tests/test_mem.o && ./tests/test_kheap.o && ./tests/test_number_conversion.o && ./tests/test_vm.o && ./tests/test_vfs.o && ./tests/test_utils.o && ./tests/test_window.o
 

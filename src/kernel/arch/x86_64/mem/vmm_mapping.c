@@ -24,7 +24,7 @@ void *map_phys_to_virt_addr_hh(void* physical_address, void* address, size_t fla
     uint8_t user_mode_status = 0;
 
     if ( !is_address_higher_half((uint64_t) address) ) {
-        pretty_log(Verbose, "address is in lower half");
+        pretty_logf(Verbose, "address is in lower half: 0x%x", address);
         flags = flags | VMM_FLAGS_USER_LEVEL;
         user_mode_status = VMM_FLAGS_USER_LEVEL;
     }
@@ -84,7 +84,7 @@ void *map_phys_to_virt_addr_hh(void* physical_address, void* address, size_t fla
         }
 #elif SMALL_PAGES == 0
             pd_root[pd_e] = (uint64_t) (physical_address) | HUGEPAGE_BIT | flags | user_mode_status;
-            pretty_logf(Verbose, " PD Flags: 0x%x entry value pd_root[0x%x]: 0x%x", flags, pd_e, pd_root[pd_e]);
+            pretty_logf(Verbose, " PD Flags: 0x%x entry value pd_root[0x%x]: 0x%x - address: 0x%x", flags, pd_e, pd_root[pd_e], address);
             return address;
         }
 #endif
