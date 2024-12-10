@@ -133,6 +133,7 @@ void set_irq(uint8_t irq_type, uint8_t redirect_table_pos, uint8_t idt_entry, ui
             } else  {
                 entry.pin_polarity = 0b0;
             }
+            entry.trigger_mode = (((io_apic_source_overrides[counter].flags >> 2) & 0b11) == 2);
             break;
         }
         counter++;
