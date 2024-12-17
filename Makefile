@@ -16,6 +16,7 @@ ifeq ($(TOOLCHAIN), gcc)
 else ifeq ($(TOOLCHAIN), clang)
 	X_CC = clang
 	X_LD = ld.lld
+	LD_FLAGS += -z lrodata-after-bss
 else
 	$(error "Unknown compiler toolchain")
 endif
@@ -95,7 +96,7 @@ $(BUILD_FOLDER)/kernel.bin: $(OBJ_ASM_FILE) $(OBJ_C_FILE) $(OBJ_FONT_FILE) src/l
 	echo $(OBJ_ASM_FILE)
 	echo $(OBJ_FONT_FILE)
 	echo $(IS_WORKFLOW)
-	$(X_LD) -n -o $(BUILD_FOLDER)/kernel.bin -T src/linker.ld $(OBJ_ASM_FILE) $(OBJ_C_FILE) $(OBJ_FONT_FILE) -Map $(BUILD_FOLDER)/kernel.map
+	$(X_LD) $(LD_FLAGS)  -n -o $(BUILD_FOLDER)/kernel.bin -T src/linker.ld $(OBJ_ASM_FILE) $(OBJ_C_FILE) $(OBJ_FONT_FILE) -Map $(BUILD_FOLDER)/kernel.map
 
 gdb: DEBUG=1
 gdb: CFLAGS += $(C_DEBUG_FLAGS)
