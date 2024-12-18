@@ -1,4 +1,3 @@
-
 #include <framebuffer.h>
 #include <scheduler.h>
 #include <string.h>

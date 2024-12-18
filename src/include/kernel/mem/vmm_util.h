@@ -20,6 +20,7 @@
 size_t get_number_of_pages_from_size(size_t size);
 size_t align_value_to_page(size_t value);
 size_t align_up(size_t value, size_t alignment);
+size_t align_down(size_t value, size_t alignment);
 bool is_address_aligned(size_t value, size_t alignment);
 
 size_t vm_parse_flags( size_t flags );

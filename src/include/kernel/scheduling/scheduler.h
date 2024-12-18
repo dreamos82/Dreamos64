@@ -1,10 +1,10 @@
 #ifndef _SCHEDULER_H_
 #define _SCHEDULER_H_
 
+#include <cpu.h>
 #include <stdint.h>
 #include <thread.h>
 #include <task.h>
-#include <cpu.h>
 
 #define SCHEDULER_NUMBER_OF_TICKS   0x200
 #define SCHEDULER_MAX_THREAD_NUMBER 0x10

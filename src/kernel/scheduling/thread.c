@@ -14,7 +14,7 @@ unsigned char code_to_run[] = {
     0xeb, 0xfe
 };
 
-thread_t* create_thread(char* thread_name, void (*_entry_point)(void *), void* arg, task_t* parent_task, bool is_supervisor) {
+thread_t* create_thread(char* thread_name, void (*_entry_point)(void *), void* arg, task_t* parent_task, bool is_supervisor, bool is_elf) {
     // The first part is pretty trivial mostly bureaucray. Setting basic thread information like name, tid, parent...
     // Just like when registtering a new born child :D
     if ( parent_task == NULL) {
@@ -30,7 +30,9 @@ thread_t* create_thread(char* thread_name, void (*_entry_point)(void *), void* a
     new_thread->next = NULL;
     new_thread->next_sibling = NULL;
     new_thread->ticks = 0;
-    pretty_logf(Verbose, "Creating thread with arg: %c - arg: %x - name: %s - rip: %x", (char) *((char*) arg), arg, thread_name, _entry_point);
+    if (arg != NULL) {
+        pretty_logf(Verbose, "Creating thread with arg: %c - arg: %x - name: %s - rip: %x", (char) *((char*) arg), arg, thread_name, _entry_point);
+    }
 
     //Here we create a new execution frame to be used when switching to a newly created task
     new_thread->execution_frame = kmalloc(sizeof(cpu_status_t));
@@ -39,7 +41,12 @@ thread_t* create_thread(char* thread_name, void (*_entry_point)(void *), void* a
     if (!is_supervisor) {
         // This piece of code is temporary, just to test a userspace task, it run just an infinite loop.
         pretty_logf(Verbose, "vmm_data address: 0x%x", &(parent_task->vmm_data));
-        new_thread->execution_frame->rip = prepare_userspace_function(&(parent_task->vmm_data));
+        if (is_elf ) {
+            pretty_logf(Verbose, "Preparing to launch an ELF. entry_point = 0x%x", (uint64_t) _entry_point);
+            new_thread->execution_frame->rip = (uint64_t)_entry_point;
+        } else {
+            new_thread->execution_frame->rip = prepare_userspace_function(&(parent_task->vmm_data));
+        }
         pretty_logf(Verbose, "using userspace function address: 0x%x", new_thread->execution_frame->rip);
         new_thread->execution_frame->rdi = 0;
         new_thread->execution_frame->rsi = 0;
@@ -68,7 +75,6 @@ thread_t* create_thread(char* thread_name, void (*_entry_point)(void *), void* a
           while(1);
     }
     // We need to allocate a new stack for each thread
-    //void* stack_pointer = kmalloc(THREAD_DEFAULT_STACK_SIZE);
     void* stack_pointer = vmm_alloc(THREAD_DEFAULT_STACK_SIZE, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE | VMM_FLAGS_STACK, &(parent_task->vmm_data));
     if (stack_pointer == NULL) {
         pretty_log(Fatal, "rsp is null - PANIC!");

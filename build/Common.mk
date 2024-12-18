@@ -26,6 +26,8 @@ CFLAGS := -std=gnu99 \
         -mno-red-zone \
         -mno-sse \
         -mcmodel=large \
+        -fno-pie \
+        -fno-pic \
         -fno-stack-protector
 
 CFLAGS += $(DEF_FLAGS)
@@ -45,6 +47,8 @@ TESTFLAGS := -std=gnu99 \
         -I src/include/utils \
         -DSMALL_PAGES=0 \
         -D_TEST_=1
+
+LD_FLAGS :=
 
 PRJ_FOLDERS := src
 TEST_FOLDER := tests

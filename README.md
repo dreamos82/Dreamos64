@@ -40,6 +40,7 @@ But at kernel level several things have been implemented:
 * Basic Virtual Memory implementation
 * Initial Userspace support (so far can run only an idle userspace thread)
 * Basic syscall mechanism (altough no real syscalls are implemented, just one that prints the string "example")
+* Initial basic ELF support (from kernel module)
 
 ## Prerequisites:
 
