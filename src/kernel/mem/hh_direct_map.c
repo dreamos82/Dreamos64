@@ -53,12 +53,12 @@ void hhdm_map_physical_memory() {
     uint64_t address_to_map = 0;
     uint64_t virtual_address = higherHalfDirectMapBase;
 
-    pretty_logf(Verbose, "Virtual address: 0x%x", virtual_address);
+    pretty_logf(Verbose, "Virtual address: 0x%x -- hhdmBase: 0x%x", virtual_address, higherHalfDirectMapBase);
     pretty_logf(Verbose, "Vaddress: 0x%x - HigherHalf Initial entries: pml4: %d, pdpr: %d, pd: %d", virtual_address, PML4_ENTRY((uint64_t) higherHalfDirectMapBase), PDPR_ENTRY((uint64_t) higherHalfDirectMapBase), PD_ENTRY((uint64_t) higherHalfDirectMapBase));
 
     size_t current_pml4_entry = PML4_ENTRY((uint64_t) higherHalfDirectMapBase);
 
-/*    if (!(p4_table[current_pml4_entry] & 0b1) ) {
+    /*if (!(p4_table[current_pml4_entry] & 0b1) ) {
         pretty_log(Fatal, "This shouldn't happen");
     }*/
 

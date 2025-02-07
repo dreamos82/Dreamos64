@@ -58,8 +58,7 @@ examples:
 	echo "Building Examples"
 	mkdir -p $(BUILD_FOLDER)/examples
 	${ASM_COMPILER} -g -felf64 -Fdwarf examples/example_syscall.s -o $(BUILD_FOLDER)/examples/example_syscall.o
-	$(X_LD) -g $(BUILD_FOLDER)/examples/example_syscall.o -o $(BUILD_FOLDER)/examples/example_syscall.elf -e loop -T examples/linker_script_$(SMALL_PAGES).ld
-	#ld --section-alignment 0x200000 -g $(BUILD_FOLDER)/examples/example_syscall.o -o $(BUILD_FOLDER)/examples/example_syscall.elf -e loop
+	$(X_LD) $(LD_FLAGS) -g $(BUILD_FOLDER)/examples/example_syscall.o -o $(BUILD_FOLDER)/examples/example_syscall.elf -e loop -T examples/linker_script_$(SMALL_PAGES).ld
 
 debug: DEBUG=1
 debug: CFLAGS += $(C_DEBUG_FLAGS)

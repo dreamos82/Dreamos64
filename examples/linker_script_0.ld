@@ -2,7 +2,7 @@ ENTRY(loop)
 
 SECTIONS {
 
-	. = 8M;
+	. = 4M;
 
 	.text : ALIGN (2M)
 	{

@@ -91,9 +91,9 @@ bool _mmap_is_address_in_available_space(uint64_t address, uint64_t upper_limit)
             if(current_entry->type == _MMAP_AVAILABLE) {
                 //pretty_logf(Verbose, "Entry 0x%x is in an available space (with size: 0x%x", address, upper_limit );
                 // The address is in an available area, but we need to check if it is not overwriting something important.
-                uint64_t multiboot_address =_is_address_in_multiboot(address);
+                bool multiboot_address =_is_address_in_multiboot(address);
                 if(multiboot_address != 0) {
-                    pretty_log(Verbose, " This address is reserved by multiboot");
+                    //pretty_log(Verbose, " This address is reserved by multiboot");
                     return false;
                 }
                 return true;
