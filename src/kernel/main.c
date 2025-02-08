@@ -269,7 +269,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
     #if PAGE_SIZE_IN_BYTES == 0x200000
     task_t* userspace_task = create_task_from_func("userspace_idle", NULL, &a, false);
     #else
-    task_t* elf_task = create_task_from_elf("elf_idle", NULL, (Elf64_Ehdr *) (uintptr_t) hhdm_get_variable(elf_module_start_phys));
+    task_t* elf_task = create_task_from_elf("elf_idle", NULL, (Elf64_Ehdr *) hhdm_get_variable(elf_module_start_phys));
     #endif
     //create_thread("ledi", noop2, &c, eldi_task);
     //create_task("sleeper", noop3, &d);

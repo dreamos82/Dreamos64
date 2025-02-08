@@ -43,6 +43,8 @@ SECTIONS {
 	{
 		*(.bss)
 		*(.lbss)
+		*(.bss.*)
+		*(.lbss.*)
 	}
 
     _kernel_end = .;
