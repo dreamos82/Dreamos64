@@ -58,10 +58,6 @@ void hhdm_map_physical_memory() {
 
     size_t current_pml4_entry = PML4_ENTRY((uint64_t) higherHalfDirectMapBase);
 
-    /*if (!(p4_table[current_pml4_entry] & 0b1) ) {
-        pretty_log(Fatal, "This shouldn't happen");
-    }*/
-
     uint64_t upper_address_to_map = (mmap_entries[_mmap_last_available_item].addr + mmap_entries[_mmap_last_available_item].len);
     pretty_logf(Verbose, "Last available item: %d -  Last address to map: 0x%x", _mmap_last_available_item, upper_address_to_map);
 

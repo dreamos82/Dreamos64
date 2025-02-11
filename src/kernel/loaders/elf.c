@@ -23,7 +23,6 @@ void load_elf(uintptr_t elf_start, uint64_t size) {
             Elf64_Phdr *cur_phdr = read_phdr(elf_header, 0);
             pretty_logf(Verbose, "\t[cur_phdr]: Type: 0x%x, Flags: 0x%x  -  Vaddr: 0x%x - aligned: 0x%x  - p_align: 0x%x - p_memsz: 0%x - p_offset: 0x%x", cur_phdr->p_type, cur_phdr->p_flags, cur_phdr->p_vaddr, align_value_to_page(cur_phdr->p_vaddr), cur_phdr->p_align, cur_phdr->p_memsz, cur_phdr->p_offset);
             cur_phdr = read_phdr(elf_header, 1);
-            //pretty_logf(Verbose, "\t[cur_phdr]: Type: 0x%x, Flags: 0x%x  -  Vaddr: 0x%x - aligned: 0x%x  - p_align: 0x%x - p_memsz: 0%x - p_offset: 0x%x", cur_phdr->p_type, cur_phdr->p_flags, cur_phdr->p_vaddr, align_value_to_page(cur_phdr->p_vaddr), cur_phdr->p_align, cur_phdr->p_memsz, cur_phdr->p_offset);
         }
     }
 }

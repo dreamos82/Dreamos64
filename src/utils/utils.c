@@ -44,7 +44,6 @@ bool _is_address_in_multiboot(uint64_t address) {
         if (tag->type == MULTIBOOT_TAG_TYPE_MODULE) {
             struct multiboot_tag_module *loaded_module = (struct multiboot_tag_module *) tag;
             if (address >=  loaded_module->mod_start && address <= loaded_module->mod_end) {
-                //pretty_logf(Verbose, "This address: 0x%x is reserved by a multiboot module", address );
                 return true;
             }
         }

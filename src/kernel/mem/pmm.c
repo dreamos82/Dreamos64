@@ -83,7 +83,6 @@ void *pmm_alloc_frame(){
 void *pmm_prepare_new_pagetable() {
     if ( !pmm_initialized) {
         while((!_mmap_is_address_in_available_space(anon_physical_memory_loc, PAGE_DIR_SIZE)) && anon_physical_memory_loc < memory_size_in_bytes) {
-            //pretty_logf(Verbose, " Current address: 0x%x - phys: 0x%x not available trying next 0x%x", anon_memory_loc, anon_physical_memory_loc,  memory_size_in_bytes);
             anon_memory_loc += PAGE_DIR_SIZE;
             anon_physical_memory_loc += PAGE_DIR_SIZE;
         }
@@ -91,24 +90,7 @@ void *pmm_prepare_new_pagetable() {
         anon_memory_loc += PAGE_DIR_SIZE;
         anon_physical_memory_loc += PAGE_DIR_SIZE;
         return (void *)  (anon_physical_memory_loc - PAGE_DIR_SIZE);
-            /*if( _mmap_is_address_in_available_space(anon_physical_memory_loc, PAGE_DIR_SIZE) ) {
-                // This space should be potentially safe
-                anon_memory_loc += PAGE_DIR_SIZE;
-                anon_physical_memory_loc += PAGE_DIR_SIZE;
-                return (void *)  (anon_physical_memory_loc - PAGE_DIR_SIZE);
-            } else {
-                // i suppose this shouldn't happen
-                pretty_log(Fatal, " New location is not in available area, this most likely shouldn't happen");
-            }*/
-        /*} else {
-            // This is the tricky part, i need to map new memory. still in the anon area
-            // I need to check that it is not any of the reserved memory locations (i.e. faramebuffer)
-            // If yes it should probably panic
-        }*/
-        // Get the first available address and check if is in mapped area?
-        //return NULL;
     }
-    //pretty_log(Verbose, "The pmm is initialized, using pmm_alloc_frame");
     return (void *) pmm_alloc_frame();
 }
 
