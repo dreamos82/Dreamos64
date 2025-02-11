@@ -22,20 +22,29 @@ SECTIONS {
 	{
 		*(.text)
 		*(.text.*)
+		*(.ltext)
+		*(.ltext.*)
 	}
 	.rodata ALIGN (4K) : AT (ADDR (.rodata) - _kern_virtual_offset)
 	{
 		*(.rodata)
 		*(.rodata.*)
+		*(.lrodata)
+		*(.lrodata.*)
 	}
 	.data ALIGN (4K) : AT (ADDR (.data) - _kern_virtual_offset)
 	{
 		*(.data)
 		*(.data.*)
+		*(.ldata)
+		*(.ldata.*)
 	}
 	.bss ALIGN (4K) : AT (ADDR (.bss) - _kern_virtual_offset)
 	{
 		*(.bss)
+		*(.lbss)
+		*(.bss.*)
+		*(.lbss.*)
 	}
 
     _kernel_end = .;

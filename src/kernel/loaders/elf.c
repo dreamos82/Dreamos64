@@ -16,9 +16,13 @@ void load_elf(uintptr_t elf_start, uint64_t size) {
         Elf64_Half phdr_entsize = elf_header->e_phentsize;
         pretty_logf(Verbose, " Number of PHDR entries: 0x%x", phdr_entries);
         pretty_logf(Verbose, " PHDR Entry Size: 0x%x", phdr_entsize );
+        pretty_logf(Verbose, " ELF Entry point: 0x%x", elf_header->e_entry);
         Elf64_Half result = loop_phdrs(elf_header, phdr_entries);
         if (result > 0) {
             pretty_logf(Verbose, " Number of PT_LOAD entries: %d", result);
+            Elf64_Phdr *cur_phdr = read_phdr(elf_header, 0);
+            pretty_logf(Verbose, "\t[cur_phdr]: Type: 0x%x, Flags: 0x%x  -  Vaddr: 0x%x - aligned: 0x%x  - p_align: 0x%x - p_memsz: 0%x - p_offset: 0x%x", cur_phdr->p_type, cur_phdr->p_flags, cur_phdr->p_vaddr, align_value_to_page(cur_phdr->p_vaddr), cur_phdr->p_align, cur_phdr->p_memsz, cur_phdr->p_offset);
+            cur_phdr = read_phdr(elf_header, 1);
         }
     }
 }
@@ -28,7 +32,7 @@ Elf64_Half loop_phdrs(Elf64_Ehdr* e_hdr, Elf64_Half phdr_entries) {
     Elf64_Half number_of_pt_loads = 0;
     for (size_t i = 0; i < phdr_entries; i++) {
         Elf64_Phdr phdr = phdr_list[i];
-        pretty_logf(Verbose, "\t[%d]: Type: 0x%x, Flags: 0x%x  -  Vaddr: 0x%x - aligned: 0x%x ", i, phdr.p_type, phdr.p_flags, phdr.p_vaddr, align_value_to_page(phdr.p_vaddr));
+        pretty_logf(Verbose, "\t[%d]: Type: 0x%x, Flags: 0x%x  -  Vaddr: 0x%x - aligned: 0x%x - offset: 0x%x ", i, phdr.p_type, phdr.p_flags, phdr.p_vaddr, align_value_to_page(phdr.p_vaddr), phdr.p_offset);
         if ( is_address_aligned(phdr.p_vaddr, PAGE_SIZE_IN_BYTES) ) {
             pretty_log(Verbose, "\tThe address is aligned");
         } else {
@@ -39,6 +43,14 @@ Elf64_Half loop_phdrs(Elf64_Ehdr* e_hdr, Elf64_Half phdr_entries) {
     return number_of_pt_loads;
 }
 
+/**
+ * This function return the phdr entry at the pdhrd_entry_number provided.
+ *
+ *
+ * @param e_hdr the elf header
+ * @param phdr_entry_number the entry number we want to read
+ * @return  Elf64_Phdr * the selected P_hdr or NULL if not found.
+ */
 Elf64_Phdr *read_phdr(Elf64_Ehdr* e_hdr, Elf64_Half phdr_entry_number) {
     Elf64_Half phdr_entries = e_hdr->e_phnum;
 
@@ -48,7 +60,6 @@ Elf64_Phdr *read_phdr(Elf64_Ehdr* e_hdr, Elf64_Half phdr_entry_number) {
     }
 
     return NULL;
-
 }
 
 
@@ -90,4 +101,22 @@ bool parse_section_header(Elf64_Ehdr *elf_start, uint64_t size, executable_loade
         return true;
     }
     return false;
+}
+
+/**
+ * This function given an elf p_hdr flag  returns the architecture dependent vmm flags
+ *
+ *
+ * @param flags elf flags
+ * @return architecture dependant flags
+ */
+uint64_t elf_flags_to_memory_flags(Elf64_Word flags) {
+    // This function will be movede into the arch dependant code
+    // Elf flags:
+    // 1 = Read
+    // 2 = Write
+    // 4 = Execute
+    // They can be mixed.
+    uint64_t flags_to_return = (flags & 0b10);
+    return flags_to_return;
 }

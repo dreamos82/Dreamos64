@@ -29,6 +29,9 @@ jobs:
     - name: Install mtools
       run: sudo apt install mtools
 
+    - name: Install xorriso
+      run: sudo apt install xorriso
+
     - name: Download gcc
       if: steps.cached-binaries.outputs.cache-hit != 'true'
       run: >

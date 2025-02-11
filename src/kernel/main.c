@@ -118,7 +118,7 @@ void _init_basic_system(unsigned long addr){
     tag_start = (struct multiboot_tag *) (addr + _HIGHER_HALF_KERNEL_MEM_START + 8);
     _mmap_parse(tagmmap);
     pmm_setup(addr, mbi_size);
-     kernel_settings.kernel_uptime = 0;
+    kernel_settings.kernel_uptime = 0;
     kernel_settings.paging.page_root_address = p4_table;
     uint64_t p4_table_phys_address = (uint64_t) p4_table - _HIGHER_HALF_KERNEL_MEM_START;
     kernel_settings.paging.hhdm_page_root_address = (uint64_t*) hhdm_get_variable( (uintptr_t) p4_table_phys_address);
@@ -235,7 +235,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
     init_apic();
     if (loaded_module != NULL) {
         if ( load_module_hh(loaded_module) ) {
-            pretty_log(Verbose, " The ELF module can be loaded succesfully" );
+            pretty_logf(Verbose, " The ELF module can be loaded succesfully (Phys addr: 0x%x)", loaded_module->mod_start );
             elf_module_start_phys = loaded_module->mod_start;
         }
     }
@@ -264,9 +264,13 @@ void kernel_start(unsigned long addr, unsigned long magic){
     #endif
     init_scheduler();
     char a = 'a';
-    task_t* idle_task = create_task("idle", idle, &a, true);
+    task_t* idle_task = create_task_from_func("idle", idle, &a, true);
     idle_thread = idle_task->threads;
-    task_t* userspace_task = create_task("userspace_idle", NULL, &a, false);
+    #if PAGE_SIZE_IN_BYTES == 0x200000
+    task_t* userspace_task = create_task_from_func("userspace_idle", NULL, &a, false);
+    #else
+    task_t* elf_task = create_task_from_elf("elf_idle", NULL, (Elf64_Ehdr *) hhdm_get_variable(elf_module_start_phys));
+    #endif
     //create_thread("ledi", noop2, &c, eldi_task);
     //create_task("sleeper", noop3, &d);
     //execute_runtime_tests();

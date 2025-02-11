@@ -24,7 +24,7 @@ void *map_phys_to_virt_addr_hh(void* physical_address, void* address, size_t fla
     uint8_t user_mode_status = 0;
 
     if ( !is_address_higher_half((uint64_t) address) ) {
-        pretty_log(Verbose, "address is in lower half");
+        pretty_logf(Verbose, "address is in lower half: 0x%x", address);
         flags = flags | VMM_FLAGS_USER_LEVEL;
         user_mode_status = VMM_FLAGS_USER_LEVEL;
     }
@@ -34,7 +34,6 @@ void *map_phys_to_virt_addr_hh(void* physical_address, void* address, size_t fla
     }
 
     if (pml4_root != NULL) {
-        //pml4_table = pml4_root;
         pretty_logf(Verbose, "Entries values pml4_e: 0x%d pdpr_e: 0x%d pd_e: 0x%d", pml4_e, pdpr_e, pd_e);
         pretty_logf(Verbose, "\taddress: 0x%x, phys_address: 0x%x", address, physical_address);
         pretty_logf(Verbose, "\tpdpr base_address: 0x%x", pml4_root[pml4_e] & VM_PAGE_TABLE_BASE_ADDRESS_MASK);
@@ -47,7 +46,6 @@ void *map_phys_to_virt_addr_hh(void* physical_address, void* address, size_t fla
             clean_new_table(new_table_hhdm);
             pdpr_root = new_table_hhdm;
         } else {
-            pretty_log(Verbose, "No need to allocate pml4");
             pdpr_root =  (uint64_t *) hhdm_get_variable((uintptr_t) pml4_root[pml4_e] & VM_PAGE_TABLE_BASE_ADDRESS_MASK);
         }
 
@@ -59,7 +57,6 @@ void *map_phys_to_virt_addr_hh(void* physical_address, void* address, size_t fla
             clean_new_table(new_table_hhdm);
             pd_root = new_table_hhdm;
         } else {
-            pretty_log(Verbose, "No need to allocate pdpr");
             pd_root =  (uint64_t *) hhdm_get_variable((uintptr_t) pdpr_root[pdpr_e] & VM_PAGE_TABLE_BASE_ADDRESS_MASK);
         }
 
@@ -72,7 +69,6 @@ void *map_phys_to_virt_addr_hh(void* physical_address, void* address, size_t fla
             clean_new_table(new_table_hhdm);
             pt_table = new_table_hhdm;
         } else {
-            pretty_log(Verbose, "No need to allocate pd");
             pt_table = (uint64_t *) hhdm_get_variable((uintptr_t) pd_root[pd_e] & VM_PAGE_TABLE_BASE_ADDRESS_MASK);
         }
 
@@ -84,7 +80,7 @@ void *map_phys_to_virt_addr_hh(void* physical_address, void* address, size_t fla
         }
 #elif SMALL_PAGES == 0
             pd_root[pd_e] = (uint64_t) (physical_address) | HUGEPAGE_BIT | flags | user_mode_status;
-            pretty_logf(Verbose, " PD Flags: 0x%x entry value pd_root[0x%x]: 0x%x", flags, pd_e, pd_root[pd_e]);
+            pretty_logf(Verbose, " PD Flags: 0x%x entry value pd_root[0x%x]: 0x%x - address: 0x%x", flags, pd_e, pd_root[pd_e], address);
             return address;
         }
 #endif
