@@ -22,6 +22,7 @@ CFLAGS := -std=gnu99 \
         -I src/include/libc \
         -I src/include/fs \
         -I src/include/drivers/fs \
+        -I src/include/drivers/ps2 \
         -I src/include/sys \
         -mno-red-zone \
         -mno-sse \
