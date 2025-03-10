@@ -1,10 +1,10 @@
 #ifndef _KERNEL_H_
 #define _KERNEL_H_
 
+#include <devices.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include <devices.h>
 
 #define _HIGHER_HALF_KERNEL_MEM_START   0xffffffff80000000
 

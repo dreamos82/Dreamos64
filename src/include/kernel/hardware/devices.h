@@ -1,14 +1,13 @@
 #ifndef _DEVICES_H
 #define _DEVICES_H
 
-#include <kernel.h>
-
 typedef struct {
     enum {
         fd_invalid_descriptor,
         fd_vnode_descriptor,
         fd_device_descriptor
     } type;
+    void *pointer;
 } file_descriptor_t;
 
 struct driver{
