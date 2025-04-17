@@ -15,6 +15,7 @@ struct driver{
 };
 
 typedef struct driver driver_item_t;
+//typedef unsigned char _device_descriptor;
 
 typedef struct {
     driver_item_t drivers;
@@ -25,6 +26,8 @@ typedef struct {
     void (*write)();
     void (*ioctl)();
 } device_t;
+
+extern unsigned char _device_descriptor;
 
 void _device_add_driver(device_t device);
 void init_known_drivers();
