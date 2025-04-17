@@ -52,7 +52,7 @@ task_t *create_task_from_elf(char *name, void *args, Elf64_Ehdr *elf_header){
             // clear all the memory not used
             // compute the entries for each page and insert them into the page tables.
             Elf64_Phdr phdr = phdr_list[i];
-            size_t vmm_hdr_flags = elf_flags_to_memory_flags(phdr.p_type);
+            size_t vmm_hdr_flags = elf_flags_to_memory_flags(phdr.p_flags);
             pretty_logf(Verbose, "\t[%d]: Type: 0x%x, Flags: 0x%x  -  Vaddr: 0x%x - aligned: 0x%x ", i, phdr.p_type, phdr.p_flags, phdr.p_vaddr, align_value_to_page(phdr.p_vaddr));
             pretty_logf(Verbose, "\t\t - FileSz: 0x%x, Memsz: 0x%x, vmm flags: 0x%x - p_align: 0x%x - p_offset: 0x%x", phdr.p_filesz, phdr.p_memsz, vmm_hdr_flags, phdr.p_align, phdr.p_offset);
             Elf64_Half mem_pages = (Elf64_Half) get_number_of_pages_from_size(phdr.p_memsz);
