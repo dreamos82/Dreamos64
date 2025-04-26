@@ -1,6 +1,8 @@
 #ifndef _DEVICES_H
 #define _DEVICES_H
 
+#include <stdint.h>
+
 typedef struct {
     enum {
         fd_invalid_descriptor,
@@ -22,7 +24,7 @@ typedef struct {
     unsigned char device_id;
     void (*init)(/* init args */);
     void (*shutdown)();
-    void (*read)();
+    void (*read)(uint8_t *dst);
     void (*write)();
     void (*ioctl)();
 } device_t;
