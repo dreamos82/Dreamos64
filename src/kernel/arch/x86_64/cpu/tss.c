@@ -15,7 +15,6 @@ void initialize_tss(){
     kernel_tss.reserved1 = 0x00;
     kernel_tss.reserved2 = 0x00;
     kernel_tss.reserved3 = 0x00;
-    kernel_tss.reserved4 = 0x00;
 
     // The rspX are used when there is a privilege change from a lower to a higher privilege
     // Rsp contain the stack for that privilege level.
