@@ -15,6 +15,11 @@ void _ps2_keyboard_driver_init() {
 }
 
 
-void _ps2_keyboard_read(uint8_t *dst) {
+void _ps2_keyboard_read(uint8_t *dst, uint8_t len) {
     // TODO: this function will be the read function for the keyboard
+    //keyboard_output = dst;
+}
+
+void _ps2_keyboard_shutdown(){
+
 }

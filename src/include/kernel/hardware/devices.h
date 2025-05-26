@@ -24,7 +24,7 @@ typedef struct {
     unsigned char device_id;
     void (*init)(/* init args */);
     void (*shutdown)();
-    void (*read)(uint8_t *dst);
+    void (*read)(uint8_t *dst, uint8_t len);
     void (*write)();
     void (*ioctl)();
 } device_t;
