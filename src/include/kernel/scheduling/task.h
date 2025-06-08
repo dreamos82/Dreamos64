@@ -14,12 +14,15 @@
 
 typedef struct task_t task_t;
 
+/**
+ * This struct contains the Task  Information
+ */
 struct task_t {
-    size_t task_id;
-    char task_name[TASK_NAME_MAX_LEN];
+    size_t task_id; /**< Task Id (TID or PID) */
+    char task_name[TASK_NAME_MAX_LEN]; /**< The name of the task */
 
-    // It will contain the virtual memory base address for the process
-    void* vm_root_page_table;
+    // It will contain the physical memory base address for the process
+    void* vm_root_page_table; /**< The physical addres of the root page table */
 
     VmmInfo vmm_data;
 

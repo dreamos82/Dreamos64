@@ -23,6 +23,11 @@ task_t* create_task(char *name, bool is_supervisor) {
     new_task->parent = NULL;
     new_task->task_id = next_task_id++;
     pretty_logf(Verbose, "Task created with name: %s - Task id: %d", new_task->task_name, new_task->task_id);
+    new_task->vm_root_page_table = pmm_alloc_frame();
+    new_task->vmm_data.root_table_phys = (uintptr_t) new_task->vm_root_page_table;
+    void* vm_root_vaddress = hhdm_get_variable ((uintptr_t) new_task->vm_root_page_table);
+    new_task->vmm_data.root_table_hhdm = (uintptr_t) vm_root_vaddress;
+    pretty_logf(Verbose, "vm_root_vaddress: %x", vm_root_vaddress);
     //prepare_virtual_memory_environment(new_task);
     if ( is_supervisor ){
         vmm_init(VMM_LEVEL_SUPERVISOR, &(new_task->vmm_data));
@@ -100,17 +105,16 @@ task_t *create_task_from_func(char *name, void (*_entry_point)(void *), void *ar
 
 void prepare_virtual_memory_environment(task_t* task) {
     // Steps:
-    // 1. Prepare resources: allocatin an array of VM_PAGES_PER_TABLE
+    // 1. Prepare resources: allocating an array of VM_PAGES_PER_TABLE
     // Make sure this address is physical, then it needs to be mapped to a virtual one.a
-    task->vm_root_page_table = pmm_alloc_frame();
-    //pretty_logf(Verbose, "vm_root_page_table address: %x", task->vm_root_page_table);
-    //identity_map_phys_address(task->vm_root_page_table, 0);
+    //task->vm_root_page_table = pmm_alloc_frame();
+    //task->vmm_data.root_table_phys = (uintptr_t) task->vm_root_page_table;
     // I will get the page frame first, then get virtual address to map it to with vmm_alloc, and then do the mapping on the virtual address.
     // Technically the vmm_alloc is not needed, since i have the direct memory map already accessible, so i just need to access it through the direct m
     //void* vm_root_vaddress = vmm_alloc(PAGE_SIZE_IN_BYTES, VMM_FLAGS_ADDRESS_ONLY, NULL);
     void* vm_root_vaddress = hhdm_get_variable ((uintptr_t) task->vm_root_page_table);
-    task->vmm_data.root_table_hhdm = (uintptr_t) vm_root_vaddress;
-    pretty_logf(Verbose, "vm_root_vaddress: %x", vm_root_vaddress);
+    //task->vmm_data.root_table_hhdm = (uintptr_t) vm_root_vaddress;
+    //pretty_logf(Verbose, "vm_root_vaddress: %x", vm_root_vaddress);
     //map_phys_to_virt_addr(task->vm_root_page_table, vm_root_vaddress, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE, NULL);
 
     // 2. We will map the whole higher half of the kernel, this means from pml4 item 256 to 511
