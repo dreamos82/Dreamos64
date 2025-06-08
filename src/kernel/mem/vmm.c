@@ -40,7 +40,7 @@ void vmm_init(vmm_level_t vmm_level, VmmInfo *vmm_info) {
         vmm_info = &vmm_kernel;
         root_table_hh = kernel_settings.paging.hhdm_page_root_address;
     } else {
-        pretty_logf(Verbose, "Task vmm initialization: root_table_hhdm: 0x%x", vmm_info->root_table_hhdm);
+        pretty_logf(Verbose, "Task vmm initialization: root_table_hhdm: 0x%x- Phys: %x", vmm_info->root_table_hhdm, vmm_info->root_table_phys);
         root_table_hh = (uint64_t *) vmm_info->root_table_hhdm;
     }
 
@@ -93,12 +93,12 @@ void *vmm_alloc_at(uint64_t base_address, size_t size, size_t flags, VmmInfo *vm
         vmm_info = &vmm_kernel;
     }
 
-    //TODO When the space inside this page is finished we need to allocate a new page
-    //     at vmm_cur_container + sizeof(VmmItem)
     if (size == 0) {
         return NULL;
     }
 
+    //TODO When the space inside this page is finished we need to allocate a new page
+    //     at vmm_cur_container + sizeof(VmmItem)
     if (vmm_info->status.vmm_cur_index >= vmm_info->status.vmm_items_per_page) {
         // Step 1: We need to create another VmmContainer
         void *new_container_phys_address = pmm_alloc_frame();
@@ -124,13 +124,12 @@ void *vmm_alloc_at(uint64_t base_address, size_t size, size_t flags, VmmInfo *vm
 
     // Now i need to align the requested length to a page
     size_t new_size = align_value_to_page(size);
-    //pretty_logf(Verbose, "size: %d - aligned: %d", size, new_size);
 
     uintptr_t address_to_return = vmm_info->status.next_available_address;
     if (base_address != 0 && base_address > address_to_return) {
-        // I have specified a base_address, so i want an allocationat that given address
+        // I have specified a base_address, so i want an allocation at that given address
         // This design is problematic, it will be reimplemented in the future
-        // For now i rely in the fact that the address pace on a 64bit architecture is very big. And i don't  worry about holes, or overlapping.
+        // For now i rely in the fact that the address space on a 64bit architecture is very big. And i don't  worry about holes, or overlapping.
         if ( !is_address_aligned(base_address, PAGE_SIZE_IN_BYTES) ) {
             pretty_logf(Fatal, " Error: base_address 0x%x is not aligned with: 0x%x", base_address, PAGE_SIZE_IN_BYTES);
         }
@@ -212,6 +211,7 @@ void vmm_free(void *address) {
         selected_container = selected_container->next;
     }
 
+    // TODO: vmm_free
     // Need to compute:
     // Page directories/table entries for the address
     // Search the base address inside the vmm objects arrays

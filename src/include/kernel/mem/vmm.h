@@ -57,9 +57,10 @@ typedef struct VmmInfo {
     uintptr_t vmmDataStart; /**< The start of the VMM reserved area for it's own data structures */
     uintptr_t vmmSpaceStart; /**< The start of the VMM space, where all allocation will be placed */
 
-    size_t start_of_vmm_space; /**< The starting addres ofthe vmm space */
+    size_t start_of_vmm_space; /**< The starting address of the vmm space */
 
     uintptr_t root_table_hhdm; /**< the root page table loaded from the direct map */
+    uintptr_t root_table_phys; /**< the root page table physical address */
 
     struct VmmStatus {
         size_t vmm_items_per_page; /**< Number of page items contained in one page */
@@ -86,7 +87,6 @@ void *vmm_alloc(size_t size, size_t flags, VmmInfo *vmm_info);
 void *vmm_alloc_at(uint64_t base_address, size_t size, size_t flags, VmmInfo *vmm_info);
 void vmm_free(void *address);
 
-uint8_t is_phyisical_address_mapped(uintptr_t physical_address, uintptr_t virtual_address);
 uint8_t check_virt_address_status(uint64_t virtual_address);
 void vmm_direct_map_physical_memory();
 
