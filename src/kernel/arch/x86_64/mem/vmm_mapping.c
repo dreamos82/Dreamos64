@@ -307,3 +307,17 @@ uint8_t is_phyisical_address_mapped(uintptr_t physical_address, uintptr_t virtua
 #endif
     return 0;
 }
+
+uintptr_t vm_copy_from_different_space(uintptr_t virt_addr, uintptr_t root_table_hhdm){
+    /*uint16_t pml4_entry = PML4_ENTRY((uint64_t) virtual_address);
+    uint16_t pdpr_entry = PDPR_ENTRY((uint64_t) virtual_address);
+    uint16_t pd_entry = PD_ENTRY(uint64_t) virtual_address);*/
+    /**
+     * 1. I need to get pml4 table
+     */
+#if SMALL_PAGES == 1
+    //uint16_t pt_entry = PT_ENTRY(uint64_t) virtual_address);
+#endif
+
+}
+

@@ -30,7 +30,7 @@ typedef struct pending_operation_t {
     void *buffer;
     ssize_t nbytes;
     // TODO: Add a semaphore
-    bool read
+    bool read;
 } pending_operaetion_t;
 
 typedef struct driver driver_item_t;

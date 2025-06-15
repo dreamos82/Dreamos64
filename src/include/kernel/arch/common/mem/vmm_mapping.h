@@ -15,4 +15,6 @@ int unmap_vaddress_hh(void *address, uint64_t *pml4_root);
 
 uint8_t is_phyisical_address_mapped(uintptr_t physical_address, uintptr_t virtual_address);
 
+uintptr_t vm_copy_from_different_space(uintptr_t virt_addr, uintptr_t root_table_hhdm);
+
 #endif
