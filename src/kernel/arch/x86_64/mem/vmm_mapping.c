@@ -308,16 +308,48 @@ uint8_t is_phyisical_address_mapped(uintptr_t physical_address, uintptr_t virtua
     return 0;
 }
 
-uintptr_t vm_copy_from_different_space(uintptr_t virt_addr, uintptr_t root_table_hhdm){
-    /*uint16_t pml4_entry = PML4_ENTRY((uint64_t) virtual_address);
+uintptr_t vm_copy_from_different_space(uintptr_t virtual_address, uint64_t *root_table_hhdm){
+    uint16_t pml4_entry = PML4_ENTRY((uint64_t) virtual_address);
     uint16_t pdpr_entry = PDPR_ENTRY((uint64_t) virtual_address);
-    uint16_t pd_entry = PD_ENTRY(uint64_t) virtual_address);*/
+    uint16_t pd_entry = PD_ENTRY((uint64_t) virtual_address);
     /**
      * 1. I need to get pml4 table
      */
 #if SMALL_PAGES == 1
-    //uint16_t pt_entry = PT_ENTRY(uint64_t) virtual_address);
+    uint16_t pt_entry = PT_ENTRY(uint64_t) virtual_address);
 #endif
 
+    if (!(root_table_hhdm[pml4_entry] & 0b1)) {
+        pretty_logf(Error, "Cannot find a valid mapping for pml4_entry: 0x%d on memory space: 0x%x", pml4_entry, root_table_hhdm);
+        return 0;
+    }
+
+    uint64_t *pdpr_addr = (uint64_t *) hhdm_get_variable((uintptr_t) root_table_hhdm[pml4_entry] & VM_PAGE_TABLE_BASE_ADDRESS_MASK);
+
+    if (!(pdpr_addr[pd_entry] & 0b1)) {
+        return 0;
+    }
+
+    uint64_t *pd_addr = (uint64_t *) hhdm_get_variable((uintptr_t) pdpr_addr[pdpr_entry] & VM_PAGE_TABLE_BASE_ADDRESS_MASK);
+
+#if SMALL_PAGES==1
+    if (!(pd_addr[pd_entry] & 0b1)) {
+        return 0;
+    }
+
+    uint64_t *pt_addr = (uint64_t *) hhdm_get_variable((uintptr_t) pd_addr[pt_entry] & VM_PAGE_TABLE_BASE_ADDRESS_MASK)
+    uint64_t table_entry_value = (uint64_t) pt_addr[pt_entry];
+
+#elif SMALL_PAGES==0
+    uint64_t table_entry_value = (uint64_t) pd_addr[pd_entry];
+#endif
+
+    uintptr_t local_virt_address =  (uintptr_t) hhdm_get_variable((uintptr_t) table_entry_value & VM_PAGE_TABLE_BASE_ADDRESS_MASK);
+
+    //uint64_t *pml4_root =
+    //uint64_t *pd_addr_hh = hhdm_get_variable(pd_addr_phys);
+    //if (!(pml4_root[pml4_e] & 0b1
+    //if ( pd_addr_hh
+    return local_virt_address;
 }
 
