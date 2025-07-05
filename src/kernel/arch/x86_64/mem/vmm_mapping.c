@@ -312,6 +312,7 @@ uintptr_t vm_copy_from_different_space(uintptr_t virtual_address, uint64_t *root
     uint16_t pml4_entry = PML4_ENTRY((uint64_t) virtual_address);
     uint16_t pdpr_entry = PDPR_ENTRY((uint64_t) virtual_address);
     uint16_t pd_entry = PD_ENTRY((uint64_t) virtual_address);
+    pretty_logf(Verbose, "pml4_e: %d - pdpr_e: %d - pd_e: %d", pml4_entry, pdpr_entry, pd_entry);
     /**
      * 1. I need to get pml4 table
      */
