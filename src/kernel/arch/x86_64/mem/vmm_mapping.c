@@ -308,14 +308,28 @@ uint8_t is_phyisical_address_mapped(uintptr_t physical_address, uintptr_t virtua
     return 0;
 }
 
+/**
+ * This function given a virtual address and the hhdm address its address space return the
+ * hhdm kernel space equivalent of it.
+ *
+ *
+ * @param virtual_address a virtual address in any virtual space
+ * @param root_table_hhdm the hhdm address of the pml4 table containing the virtual address
+ *
+ * @return hhdm kernel space equivalent of virtual address.
+ */
 uintptr_t vm_copy_from_different_space(uintptr_t virtual_address, uint64_t *root_table_hhdm){
+    /**
+     * Steps
+     * 1. I need to get PML$, PDPR, PD and PT (if 4k pages are used) entries value for virtual address
+     * 2. Starting from pml4 get the next level table using the entries above.
+     * 3. When arrived at last level (PD or PT depending on the page size) extract the physical address from that entry.
+     * 4. REturn the hhdm translation in kernel space of the physical address
+     */
     uint16_t pml4_entry = PML4_ENTRY((uint64_t) virtual_address);
     uint16_t pdpr_entry = PDPR_ENTRY((uint64_t) virtual_address);
     uint16_t pd_entry = PD_ENTRY((uint64_t) virtual_address);
     pretty_logf(Verbose, "pml4_e: %d - pdpr_e: %d - pd_e: %d", pml4_entry, pdpr_entry, pd_entry);
-    /**
-     * 1. I need to get pml4 table
-     */
 #if SMALL_PAGES == 1
     uint16_t pt_entry = PT_ENTRY((uint64_t) virtual_address);
 #endif
@@ -346,13 +360,9 @@ uintptr_t vm_copy_from_different_space(uintptr_t virtual_address, uint64_t *root
     uint64_t table_entry_value = (uint64_t) pd_addr[pd_entry];
 #endif
 
-    pretty_logf(Verbose, "table entry value: 0x%x", table_entry_value);
     uintptr_t local_virt_address =  (uintptr_t) hhdm_get_variable((uintptr_t) table_entry_value & VM_PAGE_TABLE_BASE_ADDRESS_MASK);
+    pretty_logf(Verbose, "table entry value: 0x%x - phys_address: 0x%x", table_entry_value, table_entry_value & VM_PAGE_TABLE_BASE_ADDRESS_MASK);
 
-    //uint64_t *pml4_root =
-    //uint64_t *pd_addr_hh = hhdm_get_variable(pd_addr_phys);
-    //if (!(pml4_root[pml4_e] & 0b1
-    //if ( pd_addr_hh
     return local_virt_address;
 }
 
