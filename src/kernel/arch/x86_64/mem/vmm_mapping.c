@@ -316,7 +316,7 @@ uintptr_t vm_copy_from_different_space(uintptr_t virtual_address, uint64_t *root
      * 1. I need to get pml4 table
      */
 #if SMALL_PAGES == 1
-    uint16_t pt_entry = PT_ENTRY(uint64_t) virtual_address);
+    uint16_t pt_entry = PT_ENTRY((uint64_t) virtual_address);
 #endif
 
     if (!(root_table_hhdm[pml4_entry] & 0b1)) {
@@ -326,7 +326,8 @@ uintptr_t vm_copy_from_different_space(uintptr_t virtual_address, uint64_t *root
 
     uint64_t *pdpr_addr = (uint64_t *) hhdm_get_variable((uintptr_t) root_table_hhdm[pml4_entry] & VM_PAGE_TABLE_BASE_ADDRESS_MASK);
 
-    if (!(pdpr_addr[pd_entry] & 0b1)) {
+    if (!(pdpr_addr[pdpr_entry] & 0b1)) {
+        pretty_logf(Verbose, "pdpr addr: 0x%x", pdpr_addr[pd_entry]);
         return 0;
     }
 
@@ -337,13 +338,14 @@ uintptr_t vm_copy_from_different_space(uintptr_t virtual_address, uint64_t *root
         return 0;
     }
 
-    uint64_t *pt_addr = (uint64_t *) hhdm_get_variable((uintptr_t) pd_addr[pt_entry] & VM_PAGE_TABLE_BASE_ADDRESS_MASK)
+    uint64_t *pt_addr = (uint64_t *) hhdm_get_variable((uintptr_t) pd_addr[pt_entry] & VM_PAGE_TABLE_BASE_ADDRESS_MASK);
     uint64_t table_entry_value = (uint64_t) pt_addr[pt_entry];
 
 #elif SMALL_PAGES==0
     uint64_t table_entry_value = (uint64_t) pd_addr[pd_entry];
 #endif
 
+    pretty_logf(Verbose, "table entry value: 0x%x", table_entry_value);
     uintptr_t local_virt_address =  (uintptr_t) hhdm_get_variable((uintptr_t) table_entry_value & VM_PAGE_TABLE_BASE_ADDRESS_MASK);
 
     //uint64_t *pml4_root =
