@@ -324,7 +324,7 @@ uintptr_t vm_copy_from_different_space(uintptr_t virtual_address, uint64_t *root
      * 1. I need to get PML$, PDPR, PD and PT (if 4k pages are used) entries value for virtual address
      * 2. Starting from pml4 get the next level table using the entries above.
      * 3. When arrived at last level (PD or PT depending on the page size) extract the physical address from that entry.
-     * 4. REturn the hhdm translation in kernel space of the physical address
+     * 4. Return the hhdm translation in kernel space of the physical address
      */
     uint16_t pml4_entry = PML4_ENTRY((uint64_t) virtual_address);
     uint16_t pdpr_entry = PDPR_ENTRY((uint64_t) virtual_address);
@@ -348,10 +348,11 @@ uintptr_t vm_copy_from_different_space(uintptr_t virtual_address, uint64_t *root
 
     uint64_t *pd_addr = (uint64_t *) hhdm_get_variable((uintptr_t) pdpr_addr[pdpr_entry] & VM_PAGE_TABLE_BASE_ADDRESS_MASK);
 
-#if SMALL_PAGES==1
     if (!(pd_addr[pd_entry] & 0b1)) {
         return 0;
     }
+
+#if SMALL_PAGES==1
 
     uint64_t *pt_addr = (uint64_t *) hhdm_get_variable((uintptr_t) pd_addr[pt_entry] & VM_PAGE_TABLE_BASE_ADDRESS_MASK);
     uint64_t table_entry_value = (uint64_t) pt_addr[pt_entry];
@@ -364,5 +365,64 @@ uintptr_t vm_copy_from_different_space(uintptr_t virtual_address, uint64_t *root
     pretty_logf(Verbose, "table entry value: 0x%x - phys_address: 0x%x", table_entry_value, table_entry_value & VM_PAGE_TABLE_BASE_ADDRESS_MASK);
 
     return local_virt_address;
+}
+
+vm_walk_results vm_walk_table(void* virtual_address, uint64_t *root_table_hhdm) {
+    vm_walk_results walk_results;
+    uint16_t pml4_entry = PML4_ENTRY((uint64_t) virtual_address);
+    uint16_t pdpr_entry = PDPR_ENTRY((uint64_t) virtual_address);
+    uint16_t pd_entry = PD_ENTRY((uint64_t) virtual_address);
+    walk_results.level = 0;
+    walk_results.pte = NULL;
+    walk_results.completed = false;
+    pretty_logf(Verbose, "pml4_e: %d - pdpr_e: %d - pd_e: %d", pml4_entry, pdpr_entry, pd_entry);
+#if SMALL_PAGES == 1
+    uint16_t pt_entry = PT_ENTRY((uint64_t) virtual_address);
+#endif
+
+    if (!(root_table_hhdm[pml4_entry] & PRESENT_BIT)) {
+        pretty_logf(Error, "Cannot find a valid mapping for pml4_entry: 0x%d on memory space: 0x%x", pml4_entry, root_table_hhdm);
+        return walk_results;
+    }
+
+    walk_results.level++;
+
+    uint64_t *pdpr_addr = (uint64_t *) hhdm_get_variable((uintptr_t) root_table_hhdm[pml4_entry] & VM_PAGE_TABLE_BASE_ADDRESS_MASK);
+
+    if (!(pdpr_addr[pdpr_entry] & PRESENT_BIT)) {
+        pretty_logf(Error, "PDPR_ENTRY %d present bit not set. Address: 0x%x", pdpr_entry, pdpr_addr);
+        return walk_results;
+    }
+
+    walk_results.level++;
+
+    uint64_t *pd_addr = (uint64_t *) hhdm_get_variable((uintptr_t) pdpr_addr[pdpr_entry] & VM_PAGE_TABLE_BASE_ADDRESS_MASK);
+
+    if (!(pd_addr[pd_entry] & PRESENT_BIT)) {
+        pretty_logf(Error, "PD_ENTRY %d present bit not set. Address: 0x%x", pd_entry, pd_addr);
+        return walk_results;
+    }
+
+#if SMALL_PAGES == 0
+    walk_results.completed = true;
+    uint64_t table_entry_value = (uint64_t) pd_addr[pd_entry];
+#elif SMALL_PAGES == 1
+    walk_results.level++;
+
+
+    uint64_t *pt_addr = (uint64_t *) hhdm_get_variable((uintptr_t) pd_addr[pt_entry] & VM_PAGE_TABLE_BASE_ADDRESS_MASK);
+    uint64_t table_entry_value = (uint64_t) pt_addr[pt_entry];
+
+    if(!(table_entry_value & PRESENT_BIT)) {
+        pretty_logf(Error, "PT_ENTRY %d present bit not set. Address: 0x%x", pt_entry, table_entry_value);
+        return walk_results;
+    }
+#endif
+
+    uintptr_t local_virt_address =  (uintptr_t) hhdm_get_variable((uintptr_t) table_entry_value & VM_PAGE_TABLE_BASE_ADDRESS_MASK);
+    pretty_logf(Verbose, "table entry value: 0x%x - phys_address: 0x%x", table_entry_value, table_entry_value & VM_PAGE_TABLE_BASE_ADDRESS_MASK);
+
+    walk_results.pte = (uint64_t *) local_virt_address;
+    return walk_results;
 }
 
