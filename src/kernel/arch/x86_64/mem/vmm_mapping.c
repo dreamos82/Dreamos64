@@ -361,7 +361,10 @@ uintptr_t vm_copy_from_different_space(uintptr_t virtual_address, uint64_t *root
     uint64_t table_entry_value = (uint64_t) pd_addr[pd_entry];
 #endif
 
+    vm_walk_results walked_address = vm_walk_table((void *) virtual_address, (uint64_t*) root_table_hhdm);
+
     uintptr_t local_virt_address =  (uintptr_t) hhdm_get_variable((uintptr_t) table_entry_value & VM_PAGE_TABLE_BASE_ADDRESS_MASK);
+    pretty_logf(Verbose, "cur_result: 0x%x - walk_result: 0x%x - Completed: %d - Level: %x", local_virt_address, walked_address.pte, walked_address.completed, walked_address.level);
     pretty_logf(Verbose, "table entry value: 0x%x - phys_address: 0x%x", table_entry_value, table_entry_value & VM_PAGE_TABLE_BASE_ADDRESS_MASK);
 
     return local_virt_address;
