@@ -326,7 +326,7 @@ uintptr_t vm_copy_from_different_space(uintptr_t virtual_address, uint64_t *root
      * 3. When arrived at last level (PD or PT depending on the page size) extract the physical address from that entry.
      * 4. Return the hhdm translation in kernel space of the physical address
      */
-    uint16_t pml4_entry = PML4_ENTRY((uint64_t) virtual_address);
+/*    uint16_t pml4_entry = PML4_ENTRY((uint64_t) virtual_address);
     uint16_t pdpr_entry = PDPR_ENTRY((uint64_t) virtual_address);
     uint16_t pd_entry = PD_ENTRY((uint64_t) virtual_address);
     pretty_logf(Verbose, "pml4_e: %d - pdpr_e: %d - pd_e: %d", pml4_entry, pdpr_entry, pd_entry);
@@ -359,15 +359,16 @@ uintptr_t vm_copy_from_different_space(uintptr_t virtual_address, uint64_t *root
 
 #elif SMALL_PAGES==0
     uint64_t table_entry_value = (uint64_t) pd_addr[pd_entry];
-#endif
+#endif*/
 
     vm_walk_results walked_address = vm_walk_table((void *) virtual_address, (uint64_t*) root_table_hhdm);
 
-    uintptr_t local_virt_address =  (uintptr_t) hhdm_get_variable((uintptr_t) table_entry_value & VM_PAGE_TABLE_BASE_ADDRESS_MASK);
-    pretty_logf(Verbose, "cur_result: 0x%x - walk_result: 0x%x - Completed: %d - Level: %x", local_virt_address, walked_address.pte, walked_address.completed, walked_address.level);
-    pretty_logf(Verbose, "table entry value: 0x%x - phys_address: 0x%x", table_entry_value, table_entry_value & VM_PAGE_TABLE_BASE_ADDRESS_MASK);
-
-    return local_virt_address;
+    //uintptr_t local_virt_address =  (uintptr_t) hhdm_get_variable((uintptr_t) table_entry_value & VM_PAGE_TABLE_BASE_ADDRESS_MASK);
+    pretty_logf(Verbose, "cur_result: 0x%x- Completed: %d - Level: %x", walked_address.pte, walked_address.completed, walked_address.level);
+    //pretty_logf(Verbose, "table entry value: 0x%x - phys_address: 0x%x", table_entry_value, table_entry_value & VM_PAGE_TABLE_BASE_ADDRESS_MASK);
+    //pretty_logf(Verbose, "table entry value: 0x%x - phys_address: 0x%x", table_entry_value, table_entry_value & VM_PAGE_TABLE_BASE_ADDRESS_MASK);
+    //return local_virt_address;
+    return ((uintptr_t)walked_address.pte);
 }
 
 vm_walk_results vm_walk_table(void* virtual_address, uint64_t *root_table_hhdm) {
