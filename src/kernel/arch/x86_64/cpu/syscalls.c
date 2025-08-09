@@ -24,6 +24,10 @@ cpu_status_t *syscall_dispatch(cpu_status_t* regs) {
         case 2:
             //char *input_string = (char *) regs->rsi;
             //pretty_logf(Verbose, "%s", input_string);
+            //This will call sys_read
+            //Parameters required: - size, buffer
+            //pretty_logf(Verbose, "Userspace buffer: 0x%x", regs->rdx);
+            _fb_printStrAt("Hello from user world (through a syscall... - 2)", 0, 15, 0xf5c4f1, 0x000000);
             break;
         default:
             regs->rax = E_NO_SYSCALL;
