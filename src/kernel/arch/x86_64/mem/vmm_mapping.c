@@ -7,6 +7,7 @@
 #include <vmm_mapping.h>
 
 void *map_phys_to_virt_addr_hh(void* physical_address, void* address, size_t flags, uint64_t *pml4_root) {
+    //TODO: we can use vm_walk_table now to get the page table address.
 
     uint16_t pml4_e = PML4_ENTRY((uint64_t) address);
     uint16_t pdpr_e = PDPR_ENTRY((uint64_t) address);
@@ -335,7 +336,7 @@ uintptr_t vm_copy_from_different_space(uintptr_t virtual_address, uint64_t *root
 vm_walk_results vm_walk_table(void* virtual_address, uint64_t *root_table_hhdm) {
     /**
      * Steps
-     * 1. I need to get PML$, PDPR, PD and PT (if 4k pages are used) entries value for virtual address
+     * 1. I need to get PML4, PDPR, PD and PT (if 4k pages are used) entries value for virtual address
      * 2. Starting from pml4 get the next level table using the entries above.
      * 3. When reached last level (PD or PT depending on the page size) extract the hhdm address for that entry.
      * 4. Return the walk structure, with the pointer to pte, if found.
