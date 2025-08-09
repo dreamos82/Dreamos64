@@ -23,6 +23,7 @@ typedef struct userspace_buffer_t {
     // since we don't want to make a paging switch for every character read.
     VmmInfo info;
     uintptr_t buffer_base;
+    uintptr_t buffer_virtual;
     size_t length;
 } userspace_buffer_t;
 
