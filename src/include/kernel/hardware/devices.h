@@ -22,8 +22,8 @@ typedef struct userspace_buffer_t {
     // We need to pass the VMM info in order to be able to get the physical address and then the hhdm mapping of the buffer
     // since we don't want to make a paging switch for every character read.
     VmmInfo info;
-    uintptr_t buffer_base;
-    uintptr_t buffer_virtual;
+    uintptr_t buffer_base; /**< this is the base address received relative to the task */
+    uintptr_t buffer_virtual; /**< this the virtual address in kernel space of the buffer */
     size_t length;
 } userspace_buffer_t;
 
