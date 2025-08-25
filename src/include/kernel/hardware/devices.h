@@ -28,11 +28,11 @@ typedef struct userspace_buffer_t {
 } userspace_buffer_t;
 
 typedef struct pending_operation_t {
-    void *buffer;
+    userspace_buffer_t *buffer;
     ssize_t nbytes;
     // TODO: Add a semaphore
     bool read;
-} pending_operaetion_t;
+} pending_operation_t;
 
 typedef struct driver driver_item_t;
 //typedef unsigned char _device_descriptor;
