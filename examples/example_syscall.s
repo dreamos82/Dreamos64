@@ -1,9 +1,9 @@
 extern loop
 [bits 64]
 loop:
-    mov rdi, 0x63
-    mov rsi, 0x2
-    lea rdx, userspace_buffer
+    mov rdi, 0x2
+    lea rsi, userspace_buffer
+    mov rdx, 0x10
     int 0x80
     jmp loop
 

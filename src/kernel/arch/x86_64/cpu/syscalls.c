@@ -12,7 +12,7 @@ bool _syscalls_init() {
 
 cpu_status_t *syscall_dispatch(cpu_status_t* regs) {
     //TODO: add mapping / unmapping memory syscall
-    size_t sc_num = regs->rsi;
+    size_t sc_num = regs->rdi;
     //pretty_logf(Verbose, "Syscall handler called: %d", sc_num);
     switch(sc_num) {
         case 1:
@@ -28,10 +28,11 @@ cpu_status_t *syscall_dispatch(cpu_status_t* regs) {
             //Parameters required: - size, buffer
             //pretty_logf(Verbose, "Userspace buffer: 0x%x", regs->rdx);
             //TODO: call sys_read
-            uint64_t control_value = regs->rdi;
-            size_t nbytes = regs->rsi;
-            void *read_buffer = (void *)regs->rdx;
-            _fb_printStrAndNumberAt("Hello from user world (through a syscall...) ", control_value, 0, 15, 0xf5c4f1, 0x000000);
+            uint64_t control_value = regs->rsi;
+            size_t nbytes = regs->rdx;
+            //void *read_buffer = (void *)regs->rdx;
+            _fb_printStrAndNumberAt("Userspace address: 0x", control_value, 0, 15, 0xf5c4f1, 0x000000);
+            _fb_printStrAndNumberAt("nbytes: ", nbytes, 0, 16, 0xf5c4f1, 0x000000);
             break;
         default:
             regs->rax = E_NO_SYSCALL;
