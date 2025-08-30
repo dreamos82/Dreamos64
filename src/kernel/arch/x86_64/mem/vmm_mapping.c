@@ -348,7 +348,7 @@ vm_walk_results vm_walk_table(void* virtual_address, uint64_t *root_table_hhdm) 
     walk_results.level = 0;
     walk_results.pte = NULL;
     walk_results.completed = false;
-    pretty_logf(Verbose, "pml4_e: %d - pdpr_e: %d - pd_e: %d", pml4_entry, pdpr_entry, pd_entry);
+    pretty_logf(Verbose, "address: 0x%x pml4_e: %d - pdpr_e: %d - pd_e: %d", virtual_address, pml4_entry, pdpr_entry, pd_entry);
 #if SMALL_PAGES == 1
     uint16_t pt_entry = PT_ENTRY((uint64_t) virtual_address);
 #endif
@@ -383,7 +383,7 @@ vm_walk_results vm_walk_table(void* virtual_address, uint64_t *root_table_hhdm) 
     walk_results.level++;
 
 
-    uint64_t *pt_addr = (uint64_t *) hhdm_get_variable((uintptr_t) pd_addr[pt_entry] & VM_PAGE_TABLE_BASE_ADDRESS_MASK);
+    uint64_t *pt_addr = (uint64_t *) hhdm_get_variable((uintptr_t) pd_addr[pd_entry] & VM_PAGE_TABLE_BASE_ADDRESS_MASK);
     uint64_t table_entry_value = (uint64_t) pt_addr[pt_entry];
 
     if(!(table_entry_value & PRESENT_BIT)) {

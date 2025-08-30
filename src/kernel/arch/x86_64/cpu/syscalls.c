@@ -3,6 +3,7 @@
 #include <logging.h>
 #include <rtc.h>
 #include <syscalls.h>
+#include <sys_read.h>
 
 bool _syscalls_init() {
     pretty_log(Verbose, "Initializing sycalls");
@@ -28,10 +29,11 @@ cpu_status_t *syscall_dispatch(cpu_status_t* regs) {
             //Parameters required: - size, buffer
             //pretty_logf(Verbose, "Userspace buffer: 0x%x", regs->rdx);
             //TODO: call sys_read
-            uint64_t control_value = regs->rsi;
+            uint64_t buffer = regs->rsi;
             size_t nbytes = regs->rdx;
+            sys_read_keyboard( (void*)buffer, nbytes);
             //void *read_buffer = (void *)regs->rdx;
-            _fb_printStrAndNumberAt("Userspace address: 0x", control_value, 0, 15, 0xf5c4f1, 0x000000);
+            _fb_printStrAndNumberAt("Userspace address: 0x", buffer, 0, 15, 0xf5c4f1, 0x000000);
             _fb_printStrAndNumberAt("nbytes: ", nbytes, 0, 16, 0xf5c4f1, 0x000000);
             break;
         default:

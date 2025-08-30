@@ -40,8 +40,10 @@ ssize_t sys_read_keyboard(void *buffer, size_t nbytes) {
     if (userspace_buffer.buffer_virtual == NULL) {
         pretty_log(Verbose, "Cannot convert given address");
         return 0;
+    } else {
+        pretty_logf(Verbose, "Returned address: 0x%x", userspace_buffer.buffer_virtual);
     }
     // I need to allocate a ps2_op
     pending_operation_t *ps2_op = (pending_operation_t *) (sizeof(pending_operation_t));
-
+    return 1;
 }
