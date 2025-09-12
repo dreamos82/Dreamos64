@@ -2,9 +2,10 @@
 #include <framebuffer.h>
 #include <stdio.h>
 #include <io.h>
-#include <ps2.h>
 #include <kernel.h>
 #include <logging.h>
+#include <ps2.h>
+#include <ps2_keyboard_driver.h>
 
 //extern kernel_status_t kernel_settings;
 

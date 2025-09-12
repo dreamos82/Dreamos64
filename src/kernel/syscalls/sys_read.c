@@ -7,6 +7,8 @@
 #include <vfs.h>
 #include <vmm_mapping.h>
 
+pending_operation_t cur_operation;
+
 ssize_t sys_read(int fildes, void *buf, size_t nbytes) {
     if (fildes >= 0 && fildes < OPENEDFILES_MAX) {
         int counter = 0;
@@ -43,7 +45,14 @@ ssize_t sys_read_keyboard(void *buffer, size_t nbytes) {
     } else {
         pretty_logf(Verbose, "Returned address: 0x%x", userspace_buffer.buffer_virtual);
     }
+    if (nbytes > 0) {
+        cur_operation.buffer = userspace_buffer;
+        cur_operation.nbytes = nbytes;
+        cur_operation.read = false;
+        cur_operation.next = NULL;
+        _ps2_keyboard_add_operation(&cur_operation)
+    }
     // I need to allocate a ps2_op
-    pending_operation_t *ps2_op = (pending_operation_t *) (sizeof(pending_operation_t));
+    //pending_operation_t *ps2_op = (pending_operation_t *) kmalloc(sizeof(pending_operation_t));
     return 1;
 }

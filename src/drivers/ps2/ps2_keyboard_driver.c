@@ -4,8 +4,8 @@
 #include <ps2_keyboard_driver.h>
 
 device_t _ps2_default_driver;
-pending_operation_t *ps2_op_head;
-pending_operation_t *ps2_op_tail;
+pending_operation_t *_ps2_op_head;
+pending_operation_t *_ps2_op_tail;
 
 void _ps2_keyboard_driver_init() {
 
@@ -14,8 +14,8 @@ void _ps2_keyboard_driver_init() {
     //_ps2_default_driver.drivers = NULL;
     _ps2_default_driver.init = NULL;
     _ps2_default_driver.read = &_ps2_keyboard_read;
-    ps2_op_head = NULL;
-    ps2_op_tail = NULL;
+    _ps2_op_head = NULL;
+    _ps2_op_tail = NULL;
 }
 
 
@@ -29,11 +29,10 @@ void _ps2_keyboard_shutdown(){
 }
 
 void _ps2_keyboard_add_operation(pending_operation_t *new_op) {
-    if ( ps2_op_head == NULL) {
-        ps2_op_head = new_op;
-        ps2_op_tail = ps2_op_head;
+    if ( _ps2_op_head == NULL) {
+        _1ps2_op_head = new_op;
+        _ps2_op_tail = ps2_op_head;
     }
-
 }
 
 void _ps2_keyboard_del_operation(pending_operation_t *op_to_delete) {
