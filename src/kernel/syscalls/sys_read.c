@@ -1,6 +1,7 @@
 #include <devices.h>
 #include <kheap.h>
 #include <logging.h>
+#include <ps2_keyboard_driver.h>
 #include <scheduler.h>
 #include <sys_read.h>
 #include <task.h>
@@ -46,11 +47,11 @@ ssize_t sys_read_keyboard(void *buffer, size_t nbytes) {
         pretty_logf(Verbose, "Returned address: 0x%x", userspace_buffer.buffer_virtual);
     }
     if (nbytes > 0) {
-        cur_operation.buffer = userspace_buffer;
+        cur_operation.buffer = &userspace_buffer;
         cur_operation.nbytes = nbytes;
         cur_operation.read = false;
         cur_operation.next = NULL;
-        _ps2_keyboard_add_operation(&cur_operation)
+        _ps2_keyboard_add_operation(&cur_operation);
     }
     // I need to allocate a ps2_op
     //pending_operation_t *ps2_op = (pending_operation_t *) kmalloc(sizeof(pending_operation_t));

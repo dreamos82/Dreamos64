@@ -3,7 +3,7 @@
 
 #include <devices.h>
 
-struct driver* ps2_keyboard_driver;
+extern struct driver* ps2_keyboard_driver;
 
 extern pending_operation_t *_ps2_op_head;
 extern pending_operation_t *_ps2_op_tail;
