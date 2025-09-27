@@ -377,7 +377,6 @@ vm_walk_results vm_walk_table(void* virtual_address, uint64_t *root_table_hhdm) 
     }
 
 #if SMALL_PAGES == 0
-    walk_results.completed = true;
     uint64_t table_entry_value = (uint64_t) pd_addr[pd_entry];
 #elif SMALL_PAGES == 1
     walk_results.level++;
@@ -391,6 +390,8 @@ vm_walk_results vm_walk_table(void* virtual_address, uint64_t *root_table_hhdm) 
         return walk_results;
     }
 #endif
+
+    walk_results.completed = true;
 
     uintptr_t local_virt_address =  (uintptr_t) hhdm_get_variable((uintptr_t) table_entry_value & VM_PAGE_TABLE_BASE_ADDRESS_MASK);
     pretty_logf(Verbose, "table entry value: 0x%x - phys_address: 0x%x", table_entry_value, table_entry_value & VM_PAGE_TABLE_BASE_ADDRESS_MASK);

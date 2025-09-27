@@ -13,9 +13,10 @@ extern pending_operation_t *_ps2_op_tail;
  * userspace buffer is a special structure that contains the mapping of the userspace buffer in kernel space.
  * Once we wnat to issue a ps2 operation we create a new isntance of thist structure.
  */
+//TODO: decide which structure to use
 typedef struct ps2_operation {
     userspace_buffer_t buffer;
-    size_t count;
+    size_t count; // Number of bytes read so far
     bool read;
     struct ps2_operation *next;
 } ps2_operation;
@@ -24,5 +25,6 @@ void init_keyboard_device_driver();
 void _ps2_keyboard_read(uint8_t *dst, uint8_t len);
 void _ps2_keyboard_del_operation(pending_operation_t *op_to_delete);
 void _ps2_keyboard_add_operation(pending_operation_t *new_op);
+pending_operation_t* _os2_get_next_operation();
 
 #endif

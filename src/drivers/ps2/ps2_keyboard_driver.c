@@ -28,6 +28,10 @@ void _ps2_keyboard_shutdown(){
 
 }
 
+pending_operation_t* _os2_get_next_operation() {
+    return _ps2_op_head;
+}
+
 void _ps2_keyboard_add_operation(pending_operation_t *new_op) {
     if ( _ps2_op_head == NULL) {
         _ps2_op_head = new_op;

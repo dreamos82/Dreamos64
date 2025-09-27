@@ -47,6 +47,7 @@ ssize_t sys_read_keyboard(void *buffer, size_t nbytes) {
         pretty_logf(Verbose, "Returned address: 0x%x", userspace_buffer.buffer_virtual);
     }
     if (nbytes > 0) {
+        //TODO: We should allocate it.
         cur_operation.buffer = &userspace_buffer;
         cur_operation.nbytes = nbytes;
         cur_operation.read = false;

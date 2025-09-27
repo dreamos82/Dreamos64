@@ -29,7 +29,7 @@ typedef struct userspace_buffer_t {
 
 typedef struct pending_operation_t {
     userspace_buffer_t *buffer;
-    ssize_t nbytes;
+    size_t nbytes;
     // TODO: Add a semaphore
     bool read;
     struct pending_operation_t *next;

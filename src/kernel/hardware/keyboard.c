@@ -106,6 +106,14 @@ void handle_keyboard_interrupt() {
                         _fb_printStrAt(string, 0, 10, 0x000000, 0x1ad652);
                     }
                 #endif
+                if ( _ps2_op_head != NULL && _ps2_op_head->read != false ) {
+                    if ( _ps2_op_head->nbytes < _ps2_op_head->buffer->length ) {
+                        ((char *)_ps2_op_head->buffer->buffer_virtual)[_ps2_op_head->nbytes] = read_char;
+                        _ps2_op_head->nbytes++;
+                    } else {
+                        _ps2_op_head->read = true;
+                    }
+                }
                 pretty_logf(Verbose, "\t+ Key is pressed pos %d: SC: %x - Code: %x - Mod: %x %c", buf_position, scancode, keyboard_buffer[buf_position].code, keyboard_buffer[buf_position].modifiers, kgetch(keyboard_buffer[buf_position]));
             }
             buf_position = BUF_STEP(buf_position);
