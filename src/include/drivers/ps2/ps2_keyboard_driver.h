@@ -21,6 +21,8 @@ typedef struct ps2_operation {
     struct ps2_operation *next;
 } ps2_operation;
 
+void _ps2_keyboard_driver_init();
+
 void init_keyboard_device_driver();
 void _ps2_keyboard_read(uint8_t *dst, uint8_t len);
 void _ps2_keyboard_del_operation(pending_operation_t *op_to_delete);

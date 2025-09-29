@@ -9,6 +9,8 @@
 #include <vmm_mapping.h>
 
 pending_operation_t cur_operation;
+userspace_buffer_t userspace_buffer;
+bool buffer_setup = false;
 
 ssize_t sys_read(int fildes, void *buf, size_t nbytes) {
     if (fildes >= 0 && fildes < OPENEDFILES_MAX) {
@@ -35,21 +37,24 @@ ssize_t sys_read_keyboard(void *buffer, size_t nbytes) {
     // I need to get access to the current task
     task_t *current_task = current_executing_thread->parent_task;
     VmmInfo vmm_info = current_task->vmm_data;
-    // I need to create a userspace_buffer_t item
-    userspace_buffer_t userspace_buffer;
-    userspace_buffer.info = vmm_info;
-    userspace_buffer.buffer_base = (uintptr_t) buffer;
-    userspace_buffer.buffer_virtual = vm_copy_from_different_space( (uintptr_t) buffer, (uint64_t*) vmm_info.root_table_hhdm);
+    if (buffer_setup == false) {
+        // I need to create a userspace_buffer_t item
+        userspace_buffer.info = vmm_info;
+        userspace_buffer.buffer_base = (uintptr_t) buffer;
+        userspace_buffer.length = nbytes;
+        userspace_buffer.buffer_virtual = vm_copy_from_different_space( (uintptr_t) buffer, (uint64_t*) vmm_info.root_table_hhdm);
+        buffer_setup = true;
+    }
     if (userspace_buffer.buffer_virtual == NULL) {
         pretty_log(Verbose, "Cannot convert given address");
         return 0;
-    } else {
+    } /*else {
         pretty_logf(Verbose, "Returned address: 0x%x", userspace_buffer.buffer_virtual);
-    }
-    if (nbytes > 0) {
+    }*/
+    if (nbytes > 0 && buffer_setup == false) {
         //TODO: We should allocate it.
         cur_operation.buffer = &userspace_buffer;
-        cur_operation.nbytes = nbytes;
+        cur_operation.nbytes = 0;
         cur_operation.read = false;
         cur_operation.next = NULL;
         _ps2_keyboard_add_operation(&cur_operation);

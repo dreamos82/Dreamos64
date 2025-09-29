@@ -31,21 +31,22 @@
 #include <logging.h>
 #include <timer.h>
 #include <kernel.h>
-#include <string.h>
-#include <scheduler.h>
-#include <thread.h>
+#include <ps2_keyboard_driver.h>
 #include <rtc.h>
+#include <scheduler.h>
 #include <shapes.h>
 #include <spinlock.h>
 #include <syscalls.h>
+#include <string.h>
+#include <thread.h>
 #include <task.h>
 #include <tss.h>
+#include <utils.h>
 #include <vfs.h>
 #include <vm.h>
 #include <vmm.h>
 #include <vmm_mapping.h>
 #include <userspace.h>
-#include <utils.h>
 //#include <runtime_tests.h>
 
 extern uint32_t FRAMEBUFFER_MEMORY_SIZE;
@@ -262,6 +263,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
     #if USE_FRAMEBUFFER == 1
     _fb_printStrAndNumberAt("Epoch time: ", unix_timestamp, 0, 11, 0xf5c4f1, 0x000000);
     #endif
+    _ps2_keyboard_driver_init();
     init_scheduler();
     char a = 'a';
     task_t* idle_task = create_task_from_func("idle", idle, &a, true);
