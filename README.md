@@ -39,7 +39,7 @@ But at kernel level several things have been implemented:
 * Thread switching, thread_sleep and basic spinlock implementation
 * Basic Virtual Memory implementation
 * Initial Userspace support (so far can run only an idle userspace thread)
-* Basic syscall mechanism (altough no real syscalls are implemented, just one that prints the string "example")
+* Basic syscall mechanism (two syscalls are present: one that read input from keyboard, only once and one that print the content of a buffer at line 17 of the framebuffer)
 * Initial basic ELF support (from kernel module)
 
 ## Prerequisites:
