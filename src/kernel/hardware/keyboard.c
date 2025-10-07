@@ -108,12 +108,13 @@ void handle_keyboard_interrupt() {
                 #endif
                 if ( _ps2_op_head != NULL && _ps2_op_head->read == false ) {
                     pretty_logf(Verbose, "length: %d - nbytes: %d", _ps2_op_head->buffer->length, _ps2_op_head->nbytes);
-                    if ( _ps2_op_head->nbytes < _ps2_op_head->buffer->length ) {
+                    if ( _ps2_op_head->nbytes < _ps2_op_head->buffer->length) {
                         ((char *)_ps2_op_head->buffer->buffer_virtual)[_ps2_op_head->nbytes] = read_char;
                         _ps2_op_head->nbytes++;
                         pretty_logf(Verbose, "ps2_op_set: %d", _ps2_op_head->nbytes);
                     } else {
                         _ps2_op_head->read = true;
+                        ((char *)_ps2_op_head->buffer->buffer_virtual)[_ps2_op_head->nbytes] = '\0';
                         pretty_logf(Verbose, "Read operation complete: %d", _ps2_op_head->nbytes);
                     }
                 }
