@@ -3,9 +3,14 @@ extern loop
 loop:
     mov rdi, 0x2 ; Syscall number
     lea rsi, userspace_buffer ; Read buffer
-    mov rdx, 0x10 ; Size of read
+    mov rdx, 0x6 ; Size of read
     int 0x80 ; Syscall
-    jmp loop
+loop1:
+    mov rdi, 0x3
+    lea rsi, userspace_buffer
+    mov rdx, 0x6
+    int 0x80;
+    jmp loop1
 
 section .bss
 

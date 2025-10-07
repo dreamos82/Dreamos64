@@ -36,6 +36,13 @@ cpu_status_t *syscall_dispatch(cpu_status_t* regs) {
             _fb_printStrAndNumberAt("Userspace address: 0x", buffer, 0, 15, 0xf5c4f1, 0x000000);
             _fb_printStrAndNumberAt("nbytes: ", nbytes, 0, 16, 0xf5c4f1, 0x000000);
             break;
+        case 3:
+            char *read_buffer = (char *)regs->rsi;
+            size_t read_nbytes = regs->rdx;
+            read_buffer[read_nbytes-1] = '\0';
+            _fb_printStrAt(read_buffer, 10, 17, 0x27F549, 0x000000);
+            _fb_printStrAt("The line above is printed after the read syscall.", 0, 18, 0xD3F527, 0x000000);
+            break;
         default:
             regs->rax = E_NO_SYSCALL;
             break;

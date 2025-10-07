@@ -37,13 +37,13 @@ ssize_t sys_read_keyboard(void *buffer, size_t nbytes) {
     // I need to get access to the current task
     task_t *current_task = current_executing_thread->parent_task;
     VmmInfo vmm_info = current_task->vmm_data;
+    pretty_logf(Verbose, "nbytes to read: %d", nbytes);
     if (buffer_setup == false) {
         // I need to create a userspace_buffer_t item
         userspace_buffer.info = vmm_info;
         userspace_buffer.buffer_base = (uintptr_t) buffer;
         userspace_buffer.length = nbytes;
         userspace_buffer.buffer_virtual = vm_copy_from_different_space( (uintptr_t) buffer, (uint64_t*) vmm_info.root_table_hhdm);
-        buffer_setup = true;
     }
     if (userspace_buffer.buffer_virtual == NULL) {
         pretty_log(Verbose, "Cannot convert given address");
@@ -58,7 +58,14 @@ ssize_t sys_read_keyboard(void *buffer, size_t nbytes) {
         cur_operation.read = false;
         cur_operation.next = NULL;
         _ps2_keyboard_add_operation(&cur_operation);
+        buffer_setup = true;
     }
+
+
+    while(cur_operation.nbytes < nbytes) {
+        scheduler_yield();
+    }
+    //pretty_logf(Verbose, "Virtual buffer: %s",userspace_buffer.buffer_virtual);
     // I need to allocate a ps2_op
     //pending_operation_t *ps2_op = (pending_operation_t *) kmalloc(sizeof(pending_operation_t));
     return 1;
