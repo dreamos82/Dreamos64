@@ -7,6 +7,13 @@
 
 #define E_NO_SYSCALL    -1
 
+typedef enum {
+    SYS_ZERO,
+    SYS_EXAMPLE,
+    SYS_READ,
+    SYS_PRINT
+} syscall_vector;
+
 bool _syscalls_init();
 cpu_status_t *syscall_dispatch(cpu_status_t* regs);
 //void _sc_putc(char ch, size_t arg);

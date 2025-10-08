@@ -13,22 +13,18 @@ bool _syscalls_init() {
 
 cpu_status_t *syscall_dispatch(cpu_status_t* regs) {
     //TODO: add mapping / unmapping memory syscall
-    size_t sc_num = regs->rdi;
+    syscall_vector sc_num = regs->rdi;
     //pretty_logf(Verbose, "Syscall handler called: %d", sc_num);
     switch(sc_num) {
-        case 1:
+        case SYS_EXAMPLE:
             // sc_num 1 is reserved for tests purposes
             //_fb_printStrAndNumberAt("Epoch time: ", read_rtc_time(), 0, 11, 0xf5c4f1, 0x000000);
             _fb_printStrAt("Hello from user world (through a syscall...)", 0, 15, 0xf5c4f1, 0x000000);
             //pretty_log(Verbose, "example");
             break;
-        case 2:
-            //char *input_string = (char *) regs->rsi;
-            //pretty_logf(Verbose, "%s", input_string);
-            //This will call sys_read
+        case SYS_READ:
+            //SYS_READ: This syscall reads input from the keyboard
             //Parameters required: - size, buffer
-            //pretty_logf(Verbose, "Userspace buffer: 0x%x", regs->rdx);
-            //TODO: call sys_read
             uint64_t buffer = regs->rsi;
             size_t nbytes = regs->rdx;
             sys_read_keyboard( (void*)buffer, nbytes);
@@ -36,7 +32,7 @@ cpu_status_t *syscall_dispatch(cpu_status_t* regs) {
             _fb_printStrAndNumberAt("Userspace address: 0x", buffer, 0, 15, 0xf5c4f1, 0x000000);
             _fb_printStrAndNumberAt("nbytes: ", nbytes, 0, 16, 0xf5c4f1, 0x000000);
             break;
-        case 3:
+        case SYS_PRINT:
             char *read_buffer = (char *)regs->rsi;
             size_t read_nbytes = regs->rdx;
             read_buffer[read_nbytes-1] = '\0';
