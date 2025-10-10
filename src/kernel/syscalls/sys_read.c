@@ -8,8 +8,6 @@
 #include <vfs.h>
 #include <vmm_mapping.h>
 
-pending_operation_t cur_operation;
-userspace_buffer_t userspace_buffer;
 bool buffer_setup = false;
 
 ssize_t sys_read(int fildes, void *buf, size_t nbytes) {
@@ -37,15 +35,17 @@ ssize_t sys_read_keyboard(void *buffer, size_t nbytes) {
     // I need to get access to the current task
     task_t *current_task = current_executing_thread->parent_task;
     VmmInfo vmm_info = current_task->vmm_data;
+    pending_operation_t *new_pending_operation = kmalloc(sizeof(pending_operation_t));
+    userspace_buffer_t *userspace_buffer = kmalloc(sizeof(userspace_buffer_t));
     pretty_logf(Verbose, "nbytes to read: %d", nbytes);
     if (buffer_setup == false) {
         // I need to create a userspace_buffer_t item
-        userspace_buffer.info = vmm_info;
-        userspace_buffer.buffer_base = (uintptr_t) buffer;
-        userspace_buffer.length = nbytes;
-        userspace_buffer.buffer_virtual = vm_copy_from_different_space( (uintptr_t) buffer, (uint64_t*) vmm_info.root_table_hhdm);
+        userspace_buffer->info = vmm_info;
+        userspace_buffer->buffer_base = (uintptr_t) buffer;
+        userspace_buffer->length = nbytes;
+        userspace_buffer->buffer_virtual = vm_copy_from_different_space( (uintptr_t) buffer, (uint64_t*) vmm_info.root_table_hhdm);
     }
-    if (userspace_buffer.buffer_virtual == NULL) {
+    if (userspace_buffer->buffer_virtual == NULL) {
         pretty_log(Verbose, "Cannot convert given address");
         return 0;
     } /*else {
@@ -53,16 +53,16 @@ ssize_t sys_read_keyboard(void *buffer, size_t nbytes) {
     }*/
     if (nbytes > 0 && buffer_setup == false) {
         //TODO: We should allocate it.
-        cur_operation.buffer = &userspace_buffer;
-        cur_operation.nbytes = 0;
-        cur_operation.read = false;
-        cur_operation.next = NULL;
-        _ps2_keyboard_add_operation(&cur_operation);
+        new_pending_operation->buffer = userspace_buffer;
+        new_pending_operation->nbytes = 0;
+        new_pending_operation->read = false;
+        new_pending_operation->next = NULL;
+        _ps2_keyboard_add_operation(new_pending_operation);
         buffer_setup = true;
     }
 
 
-    while(cur_operation.nbytes < nbytes) {
+    while(new_pending_operation->nbytes < nbytes) {
         scheduler_yield();
     }
     //pretty_logf(Verbose, "Virtual buffer: %s",userspace_buffer.buffer_virtual);

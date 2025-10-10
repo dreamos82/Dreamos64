@@ -33,6 +33,7 @@ cpu_status_t *syscall_dispatch(cpu_status_t* regs) {
             _fb_printStrAndNumberAt("nbytes: ", nbytes, 0, 16, 0xf5c4f1, 0x000000);
             break;
         case SYS_PRINT:
+            //SYS_PRINT: This prints the buffer passed in `rsi`
             char *read_buffer = (char *)regs->rsi;
             size_t read_nbytes = regs->rdx;
             read_buffer[read_nbytes-1] = '\0';

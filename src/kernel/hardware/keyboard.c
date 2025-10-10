@@ -115,7 +115,7 @@ void handle_keyboard_interrupt() {
                     } else {
                         _ps2_op_head->read = true;
                         ((char *)_ps2_op_head->buffer->buffer_virtual)[_ps2_op_head->nbytes] = '\0';
-                        pretty_logf(Verbose, "Read operation complete: %d", _ps2_op_head->nbytes);
+                        pretty_logf(Verbose, "Read operation complete: %d - %s", _ps2_op_head->nbytes, _ps2_op_head->buffer->buffer_virtual);
                     }
                 }
                 pretty_logf(Verbose, "\t+ Key is pressed pos %d: SC: %x - Code: %x - Mod: %x %c", buf_position, scancode, keyboard_buffer[buf_position].code, keyboard_buffer[buf_position].modifiers, kgetch(keyboard_buffer[buf_position]));
