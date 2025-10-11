@@ -32,7 +32,9 @@ ssize_t sys_read(int fildes, void *buf, size_t nbytes) {
 
 ssize_t sys_read_keyboard(void *buffer, size_t nbytes) {
     // Buffer address is relative to the process.
-    // I need to get access to the current task
+    // I need to get access to the current task and get the buffer address inside the hhdm
+    // To let the kernel access it's content
+    // This information is stored inside the vmm_data field in the task structrure
     task_t *current_task = current_executing_thread->parent_task;
     VmmInfo vmm_info = current_task->vmm_data;
     pending_operation_t *new_pending_operation = kmalloc(sizeof(pending_operation_t));
@@ -40,6 +42,7 @@ ssize_t sys_read_keyboard(void *buffer, size_t nbytes) {
     pretty_logf(Verbose, "nbytes to read: %d", nbytes);
     if (buffer_setup == false) {
         // I need to create a userspace_buffer_t item
+        // This structure will be used to contain the information about the buffer in the
         userspace_buffer->info = vmm_info;
         userspace_buffer->buffer_base = (uintptr_t) buffer;
         userspace_buffer->length = nbytes;
@@ -48,11 +51,8 @@ ssize_t sys_read_keyboard(void *buffer, size_t nbytes) {
     if (userspace_buffer->buffer_virtual == NULL) {
         pretty_log(Verbose, "Cannot convert given address");
         return 0;
-    } /*else {
-        pretty_logf(Verbose, "Returned address: 0x%x", userspace_buffer.buffer_virtual);
-    }*/
+    }
     if (nbytes > 0 && buffer_setup == false) {
-        //TODO: We should allocate it.
         new_pending_operation->buffer = userspace_buffer;
         new_pending_operation->nbytes = 0;
         new_pending_operation->read = false;
@@ -65,8 +65,5 @@ ssize_t sys_read_keyboard(void *buffer, size_t nbytes) {
     while(new_pending_operation->nbytes < nbytes) {
         scheduler_yield();
     }
-    //pretty_logf(Verbose, "Virtual buffer: %s",userspace_buffer.buffer_virtual);
-    // I need to allocate a ps2_op
-    //pending_operation_t *ps2_op = (pending_operation_t *) kmalloc(sizeof(pending_operation_t));
     return 1;
 }
