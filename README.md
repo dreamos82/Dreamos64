@@ -129,7 +129,8 @@ This means that the fonts folder is missing (you need either a psf v2 or v1 font
 
 ### And now show time! :)
 
-![image](https://github.com/dreamos82/Dreamos64/assets/59960116/6a572f8a-9229-4a7d-8f15-be4d2dbcb6d3)
+<img width="1279" height="804" alt="image" src="https://github.com/user-attachments/assets/ff361aa1-3d7e-4405-9b6d-06b199e1855d" />
+
 
 
 ### Acknowledgements
