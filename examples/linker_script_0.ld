@@ -1,4 +1,4 @@
-ENTRY(loop)
+ENTRY(main)
 
 SECTIONS {
 
