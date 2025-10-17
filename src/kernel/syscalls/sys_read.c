@@ -14,15 +14,15 @@ ssize_t sys_read(int fildes, void *buf, size_t nbytes) {
     if (fildes >= 0 && fildes < OPENEDFILES_MAX) {
         int counter = 0;
         if(fildes == 0) {
-            pretty_log(Verbose, "FD for stdin");
-        }
-        if (vfs_opened_files[fildes].fs_specific_id >= 0) {
+            return sys_read_keyboard( buf, nbytes );
+        } else {
+            /*if (vfs_opened_files[fildes].fs_specific_id >= 0) {
             int fs_specific_id = vfs_opened_files[fildes].fs_specific_id;
             int mountpoint_id = vfs_opened_files[fildes].mountpoint_id;
             mountpoint_t mountpoint = mountpoints[mountpoint_id];
             if (mountpoint.file_operations.read != NULL) {
                 return mountpoint.file_operations.read(fs_specific_id, buf, nbytes);
-            }
+            }*/
             return 0;
         }
     }

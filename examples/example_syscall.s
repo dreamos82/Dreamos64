@@ -2,8 +2,9 @@ extern main
 [bits 64]
 main:
     mov rdi, 0x2 ; Read syscall
-    lea rsi, userspace_buffer ; Read buffer
-    mov rdx, 0x8 ; Size of read
+    mov rsi, 0x0 ; File Descriptor
+    lea rdx, userspace_buffer ; Read buffer
+    mov rcx, 0x8 ; Size of read
     int 0x80 ; Syscall
 loop1:
     mov rdi, 0x3 ; Print syscall

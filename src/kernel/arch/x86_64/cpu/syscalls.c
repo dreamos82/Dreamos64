@@ -25,9 +25,10 @@ cpu_status_t *syscall_dispatch(cpu_status_t* regs) {
         case SYS_READ:
             //SYS_READ: This syscall reads input from the keyboard
             //Parameters required: - size, buffer
-            uint64_t buffer = regs->rsi;
-            size_t nbytes = regs->rdx;
-            sys_read_keyboard( (void*)buffer, nbytes);
+            int fildes = regs->rsi;
+            uint64_t buffer = regs->rdx;
+            size_t nbytes = regs->rcx;
+            sys_read(fildes, (void*)buffer, nbytes);
             //void *read_buffer = (void *)regs->rdx;
             _fb_printStrAndNumberAt("Userspace address: 0x", buffer, 0, 15, 0xf5c4f1, 0x000000);
             _fb_printStrAndNumberAt("nbytes: ", nbytes, 0, 16, 0xf5c4f1, 0x000000);
