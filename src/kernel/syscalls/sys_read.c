@@ -39,6 +39,9 @@ ssize_t sys_read_keyboard(void *buffer, size_t nbytes) {
     VmmInfo vmm_info = current_task->vmm_data;
     pending_operation_t *new_pending_operation = kmalloc(sizeof(pending_operation_t));
     userspace_buffer_t *userspace_buffer = kmalloc(sizeof(userspace_buffer_t));
+    if ( new_pending_operation == NULL || userspace_buffer == NULL ) {
+        pretty_log(Fatal, "Cannot allocate read structures");
+    }
     pretty_logf(Verbose, "nbytes to read: %d", nbytes);
     if (buffer_setup == false) {
         // I need to create a userspace_buffer_t item
