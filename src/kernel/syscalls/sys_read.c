@@ -42,7 +42,7 @@ ssize_t sys_read_keyboard(void *buffer, size_t nbytes) {
     if ( new_pending_operation == NULL || userspace_buffer == NULL ) {
         pretty_log(Fatal, "Cannot allocate read structures");
     }
-    pretty_logf(Verbose, "nbytes to read: %d", nbytes);
+    pretty_logf(Verbose, "nbytes to read: %d - pending_op: 0x%x - userspace_buff: 0x%x - buffer: 0x%x", nbytes, new_pending_operation, userspace_buffer, buffer);
     if (buffer_setup == false) {
         // I need to create a userspace_buffer_t item
         // This structure will be used to contain the information about the buffer in the

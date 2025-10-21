@@ -386,7 +386,7 @@ vm_walk_results vm_walk_table(void* virtual_address, uint64_t *root_table_hhdm) 
     uint64_t table_entry_value = (uint64_t) pt_addr[pt_entry];
 
     if(!(table_entry_value & PRESENT_BIT)) {
-        pretty_logf(Error, "PT_ENTRY %d present bit not set. Address: 0x%x", pt_entry, table_entry_value);
+        pretty_logf(Error, "PT_ENTRY %d present bit not set. Address: 0x%x - vaddr: 0x%x", pt_entry, table_entry_value, virtual_address);
         return walk_results;
     }
 #endif

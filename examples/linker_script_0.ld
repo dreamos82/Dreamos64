@@ -25,6 +25,7 @@ SECTIONS {
 	.bss : ALIGN (2M)
 	{
 		*(.bss)
+		*(.bss.*)
 	}
 
 }

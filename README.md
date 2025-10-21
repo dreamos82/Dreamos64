@@ -127,6 +127,8 @@ src/kernel/framebuffer/framebuffer.c:122: undefined reference to `_binary_fonts_
 
 This means that the fonts folder is missing (you need either a psf v2 or v1 font file in the fonts folder, the file has to be called default.psf)
 
+* Version below gnu ld 2.40 could not provide a correct elf for the `example_syscall` program. Meaning that if the compiler selected is `gcc`, the output elf will be corrupted, and the program will not run correctly. To avoid make sure to use a version of binutils more recent than 2.40.
+
 ### And now show time! :)
 
 <img width="1279" height="804" alt="image" src="https://github.com/user-attachments/assets/ff361aa1-3d7e-4405-9b6d-06b199e1855d" />
