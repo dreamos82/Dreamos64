@@ -27,12 +27,17 @@ typedef struct userspace_buffer_t {
     size_t length;
 } userspace_buffer_t;
 
+/*
+ * This structure contains a single operation.
+ * userspace buffer is a special structure that contains the mapping of the userspace buffer in kernel space.
+ * Once we wnat to issue a ps2 operation we create a new isntance of thist structure.
+ */
 typedef struct pending_operation_t {
-    userspace_buffer_t *buffer;
-    size_t nbytes;
+    userspace_buffer_t *buffer; /**< The buffer information passed as \ref userspace_buffer_t */
+    size_t nbytes; /**< The number of bytes to read */
     // TODO: Add a semaphore
-    bool read;
-    struct pending_operation_t *next;
+    bool read; /**< This field is set to true when the read operation has been completed. */
+    struct pending_operation_t *next; /**< Pointer to next operation */
 } pending_operation_t;
 
 typedef struct driver driver_item_t;
