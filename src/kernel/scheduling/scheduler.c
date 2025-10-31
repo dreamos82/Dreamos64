@@ -183,7 +183,7 @@ size_t scheduler_get_queue_size() {
 }
 
 void scheduler_yield() {
-    pretty_log(Verbose, "Interrupting current_thread");
+    //pretty_log(Verbose, "Interrupting current_thread");
     asm("int $0x20");
 }
 

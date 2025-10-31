@@ -39,7 +39,7 @@ But at kernel level several things have been implemented:
 * Thread switching, thread_sleep and basic spinlock implementation
 * Basic Virtual Memory implementation
 * Initial Userspace support (so far can run only an idle userspace thread)
-* Basic syscall mechanism (altough no real syscalls are implemented, just one that prints the string "example")
+* Basic syscall mechanism (two syscalls are present: one that read input from keyboard, only once and one that print the content of a buffer at line 17 of the framebuffer)
 * Initial basic ELF support (from kernel module)
 
 ## Prerequisites:
@@ -127,9 +127,12 @@ src/kernel/framebuffer/framebuffer.c:122: undefined reference to `_binary_fonts_
 
 This means that the fonts folder is missing (you need either a psf v2 or v1 font file in the fonts folder, the file has to be called default.psf)
 
+* Version below gnu ld 2.40 could not provide a correct elf for the `example_syscall` program. Meaning that if the compiler selected is `gcc`, the output elf will be corrupted, and the program will not run correctly. To avoid make sure to use a version of binutils more recent than 2.40.
+
 ### And now show time! :)
 
-![image](https://github.com/dreamos82/Dreamos64/assets/59960116/6a572f8a-9229-4a7d-8f15-be4d2dbcb6d3)
+<img width="1279" height="804" alt="image" src="https://github.com/user-attachments/assets/ff361aa1-3d7e-4405-9b6d-06b199e1855d" />
+
 
 
 ### Acknowledgements

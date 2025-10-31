@@ -1,6 +1,7 @@
 #ifndef _KERNEL_H_
 #define _KERNEL_H_
 
+#include <devices.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
@@ -31,6 +32,7 @@ typedef struct kernel_status_t {
     struct keyboard_status_t keyboard;
     struct apic_timer_parameters apic_timer;
     struct paging_status_t paging;
+    driver_item_t *registered_drivers;
     bool use_x2_apic;
 
     uint64_t kernel_uptime; // Kernel uptime in millisec.

@@ -18,10 +18,12 @@ CFLAGS := -std=gnu99 \
         -I src/include/kernel/graphics \
         -I src/include/kernel/scheduling \
         -I src/include/kernel/loaders \
+        -I src/include/kernel/syscalls \
         -I src/include/utils \
         -I src/include/libc \
         -I src/include/fs \
         -I src/include/drivers/fs \
+        -I src/include/drivers/ps2 \
         -I src/include/sys \
         -mno-red-zone \
         -mno-sse \
@@ -41,6 +43,7 @@ TESTFLAGS := -std=gnu99 \
         -I src/include/drivers/fs \
         -I src/include/kernel \
         -I src/include/kernel/graphics \
+	-I src/include/kernel/hardware \
         -I src/include/kernel/arch/x86_64 \
         -I src/include/kernel/arch/common/mem \
         -I src/include/sys \

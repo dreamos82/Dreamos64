@@ -7,6 +7,7 @@
 #include <vmm_mapping.h>
 
 void *map_phys_to_virt_addr_hh(void* physical_address, void* address, size_t flags, uint64_t *pml4_root) {
+    //TODO: we can use vm_walk_table now to get the page table address.
 
     uint16_t pml4_e = PML4_ENTRY((uint64_t) address);
     uint16_t pdpr_e = PDPR_ENTRY((uint64_t) address);
@@ -307,3 +308,95 @@ uint8_t is_phyisical_address_mapped(uintptr_t physical_address, uintptr_t virtua
 #endif
     return 0;
 }
+
+/**
+ * This function given a virtual address and the hhdm address its address space return the
+ * hhdm kernel space equivalent of it.
+ *
+ *
+ * @param virtual_address a virtual address in any virtual space
+ * @param root_table_hhdm the hhdm address of the pml4 table containing the virtual address
+ *
+ * @return hhdm kernel space equivalent of virtual address.
+ */
+uintptr_t vm_copy_from_different_space(uintptr_t virtual_address, uint64_t *root_table_hhdm){
+    /**
+     * Steps
+     * 1. Extract the page table entry for the given virtual address (using vm_walk_table)
+     * 2. Return the hhdm translation in kernel space of the physical address returned.
+     */
+
+    vm_walk_results walked_address = vm_walk_table((void *) virtual_address, (uint64_t*) root_table_hhdm);
+    //uintptr_t local_virt_address =  (uintptr_t) hhdm_get_variable((uintptr_t) table_entry_value & VM_PAGE_TABLE_BASE_ADDRESS_MASK);
+    //pretty_logf(Verbose, "cur_result: 0x%x- Completed: %d - Level: %x", walked_address.pte, walked_address.completed, walked_address.level);
+
+    return ((uintptr_t)walked_address.pte);
+}
+
+vm_walk_results vm_walk_table(void* virtual_address, uint64_t *root_table_hhdm) {
+    /**
+     * Steps
+     * 1. I need to get PML4, PDPR, PD and PT (if 4k pages are used) entries value for virtual address
+     * 2. Starting from pml4 get the next level table using the entries above.
+     * 3. When reached last level (PD or PT depending on the page size) extract the hhdm address for that entry.
+     * 4. Return the walk structure, with the pointer to pte, if found.
+     */
+    vm_walk_results walk_results;
+    uint16_t pml4_entry = PML4_ENTRY((uint64_t) virtual_address);
+    uint16_t pdpr_entry = PDPR_ENTRY((uint64_t) virtual_address);
+    uint16_t pd_entry = PD_ENTRY((uint64_t) virtual_address);
+    walk_results.level = 0;
+    walk_results.pte = NULL;
+    walk_results.completed = false;
+    //pretty_logf(Verbose, "address: 0x%x pml4_e: %d - pdpr_e: %d - pd_e: %d", virtual_address, pml4_entry, pdpr_entry, pd_entry);
+#if SMALL_PAGES == 1
+    uint16_t pt_entry = PT_ENTRY((uint64_t) virtual_address);
+#endif
+
+    if (!(root_table_hhdm[pml4_entry] & PRESENT_BIT)) {
+        pretty_logf(Error, "Cannot find a valid mapping for pml4_entry: 0x%d on memory space: 0x%x", pml4_entry, root_table_hhdm);
+        return walk_results;
+    }
+
+    walk_results.level++;
+
+    uint64_t *pdpr_addr = (uint64_t *) hhdm_get_variable((uintptr_t) root_table_hhdm[pml4_entry] & VM_PAGE_TABLE_BASE_ADDRESS_MASK);
+
+    if (!(pdpr_addr[pdpr_entry] & PRESENT_BIT)) {
+        pretty_logf(Error, "PDPR_ENTRY %d present bit not set. Address: 0x%x", pdpr_entry, pdpr_addr);
+        return walk_results;
+    }
+
+    walk_results.level++;
+
+    uint64_t *pd_addr = (uint64_t *) hhdm_get_variable((uintptr_t) pdpr_addr[pdpr_entry] & VM_PAGE_TABLE_BASE_ADDRESS_MASK);
+
+    if (!(pd_addr[pd_entry] & PRESENT_BIT)) {
+        pretty_logf(Error, "PD_ENTRY %d present bit not set. Address: 0x%x", pd_entry, pd_addr);
+        return walk_results;
+    }
+
+#if SMALL_PAGES == 0
+    uint64_t table_entry_value = (uint64_t) pd_addr[pd_entry];
+#elif SMALL_PAGES == 1
+    walk_results.level++;
+
+
+    uint64_t *pt_addr = (uint64_t *) hhdm_get_variable((uintptr_t) pd_addr[pd_entry] & VM_PAGE_TABLE_BASE_ADDRESS_MASK);
+    uint64_t table_entry_value = (uint64_t) pt_addr[pt_entry];
+
+    if(!(table_entry_value & PRESENT_BIT)) {
+        pretty_logf(Error, "PT_ENTRY %d present bit not set. Address: 0x%x - vaddr: 0x%x", pt_entry, table_entry_value, virtual_address);
+        return walk_results;
+    }
+#endif
+
+    walk_results.completed = true;
+
+    uintptr_t local_virt_address =  (uintptr_t) hhdm_get_variable((uintptr_t) table_entry_value & VM_PAGE_TABLE_BASE_ADDRESS_MASK);
+    //pretty_logf(Verbose, "table entry value: 0x%x - phys_address: 0x%x", table_entry_value, table_entry_value & VM_PAGE_TABLE_BASE_ADDRESS_MASK);
+
+    walk_results.pte = (uint64_t *) local_virt_address;
+    return walk_results;
+}
+

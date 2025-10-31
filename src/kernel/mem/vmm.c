@@ -225,6 +225,3 @@ uint8_t check_virt_address_status(uint64_t virtual_address) {
     (void)virtual_address;
     return VIRT_ADDRESS_NOT_PRESENT;
 }
-
-
-

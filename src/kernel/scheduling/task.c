@@ -146,7 +146,7 @@ bool add_thread_to_task_by_id( size_t task_id, thread_t* thread ) {
 }
 
 bool remove_thread_from_task(size_t thread_id, task_t *task) {
-    // We don't freethe thread here, because is the scheduler in charge of deleting DEAD threads
+    // We don't free the thread here, because is the scheduler in charge of deleting DEAD threads
     thread_t *cur_thread = task->threads;
     thread_t *prev_thread = cur_thread;
     pretty_logf( Verbose, "Removing thread with thread id: %d, from task: %d with name: %s", thread_id, task->task_id, task->task_name);

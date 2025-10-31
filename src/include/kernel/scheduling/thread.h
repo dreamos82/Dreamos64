@@ -33,8 +33,8 @@ struct thread_t {
     size_t ticks;
     cpu_status_t *execution_frame;
     size_t wakeup_time;
-    thread_t* next_sibling;
-    thread_t* next;
+    thread_t* next_sibling; /**< This is the list of siblings of the current thread (belonging to the same task */
+    thread_t* next; /**< This is the thread list used by scheduler */
     uintptr_t* rsp0;
 };
 

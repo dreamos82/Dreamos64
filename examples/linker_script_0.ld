@@ -1,4 +1,4 @@
-ENTRY(loop)
+ENTRY(main)
 
 SECTIONS {
 
@@ -25,6 +25,7 @@ SECTIONS {
 	.bss : ALIGN (2M)
 	{
 		*(.bss)
+		*(.bss.*)
 	}
 
 }

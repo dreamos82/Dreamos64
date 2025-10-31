@@ -1,6 +1,7 @@
 #ifndef _TASK_H
 #define _TASK_H
 
+#include <devices.h>
 #include <elf.h>
 #include <stddef.h>
 #include <stdbool.h>
@@ -8,6 +9,8 @@
 #include <vmm.h>
 
 #define TASK_NAME_MAX_LEN 32
+
+#define DRMOS_MAX_FILE_DESCRIPTORS 64
 
 typedef struct task_t task_t;
 
@@ -22,6 +25,8 @@ struct task_t {
     void* vm_root_page_table; /**< The physical addres of the root page table */
 
     VmmInfo vmm_data;
+
+    file_descriptor_t file_descriptors[DRMOS_MAX_FILE_DESCRIPTORS];
 
     //List of threads
     struct thread_t* threads;
