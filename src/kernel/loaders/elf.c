@@ -112,11 +112,11 @@ bool parse_section_header(Elf64_Ehdr *elf_start, uint64_t size, executable_loade
  */
 uint64_t elf_flags_to_memory_flags(Elf64_Word flags) {
     // This function will be movede into the arch dependant code
-    // Elf flags:
-    // 1 = Read
-    // 2 = Write
-    // 4 = Execute
-    // They can be mixed.
+    // Conversion
+    // ELF   |   VMM
+    // 0x0   |   Executable
+    // 0x1   |   Write
+    // 0x2   |   Read
     uint64_t flags_to_return = (flags & 0b10);
     return flags_to_return;
 }
