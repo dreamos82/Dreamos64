@@ -6,6 +6,7 @@
 * The `tests/` folder contain some test that can be run without running the os.
 * The `build/` folder contains the build related files.
 * Documentation is available in the `docs/` folder.
+* `examples` Contains the example applications.
 
 
 ### Source files
@@ -17,7 +18,6 @@ The C source files and headers for dreamos are all located inside the `src`folde
 * All the assembly code is in the `asm` folder
 * `libc` contains the basic files related to the standard C functions (although only few functions are implemented).
 * `include` contains the header files.
-
 
 ### Other files
 
