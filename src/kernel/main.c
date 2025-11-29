@@ -268,11 +268,9 @@ void kernel_start(unsigned long addr, unsigned long magic){
     char a = 'a';
     task_t* idle_task = create_task_from_func("idle", idle, &a, true);
     idle_thread = idle_task->threads;
-    #if PAGE_SIZE_IN_BYTES == 0x200000
-    task_t* userspace_task = create_task_from_func("userspace_idle", NULL, &a, false);
-    #else
+    // In case we want to use the userspace task instead of the elf, use the below line
+    //task_t* userspace_task = create_task_from_func("userspace_idle", NULL, &a, false);
     task_t* elf_task = create_task_from_elf("elf_idle", NULL, (Elf64_Ehdr *) hhdm_get_variable(elf_module_start_phys));
-    #endif
     //execute_runtime_tests();
     start_apic_timer(kernel_settings.apic_timer.timer_ticks_base, APIC_TIMER_SET_PERIODIC, kernel_settings.apic_timer.timer_divisor);
     pretty_logf(Verbose, "(END of Mapped memory: 0x%x)", end_of_mapped_memory);

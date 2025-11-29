@@ -147,7 +147,7 @@ void test_pmm(){
     uint64_t *frame_2 = pmm_alloc_area(0x250000);
     printf("\t [test_mem] (bitmap): Address: 0x%lx\n", frame_2);
     printf("\t [test_mem] (bitmap): Returned frame_2 should be 0x02 0x%x and used frames should be 0x04 0x%x\n", frame_2, used_frames);
-    assert(frame_2 == (uint64_t *)0x02);
+    assert(frame_2 == (uint64_t *)0x400000);
     assert(used_frames == 0x04);
     printf("\t [test_mem] (bitmap): memory_map[0]: 0x%lx\n", memory_map[0]);
     printf("\t [test_mem] (bitmap): Changing memory_map[0] value to 75, and used frames to 4\n");

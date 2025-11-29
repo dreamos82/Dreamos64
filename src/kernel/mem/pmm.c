@@ -95,11 +95,12 @@ void *pmm_prepare_new_pagetable() {
 }
 
 void *pmm_alloc_area(size_t size) {
+    //TODO: Add error check
     size_t requested_frames = get_number_of_pages_from_size(size);
 
-    pretty_logf(Verbose, "requested_frames: %x\n", requested_frames);
     spinlock_acquire(&memory_spinlock);
     uint64_t frames = _bitmap_request_frames(requested_frames);
+    pretty_logf(Verbose, "frames: %x\n", frames);
 
     for (size_t i =0; i < requested_frames; i++) {
         _bitmap_set_bit( frames + i );
@@ -107,7 +108,7 @@ void *pmm_alloc_area(size_t size) {
 
     used_frames += requested_frames;
     spinlock_release(&memory_spinlock);
-    return (void *) frames;
+    return (void *) (frames *PAGE_SIZE_IN_BYTES);
 }
 
 void pmm_free_frame(void *address){

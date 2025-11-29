@@ -129,7 +129,7 @@ void *vmm_alloc_at(uint64_t base_address, size_t size, size_t flags, VmmInfo *vm
     if (base_address != 0 && base_address > address_to_return) {
         // I have specified a base_address, so i want an allocation at that given address
         // This design is problematic, it will be reimplemented in the future
-        // For now i rely in the fact that the address space on a 64bit architecture is very big. And i don't  worry about holes, or overlapping.
+        // For now i rely on the fact that the address space on a 64bit architecture is very big. And i don't  worry about holes, or overlapping.
         if ( !is_address_aligned(base_address, PAGE_SIZE_IN_BYTES) ) {
             pretty_logf(Fatal, " Error: base_address 0x%x is not aligned with: 0x%x", base_address, PAGE_SIZE_IN_BYTES);
         }
