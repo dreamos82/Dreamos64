@@ -28,13 +28,14 @@ cpu_status_t *syscall_dispatch(cpu_status_t* regs) {
             int fildes = regs->rsi;
             uint64_t buffer = regs->rdx;
             size_t nbytes = regs->rcx;
-            sys_read(fildes, (void*)buffer, nbytes);
-            //void *read_buffer = (void *)regs->rdx;
+            size_t bytes_read = sys_read(fildes, (void*)buffer, nbytes);
+            regs->rax = bytes_read;
             _fb_printStrAndNumberAt("Userspace address: 0x", buffer, 0, 15, 0xf5c4f1, 0x000000);
             _fb_printStrAndNumberAt("nbytes: ", nbytes, 0, 16, 0xf5c4f1, 0x000000);
             break;
         case SYS_PRINT:
             //SYS_PRINT: This prints the buffer passed in `rsi`
+            //TODO: Add position? Or handle position
             char *read_buffer = (char *)regs->rsi;
             size_t read_nbytes = regs->rdx;
             read_buffer[read_nbytes-1] = '\0';

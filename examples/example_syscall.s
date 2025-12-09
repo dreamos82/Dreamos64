@@ -6,12 +6,28 @@ main:
     lea rdx, userspace_buffer ; Read buffer
     mov rcx, 0x8 ; Size of read
     int 0x80 ; Syscall
+    cmp rax, -1
+    je read_error
+    mov [rdx + rax], 0
+    jmp loop1
+read_error:
+    mov rdi, 0x3 ; Print syscall
+    mov rsi, error_string ; Print buffer
+    mov rdx, 20
+    int 0x80
+    jmp read_error
 loop1:
     mov rdi, 0x3 ; Print syscall
     lea rsi, userspace_buffer ; Print buffer
     mov rdx, 0x8 ; Size of print
     int 0x80 ; Syscall
     jmp loop1
+
+
+section .data
+
+error_string db "Keyboard read error", 0
+
 
 section .bss
 
