@@ -8,7 +8,7 @@ main:
     int 0x80 ; Syscall
     cmp rax, -1
     je read_error
-    mov [rdx + rax], 0
+    mov byte [rdx + rax], 0
     jmp loop1
 read_error:
     mov rdi, 0x3 ; Print syscall
