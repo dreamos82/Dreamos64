@@ -20,6 +20,8 @@ loop1:
     mov rdi, 0x3 ; Print syscall
     lea rsi, userspace_buffer ; Print buffer
     mov rdx, 0x8 ; Size of print
+    mov rcx, 0 ;xpos (optional)
+    mov r8, 25 ;ypos (optional)
     int 0x80 ; Syscall
     jmp loop1
 
