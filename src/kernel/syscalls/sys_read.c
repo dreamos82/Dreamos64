@@ -68,5 +68,5 @@ ssize_t sys_read_keyboard(void *buffer, size_t nbytes) {
     while(new_pending_operation->nbytes < nbytes) {
         scheduler_yield();
     }
-    return 1;
+    return new_pending_operation->nbytes;
 }

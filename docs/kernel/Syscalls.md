@@ -4,6 +4,8 @@ The syscalls are called using the interrupt vector `0x80`. Arguments depend on t
 
 This list is still draft, so it can change at any time.
 
+The syscall number is placed in the register `rdi`
+
 # Syscalls List
 
 ## 0x00 TEST
@@ -20,8 +22,12 @@ Read from keyboard
 
 Arguments: 
 
-* `rsi`: buffer pointer
-* `rdx`: buffer size
+* `rsi`: file descriptor 
+* `rdx`: buffer pointer
+* `rcx`: number of charaters to read
+
+Return value: 
+* `rax`: number of characters read if success, -1 otherwise.
 
 ## 0x03 Print buffer on screen
 
@@ -29,4 +35,8 @@ Print on screen content of buffer
 
 * `rsi`: buffer pointer
 * `rdx`: buffer size
+* `rcx`: [optional] X coord of the print
+* `r8`: [optional] Y coord of screen
+
+If `X` and `Y` are both 0, it will print on the next line available on the screen. Currently, for debug purposes, it also print an extra line, with a constant message.
 

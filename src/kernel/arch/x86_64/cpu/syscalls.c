@@ -28,18 +28,26 @@ cpu_status_t *syscall_dispatch(cpu_status_t* regs) {
             int fildes = regs->rsi;
             uint64_t buffer = regs->rdx;
             size_t nbytes = regs->rcx;
-            sys_read(fildes, (void*)buffer, nbytes);
-            //void *read_buffer = (void *)regs->rdx;
+            size_t bytes_read = sys_read(fildes, (void*)buffer, nbytes);
+            regs->rax = bytes_read;
             _fb_printStrAndNumberAt("Userspace address: 0x", buffer, 0, 15, 0xf5c4f1, 0x000000);
             _fb_printStrAndNumberAt("nbytes: ", nbytes, 0, 16, 0xf5c4f1, 0x000000);
             break;
         case SYS_PRINT:
             //SYS_PRINT: This prints the buffer passed in `rsi`
+            //TODO: Add position? Or handle position
             char *read_buffer = (char *)regs->rsi;
             size_t read_nbytes = regs->rdx;
+            size_t pos_x = regs->rcx;
+            size_t pos_y = regs->r8;
             read_buffer[read_nbytes-1] = '\0';
-            _fb_printStrAt(read_buffer, 10, 17, 0x27F549, 0x000000);
-            _fb_printStrAt("The line above is printed after the read syscall.", 0, 18, 0xD3F527, 0x000000);
+            if (pos_x == 0 && pos_y == 0) {
+                _fb_printStr(read_buffer, 0x27F549, 0x000000);
+                _fb_printStr("The line above is printed after the read syscall.", 0xD3F527, 0x000000);
+            } else {
+                _fb_printStrAt(read_buffer, pos_x, pos_y, 0x27F549, 0x000000);
+                _fb_printStrAt("The line above is printed after the read syscall.", pos_x, pos_y + 1, 0xD3F527, 0x000000);
+            }
             break;
         default:
             regs->rax = E_NO_SYSCALL;
