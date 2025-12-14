@@ -31,13 +31,14 @@ uint32_t FRAMEBUFFER_HEIGHT;
 framebuffer_info framebuffer_data;
 
 size_t cur_fb_line;
+size_t cur_fb_column;
 uint32_t number_of_lines;
 
 _fb_window_t framebuffer_main_window;
 _fb_window_t framebuffer_logo_area;
 _fb_window_t *logo_area_ptr;
 
-void _fb_putchar(char symbol, size_t cx, size_t cy, uint32_t fg, uint32_t bg){
+void _fb_putcharAt(char symbol, size_t cx, size_t cy, uint32_t fg, uint32_t bg){
     uint8_t *framebuffer = (uint8_t *) framebuffer_data.address;
     uint32_t pitch = framebuffer_data.pitch;
     uint32_t width, height;
@@ -75,6 +76,10 @@ void _fb_putchar(char symbol, size_t cx, size_t cy, uint32_t fg, uint32_t bg){
     }
 }
 
+void _fb_putchar(char symbol, uint32_t fg, uint32_t bg){
+    _fb_putcharAt(symbol, cur_fb_line, cur_fb_column, fg, bg);
+}
+
 void _fb_printStr( const char *string, uint32_t fg, uint32_t bg ) {
     _fb_printStrAt(string, 0, cur_fb_line, fg, bg);
     cur_fb_line++;
@@ -88,7 +93,7 @@ void _fb_printStr( const char *string, uint32_t fg, uint32_t bg ) {
 
 void _fb_printStrAndNumber(const char *string, uint64_t number, uint32_t fg, uint32_t bg) {
     _fb_printStrAndNumberAt(string, number, 0, cur_fb_line, fg, bg);
-    cur_fb_line++;
+    cur_fb_column = 0;
     if ( cur_fb_line >= framebuffer_data.number_of_lines ) {
         //pretty_log(Verbose, "Exceeding number of lines, calling _fb_scrollLine");
         //_fb_scrollLine(&framebuffer_main_window, _psf_get_height(psf_font_version), 1, &framebuffer_logo_area);
@@ -113,11 +118,11 @@ void _fb_printStrAt( const char *string, size_t cx, size_t cy, uint32_t fg, uint
             }
         } else if (*string == '\t'){
             for ( int i = 0; i < 4; i++ ) {
-                _fb_putchar(' ', cx+i, cy, fg, bg);
+                _fb_putcharAt(' ', cx+i, cy, fg, bg);
             }
             cx += 4;
         } else {
-            _fb_putchar(*string, cx, cy, fg, bg);
+            _fb_putcharAt(*string, cx, cy, fg, bg);
             cx++;
         }
         string++;

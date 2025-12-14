@@ -211,12 +211,15 @@ void vmm_free(void *address) {
         selected_container = selected_container->next;
     }
 
+    // TODO: check if the address is page aligned.
+
     // TODO: vmm_free
     // Need to compute:
     // Page directories/table entries for the address
     // Search the base address inside the vmm objects arrays
     // Remove that object
     // Mark the entry as not present at least if it is mapped
+    // For the free, i will create a list of free VmmIems
     return;
 }
 

@@ -55,6 +55,7 @@ void set_fb_data(struct multiboot_tag_framebuffer *fbtag){
     map_framebuffer(framebuffer_data);
     framebuffer_data.address = (void*)map_framebuffer(framebuffer_data);
     cur_fb_line = 0;
+    cur_fb_column = 0;
     framebuffer_main_window.x_orig = 0;
     framebuffer_main_window.y_orig = 0;
     framebuffer_main_window.width = framebuffer_data.width;
