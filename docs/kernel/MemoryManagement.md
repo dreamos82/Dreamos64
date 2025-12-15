@@ -103,6 +103,14 @@ There are two levels on the physical memory manager:
 * the bitmap level that contains the function to set/clear the bits in the bitmap and these functions should be used only by the pmm.
 * the pmm level instead contains the function to allocate and free pages of physical memory.
 
+### The bitmap
+
+This is the lowest level of memory management. It is simply a _bit map_, an array where every bit on each item is representing a memory page. 
+
+This level just keep tracks of used and free pages. It doesn't really allocate. 
+
+If the bitmap entry is 1 the page is used, otherwise is free. 
+
 ### Memory map
 
 The memory map is based on the one obtained from the multiboot, and during initialization.

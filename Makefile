@@ -45,14 +45,14 @@ default: build
 
 .PHONY: default build run clean debug tests gdb todolist examples
 
-build: examples $(BUILD_FOLDER)/$(ISO_IMAGE_FILENAME)
+build: $(BUILD_FOLDER)/$(ISO_IMAGE_FILENAME)
 
 clean:
 	-rm -rf $(BUILD_FOLDER)
 	-find -name *.o -type f -delete
 
 run: $(BUILD_FOLDER)/$(ISO_IMAGE_FILENAME)
-	$(QEMU_SYSTEM) -cdrom $(BUILD_FOLDER)/$(ISO_IMAGE_FILENAME)
+	$(QEMU_SYSTEM) -cdrom $(BUILD_FOLDER)/$(ISO_IMAGE_FILENAME) -serial stdio
 
 examples:
 	echo "Building Examples"

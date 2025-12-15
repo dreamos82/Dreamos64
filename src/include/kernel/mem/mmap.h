@@ -15,6 +15,7 @@
 extern const char *mmap_types[];
 extern uint32_t _mmap_last_available_item;
 extern multiboot_memory_map_t *mmap_entries;
+extern size_t _mmap_phys_memory_avail;
 
 void _mmap_parse(struct multiboot_tag_mmap*);
 void _mmap_setup();

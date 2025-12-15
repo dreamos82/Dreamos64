@@ -1,4 +1,5 @@
 #include <ioapic.h>
+#include <mmap.h>
 #include <bitmap.h>
 #include <stdio.h>
 #include <stddef.h>
@@ -30,7 +31,11 @@ void init_ioapic(MADT *madt_table){
         // This one should be mapped in the higher half ??
         //map_phys_to_virt_addr(VPTR(io_apic_base_address), VPTR(io_apic_base_address), 0);
         map_phys_to_virt_addr(VPTR(io_apic_base_address), (void *) io_apic_hh_base_address, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE);
-        _bitmap_set_bit(ADDRESS_TO_BITMAP_ENTRY(io_apic_base_address));
+        if ( io_apic_base_address < _mmap_phys_memory_avail) {
+            _bitmap_set_bit(ADDRESS_TO_BITMAP_ENTRY((uint64_t)io_apic_base_address));
+        } else {
+            pretty_logf(Verbose, "Three is no need to set bitmap entry for: 0x%x, above phsical memory", io_apic_base_address);
+        }
         uint32_t ioapic_version = read_io_apic_register(IO_APIC_VER_OFFSET);
         pretty_logf(Info, "IOAPIC Version: 0x%x", ioapic_version);
         io_apic_redirect_entry_t redtbl_entry;
