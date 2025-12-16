@@ -153,6 +153,16 @@ The `VmmItem`, has 3 basic information:
 * its size (in bytes, but the allocation is always page aligned)
 * its flags
 
+It is defined as follows: 
+
+```c
+typedef struct VmmItem{
+    uintptr_t base;
+    size_t size;
+    size_t flags;
+} VmmItem;
+```
+
 The `VmmContainer` structure is as follows: 
 
 ```c
@@ -178,11 +188,10 @@ The snapshot of the status of the _VMM_ is stored inside the `VmmStatus` struct,
     } status;
 ```
 
-The main thing about the above structure is that it contains the root node of the `VmmContainer` list, and then the pointer to the node being used currently. 
-
-We also the pointer to the `next_available_address`. 
+The main thing about the above structure is that it contains the root node of the `VmmContainer` list, and then the pointer to the node being used currently. In addition it keeps track of the last index used and also the pointer to the `next_available_address`. 
 
 The struct is defined inside the `VmmContainer` object.
+
 ### Initialization
 
 A portion of the address space is reserved for Virtual Memory structs, its size is defined in `vmm.h`: 
