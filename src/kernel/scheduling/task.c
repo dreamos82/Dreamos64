@@ -69,6 +69,7 @@ task_t *create_task_from_elf(char *name, void *args, Elf64_Ehdr *elf_header){
                 pretty_logf(Verbose, "[%d]: Mapping: offset: 0x%x (virtual: 0x%x) in vaddr: 0x%x", j, hhdm_get_phys_address((uintptr_t) offset_address), offset_address, vaddr_address);
                 if ( !is_address_aligned((size_t) hhdm_get_phys_address(offset_address), PAGE_SIZE_IN_BYTES)) {
                     // Need to allocate physical pages
+                    pretty_logf(Verbose, "New Phys address: 0x%x - size: %d", 0, phdr.p_memsz);
                     void *phys_address = pmm_alloc_area(phdr.p_memsz);
                     pretty_logf(Verbose, "New Phys address: 0x%x - size: %d", phys_address, phdr.p_memsz);
                     // Now copy the offset_addr content content to the new phys address

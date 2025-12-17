@@ -42,7 +42,7 @@ void pmm_setup(uint64_t addr, uint32_t size){
     hhdm_map_physical_memory();
     pretty_log(Verbose, "HHDM setup finished");
 
-    _initialize_bitmap(anon_physical_memory_loc + PAGE_SIZE_IN_BYTES);
+    _initialize_bitmap(_mmap_phys_memory_avail, anon_physical_memory_loc + PAGE_SIZE_IN_BYTES);
     uint64_t bitmap_start_addr;
     size_t bitmap_size;
     _bitmap_get_region(&bitmap_start_addr, &bitmap_size, ADDRESS_TYPE_PHYSICAL);
@@ -98,9 +98,11 @@ void *pmm_alloc_area(size_t size) {
     //TODO: Add error check
     size_t requested_frames = get_number_of_pages_from_size(size);
 
+    if( ! pmm_check_frame_availability() ) {
+        return 0; // No more frames to allocate
+    }
     spinlock_acquire(&memory_spinlock);
     uint64_t frames = _bitmap_request_frames(requested_frames);
-    pretty_logf(Verbose, "frames: %x\n", frames);
 
     for (size_t i =0; i < requested_frames; i++) {
         _bitmap_set_bit( frames + i );
@@ -108,7 +110,7 @@ void *pmm_alloc_area(size_t size) {
 
     used_frames += requested_frames;
     spinlock_release(&memory_spinlock);
-    return (void *) (frames *PAGE_SIZE_IN_BYTES);
+    return (void *) (frames * PAGE_SIZE_IN_BYTES);
 }
 
 void pmm_free_frame(void *address){

@@ -103,6 +103,14 @@ There are two levels on the physical memory manager:
 * the bitmap level that contains the function to set/clear the bits in the bitmap and these functions should be used only by the pmm.
 * the pmm level instead contains the function to allocate and free pages of physical memory.
 
+### The bitmap
+
+This is the lowest level of memory management. It is simply a _bit map_, an array where every bit on each item is representing a memory page. 
+
+This level just keep tracks of used and free pages. It doesn't really allocate. 
+
+If the bitmap entry is 1 the page is used, otherwise is free. 
+
 ### Memory map
 
 The memory map is based on the one obtained from the multiboot, and during initialization.
@@ -117,11 +125,90 @@ It avails of `x86_64`paging mechanism.
 
 An _hhdm_ is provided to the kernel as convenience.
 
+It starts at `higherHalfDirectMapBase`.
+
+The variable is defined in `main.c`, and is initialized as: 
+
+```c
+uintptr_t higherHalfDirectMapBase = ((uint64_t) HIGHER_HALF_ADDRESS_OFFSET + VM_KERNEL_MEMORY_PADDING);
+```
+
 ## Virtual Memory  Manager
 
 It sucks, but for now it does its job (partially!)
 
 Currently only the allocation of virtual memory is implemented. There is no `vmm_free` implemented yet.
+
+### Overview
+
+The basic idea is that the memory is split in allocable `regions`. Every region is defined inside a _container_ (`VmmContainer`). Allocation is done in `PAGE_SIZE` chunks. 
+
+All regions are stored in a linked list. Every Container is exactly 1 page in size. 
+
+Inside the regions there is an array of `VmmItem` (that contains info about the used memory), and a pointer to the next container. 
+
+The `VmmItem`, has 3 basic information: 
+
+* its base pointer (where the virtual address start)
+* its size (in bytes, but the allocation is always page aligned)
+* its flags
+
+It is defined as follows: 
+
+```c
+typedef struct VmmItem{
+    uintptr_t base;
+    size_t size;
+    size_t flags;
+} VmmItem;
+```
+
+The `VmmContainer` structure is as follows: 
+
+```c
+typedef struct VmmContainer {
+    VmmItem vmm_root[(PAGE_SIZE_IN_BYTES/sizeof(VmmItem) - 1)];
+    struct VmmContainer *next;
+} __attribute__((__packed__)) VmmContainer;
+```
+
+The snapshot of the status of the _VMM_ is stored inside the `VmmStatus` struct, defined as below: 
+
+```c
+    struct VmmStatus {
+        size_t vmm_items_per_page; /**< Number of page items contained in one page */
+        size_t vmm_cur_index; /**< Current position inside the array */
+
+        size_t next_available_address; /**< The next available address */
+
+        uint64_t end_of_vmm_data; /**< We should never reach here, where the vmm_data finish */
+
+        VmmContainer *vmm_container_root; /**< Root node of the vmmContainer */
+        VmmContainer *vmm_cur_container; /**< Current pointer */
+    } status;
+```
+
+The main thing about the above structure is that it contains the root node of the `VmmContainer` list, and then the pointer to the node being used currently. In addition it keeps track of the last index used and also the pointer to the `next_available_address`. 
+
+The struct is defined inside the `VmmContainer` object.
+
+### Initialization
+
+A portion of the address space is reserved for Virtual Memory structs, its size is defined in `vmm.h`: 
+
+```c
+#define VMM_RESERVED_SPACE_SIZE 0x14200000000
+```
+
+And the address space sits on top of the hhdm: 
+
+```c
+vmm_info->vmmDataStart = align_value_to_page(higherHalfDirectMapBase + memory_size_in_bytes + VM_KERNEL_MEMORY_PADDING);
+```
+
+There is one kernel VMM, and then every process will have its own.
+
+A `VmmItem` is free if its base and size are both 0. 
 
 ## KHeap
 

@@ -27,7 +27,7 @@ typedef enum  {
 extern size_t memory_size_in_bytes;
 extern uint64_t memory_map_phys_addr;
 
-void _initialize_bitmap(uint64_t end_of_reserved_area);
+void _initialize_bitmap(uint64_t memory_size, uint64_t end_of_reserved_area);
 void _bitmap_get_region(uint64_t* base_address, size_t* length_in_bytes, address_type_t type);
 
 int64_t _bitmap_request_frame();

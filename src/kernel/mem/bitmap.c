@@ -1,4 +1,5 @@
 #include <bitmap.h>
+#include <constants.h>
 #include <hh_direct_map.h>
 #include <pmm.h>
 #include <multiboot.h>
@@ -32,9 +33,9 @@ uint32_t used_frames;
 uint64_t memory_map_phys_addr;
 
 
-void _initialize_bitmap ( uint64_t end_of_reserved_area ) {
+void _initialize_bitmap (uint64_t memory_size,  uint64_t end_of_reserved_area ) {
     pretty_logf(Verbose, "\tend_of_reserved_area: 0x%x", end_of_reserved_area);
-    uint64_t memory_size = (tagmem->mem_upper + 1024) * 1024;
+    //uint64_t old_memory_size = (tagmem->mem_upper + 1024) * 1024;
     bitmap_size = memory_size / PAGE_SIZE_IN_BYTES + 1;
     pretty_logf(Verbose, " bitmap_size: 0x%x", bitmap_size);
     used_frames = 0;
@@ -48,20 +49,19 @@ void _initialize_bitmap ( uint64_t end_of_reserved_area ) {
 #endif
     for (uint32_t i=0; i<number_of_entries; i++){
         //pretty_logf(Verbose, "(%d)", i, number_of_entries);
-        memory_map[i] = 0x0;
+        memory_map[i] = ZERO_64B;
     }
-    pretty_logf(Verbose, "Number of entries: 0x%d", number_of_entries);
+    pretty_logf(Verbose, "Number of bitmap entries: 0x%d", number_of_entries);
     uint32_t kernel_entries = _compute_kernel_entries(end_of_reserved_area);
     uint32_t number_of_bitmap_rows = kernel_entries/64;
     uint32_t j=0;
     for (j=0; j < number_of_bitmap_rows; j++){
         memory_map[j] = ~(0);
     }
-    memory_map[j] = ~(~(0ul) << (kernel_entries - (number_of_bitmap_rows*64)));
+    memory_map[j] = ~(~(ZERO_64B) << (kernel_entries - (number_of_bitmap_rows*64)));
     used_frames = kernel_entries;
-    pretty_logf(Info, "Page size used by the kernel: %d", PAGE_SIZE_IN_BYTES);
-    pretty_logf(Verbose, "Physical size in bytes: %u", memory_size_in_bytes);
-    pretty_logf(Verbose, "Number of bit entries: %d - %d", bitmap_size, number_of_entries);
+    pretty_logf(Info, "Page size used by the kernel: %d - Physical memory size: %x - 0x%x", PAGE_SIZE_IN_BYTES, memory_size, memory_map[j]);
+    pretty_logf(Verbose, "Number of bit entries: %d - %d", bitmap_size, kernel_entries);
 }
 
 void _bitmap_get_region(uint64_t* base_address, size_t* length_in_bytes, address_type_t type)
@@ -96,7 +96,7 @@ int64_t _bitmap_request_frame(){
     for (row = 0; row < number_of_entries; row++){
         if(memory_map[row] != BITMAP_ENTRY_FULL){
             for (column = 0; column < BITMAP_ROW_BITS; column++){
-                uint64_t bit = 1 << column;
+                uint64_t bit = ONE_64B << column;
                 if((memory_map[row] & bit) == 0){
                     return row * BITMAP_ROW_BITS + column;
                 }
@@ -116,7 +116,7 @@ int64_t _bitmap_request_frames(size_t number_of_frames) {
     for (row = 0; row < number_of_entries; row++){
         if(memory_map[row] != BITMAP_ENTRY_FULL){
             for (column = 0; column < BITMAP_ROW_BITS; column++){
-                uint64_t bit = 1 << column;
+                uint64_t bit = ONE_64B << column;
                 if((memory_map[row] & bit) == 0){
                     if(adjacents_found == 0) {
                         start_row = row;
@@ -145,15 +145,15 @@ void _bitmap_set_bit_from_address(uint64_t address) {
  * In the next 3 function location is the bit-location inside the bitmap
  * */
 void _bitmap_set_bit(uint64_t location){
-    memory_map[location / BITMAP_ROW_BITS] |= 1 << (location % BITMAP_ROW_BITS);
+    memory_map[location / BITMAP_ROW_BITS] |= ONE_64B << (location % BITMAP_ROW_BITS);
 }
 
 void _bitmap_free_bit(uint64_t location){
-    memory_map[location / BITMAP_ROW_BITS] &= ~(1 << (location % BITMAP_ROW_BITS));
+    memory_map[location / BITMAP_ROW_BITS] &= ~(ONE_64B << (location % BITMAP_ROW_BITS));
 }
 
 bool _bitmap_test_bit(uint64_t location){
-    return memory_map[location / BITMAP_ROW_BITS] & (1 << (location % BITMAP_ROW_BITS));
+    return memory_map[location / BITMAP_ROW_BITS] & (ONE_64B << (location % BITMAP_ROW_BITS));
 }
 
 
