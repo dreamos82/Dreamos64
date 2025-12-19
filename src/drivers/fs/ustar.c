@@ -18,3 +18,7 @@ ssize_t ustar_read(int ustar_fildes, char *buf, size_t nbytes) {
     strcpy(buf, "Test string");
     return 12;
 }
+
+int octascii_to_dec(char *number, int size) {
+
+}

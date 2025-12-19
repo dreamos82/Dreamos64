@@ -41,6 +41,7 @@
 #include <thread.h>
 #include <task.h>
 #include <tss.h>
+#include <ustar.h>
 #include <utils.h>
 #include <vfs.h>
 #include <vm.h>
@@ -69,8 +70,12 @@ struct multiboot_tag *tagacpi = NULL;
 struct multiboot_tag_module *loaded_module = NULL;
 struct multiboot_tag *tag_start = NULL;
 
+struct multiboot_tag_module *elf_module = NULL;
+struct multiboot_tag_module *tar_module = NULL;
+
 
 uint64_t elf_module_start_hh = 0;
+ustar_item* tar_module_start_hh = 0;
 
 uintptr_t higherHalfDirectMapBase;
 
@@ -163,6 +168,18 @@ void _init_basic_system(unsigned long addr){
             case MULTIBOOT_TAG_TYPE_MODULE:
                 loaded_module = (struct multiboot_tag_module *) tag;
                 pretty_logf(Verbose, " \t[Tag 0x%x] (%s): Size: 0x%x - mod_start: 0x%x : mod_end: 0x%x" , loaded_module->type, multiboot_names[loaded_module->type], loaded_module->size, loaded_module->mod_start, loaded_module->mod_end);
+                bool module_result = _is_module_elf_hh(loaded_module);
+                if (module_result) {
+                    elf_module = loaded_module;
+                    continue;
+                }
+                module_result = _is_module_tar_hh(loaded_module);
+                if (module_result) {
+                    tar_module = loaded_module;
+                    tar_module_start_hh = (ustar_item *) hhdm_get_variable(loaded_module->mod_start);
+                    continue;
+                }
+                pretty_logf(Verbose, "load_module result: %d", module_result);
                 break;
             default:
                 pretty_logf(Verbose, "\t[Tag 0x%x] (%s): Size: 0x%x",  tag->type, multiboot_names[tag->type], tag->size);
@@ -174,7 +191,6 @@ void _init_basic_system(unsigned long addr){
 
 void kernel_start(unsigned long addr, unsigned long magic){
     uint64_t elf_module_start_phys  = 0;
-    uint64_t elf_module_start_hh = 0;
     qemu_init_debug();
     psf_font_version = _psf_get_version(_binary_fonts_default_psf_start);
     init_idt();
@@ -234,10 +250,10 @@ void kernel_start(unsigned long addr, unsigned long magic){
     initialize_kheap();
     kernel_settings.paging.page_generation = 0;
     init_apic();
-    if (loaded_module != NULL) {
-        if ( load_module_hh(loaded_module) ) {
-            pretty_logf(Verbose, " The ELF module can be loaded succesfully (Phys addr: 0x%x)", loaded_module->mod_start );
-            elf_module_start_phys = loaded_module->mod_start;
+    if (elf_module != NULL) {
+        if ( _is_module_elf_hh(elf_module) ) {
+            pretty_logf(Verbose, " The ELF module can be loaded succesfully (Phys addr: 0x%x)", elf_module->mod_start );
+            elf_module_start_phys = elf_module->mod_start;
         }
     }
     //The table containing the IOAPIC information is called MADT
@@ -259,7 +275,11 @@ void kernel_start(unsigned long addr, unsigned long magic){
     pretty_logf(Verbose, "(END of Mapped memory: 0x%x)", end_of_mapped_memory);
     vfs_init();
     uint64_t unix_timestamp = read_rtc_time();
+    if (tar_module_start_hh != 0) {
+        ustar_item* tar_fs = (ustar_item *) tar_module_start_hh;
+        _fb_printStrAt(tar_fs->filename, 0, 27, 0xE8A9E8, 0x000000);
 
+    }
     #if USE_FRAMEBUFFER == 1
     _fb_printStrAndNumberAt("Epoch time: ", unix_timestamp, 0, 11, 0xf5c4f1, 0x000000);
     #endif

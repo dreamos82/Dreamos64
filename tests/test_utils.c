@@ -7,7 +7,9 @@ void test_utils();
 
 int main() {
     printf("Testing VMM Utility function  -\n");
+    printf("===============================\n\n");
     test_utils();
+    printf("\n");
 }
 
 void test_utils() {
