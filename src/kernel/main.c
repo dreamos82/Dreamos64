@@ -278,6 +278,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
     if (tar_module_start_hh != 0) {
         ustar_item* tar_fs = (ustar_item *) tar_module_start_hh;
         _fb_printStrAt(tar_fs->filename, 0, 27, 0xE8A9E8, 0x000000);
+        int tar_file_size = octascii_to_dec(tar_fs->file_size, USTAR_FILESIZE_SIZE);
 
     }
     #if USE_FRAMEBUFFER == 1

@@ -45,6 +45,21 @@ bool _is_module_tar_hh(struct multiboot_tag_module *loaded_module) {
 }
 
 
+int octascii_to_dec(char *number, int size) {
+    int n = 1;
+    int converted_value = 0;
+    pretty_logf(Verbose, "Size: %d, number[0]: %d", size, number[0]);
+    for (int i=size-2; i >=0; i--) {
+        converted_value += (number[i]-0x30) * n;
+        pretty_logf(Verbose, "OctalNumber: %d - cv: %d", number[i]-0x30, converted_value);
+        n = 8*n;
+    }
+    pretty_logf(Verbose, "Final octalnumber: %d", converted_value);
+    return converted_value;
+}
+
+
+#ifndef _TEST_
 /**
  * This function checks if given address is within multiboot area.
  *
@@ -62,7 +77,7 @@ bool _is_address_in_multiboot(uint64_t address) {
                 return true;
             }
         }
-        //pretty_log(Verbose, " entry not corresponding" );
     }
     return false;
 }
+#endif
