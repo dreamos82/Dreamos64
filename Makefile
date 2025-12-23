@@ -121,7 +121,8 @@ tests:
 	${TOOLCHAIN} ${TESTFLAGS} tests/test_window.c tests/test_common.c  src/kernel/graphics/window.c -o tests/test_window.o
 	${TOOLCHAIN} ${TESTFLAGS} tests/test_elf.c tests/test_common.c src/kernel/mem/vmm_util.c src/kernel/loaders/elf.c -o tests/test_elf.o
 	${TOOLCHAIN} ${TESTFLAGS} tests/test_utils.c tests/test_common.c src/kernel/loaders/elf.c src/utils/utils.c src/kernel/mem/vmm_util.c -o tests/test_utils.o
-	./tests/test_mem.o && ./tests/test_kheap.o && ./tests/test_number_conversion.o && ./tests/test_vm.o && ./tests/test_vfs.o && ./tests/test_vmm_utils.o && ./tests/test_window.o && ./tests/test_elf.o && tests/test_utils.o
+	${TOOLCHAIN} ${TESTFLAGS} tests/test_tar.c tests/test_common.c src/drivers/fs/ustar.c -o test_tar.o
+	./tests/test_mem.o && ./tests/test_kheap.o && ./tests/test_number_conversion.o && ./tests/test_vm.o && ./tests/test_vfs.o && ./tests/test_vmm_utils.o && ./tests/test_window.o && ./tests/test_elf.o && tests/test_utils.o && ./test_tar.o
 
 todolist:
 	@echo "List of todos and fixme in sources: "
