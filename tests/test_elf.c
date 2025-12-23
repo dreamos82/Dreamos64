@@ -16,7 +16,7 @@ int main() {
 }
 
 void test_elf(){
-    printf("Testing ELF Validation");
+    printf("Testing ELF Validation\n");
     elf_example.e_ident[0] = 0x7f;
     elf_example.e_ident[1] = 'E';
     elf_example.e_ident[2] = 'L';
