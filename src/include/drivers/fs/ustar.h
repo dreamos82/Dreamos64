@@ -34,6 +34,7 @@ typedef struct ustar_item ustar_item;
 int ustar_open(const char *path, int flags, ...);
 int ustar_close(int fildes);
 ssize_t ustar_read(int fildes, char *buf, size_t nbytes);
-bool tar_is_zeroed(ustar_item *tar_item);
+bool ustar_is_zeroed(ustar_item *tar_item);
+ustar_item* ustar_seek(char *filename, ustar_item* tar_root);
 
 #endif

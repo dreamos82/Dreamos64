@@ -22,8 +22,8 @@ int main() {
 
 void test_is_zeroed() {
     printf("Testing Tar functions\n");
-    bool result = tar_is_zeroed(&zero_item);
+    bool result = ustar_is_zeroed(&zero_item);
     pretty_assert(true, result, ==, "Testing tar_is_zeroed with an item set to zero");
-    result = tar_is_zeroed(&tar_item);
+    result = ustar_is_zeroed(&tar_item);
     pretty_assert(false, result, ==, "Testing tar_is_zeroed with an item not zero");
 }
