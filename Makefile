@@ -70,9 +70,9 @@ debug: $(BUILD_FOLDER)/$(ISO_IMAGE_FILENAME)
 
 tarfs: examples
 	mkdir -p $(BUILD_FOLDER)/tarfs
-	cp $(BUILD_FOLDER)/examples/example_syscall.o $(BUILD_FOLDER)/tarfs/
+	cp $(BUILD_FOLDER)/examples/example_syscall.elf $(BUILD_FOLDER)/tarfs/
 	cp README.md $(BUILD_FOLDER)/tarfs/
-	tar cf $(BUILD_FOLDER)/filesystem_module.tar -C $(BUILD_FOLDER)/tarfs README.md example_syscall.o
+	tar cf $(BUILD_FOLDER)/filesystem_module.tar -C $(BUILD_FOLDER)/tarfs README.md example_syscall.elf
 
 $(BUILD_FOLDER)/$(ISO_IMAGE_FILENAME): $(BUILD_FOLDER)/kernel.bin grub.cfg examples tarfs
 	mkdir -p $(BUILD_FOLDER)/isofiles/boot/grub

@@ -71,7 +71,7 @@ Before building the os we need to copy a PSF font (either v1 or v2) in the fonts
 Once all the parameters in `build/Config.mk` are set, to build just type:
 
 ```bash
-    make
+make
 ```
 
 It will use the default goal `build` and produce a bootable iso in the `dist/` folder called.
@@ -81,13 +81,13 @@ It will use the default goal `build` and produce a bootable iso in the `dist/` f
 To launch the OS in qemu just use:
 
 ```bash
-    make run
+make run
 ```
 
 Instead if we type:
 
 ```bash
-   make debug
+make debug
 ```
 
 It will compile the OS with the debug symbols enabled, all the output logging information will be sent to stdio.
@@ -95,7 +95,7 @@ It will compile the OS with the debug symbols enabled, all the output logging in
 Finally:
 
 ```bash
-   make gdb
+make gdb
 ```
 
 Will compile the OS with debug symbol, and launch qemu with remote debugging enabled and will wait connection from gdb to start.

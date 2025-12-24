@@ -275,19 +275,27 @@ void kernel_start(unsigned long addr, unsigned long magic){
     pretty_logf(Verbose, "(END of Mapped memory: 0x%x)", end_of_mapped_memory);
     vfs_init();
     uint64_t unix_timestamp = read_rtc_time();
+    Elf64_Ehdr *elf_start = NULL;
     if (tar_module_start_hh != 0) {
         ustar_item* tar_fs = (ustar_item *) tar_module_start_hh;
         int tar_file_size = octascii_to_dec(tar_fs->file_size, USTAR_FILESIZE_SIZE);
         pretty_logf(Verbose, "tar_start: %x", tar_fs);
-        ustar_item* found_item = ustar_seek("example_syscall.o", tar_fs);
+        ustar_item* found_item = ustar_seek("example_syscall.elf", tar_fs);
         if (found_item != NULL) {
             char out_string[155];
             int executable_file_size = octascii_to_dec(found_item->file_size, USTAR_FILESIZE_SIZE);
             sprintf(out_string, "Executable file: %s - Size: %d", found_item, executable_file_size);
             _fb_printStrAt(out_string, 0, 27, 0xE8A9E8, 0x000000);
+            elf_start = (Elf64_Ehdr *) ((unsigned char*) found_item + 512);
+            bool is_file_elf = validate_elf_magic_number(elf_start);
+            pretty_logf(Verbose, "The file found is ELF: %d - %s", is_file_elf, (is_file_elf) ? "True" : "False");
+            Elf64_Half phdr_entries = elf_start->e_phnum;
+            Elf64_Half phdr_entsize = elf_start->e_phentsize;
+            pretty_logf(Verbose, " Number of PHDR entries: 0x%x", phdr_entries);
+            pretty_logf(Verbose, " PHDR Entry Size: 0x%x", phdr_entsize );
         }
-
     }
+
     #if USE_FRAMEBUFFER == 1
     _fb_printStrAndNumberAt("Epoch time: ", unix_timestamp, 0, 11, 0xf5c4f1, 0x000000);
     #endif
@@ -298,7 +306,11 @@ void kernel_start(unsigned long addr, unsigned long magic){
     idle_thread = idle_task->threads;
     // In case we want to use the userspace task instead of the elf, use the below line
     //task_t* userspace_task = create_task_from_func("userspace_idle", NULL, &a, false);
-    task_t* elf_task = create_task_from_elf("elf_idle", NULL, (Elf64_Ehdr *) hhdm_get_variable(elf_module_start_phys));
+    if (elf_start == NULL) {
+        task_t* elf_task = create_task_from_elf("elf_idle", NULL, (Elf64_Ehdr *) hhdm_get_variable(elf_module_start_phys));
+    } else {
+        task_t* elf_task = create_task_from_elf("elf_idle_tar", NULL, elf_start);
+    }
     //execute_runtime_tests();
     start_apic_timer(kernel_settings.apic_timer.timer_ticks_base, APIC_TIMER_SET_PERIODIC, kernel_settings.apic_timer.timer_divisor);
     pretty_logf(Verbose, "(END of Mapped memory: 0x%x)", end_of_mapped_memory);
