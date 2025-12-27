@@ -62,6 +62,15 @@ Elf64_Phdr *read_phdr(Elf64_Ehdr* e_hdr, Elf64_Half phdr_entry_number) {
     return NULL;
 }
 
+bool validate_elf_magic_number(Elf64_Ehdr *elf_start){
+    for (int i = 0; i < ELF_MAGIC_SIZE; i++) {
+            if (!(elf_start->e_ident[i] == _elf_header_mag[i])) {
+                return false;
+            }
+    }
+    return true;
+}
+
 
 
 bool parse_section_header(Elf64_Ehdr *elf_start, uint64_t size, executable_loader_type type) {

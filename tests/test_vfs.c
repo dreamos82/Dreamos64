@@ -7,25 +7,23 @@
 int positions[5] = { 3, 1, 2, 0, 2 };
 
 int main() {
-    vfs_init();    
+    vfs_init();
+    printf("Testing Virtual File System functions\n");
+    printf("===============================\n\n");
     test_get_mountpoint_id();
+    printf("\n");
 }
 
 void test_get_mountpoint_id() {
     printf("Testing vfs functions -\n");
-    int last = get_mountpoint_id("/home/dreamos82");    
-    printf("\t [test_vfs](test_get_mountpoint_id): Testing path /home/dreamos82: found at position: %d should be: %d\n", last, positions[0]);
-    assert(last == positions[0]);
+    int last = get_mountpoint_id("/home/dreamos82");
+    pretty_assert(last, positions[0], ==, "(test_get_mountpoint_id): Testing path /home/dreamos82");
     last = get_mountpoint_id("/home/mount/dreamos82");
-    printf("\t [test_vfs](test_get_mountpoint_id): Testing /home/mount/dreamos82: found at position: %d should be %d\n", last, positions[1]);
-    assert(last == positions[1]);
+    pretty_assert(last, positions[1], ==, "(test_get_mountpoint_id): Testing path /home/mount/dreamos82");
     last = get_mountpoint_id("/usr");
-    printf("\t [test_vfs](test_get_mountpoint_id): Testing /usr: found at position: %d should be %d\n", last, positions[2]);
-    assert(last == positions[2]);
+    pretty_assert(last, positions[2], ==, "(test_get_mountpoint_id): Testing /usr");
     last = get_mountpoint_id("/");
-    printf("\t [test_vfs](test_get_mountpoint_id): Testing /: found at position: %d should be: %d\n", last, positions[3]);
-    assert(last == positions[3]);
+    pretty_assert(last, positions[3], ==, "(test_get_mountpoint_id): Testing /");
     last = get_mountpoint_id("/usr/asd");
-    printf("\t [test_vfs](test_get_mountpoint_id): Testing /usr/asd: found at position: %d found at: %d\n", last, positions[4]);
-    assert(last == positions[4]);
+    pretty_assert(last, positions[4], ==, "(test_get_mountpoint_id): Testing /usr/asd");
 }

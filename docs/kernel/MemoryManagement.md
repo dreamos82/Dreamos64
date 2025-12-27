@@ -143,7 +143,7 @@ Currently only the allocation of virtual memory is implemented. There is no `vmm
 
 The basic idea is that the memory is split in allocable `regions`. Every region is defined inside a _container_ (`VmmContainer`). Allocation is done in `PAGE_SIZE` chunks. 
 
-All regions are stored in a linked list. Every Container is exactly 1 page in size. 
+All regions are stored in a linked list. Every Container is exactly 1 page in size, the number of `VmmItem`s inside each container depend on the page size configured. 
 
 Inside the regions there is an array of `VmmItem` (that contains info about the used memory), and a pointer to the next container. 
 
@@ -207,8 +207,19 @@ vmm_info->vmmDataStart = align_value_to_page(higherHalfDirectMapBase + memory_si
 ```
 
 There is one kernel VMM, and then every process will have its own.
+The initialzation phase, create and initialize the first `VmmContainer`, that always sits at the beginning of the _VMM_ space pointed by `vmm_info->vmmDatastart` field, this item is also set as the root node of the containers list. 
 
 A `VmmItem` is free if its base and size are both 0. 
+
+### Allocation
+
+The `vmm_alloc` function takes three parameters: 
+
+* The size of the allocation
+* The flags that will be used for the page mapping
+* The VMM to be used. 
+
+If no VMM is passed, then the kernel one will be used. 
 
 ## KHeap
 

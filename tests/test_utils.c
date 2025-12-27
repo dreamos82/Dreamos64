@@ -1,24 +1,29 @@
-#include <test_common.h>
-#include <vmm_util.h>
 #include <assert.h>
+#include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
+#include <utils.h>
+#include <test_common.h>
 
-void test_utils();
+void test_octascii_to_dec();
 
-int main() {
-    printf("Testing VMM Utility function  -\n");
-    test_utils();
+int main(){
+    printf("Testing Utility functions  -\n");
+    printf("===============================\n\n");
+    test_octascii_to_dec();
+    printf("\n");
 }
 
-void test_utils() {
-    size_t number_of_pages = get_number_of_pages_from_size(0x900);
-    printf("\t[test_utils] (get_number_of_pages_from_size): Testing number of pages for 0x900, should be 1: %ld\n", number_of_pages);
-    assert(number_of_pages == 1);
-    number_of_pages = get_number_of_pages_from_size(0x0);
-    printf("\t[test_utils] (get_number_of_pages_from_size): Testing number of pages for 0x0, should be 0: %ld\n", number_of_pages);
-    assert(align_value_to_page(0x100) == 0x200000);
-    printf("\t[test_utils] (align_value_to_page): Testing alignment for 0x100, should be 0x200000: %lx\n", align_value_to_page(0x100));
-    assert(align_value_to_page(0x200015) == 0x400000);
-    pretty_assert(0x200000, align_down(0x3c7000, 0x200000), ==, "Testing align_down");
-    pretty_assert(0x600000, align_down(0x6c7000, 0x200000), ==, "Testing align_down");
+
+void test_octascii_to_dec() {
+    printf("\nTesting octal to decimal functions\n");
+    char filesize[12] = {'0','0','0','0','0','0','1','3','3','3','6','0'};
+    int result = octascii_to_dec(filesize, 12);
+    pretty_assert(5854, result, ==, "Testing to convert an octal ascii number to int");
+    char filesize_zero[12] = {'0','0','0','0','0','0','0','0','0','0','0','0'};
+    result = octascii_to_dec(filesize_zero, 12);
+    pretty_assert(0, result, ==, "Testing to convert an octal ascii number to int");
+    char filesize_tt[12] = {'0','0','0','0','0','0','2','7','3','4','0', '0'};
+    result = octascii_to_dec(filesize_tt, 12);
+    pretty_assert(12000, result, ==, "Testing to convert an octal ascii number to int");
 }

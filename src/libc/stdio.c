@@ -29,6 +29,13 @@ static int skip_atoi(const char **s){
   return i;
 }
 
+int sprintf(char *buffer, const char *fmt, ...){
+    va_list fmt_args;
+    va_start(fmt_args, fmt);
+    vsprintf(buffer, fmt, fmt_args);
+    va_end(fmt_args);
+}
+
 int vsprintf(char *buffer, const char *fmt, va_list args){
     char *str;
     for(str = buffer; *fmt; fmt++){
