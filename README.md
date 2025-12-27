@@ -41,6 +41,7 @@ But at kernel level several things have been implemented:
 * Initial Userspace support (so far can run only an idle userspace thread)
 * Basic syscall mechanism (two syscalls are present: one that read input from keyboard, only once and one that print the content of a buffer at line 17 of the framebuffer)
 * Initial basic ELF support (from kernel module)
+* Initial tar support (currently only kernel side): the elf is loaded from the tar file system.
 
 ## Prerequisites:
 

@@ -284,7 +284,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
         if (found_item != NULL) {
             char out_string[155];
             int executable_file_size = octascii_to_dec(found_item->file_size, USTAR_FILESIZE_SIZE);
-            sprintf(out_string, "Executable file: %s - Size: %d", found_item, executable_file_size);
+            sprintf(out_string, "Executable file: %s - Size: %d - chks: %s", found_item->filename, executable_file_size, found_item->chksum);
             _fb_printStrAt(out_string, 0, 27, 0xE8A9E8, 0x000000);
             elf_start = (Elf64_Ehdr *) ((unsigned char*) found_item + 512);
             bool is_file_elf = validate_elf_magic_number(elf_start);
