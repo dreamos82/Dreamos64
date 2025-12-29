@@ -289,10 +289,6 @@ void kernel_start(unsigned long addr, unsigned long magic){
             elf_start = (Elf64_Ehdr *) ((unsigned char*) found_item + 512);
             bool is_file_elf = validate_elf_magic_number(elf_start);
             pretty_logf(Verbose, "The file found is ELF: %d - %s", is_file_elf, (is_file_elf) ? "True" : "False");
-            Elf64_Half phdr_entries = elf_start->e_phnum;
-            Elf64_Half phdr_entsize = elf_start->e_phentsize;
-            pretty_logf(Verbose, " Number of PHDR entries: 0x%x", phdr_entries);
-            pretty_logf(Verbose, " PHDR Entry Size: 0x%x", phdr_entsize );
         }
     }
 
