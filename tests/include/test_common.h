@@ -7,7 +7,7 @@
 
 #define pretty_assert(expected_value, returned_value, comparator, msg) \
     ({ \
-        printf("\t[%s] %s Returned value: %d should be:  %d\n", __FUNCTION__, msg, expected_value, returned_value); \
+        printf("\t[%s] %s expected_value: %d returned value:  %d\n", __FUNCTION__, msg, expected_value, returned_value); \
         assert(expected_value comparator returned_value); \
     })
 
@@ -36,6 +36,7 @@ void set_log_trim_level(size_t newTrim);
 void logline(log_level_t level, const char* msg);
 void loglinef(log_level_t level, const char* msg, ...);
 void *map_phys_to_virt_addr(void* physical_address, void* address, unsigned int flags);
+void *hhdm_get_variable ( uintptr_t phys_address );
 
 uint32_t _compute_kernel_entries(uint64_t);
 #endif

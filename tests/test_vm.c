@@ -20,9 +20,12 @@ typedef enum {
 } paging_flags_t;
 
 int main() {
+    printf("Testing Virtual Memory functions\n");
+    printf("===============================\n\n");
     test_is_address_higher_half();
     test_ensure_address_in_higher_half();
     test_vm_parse_flags();
+    printf("\n");
 }
 
 void test_ensure_address_in_higher_half() {

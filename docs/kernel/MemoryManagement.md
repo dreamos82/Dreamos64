@@ -143,7 +143,7 @@ Currently only the allocation of virtual memory is implemented. There is no `vmm
 
 The basic idea is that the memory is split in allocable `regions`. Every region is defined inside a _container_ (`VmmContainer`). Allocation is done in `PAGE_SIZE` chunks. 
 
-All regions are stored in a linked list. Every Container is exactly 1 page in size. 
+All regions are stored in a linked list. Every Container is exactly 1 page in size, the number of `VmmItem`s inside each container depend on the page size configured. 
 
 Inside the regions there is an array of `VmmItem` (that contains info about the used memory), and a pointer to the next container. 
 
@@ -207,8 +207,64 @@ vmm_info->vmmDataStart = align_value_to_page(higherHalfDirectMapBase + memory_si
 ```
 
 There is one kernel VMM, and then every process will have its own.
+The initialzation phase, create and initialize the first `VmmContainer`, that always sits at the beginning of the _VMM_ space pointed by `vmm_info->vmmDatastart` field, this item is also set as the root node of the containers list. 
 
 A `VmmItem` is free if its base and size are both 0. 
+
+### Allocation
+
+The `vmm_alloc` function takes three parameters: 
+
+* The size of the allocation (`size`)
+* The flags that will be used for the page mapping (`flags`)
+* The VMM to be used (`vmm_info`). 
+* And depending on the allocation function used (`vmm_alloc` or `vmm_alloc_at`) the `base_address`, that indicates where we want the allocation to be. 
+
+Now the function `vmm_alloc` is just calling `vmm_alloc_at` passing `0` as `base_address`.
+
+If no VMM is passed, `vmm_info` is null, then the kernel one will be use, otherwise it will use the one passed.
+
+The first thing that the `vmm_alloc` function does, is to check if there is still available space in the _current container_ by checking the current index if greater or equalt to the maximum number of items in one container, it will create a new one, and add it to the list, and will update the `VmmStatus` structure, with the new pointers.
+
+Since the VMM is allocating pages, the first thing that the allocation function does is to compute how many pages it has to allocate (we'll call it `n_pages`).
+
+If the `base_address` is not `0`, we will check if it is above the `next_available_address` first, if yes this means that we are sure the address space is free (althought this statement is not totally true, we can assume for now that it is), so we can return use the `base_address` for this new allocation. Then `next_available_address` and the `address_to_return` variable are update to `base_address`. Otherwise it will just go to the next step.
+
+The vmm, as `address_to_return` will use the content of the variable `next_available_address` (both in the `VmmStatus` struct), then set its flags, and the sizes. The `next_available_address` is updated: 
+
+```c
+mext_available_address += new_size
+```
+
+where `new_size` contains the requested size page aligned. The new values for the item to be returned are stored in the `VmmItem` array at the position pointed by `status->vmm_cur_index.
+Next steps:
+
+* Check if the address is in the _lower half_ if yes, it updates the flages assigning the `VMM_FLAGS_USER_LEVEL`
+* If the flag `address_only` is not set then this means that we need the address to be backed by a physical page, so it asks to the pmm for one or more physical page, and map them to `address_to_return`. 
+
+Now we are ready to return the address but there are two possible scenarios:
+
+* If the flag `VMM_FLAGS_STACK` is set, then what will be returned, is not the value of `address_to_return`, but instead: `address_to_return + THREAD_DEFAULT_STACK_SIZE`, usually this is required while creating threads. 
+* Otherwise it will return the `address_to_return` as it is.
+
+### Freeing
+
+The freeing functions is not implemented yet. Overview of the workflow: 
+
+* Look for the address inside the VmmContainers (maybe we can add a few extra info to the `VmmItem` and `VmmContainer`).
+
+The following part is not implemented yet, and is the idea of the free workflow (containing ideas for the free, and some changes to the alloc): 
+
+Since I have a list of arrays of VmmItems. Once I free a `VmmItem` (maybe I need an intrusive linked list for it) I add it to the list of the free nodes .
+
+When allocatiing the `free` function first search for this list (since it contains pointers, is _VmmContainer-agnostic_, (the `VmmContainer` is the container of the `VmmItems` array, the list node). It will first scan this list and if there is an item, i'm guaranteed that: 
+
+* Is not creating an hole, but i can reallocate it as it is
+* i don't need to make any other change to the main allocation list, but just remove this node from the free list.
+
+When freeing what the function only needs is to do search for the `VmmItem` in the list, and then add it to the free list.
+
+This means it needs to make few changes: probably a good Idea inside the `VmmContainer` is add _another variable_ that contains the start addrees of that Container. So when searching for the `address_to_free` it just needs to scan the list until it founds the first address bigger than the `address_to_free`,  then it have to make up to `VMM_ITEMS_ARRAY_SIZE` iterations to search for `address_to_free` and add it to the free list.
 
 ## KHeap
 

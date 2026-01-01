@@ -8,7 +8,10 @@
 void test_get_rectangles();
 
 int main() {
+    printf("Testing Window function  -\n");
+    printf("===============================\n\n");
     test_get_rectangles();
+    printf("\n");
 }
 
 void test_get_rectangles() {
