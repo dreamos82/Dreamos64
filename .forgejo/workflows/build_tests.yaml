@@ -33,10 +33,7 @@ jobs:
       run: sudo apt install mtools -y
 
     - name: Install xorriso
-      run: sudo apt install xorriso -y
-
-    - name: Instal grub-common
-      run: sudo apt install grub2-common grub -y
+      run: sudo apt install xorriso grub2-common -y
 
     - name: Download gcc
       if: steps.cached-binaries.outputs.cache-hit != 'true'
