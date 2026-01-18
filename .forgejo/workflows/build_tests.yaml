@@ -21,19 +21,19 @@ jobs:
         key: gcc-binary-toolchains
 
     - name: Update
-      run: sudo apt update && apt upgrade -y
+      run: sudo apt update
 
     - name: Install llvm and clang
-      run: sudo apt install lld llvm
+      run: sudo apt install lld llvm -y
 
     - name: Install nasm
-      run: sudo apt install nasm
+      run: sudo apt install nasm -y
 
     - name: Install mtools
-      run: sudo apt install mtools
+      run: sudo apt install mtools -y
 
     - name: Install xorriso
-      run: sudo apt install xorriso
+      run: sudo apt install xorriso -y
 
     - name: Download gcc
       if: steps.cached-binaries.outputs.cache-hit != 'true'
