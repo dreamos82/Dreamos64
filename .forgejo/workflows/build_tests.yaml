@@ -21,7 +21,7 @@ jobs:
         key: gcc-binary-toolchains
 
     - name: Update
-      run: sudo apt update && apt upgrade
+      run: sudo apt update && apt upgrade -y
 
     - name: Install llvm and clang
       run: sudo apt install lld llvm
