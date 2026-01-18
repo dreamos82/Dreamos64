@@ -36,7 +36,7 @@ jobs:
       run: sudo apt install xorriso -y
 
     - name: Instal grub-common
-      run: sudo apt install grub-common grub -y
+      run: sudo apt install grub2-common grub -y
 
     - name: Download gcc
       if: steps.cached-binaries.outputs.cache-hit != 'true'
