@@ -35,6 +35,9 @@ jobs:
     - name: Install xorriso
       run: sudo apt install xorriso -y
 
+    - name: Instal grub-common
+      run: sudo apt install grub-common grub -y
+
     - name: Download gcc
       if: steps.cached-binaries.outputs.cache-hit != 'true'
       run: >
