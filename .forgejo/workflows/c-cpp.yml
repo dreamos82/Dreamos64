@@ -2,16 +2,20 @@ name: Dreamos Tests
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master, codeberg_actions ]
   pull_request:
-    branches: [ master ]
+    branches: [ master, codeberg_actions ]
 
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: codeberg-small
 
     steps:
+    - name: Update
+      run: apt update 
+    - name: Install gcc and clang
+      run: apt install lld llvm clang gcc
     - uses: actions/checkout@v2
     - name: Run tests with gcc
       run: make tests TOOLCHAIN=gcc
