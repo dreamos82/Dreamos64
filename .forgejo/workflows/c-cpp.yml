@@ -15,7 +15,7 @@ jobs:
     - name: Update
       run: apt update 
     - name: Install gcc and clang
-      run: apt install lld llvm clang gcc
+      run: apt install lld llvm clang gcc -y
     - uses: actions/checkout@v2
     - name: Run tests with gcc
       run: make tests TOOLCHAIN=gcc
