@@ -2,9 +2,9 @@ name: Dreamos Tests
 
 on:
   push:
-    branches: [ master, codeberg_actions ]
+    branches: [ master ]
   pull_request:
-    branches: [ master, codeberg_actions ]
+    branches: [ master ]
 
 jobs:
   build:
