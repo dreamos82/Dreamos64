@@ -266,6 +266,15 @@ When freeing what the function only needs is to do search for the `VmmItem` in t
 
 This means it needs to make few changes: probably a good Idea inside the `VmmContainer` is add _another variable_ that contains the start addrees of that Container. So when searching for the `address_to_free` it just needs to scan the list until it founds the first address bigger than the `address_to_free`,  then it have to make up to `VMM_ITEMS_ARRAY_SIZE` iterations to search for `address_to_free` and add it to the free list.
 
+It will to keep track of the number of free items. Probably the idea is: 
+
+* Start from vmm_items_per_page
+* Will be decreased every allocation done
+* Increased for every free done.
+* If while freeing, it will be equal to `vmm_items_per_page` the container will be removed from the list, and the pysical page freed. 
+
+Check if is a stack first. 
+
 ## KHeap
 
 This is the kernel heap, this is used by the kernel when it needs to allocate resources.

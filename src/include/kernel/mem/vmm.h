@@ -47,6 +47,7 @@ typedef struct VmmItem{
 
 typedef struct VmmContainer {
     VmmItem vmm_root[(PAGE_SIZE_IN_BYTES/sizeof(VmmItem) - 1)];
+    size_t vmm_items_available;
     struct VmmContainer *next;
 } __attribute__((__packed__)) VmmContainer;
 
@@ -67,6 +68,7 @@ typedef struct VmmInfo {
         size_t vmm_cur_index; /**< Current position inside the array */
 
         size_t next_available_address; /**< The next available address */
+        size_t vmm_number_of_containers; /**< The number of containers */
 
         uint64_t end_of_vmm_data; /**< We should never reach here, where the vmm_data finish */
 
@@ -85,7 +87,7 @@ void vmm_init(vmm_level_t vmm_level, VmmInfo *vmm_info);
 
 void *vmm_alloc(size_t size, size_t flags, VmmInfo *vmm_info);
 void *vmm_alloc_at(uint64_t base_address, size_t size, size_t flags, VmmInfo *vmm_info);
-void vmm_free(void *address);
+void vmm_free(void *address, bool is_stack, VmmInfo *vmm_info);
 
 uint8_t check_virt_address_status(uint64_t virtual_address);
 void vmm_direct_map_physical_memory();

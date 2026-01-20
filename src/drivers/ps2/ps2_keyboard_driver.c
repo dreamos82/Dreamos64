@@ -29,7 +29,7 @@ void _ps2_keyboard_read(uint8_t *dst, uint8_t len) {
 }
 
 
-pending_operation_t* _os2_get_next_operation() {
+pending_operation_t* _ps2_get_next_operation() {
     return _ps2_op_head;
 }
 

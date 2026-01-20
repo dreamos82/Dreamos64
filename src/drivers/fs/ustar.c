@@ -5,13 +5,18 @@
 #include <ustar.h>
 #include <utils.h>
 
+
+void ustar_init() {
+}
+
 int ustar_open(const char *path, int flags, ...) {
     pretty_logf(Verbose, "called with path: %s and flags: %d", path, flags);
+    //ustar_find()
     return 3;
 }
 
 int ustar_close(int ustar_fildes) {
-    pretty_logf(Verbose, "called with fildes: %d", ustar_fildes);
+    pretty_logf(Verbose, "called with fildes: %d 0 - Nothing to do for Close", ustar_fildes);
     return 0;
 }
 
@@ -20,6 +25,32 @@ ssize_t ustar_read(int ustar_fildes, char *buf, size_t nbytes) {
     (void)nbytes;
     strcpy(buf, "Test string");
     return 12;
+}
+
+ssize_t ustar_find(char *filename, ustar_item* tar_root, ustar_item** tar_out) {
+    uint32_t counter = 0;
+    int n_zero_items = 0;
+    ustar_item* tar_item = tar_root;
+    char *ptr = (char*) tar_root;
+    while (n_zero_items < 2) {
+        if (ustar_is_zeroed(tar_item)) {
+            n_zero_items++;
+        } else {
+            int filesize = octascii_to_dec(tar_item->file_size, 12);
+            int comparison_result_filename = strcmp(filename, tar_item->filename);
+            if (comparison_result_filename == 0) {
+                *tar_out = tar_item;
+                return counter;
+            }
+            //ptr = (char *)(ptr + (uint64_t)filesize + (uint64_t)sizeof(struct ustar_item));
+            ptr += (((filesize + 511) / 512) + 1) * 512;
+            n_zero_items = 0;
+            tar_item = (ustar_item *) ptr;
+        }
+        counter++;
+    }
+    *tar_out = NULL;
+    return -1;
 }
 
 ustar_item* ustar_seek(char *filename, ustar_item* tar_root){

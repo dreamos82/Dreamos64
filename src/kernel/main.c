@@ -128,7 +128,6 @@ void _init_basic_system(unsigned long addr){
     kernel_settings.paging.page_root_address = p4_table;
     uint64_t p4_table_phys_address = (uint64_t) p4_table - _HIGHER_HALF_KERNEL_MEM_START;
     kernel_settings.paging.hhdm_page_root_address = (uint64_t*) hhdm_get_variable( (uintptr_t) p4_table_phys_address);
-    //pretty_logf(Verbose, "p4_table[510]: %x - ADDRESS: %x", p4_table[510], kernel_settings.paging.hhdm_page_root_address[510]);
     vmm_init(VMM_LEVEL_SUPERVISOR, NULL);
 
     //Print framebuffer info
@@ -179,7 +178,6 @@ void _init_basic_system(unsigned long addr){
                     tar_module_start_hh = (ustar_item *) hhdm_get_variable(loaded_module->mod_start);
                     continue;
                 }
-                pretty_logf(Verbose, "load_module result: %d", module_result);
                 break;
             default:
                 pretty_logf(Verbose, "\t[Tag 0x%x] (%s): Size: 0x%x",  tag->type, multiboot_names[tag->type], tag->size);
@@ -290,12 +288,19 @@ void kernel_start(unsigned long addr, unsigned long magic){
             bool is_file_elf = validate_elf_magic_number(elf_start);
             pretty_logf(Verbose, "The file found is ELF: %d - %s", is_file_elf, (is_file_elf) ? "True" : "False");
         }
+        ustar_item *new_item = NULL;
+        ssize_t return_value = ustar_find("README.md", tar_fs, &new_item);
+        if ( new_item != NULL) {
+            pretty_logf(Verbose, "---File name: %s - Position: %d", new_item->filename, return_value);
+        }
     }
 
     #if USE_FRAMEBUFFER == 1
     _fb_printStrAndNumberAt("Epoch time: ", unix_timestamp, 0, 11, 0xf5c4f1, 0x000000);
     #endif
     _ps2_keyboard_driver_init();
+    void *test_alloc_vm = vmm_alloc(0x1000, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE, NULL);
+    vmm_free(test_alloc_vm, false, NULL) ;
     init_scheduler();
     char a = 'a';
     task_t* idle_task = create_task_from_func("idle", idle, &a, true);
