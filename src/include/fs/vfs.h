@@ -47,7 +47,7 @@ extern vfs_file_descriptor_t vfs_opened_files[OPENEDFILES_MAX];
 extern unsigned int vfs_fd_index;
 
 void vfs_init();
-int get_mountpoint_id(const char *path);
+int vfs_get_mountpoint_id(const char *path);
 int mount_fs(char *mountpoint, char* name, fs_file_operations_t file_operations);
-char *get_relative_path (char *root_prefix, char *absolute_path);
+char *vfs_get_relative_path (char *root_prefix, char *absolute_path);
 #endif
