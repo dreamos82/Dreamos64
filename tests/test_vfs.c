@@ -16,14 +16,14 @@ int main() {
 
 void test_get_mountpoint_id() {
     printf("Testing vfs functions -\n");
-    int last = get_mountpoint_id("/home/dreamos82");
+    int last = vfs_get_mountpoint_id("/home/dreamos82");
     pretty_assert(last, positions[0], ==, "(test_get_mountpoint_id): Testing path /home/dreamos82");
-    last = get_mountpoint_id("/home/mount/dreamos82");
+    last = vfs_get_mountpoint_id("/home/mount/dreamos82");
     pretty_assert(last, positions[1], ==, "(test_get_mountpoint_id): Testing path /home/mount/dreamos82");
-    last = get_mountpoint_id("/usr");
+    last = vfs_get_mountpoint_id("/usr");
     pretty_assert(last, positions[2], ==, "(test_get_mountpoint_id): Testing /usr");
-    last = get_mountpoint_id("/");
+    last = vfs_get_mountpoint_id("/");
     pretty_assert(last, positions[3], ==, "(test_get_mountpoint_id): Testing /");
-    last = get_mountpoint_id("/usr/asd");
+    last = vfs_get_mountpoint_id("/usr/asd");
     pretty_assert(last, positions[4], ==, "(test_get_mountpoint_id): Testing /usr/asd");
 }
