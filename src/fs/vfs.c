@@ -6,6 +6,8 @@
 mountpoint_t mountpoints[MOUNTPOINTS_MAX];
 unsigned int vfs_fd_index;
 
+mountpoint_t *mountpoints_list;
+
 
 void vfs_init() {
     pretty_log(Verbose, "Initializiing VFS layer");
@@ -33,9 +35,18 @@ void vfs_init() {
     mountpoints[3].file_operations.open = ustar_open;
     mountpoints[3].file_operations.close = ustar_close;
     mountpoints[3].file_operations.read = ustar_read;
+    vfs_fd_index = 3;
 }
 
-int get_mountpoint_id(const char *path) {
+int vfs_register(char *file_system_name, char *mountpoint, fs_file_operations_t operations){
+    if ( vfs_fd_index >MOUNTPOINTS_MAX )
+        return -1;
+    strcpy(mountpoints[vfs_fd_index].name, file_system_name);
+    strcpy(mountpoints[vfs_fd_index].mountpoint, mountpoint);
+    return 0;
+}
+
+int vfs_get_mountpoint_id(const char *path) {
     size_t last = 0;
     int lastlen = 0;
     if (strlen(path) == 0) {
@@ -54,7 +65,7 @@ int get_mountpoint_id(const char *path) {
     return last;
 }
 
-char *get_relative_path (char *root_prefix, char *absolute_path) {
+char *vfs_get_relative_path (char *root_prefix, char *absolute_path) {
     int root_len = strlen(root_prefix);
     pretty_logf(Verbose, "Removing prefix: %s (len: %d) from absolute path: %s it should be: %s", root_prefix, root_len, absolute_path, &absolute_path[root_len]);
     return &absolute_path[root_len];
