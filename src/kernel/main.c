@@ -300,7 +300,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
     #endif
     _ps2_keyboard_driver_init();
     void *test_alloc_vm = vmm_alloc(0x1000, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE, NULL);
-    vmm_free(test_alloc_vm, false, NULL) ;
+    vmm_free(test_alloc_vm, false, NULL);
     init_scheduler();
     char a = 'a';
     task_t* idle_task = create_task_from_func("idle", idle, &a, true);
