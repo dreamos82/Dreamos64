@@ -49,6 +49,7 @@ extern unsigned int vfs_fd_index;
 
 void vfs_init();
 int vfs_get_mountpoint_id(const char *path);
+int vfs_lookup(const char *path, int flags);
 int mount_fs(char *mountpoint, char* name, fs_file_operations_t file_operations);
 char *vfs_get_relative_path (char *root_prefix, char *absolute_path);
 #endif
