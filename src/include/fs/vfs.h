@@ -10,6 +10,7 @@
 #define MAX_MOUNTPOINT_LEN  64
 #define MAX_FILENAME_LEN 32
 
+// Probably the names of the functions here will be changed soon along with the args.
 struct fs_file_operations_t{ 
 	int (*open)(const char *, int, ... );
 	int (*close)(int);
