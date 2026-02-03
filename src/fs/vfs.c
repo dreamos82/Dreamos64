@@ -66,7 +66,7 @@ int vfs_get_mountpoint_id(const char *path) {
     return last;
 }
 
-int vfs_lookup(const char *path, int flags) {
+int vfs_lookup(const char *path, int flags, vnode_t *vnode) {
     int mountpoint_id = vfs_get_mountpoint_id(path);
     if (mountpoint_id < 0) {
         return -1;
