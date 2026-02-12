@@ -137,7 +137,7 @@ This means that the fonts folder is missing (you need either a psf v2 or v1 font
 
 <img width="1279" height="804" alt="image" src="https://github.com/user-attachments/assets/ff361aa1-3d7e-4405-9b6d-06b199e1855d" />
 
-I also publish every now and then short videos showing the new features of dreamos on my [Makertube (Peertube)](https://makertube.net/my-library/video-playlists/22yx7dfuVz9P7RJNBVm3Pz) and [Youtube](https://www.youtube.com/playlist?list=PLrxH24EdHrzFq5HTjJ-5OBgLoyQ78A09V) channels.
+I also publish every now and then short videos showing the new features of dreamos on my [Makertube (Peertube)](https://makertube.net/w/p/22yx7dfuVz9P7RJNBVm3Pz) and [Youtube](https://www.youtube.com/playlist?list=PLrxH24EdHrzFq5HTjJ-5OBgLoyQ78A09V) channels.
 
 ### Acknowledgements
 
