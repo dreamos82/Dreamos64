@@ -1,8 +1,10 @@
 #ifndef __VNODE_H
 #define __VNODE_H
 
-#include <stdint.h>
+#include <sys/types.h>
 #include <vfs.h>
+
+#define VNODE_OPENED_MAX 5
 
 enum vnode_types {
     V_NONE,
@@ -21,4 +23,8 @@ struct vnode_t {
 };
 
 typedef struct vnode_t vnode_t;
+
+extern vnode_t vnode_cache[VNODE_OPENED_MAX];
+
+vnode_t *vnode_get_next_free();
 #endif

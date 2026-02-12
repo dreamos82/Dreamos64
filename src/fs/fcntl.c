@@ -12,5 +12,10 @@ int open(const char *path, int flags) {
 
 int vfs_open(const char *path, int flags) {
     pretty_logf(Verbose, "Try to open file: %s", path);
-    return vfs_lookup(path,flags, NULL);
+    vnode_t *vnode = vnode_get_next_free();
+    if ( vnode != NULL) {
+        pretty_log(Fatal, "Error cannot find vnode");
+        return -1;
+    }
+    return vfs_lookup(path,flags, vnode);
 }

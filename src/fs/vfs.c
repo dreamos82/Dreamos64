@@ -2,9 +2,11 @@
 #include <string.h>
 #include <ustar.h>
 #include <vfs.h>
+#include <vnode.h>
 
 mountpoint_t mountpoints[MOUNTPOINTS_MAX];
 unsigned int vfs_fd_index;
+unsigned int vnode_index;
 
 mountpoint_t *mountpoints_list;
 
@@ -31,16 +33,18 @@ void vfs_init() {
     strcpy(mountpoints[2].mountpoint, "/usr");
     // Adding some fake fs
     strcpy(mountpoints[3].name, "ustar");
-    strcpy(mountpoints[3].mountpoint, "/home");
+    strcpy(mountpoints[3].mountpoint, "/external");
     mountpoints[3].file_operations.open = ustar_open;
     mountpoints[3].file_operations.close = ustar_close;
     mountpoints[3].file_operations.read = ustar_read;
     vfs_fd_index = 3;
+    vnode_index = 0;
 }
 
 int vfs_register(char *file_system_name, char *mountpoint, fs_file_operations_t operations){
     if ( vfs_fd_index >MOUNTPOINTS_MAX )
         return -1;
+    //This shouldn't use vfs_fd_index.
     strcpy(mountpoints[vfs_fd_index].name, file_system_name);
     strcpy(mountpoints[vfs_fd_index].mountpoint, mountpoint);
     //vfs_fd_index++;
@@ -76,6 +80,7 @@ int vfs_lookup(const char *path, int flags, vnode_t *vnode) {
     pretty_logf(Verbose, " --- mountpoint id for file: %s", mountpoint.mountpoint);
     char *relative_path = vfs_get_relative_path(mountpoint.mountpoint, path);
     pretty_logf(Verbose, " --- relative path is: %s", relative_path);
+    // This can be removed
     if (mountpoint.file_operations.open == NULL) {
         return -1;
     }
@@ -88,6 +93,8 @@ int vfs_lookup(const char *path, int flags, vnode_t *vnode) {
     if ( vfs_fd_index > OPENEDFILES_MAX ) {
         return -1;
     }
+
+    vnode->refcount++;
 
     vfs_opened_files[vfs_fd_index].fs_specific_id = driver_fd;
     vfs_opened_files[vfs_fd_index].mountpoint_id = mountpoint_id;

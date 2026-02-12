@@ -27,6 +27,10 @@ ssize_t ustar_read(int ustar_fildes, char *buf, size_t nbytes) {
     return 12;
 }
 
+int ustar_lookup(const char *path, int flags, vnode_t *vnode){
+    return 0;
+}
+
 ssize_t ustar_find(char *filename, ustar_item* tar_root, ustar_item** tar_out) {
     uint32_t counter = 0;
     int n_zero_items = 0;

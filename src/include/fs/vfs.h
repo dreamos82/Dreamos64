@@ -13,10 +13,11 @@
 
 // Probably the names of the functions here will be changed soon along with the args.
 struct fs_file_operations_t{ 
-	int (*open)(const char *, int, ... );
-	int (*close)(int);
-	ssize_t (*read)(int, char*, size_t);
-	ssize_t (*write)(int,const void*, size_t);
+    int (*lookup)(const char *, int, vnode_t *);
+    int (*open)(const char *, int, ... );
+    int (*close)(int);
+    ssize_t (*read)(int, char*, size_t);
+    ssize_t (*write)(int,const void*, size_t);
 };
 
 struct vfs_file_descriptor_t {
@@ -33,7 +34,7 @@ struct vfs_file_descriptor_t {
 typedef struct vfs_file_descriptor_t vfs_file_descriptor_t;
 typedef struct fs_file_operations_t fs_file_operations_t;
 
-typedef struct {
+typedef struct mountpoint_t {
     char name[FILESYSTEM_NAME_LEN];  // The filesystem name 
 
     char mountpoint[MAX_MOUNTPOINT_LEN];
@@ -46,11 +47,13 @@ typedef struct {
 extern mountpoint_t mountpoints[MOUNTPOINTS_MAX];
 extern vfs_file_descriptor_t vfs_opened_files[OPENEDFILES_MAX];
 
+
 extern unsigned int vfs_fd_index;
+extern unsigned int vnode_index;
 
 void vfs_init();
 int vfs_get_mountpoint_id(const char *path);
-int vfs_lookup(const char *path, int flags, vnode_t *vnode);
+int vfs_lookup(const char *path, int flags, struct vnode_t *vnode);
 int mount_fs(char *mountpoint, char* name, fs_file_operations_t file_operations);
 char *vfs_get_relative_path (char *root_prefix, char *absolute_path);
 #endif
