@@ -2,7 +2,6 @@
 #include <string.h>
 #include <ustar.h>
 #include <vfs.h>
-#include <vnode.h>
 
 mountpoint_t mountpoints[MOUNTPOINTS_MAX];
 unsigned int vfs_fd_index;
@@ -51,7 +50,7 @@ int vfs_register(char *file_system_name, char *mountpoint, fs_file_operations_t 
     return 0;
 }
 
-int vfs_get_mountpoint_id(const char *path) {
+int vfs_get_mountpoint_id(const char *path, vnode_t *vnode) {
     size_t last = 0;
     int lastlen = 0;
     if (strlen(path) == 0) {
@@ -71,7 +70,7 @@ int vfs_get_mountpoint_id(const char *path) {
 }
 
 int vfs_lookup(const char *path, int flags, vnode_t *vnode) {
-    int mountpoint_id = vfs_get_mountpoint_id(path);
+    int mountpoint_id = vfs_get_mountpoint_id(path, vnode);
     if (mountpoint_id < 0) {
         return -1;
     }

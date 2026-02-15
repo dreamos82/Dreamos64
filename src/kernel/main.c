@@ -5,8 +5,9 @@
 
 #include <dreamcatcher.h>
 #include <elf.h>
-#include <main.h>
+#include <fcntl.h>
 #include <idt.h>
+#include <main.h>
 #include <multiboot.h>
 #include <kernel/video.h>
 #include <kernel/io.h>
@@ -312,6 +313,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
     } else {
         task_t* elf_task = create_task_from_elf("elf_idle_tar", NULL, elf_start);
     }
+    int fd = open("/external/README.md", O_RDWR);
     //execute_runtime_tests();
     start_apic_timer(kernel_settings.apic_timer.timer_ticks_base, APIC_TIMER_SET_PERIODIC, kernel_settings.apic_timer.timer_divisor);
     pretty_logf(Verbose, "(END of Mapped memory: 0x%x)", end_of_mapped_memory);

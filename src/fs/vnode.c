@@ -5,6 +5,8 @@
 vnode_t vnode_cache[VNODE_OPENED_MAX];
 
 vnode_t* vnode_get_next_free() {
+    // This function currently just get the next free node index, and clean it's content.
+    pretty_logf(Verbose, "vnode_index: %d", vnode_index);
     if ( vnode_index < OPENEDFILES_MAX ) {
         vnode_cache[vnode_index].size = 0;
         vnode_cache[vnode_index].refcount = 0;

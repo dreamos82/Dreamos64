@@ -41,6 +41,6 @@ ssize_t ustar_read(int fildes, char *buf, size_t nbytes);
 bool ustar_is_zeroed(ustar_item *tar_item);
 ustar_item* ustar_seek(char *filename, ustar_item* tar_root);
 ssize_t ustar_find(char *filename, ustar_item* tar_root, ustar_item** tar_out);
-int ustar_lookup(const char *path, int flags, vnode_t *vnode)
+int ustar_lookup(const char *path, int flags, vnode_t *vnode);
 
 #endif

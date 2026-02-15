@@ -12,8 +12,9 @@ int open(const char *path, int flags) {
 
 int vfs_open(const char *path, int flags) {
     pretty_logf(Verbose, "Try to open file: %s", path);
+    // In future if the vnode for that file already exists, it would be returned, and passed to vfs_lookup.
     vnode_t *vnode = vnode_get_next_free();
-    if ( vnode != NULL) {
+    if ( vnode == NULL) {
         pretty_log(Fatal, "Error cannot find vnode");
         return -1;
     }
