@@ -5,8 +5,12 @@
 #include <ustar.h>
 #include <utils.h>
 
+//This is a temporary fs for early development.
+ustar_mount *ustar_root_fs;
 
-void ustar_init() {
+
+void ustar_driver_init(void *ustar_root_address) {
+    ustar_root_fs = (ustar_mount *) ustar_root_address;
 }
 
 int ustar_open(const char *path, int flags, ...) {

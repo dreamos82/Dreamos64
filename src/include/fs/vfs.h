@@ -19,6 +19,12 @@ struct fs_file_operations_t{
     ssize_t (*write)(int,const void*, size_t);
 };
 
+typedef struct fs_file_operations_t fs_file_operations_t;
+
+typedef struct vnode_ops_t {
+    int (*lookup)(const char *, int, vnode_t *);
+} vnode_ops_t;
+
 struct vfs_file_descriptor_t {
     
     int fs_specific_id;
@@ -31,7 +37,7 @@ struct vfs_file_descriptor_t {
 };
 
 typedef struct vfs_file_descriptor_t vfs_file_descriptor_t;
-typedef struct fs_file_operations_t fs_file_operations_t;
+
 
 typedef struct mountpoint_t {
     char name[FILESYSTEM_NAME_LEN];  // The filesystem name 

@@ -33,7 +33,15 @@ struct ustar_item {
 
 typedef struct ustar_item ustar_item;
 
-void ustar_driver_init();
+struct ustar_mount {
+    
+    ustar_item *root_item;
+    
+};
+
+typedef struct ustar_mount  ustar_mount ;
+
+void ustar_driver_init(void *ustar_root_address);
 
 int ustar_open(const char *path, int flags, ...);
 int ustar_close(int fildes);

@@ -36,6 +36,7 @@ void vfs_init() {
     mountpoints[3].file_operations.open = ustar_open;
     mountpoints[3].file_operations.close = ustar_close;
     mountpoints[3].file_operations.read = ustar_read;
+    mountpoints[3].vnode_operations.lookup = ustar_lookup;
     vfs_fd_index = 3;
     vnode_index = 0;
 }
@@ -83,7 +84,12 @@ int vfs_lookup(const char *path, int flags, vnode_t *vnode) {
     if (mountpoint.file_operations.open == NULL) {
         return -1;
     }
+    
+    if (mountpoint.vnode_operations.lookup == NULL) {
+        return -1;
+    }
 
+    int error_code = mountpoint.vnode_operations.lookup(path, flags, vnode);
     int driver_fd = mountpoint.file_operations.open(relative_path, flags);
     if (driver_fd < 0) {
         return -1;
