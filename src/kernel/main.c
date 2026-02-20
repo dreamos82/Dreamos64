@@ -313,6 +313,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
     } else {
         task_t* elf_task = create_task_from_elf("elf_idle_tar", NULL, elf_start);
     }
+    ustar_driver_init(tar_module_start_hh);
     int fd = open("/external/README.md", O_RDWR);
     //execute_runtime_tests();
     start_apic_timer(kernel_settings.apic_timer.timer_ticks_base, APIC_TIMER_SET_PERIODIC, kernel_settings.apic_timer.timer_divisor);

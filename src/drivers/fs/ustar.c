@@ -6,11 +6,11 @@
 #include <utils.h>
 
 //This is a temporary fs for early development.
-ustar_mount *ustar_root_fs;
+ustar_mount ustar_root_fs;
 
 
 void ustar_driver_init(void *ustar_root_address) {
-    ustar_root_fs = (ustar_mount *) ustar_root_address;
+    ustar_root_fs.root_item = (ustar_item *) ustar_root_address;
 }
 
 int ustar_open(const char *path, int flags, ...) {
@@ -32,6 +32,17 @@ ssize_t ustar_read(int ustar_fildes, char *buf, size_t nbytes) {
 }
 
 int ustar_lookup(const char *path, int flags, vnode_t *vnode){
+    pretty_logf(Verbose, "path: %s - root_item: 0x%x", path, ustar_root_fs.root_item);
+    //Rootfs should be passed as parameter of ustar_lookup, since there could be ,ultiple file systems using the same driver.
+    ustar_item *item_to_return = ustar_seek(path, ustar_root_fs.root_item);
+    //ustar_find(path, ustar_root_fs.root_item, (ustar_item **) vnode->v_data);
+    if (item_to_return == NULL) {
+        pretty_log(Verbose, "Item not found");
+    } else {
+        pretty_log(Verbose, "Item found");
+    }
+    pretty_logf(Verbose, "item_to_return address: 0x%x", item_to_return)
+    vnode->v_data = (void *) item_to_return;
     return 0;
 }
 
@@ -47,6 +58,7 @@ ssize_t ustar_find(char *filename, ustar_item* tar_root, ustar_item** tar_out) {
             int filesize = octascii_to_dec(tar_item->file_size, 12);
             int comparison_result_filename = strcmp(filename, tar_item->filename);
             if (comparison_result_filename == 0) {
+                pretty_logf(Verbose, "File found: %s", tar_item->filename);
                 *tar_out = tar_item;
                 return counter;
             }

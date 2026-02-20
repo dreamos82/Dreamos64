@@ -89,7 +89,7 @@ int vfs_lookup(const char *path, int flags, vnode_t *vnode) {
         return -1;
     }
 
-    int error_code = mountpoint.vnode_operations.lookup(path, flags, vnode);
+    int error_code = mountpoint.vnode_operations.lookup(&relative_path[1], flags, vnode);
     int driver_fd = mountpoint.file_operations.open(relative_path, flags);
     if (driver_fd < 0) {
         return -1;
