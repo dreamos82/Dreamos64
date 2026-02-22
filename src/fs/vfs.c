@@ -90,6 +90,11 @@ int vfs_lookup(const char *path, int flags, vnode_t *vnode) {
     }
 
     int error_code = mountpoint.vnode_operations.lookup(&relative_path[1], flags, vnode);
+    if ( error_code == 0) {
+        vnode->vfs_root = &mountpoints[mountpoint_id];
+    }
+    pretty_logf(Verbose, "File size is: %d", vnode->size);
+    // This will be removed, and replaced by the line above
     int driver_fd = mountpoint.file_operations.open(relative_path, flags);
     if (driver_fd < 0) {
         return -1;

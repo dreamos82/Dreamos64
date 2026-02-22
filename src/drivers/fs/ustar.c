@@ -37,14 +37,19 @@ int ustar_lookup(const char *path, int flags, vnode_t *vnode){
     ustar_item *item_to_return = ustar_seek(path, ustar_root_fs.root_item);
     //ustar_find(path, ustar_root_fs.root_item, (ustar_item **) vnode->v_data);
     if (item_to_return == NULL) {
-        pretty_log(Verbose, "Item not found");
-    } else {
-        pretty_log(Verbose, "Item found");
+        //No file with that name has been found
+        return -1;
     }
-    pretty_logf(Verbose, "item_to_return address: 0x%x", item_to_return)
+    pretty_logf(Verbose, "Type: %d", item_to_return->typeflag);
+    if ( item_to_return->typeflag == '0') {
+        vnode->v_type = V_REGULAR_FILE;
+    }
+    
     vnode->v_data = (void *) item_to_return;
+    vnode->size = octascii_to_dec(item_to_return->file_size, USTAR_FILESIZE_SIZE);
     return 0;
 }
+
 
 ssize_t ustar_find(char *filename, ustar_item* tar_root, ustar_item** tar_out) {
     uint32_t counter = 0;
