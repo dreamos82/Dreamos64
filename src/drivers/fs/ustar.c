@@ -42,12 +42,28 @@ int ustar_lookup(const char *path, int flags, vnode_t *vnode){
     }
     pretty_logf(Verbose, "Type: %d", item_to_return->typeflag);
     if ( item_to_return->typeflag == '0') {
-        vnode->v_type = V_REGULAR_FILE;
+        vnode->v_type = ustar_get_type(item_to_return->typeflag);
+        if (vnode->v_type == V_REGULAR_FILE) {
+            pretty_log(Verbose, "Is a regular file");
+        }
     }
     
     vnode->v_data = (void *) item_to_return;
     vnode->size = octascii_to_dec(item_to_return->file_size, USTAR_FILESIZE_SIZE);
     return 0;
+}
+
+vnode_types ustar_get_type(char type){
+    switch(type){
+        case '0':
+            return V_REGULAR_FILE;
+        case '5':
+            return V_DIR;
+        default:
+            return V_BAD;
+    }
+    
+    return V_BAD;
 }
 
 
