@@ -4,8 +4,6 @@
 #include <ustar.h>
 #include <vfs.h>
 
-vfs_file_descriptor_t vfs_opened_files[OPENEDFILES_MAX];
-
 
 int open(const char *path, int flags) {
     return vfs_open(path, flags);
