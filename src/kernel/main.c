@@ -315,6 +315,8 @@ void kernel_start(unsigned long addr, unsigned long magic){
     }
     ustar_driver_init(tar_module_start_hh);
     int fd = open("/external/README.md", O_RDWR);
+    char read_buf[10];
+    read(fd, read_buf, 9);
     //execute_runtime_tests();
     start_apic_timer(kernel_settings.apic_timer.timer_ticks_base, APIC_TIMER_SET_PERIODIC, kernel_settings.apic_timer.timer_divisor);
     pretty_logf(Verbose, "(END of Mapped memory: 0x%x)", end_of_mapped_memory);

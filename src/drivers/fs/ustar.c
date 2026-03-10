@@ -24,12 +24,13 @@ int ustar_close(int ustar_fildes) {
     return 0;
 }
 
-ssize_t ustar_read(int ustar_fildes, char *buf, size_t nbytes) {
+ssize_t ustar_read(vnode_t *vnode, int ustar_fildes, char *buf, size_t nbytes) {
     (void)ustar_fildes;
     (void)nbytes;
     strcpy(buf, "Test string");
     return 12;
 }
+
 
 int ustar_lookup(const char *path, int flags, vnode_t *vnode){
     pretty_logf(Verbose, "path: %s - root_item: 0x%x", path, ustar_root_fs.root_item);
@@ -49,6 +50,7 @@ int ustar_lookup(const char *path, int flags, vnode_t *vnode){
     }
     
     vnode->v_data = (void *) item_to_return;
+    // I have to convert the size from octal ascii to decimal.
     vnode->size = octascii_to_dec(item_to_return->file_size, USTAR_FILESIZE_SIZE);
     return 0;
 }

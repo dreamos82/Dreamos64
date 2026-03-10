@@ -25,16 +25,18 @@ int close (int fildes) {
 ssize_t read(int fildes, void *buf, size_t nbytes){
     //Will be implemented in the future
     if (fildes >= 0 && fildes < OPENEDFILES_MAX) {
-        if (vfs_opened_files[fildes].fs_specific_id >= 0) {
+        vnode_t vnode = vnode_cache[fildes];
+        vfs_read(&vnode, buf, 0, nbytes);
+        //vnode.read();
+        /*if (vfs_opened_files[fildes].fs_specific_id >= 0) {
             int fs_specific_id = vfs_opened_files[fildes].fs_specific_id;
             int mountpoint_id = vfs_opened_files[fildes].mountpoint_id;
             mountpoint_t mountpoint = mountpoints[mountpoint_id];
             if (mountpoint.file_operations.read != NULL) {
-                return mountpoint.file_operations.read(fs_specific_id, buf, nbytes);
+                return mountpoint.file_operations.read(&vnode, fs_specific_id, buf, nbytes);
             }
             return 0;
-        }
+        }*/
     }
     return -1;
 }
-

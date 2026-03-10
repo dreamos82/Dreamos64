@@ -91,7 +91,8 @@ int vfs_lookup(const char *path, int flags, vnode_t *vnode) {
 
     int error_code = mountpoint.vnode_operations.lookup(&relative_path[1], flags, vnode);
     if ( error_code == 0) {
-        vnode->vfs_root = &mountpoints[mountpoint_id];
+        pretty_log(Verbose, "Setting mountpoint for vnode");
+        vnode->vfs_root = &mountpoint;
     }
     pretty_logf(Verbose, "File size is: %d", vnode->size);
     // This will be removed, and replaced by the line above
@@ -117,4 +118,13 @@ char *vfs_get_relative_path (char *root_prefix, char *absolute_path) {
     int root_len = strlen(root_prefix);
     pretty_logf(Verbose, "Removing prefix: %s (len: %d) from absolute path: %s it should be: %s", root_prefix, root_len, absolute_path, &absolute_path[root_len]);
     return &absolute_path[root_len];
+}
+
+int vfs_read(vnode_t *vnode, void *buf, int flags, size_t nbytes) {
+    pretty_logf(Verbose, "Reading file: %x", vnode->vfs_root);
+    if (vnode->vfs_root != NULL) {
+        mountpoint_t* mountpoint = vnode->vfs_root;
+        pretty_log(Verbose, "Can read using vfs read");
+    }
+    return 0;
 }
