@@ -92,7 +92,7 @@ int vfs_lookup(const char *path, int flags, vnode_t *vnode) {
     int error_code = mountpoint.vnode_operations.lookup(&relative_path[1], flags, vnode);
     if ( error_code == 0) {
         pretty_log(Verbose, "Setting mountpoint for vnode");
-        vnode->vfs_root = &mountpoint;
+        vnode->vfs_root = &mountpoints[mountpoint_id];
     }
     pretty_logf(Verbose, "File size is: %d", vnode->size);
     // This will be removed, and replaced by the line above
@@ -123,8 +123,12 @@ char *vfs_get_relative_path (char *root_prefix, char *absolute_path) {
 int vfs_read(vnode_t *vnode, void *buf, int flags, size_t nbytes) {
     pretty_logf(Verbose, "Reading file: %x", vnode->vfs_root);
     if (vnode->vfs_root != NULL) {
-        mountpoint_t* mountpoint = vnode->vfs_root;
-        pretty_log(Verbose, "Can read using vfs read");
+        mountpoint_t* mountpoint = vnode->vfs_root;        
+        if (vnode->v_data != NULL) {
+            pretty_log(Verbose, "Can read using vfs read");            
+            mountpoint->file_operations.read(vnode, 0, buf, nbytes);
+            pretty_logf(Verbose, "The buf is: %s", buf);
+        }
     }
     return 0;
 }
