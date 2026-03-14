@@ -27,8 +27,23 @@ int ustar_close(int ustar_fildes) {
 ssize_t ustar_read(vnode_t *vnode, int ustar_fildes, char *buf, size_t nbytes) {
     (void)ustar_fildes;
     (void)nbytes;
-    strcpy(buf, "Test string");
-    return 12;
+    //strcpy(buf, "Test string");
+    if (vnode->v_data != NULL) {
+        ustar_item *item_to_read = (ustar_item*) vnode->v_data;
+        char *read_buffer = ustar_get_file_start(item_to_read);
+        if (read_buffer != NULL) {
+            int i = 0;
+            for (i=0; i < nbytes; i++) {                
+                buf[i] = read_buffer[i];
+                if (read_buffer[i] == '\0') {
+                    break;
+                }
+            }
+            //pretty_logf(Verbose, "Read string: %s", buf);
+            return i;
+        }
+    }
+    return 0;
 }
 
 
@@ -96,7 +111,7 @@ ssize_t ustar_find(char *filename, ustar_item* tar_root, ustar_item** tar_out) {
     return -1;
 }
 
-ustar_item* ustar_seek(char *filename, ustar_item* tar_root){
+ustar_item* ustar_seek(char *filename, ustar_item* tar_root) {
     int n_zero_items = 0;
     ustar_item* tar_item = tar_root;
     char *ptr = (char*) tar_root;
@@ -113,6 +128,16 @@ ustar_item* ustar_seek(char *filename, ustar_item* tar_root){
             ptr += (((filesize + 511) / 512) + 1) * 512;
             tar_item = (ustar_item *) ptr;
         }
+    }
+    return NULL;
+}
+
+char* ustar_get_file_start(ustar_item *file_item) {
+    //TODO: add an offset parameter
+    if (file_item != NULL) {
+        char *ptr = (char *) file_item;                
+        return ptr+512;
+        //return (file_item + ptr);
     }
     return NULL;
 }

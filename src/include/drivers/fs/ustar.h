@@ -52,6 +52,8 @@ ustar_item* ustar_seek(char *filename, ustar_item* tar_root);
 ssize_t ustar_find(char *filename, ustar_item* tar_root, ustar_item** tar_out);
 int ustar_lookup(const char *path, int flags, vnode_t *vnode);
 
+char* ustar_get_file_start(ustar_item *file_item);
+
 vnode_types ustar_get_type(char type);
 
 #endif
