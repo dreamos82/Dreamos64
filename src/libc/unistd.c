@@ -27,7 +27,6 @@ ssize_t read(int fildes, void *buf, size_t nbytes){
     if (fildes >= 0 && fildes < OPENEDFILES_MAX) {
         vnode_t vnode = vnode_cache[fildes];
         ssize_t bytes_read = vfs_read(&vnode, buf, 0, nbytes);
-        pretty_logf(Verbose, "Read: %s", buf);
         return bytes_read;
         //vnode.read();
         /*if (vfs_opened_files[fildes].fs_specific_id >= 0) {

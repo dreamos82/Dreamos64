@@ -125,9 +125,7 @@ int vfs_read(vnode_t *vnode, void *buf, int flags, size_t nbytes) {
     if (vnode->vfs_root != NULL) {
         mountpoint_t* mountpoint = vnode->vfs_root;        
         if (vnode->v_data != NULL) {
-            pretty_log(Verbose, "Can read using vfs read");            
             ssize_t bytes_read = mountpoint->file_operations.read(vnode, 0, buf, nbytes);
-            pretty_logf(Verbose, "The buf is: %s", buf);
             return bytes_read;
         }
     }
