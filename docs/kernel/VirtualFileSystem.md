@@ -39,6 +39,7 @@ Inside the `vfs` mountpoint (or superblock) there will be a `void *` pointer tha
 * VFS opened files handling needs to be completed.
 * Currently VFS works only in kernel space, need to implement syscalls for open read and write. 
 * The vnode structure or description should get a pointer to the struct holding the memory description for userspace 
+* Error messages for vfs/open 
 
 ## VFS Workflow
 
