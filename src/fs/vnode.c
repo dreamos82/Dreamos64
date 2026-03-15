@@ -12,9 +12,16 @@ vnode_t* vnode_get_next_free() {
         vnode_cache[vnode_index].size = 0;
         vnode_cache[vnode_index].refcount = 0;
         vnode_cache[vnode_index].v_type = 0;
-        vnode_cache[vnode_index].v_data = 0;        
+        vnode_cache[vnode_index].v_data = 0;
         return &vnode_cache[vnode_index++];
     }
     return NULL;
 }
 
+void vnode_clear(vnode_t *vnode) {
+    //For now is an array so we are going just to set all values to 0
+        vnode->size = 0;
+        vnode->refcount = 0;
+        vnode->v_type = 0;
+        vnode->v_data = 0;
+}

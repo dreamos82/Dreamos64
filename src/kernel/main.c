@@ -321,6 +321,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
         read_buf[read_size+1] = '\0';
     }
     pretty_logf(Verbose, "Test string: %s", read_buf);
+    close(fd);
     //execute_runtime_tests();
     start_apic_timer(kernel_settings.apic_timer.timer_ticks_base, APIC_TIMER_SET_PERIODIC, kernel_settings.apic_timer.timer_divisor);
     pretty_logf(Verbose, "(END of Mapped memory: 0x%x)", end_of_mapped_memory);

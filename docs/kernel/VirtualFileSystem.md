@@ -29,7 +29,16 @@ Everytime we want to mount a new file system it has to be added to the tree.
 
 Searching for a file is first searching for the _longest_  `mountpoint` inside the tree, that is contained in the file path.
 
-Inside the `vfs` mountpoint (or superblock) there will be a `void *` pointer that will contain a pointer to the fs specific struct.  
+Inside the `vfs` mountpoint (or superblock) there will be a `void *` pointer that will contain a pointer to the fs specific struct.
+
+### Dreamos VFS Todo
+
+* Currently the function that retrieve vnodes is just returning the next vnode, if available. But it should search for an existing vnode first. 
+* Implement file description structure
+* Implement vfs_close
+* VFS opened files handling needs to be completed.
+* Currently VFS works only in kernel space, need to implement syscalls for open read and write. 
+* The vnode structure or description should get a pointer to the struct holding the memory description for userspace 
 
 ## VFS Workflow
 
