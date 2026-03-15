@@ -35,7 +35,6 @@ Inside the `vfs` mountpoint (or superblock) there will be a `void *` pointer tha
 
 * Currently the function that retrieve vnodes is just returning the next vnode, if available. But it should search for an existing vnode first. 
 * Implement file description structure
-* Implement vfs_close
 * VFS opened files handling needs to be completed.
 * Currently VFS works only in kernel space, need to implement syscalls for open read and write. 
 * The vnode structure or description should get a pointer to the struct holding the memory description for userspace 
