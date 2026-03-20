@@ -12,7 +12,6 @@ bool _syscalls_init() {
 }
 
 cpu_status_t *syscall_dispatch(cpu_status_t* regs) {
-    //TODO: add mapping / unmapping memory syscall
     syscall_vector sc_num = regs->rdi;
     //pretty_logf(Verbose, "Syscall handler called: %d", sc_num);
     switch(sc_num) {
@@ -21,6 +20,9 @@ cpu_status_t *syscall_dispatch(cpu_status_t* regs) {
             //_fb_printStrAndNumberAt("Epoch time: ", read_rtc_time(), 0, 11, 0xf5c4f1, 0x000000);
             _fb_printStrAt("Hello from user world (through a syscall...)", 0, 15, 0xf5c4f1, 0x000000);
             //pretty_log(Verbose, "example");
+            break;
+        case SYS_OPEN:
+            pretty_logf(Verbose, "NOT IMPLEMENTED SYSCALL: %d", sc_num);
             break;
         case SYS_READ:
             //SYS_READ: This syscall reads input from the keyboard

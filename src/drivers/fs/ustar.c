@@ -133,7 +133,6 @@ ustar_item* ustar_seek(char *filename, ustar_item* tar_root) {
 }
 
 char* ustar_get_file_start(ustar_item *file_item) {
-    //TODO: add an offset parameter
     if (file_item != NULL) {
         char *ptr = (char *) file_item;                
         return ptr+512;
