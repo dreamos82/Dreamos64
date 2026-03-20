@@ -32,10 +32,7 @@ bool _is_module_elf_hh (struct multiboot_tag_module *loaded_module) {
 
 bool _is_module_tar_hh(struct multiboot_tag_module *loaded_module) {
     uint64_t module_phys_start = loaded_module->mod_start;
-    uint64_t module_phys_end = loaded_module->mod_end;
-    uint64_t module_size = module_phys_end - module_phys_start;
     char *module_hh_start =(char *) hhdm_get_variable(module_phys_start);
-    bool is_tar = false;
     int result = strncmp(&module_hh_start[USTAR_START_BYTE], USTAR_ID, USTAR_SIZE);
     pretty_logf(Verbose, "ustar id: %c%c%c%c%c - result: %d", module_hh_start[257],module_hh_start[258], module_hh_start[259], module_hh_start[260], module_hh_start[261], result);
     if (result == 0) {

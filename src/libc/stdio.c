@@ -17,10 +17,10 @@ int printf(const char *fmt, ...){
     va_list arguments;
     char buffer[1024];
     va_start(arguments, fmt);
-    vsprintf(buffer, fmt, arguments);
+    int len = vsprintf(buffer, fmt, arguments);
     va_end(arguments);
     _printStr(buffer);
-    return 0;
+    return len;
 }
 
 static int skip_atoi(const char **s){
@@ -32,8 +32,9 @@ static int skip_atoi(const char **s){
 int sprintf(char *buffer, const char *fmt, ...){
     va_list fmt_args;
     va_start(fmt_args, fmt);
-    vsprintf(buffer, fmt, fmt_args);
+    int len = vsprintf(buffer, fmt, fmt_args);
     va_end(fmt_args);
+    return len;
 }
 
 int vsprintf(char *buffer, const char *fmt, va_list args){
