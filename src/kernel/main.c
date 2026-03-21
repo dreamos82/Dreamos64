@@ -327,7 +327,6 @@ void kernel_start(unsigned long addr, unsigned long magic){
     pretty_logf(Verbose, "(END of Mapped memory: 0x%x)", end_of_mapped_memory);
     pretty_logf(Info, "init_basic_system: Memory lower (in kb): %d - upper (in kb): %d", tagmem->mem_lower, tagmem->mem_upper);
     struct multiboot_tag_basic_meminfo *virt_phys_addr = (struct multiboot_tag_basic_meminfo *) hhdm_get_variable( (size_t) multiboot_basic_meminfo );
-    pretty_log(Info, "Init end!! Starting infinite loop");
-
+    pretty_log(Info, "Init end!! Starting infinite loop");    
     while(1);
 }

@@ -59,8 +59,7 @@ void _mmap_parse(struct multiboot_tag_mmap *mmap_root){
 }
 
 void _mmap_setup(){
-    //TODO: see issue: https://github.com/dreamos82/Dreamos64/issues/209
-    bool is_first_hole_passed = false;
+    //TODO: see issue: https://github.com/dreamos82/Dreamos64/issues/209    
     count_physical_reserved=0;
     if(used_frames > 0){
         uint32_t counter = 0;
