@@ -30,7 +30,7 @@ typedef struct vnode_t vnode_t;
 
 extern vnode_t vnode_cache[VNODE_OPENED_MAX];
 
-vnode_t *vnode_get_next_free();
+vnode_t *vnode_get_next_free(int *id_to_return);
 void vnode_clear(vnode_t *vnode);
 #endif
     

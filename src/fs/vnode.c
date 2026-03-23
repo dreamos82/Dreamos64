@@ -5,7 +5,7 @@
 vnode_t vnode_cache[VNODE_OPENED_MAX];
 vfs_file_descriptor_t vfs_opened_files[OPENEDFILES_MAX];
 
-vnode_t* vnode_get_next_free() {
+vnode_t* vnode_get_next_free(int *id_to_return) {
     // This function currently just get the next free node index, and clean it's content.
     pretty_logf(Verbose, "vnode_index: %d", vnode_index);
     if ( vnode_index < OPENEDFILES_MAX ) {
@@ -13,6 +13,7 @@ vnode_t* vnode_get_next_free() {
         vnode_cache[vnode_index].refcount = 0;
         vnode_cache[vnode_index].v_type = 0;
         vnode_cache[vnode_index].v_data = 0;
+        *id_to_return = vnode_index;
         return &vnode_cache[vnode_index++];
     }
     return NULL;

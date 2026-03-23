@@ -320,7 +320,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
     if (read_size < 11) {
         read_buf[read_size+1] = '\0';
     }
-    pretty_logf(Verbose, "Test string: %s", read_buf);
+    pretty_logf(Verbose, "Buffer read: %s", read_buf);
     close(fd);
     //execute_runtime_tests();
     start_apic_timer(kernel_settings.apic_timer.timer_ticks_base, APIC_TIMER_SET_PERIODIC, kernel_settings.apic_timer.timer_divisor);

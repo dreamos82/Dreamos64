@@ -110,8 +110,8 @@ int vfs_lookup(const char *path, int flags, vnode_t *vnode) {
     vfs_opened_files[vfs_fd_index].fs_specific_id = driver_fd;
     vfs_opened_files[vfs_fd_index].mountpoint_id = mountpoint_id;
     vfs_opened_files[vfs_fd_index].buffer_read_pos = 0;
-    strcpy(vfs_opened_files[vfs_fd_index].filename, path);
-    return vfs_fd_index++;
+    strcpy(vfs_opened_files[vfs_fd_index++].filename, path);
+    return 0;
 }
 
 char *vfs_get_relative_path (char *root_prefix, char *absolute_path) {
