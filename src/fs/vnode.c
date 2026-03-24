@@ -3,7 +3,6 @@
 #include <vfs.h>
 
 vnode_t vnode_cache[VNODE_OPENED_MAX];
-vfs_file_descriptor_t vfs_opened_files[OPENEDFILES_MAX];
 
 vnode_t* vnode_get_next_free(int *id_to_return) {
     // This function currently just get the next free node index, and clean it's content.

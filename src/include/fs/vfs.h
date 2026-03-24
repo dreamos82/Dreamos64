@@ -25,20 +25,6 @@ typedef struct vnode_ops_t {
     int (*lookup)(const char *, int, vnode_t *);
 } vnode_ops_t;
 
-struct vfs_file_descriptor_t {
-    
-    int fs_specific_id;
-    int mountpoint_id;
-    char filename[MAX_FILENAME_LEN];    
-
-    int buffer_read_pos;
-    char *buffer;
-
-};
-
-typedef struct vfs_file_descriptor_t vfs_file_descriptor_t;
-
-
 typedef struct mountpoint_t {
     char name[FILESYSTEM_NAME_LEN];  // The filesystem name 
 
@@ -51,7 +37,6 @@ typedef struct mountpoint_t {
 
 
 extern mountpoint_t mountpoints[MOUNTPOINTS_MAX];
-extern vfs_file_descriptor_t vfs_opened_files[OPENEDFILES_MAX];
 
 extern unsigned int vnode_index;
 extern unsigned int mountpoint_index;
