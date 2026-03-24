@@ -5,6 +5,7 @@
 int close (int fildes) {
     if (fildes >= 0 && fildes < OPENEDFILES_MAX) {
         //TODO: it should check for opened files by all threads.
+        //and do error checking for mountpoint close.
         pretty_logf(Verbose, "called with fildes: %d", fildes);
         if (vfs_opened_files[fildes].fs_specific_id > 0) {
             int fs_specific_id = vfs_opened_files[fildes].fs_specific_id;
@@ -14,10 +15,7 @@ int close (int fildes) {
                 mountpoint.file_operations.close(fs_specific_id);
             }
         }
-        vfs_opened_files[fildes].fs_specific_id = -1;
-        vfs_opened_files[fildes].mountpoint_id = -1;
-        vfs_opened_files[fildes].buffer_read_pos = -1;
-        //vnode_cache[fildes]
+        pretty_logf(Verbose, "File to close size: %d", vnode_cache[fildes].size);
         vnode_clear(&vnode_cache[fildes]);
         return 0;
     }

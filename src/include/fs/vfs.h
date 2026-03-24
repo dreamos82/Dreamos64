@@ -53,12 +53,12 @@ typedef struct mountpoint_t {
 extern mountpoint_t mountpoints[MOUNTPOINTS_MAX];
 extern vfs_file_descriptor_t vfs_opened_files[OPENEDFILES_MAX];
 
-
-extern unsigned int vfs_fd_index;
 extern unsigned int vnode_index;
+extern unsigned int mountpoint_index;
 
 void vfs_init();
 int vfs_get_mountpoint_id(const char *path, vnode_t *vnode);
+int vfs_register(char *file_system_name, char *mountpoint, fs_file_operations_t file_operations);
 int vfs_lookup(const char *path, int flags, vnode_t *vnode);
 int vfs_read(vnode_t *vnode, void *buffer, int flags, size_t nbytes);
 int mount_fs(char *mountpoint, char* name, fs_file_operations_t file_operations);

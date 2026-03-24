@@ -4,22 +4,20 @@
 #include <vfs.h>
 
 mountpoint_t mountpoints[MOUNTPOINTS_MAX];
-unsigned int vfs_fd_index;
 unsigned int vnode_index;
+unsigned int mountpoint_index;
 
 mountpoint_t *mountpoints_list;
 
 
 void vfs_init() {
-    pretty_log(Verbose, "Initializiing VFS layer");
+    pretty_log(Verbose, "Initializing VFS layer");
     for (int i=0; i < MOUNTPOINTS_MAX; i++) {
         strcpy(mountpoints[i].name, "");
         strcpy(mountpoints[i].mountpoint, "");
         mountpoints[i].file_operations.open = NULL;
         mountpoints[i].file_operations.close = NULL;
     }
-
-    vfs_fd_index=0;
 
     // The first item will always be the root!
     strcpy(mountpoints[0].name, "ArrayFS");
@@ -37,17 +35,17 @@ void vfs_init() {
     mountpoints[3].file_operations.close = ustar_close;
     mountpoints[3].file_operations.read = ustar_read;
     mountpoints[3].vnode_operations.lookup = ustar_lookup;
-    vfs_fd_index = 3;
+    mountpoint_index=3;
     vnode_index = 0;
 }
 
-int vfs_register(char *file_system_name, char *mountpoint, fs_file_operations_t operations){
-    if ( vfs_fd_index >MOUNTPOINTS_MAX )
+int vfs_register(char *file_system_name, char *mountpoint, fs_file_operations_t file_operations){
+    if ( mountpoint_index >MOUNTPOINTS_MAX )
         return -1;
-    //This shouldn't use vfs_fd_index.
-    strcpy(mountpoints[vfs_fd_index].name, file_system_name);
-    strcpy(mountpoints[vfs_fd_index].mountpoint, mountpoint);
-    //vfs_fd_index++;
+    strcpy(mountpoints[mountpoint_index].name, file_system_name);
+    strcpy(mountpoints[mountpoint_index].mountpoint, mountpoint);
+    mountpoints[mountpoint_index].file_operations = file_operations;
+    mountpoint_index++;
     return 0;
 }
 
@@ -101,16 +99,11 @@ int vfs_lookup(const char *path, int flags, vnode_t *vnode) {
         return -1;
     }
 
-    if ( vfs_fd_index > OPENEDFILES_MAX ) {
+    if ( vnode_index > OPENEDFILES_MAX ) {
         return -1;
     }
 
     vnode->refcount++;
-
-    vfs_opened_files[vfs_fd_index].fs_specific_id = driver_fd;
-    vfs_opened_files[vfs_fd_index].mountpoint_id = mountpoint_id;
-    vfs_opened_files[vfs_fd_index].buffer_read_pos = 0;
-    strcpy(vfs_opened_files[vfs_fd_index++].filename, path);
     return 0;
 }
 
@@ -121,7 +114,7 @@ char *vfs_get_relative_path (char *root_prefix, char *absolute_path) {
 }
 
 int vfs_read(vnode_t *vnode, void *buf, int flags, size_t nbytes) {
-    pretty_logf(Verbose, "Reading file: %x", vnode->vfs_root);
+    pretty_logf(Verbose, "Reading file: %x - flags: %d", vnode->vfs_root, flags);
     if (vnode->vfs_root != NULL) {
         mountpoint_t* mountpoint = vnode->vfs_root;        
         if (vnode->v_data != NULL) {
