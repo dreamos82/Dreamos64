@@ -3,6 +3,9 @@
 
 [![C/C++ CI](https://github.com/dreamos82/Dreamos64/actions/workflows/c-cpp.yml/badge.svg)](https://github.com/dreamos82/Dreamos64/actions/workflows/c-cpp.yml) [![Discord Chat](https://img.shields.io/discord/578193015433330698.svg?style=flat)](https://discordapp.com/channels/578193015433330698/578193713340219392) ![](https://tokei.rs/b1/github/dreamos82/Dreamos64)
 
+
+**Attention:**: Development moved to codeberg: https://codeberg.org/dreamos82/DreamOs64 This is kept as a synced Mirror. While I will look issues and PR here, I appreciate if this is done on codeberg.
+
 DreamOS64 is just my recent attempt to write a kernel again after many years far from osdev,
 But this time in 64bit.
 
@@ -142,4 +145,3 @@ Well so far a big thank you goes to [DeanoBurrito](https://github.com/DeanoBurri
 And his operating system is worth a mention too: [NorthPort](https://github.com/DeanoBurrito/northport)
 
 Finally if you are interested in how to develop your own kernel, you can head to [https://github.com/dreamportdev/Osdev-Notes/](https://github.com/dreamportdev/Osdev-Notes/) a project  mantained by me, and [DeanoBurrito](https://github.com/DeanoBurrito) on how to write a kernel from scratch.
-

@@ -5,8 +5,9 @@
 
 #include <dreamcatcher.h>
 #include <elf.h>
-#include <main.h>
+#include <fcntl.h>
 #include <idt.h>
+#include <main.h>
 #include <multiboot.h>
 #include <kernel/video.h>
 #include <kernel/io.h>
@@ -194,7 +195,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
     init_idt();
     load_idt();
     init_log(LOG_OUTPUT_SERIAL, Verbose, false);
-    #if USE_FRAMEBUFFER == 1
+#if USE_FRAMEBUFFER == 1
     uint8_t psf_type = _psf_get_version(_binary_fonts_default_psf_start);
     pretty_log(Info, "Welcome to:");
     pretty_log(Info, "\t____                    ______ ______");
@@ -300,7 +301,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
     #endif
     _ps2_keyboard_driver_init();
     void *test_alloc_vm = vmm_alloc(0x1000, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE, NULL);
-    vmm_free(test_alloc_vm, false, NULL) ;
+    vmm_free(test_alloc_vm, false, NULL);
     init_scheduler();
     char a = 'a';
     task_t* idle_task = create_task_from_func("idle", idle, &a, true);
@@ -312,12 +313,20 @@ void kernel_start(unsigned long addr, unsigned long magic){
     } else {
         task_t* elf_task = create_task_from_elf("elf_idle_tar", NULL, elf_start);
     }
+    ustar_driver_init(tar_module_start_hh);
+    int fd = open("/external/README.md", O_RDWR);
+    char read_buf[12] = {'\0'};
+    int read_size = read(fd, read_buf, 11);
+    if (read_size < 11) {
+        read_buf[read_size+1] = '\0';
+    }
+    pretty_logf(Verbose, "Buffer read: %s", read_buf);
+    close(fd);
     //execute_runtime_tests();
     start_apic_timer(kernel_settings.apic_timer.timer_ticks_base, APIC_TIMER_SET_PERIODIC, kernel_settings.apic_timer.timer_divisor);
     pretty_logf(Verbose, "(END of Mapped memory: 0x%x)", end_of_mapped_memory);
     pretty_logf(Info, "init_basic_system: Memory lower (in kb): %d - upper (in kb): %d", tagmem->mem_lower, tagmem->mem_upper);
     struct multiboot_tag_basic_meminfo *virt_phys_addr = (struct multiboot_tag_basic_meminfo *) hhdm_get_variable( (size_t) multiboot_basic_meminfo );
-    pretty_log(Info, "Init end!! Starting infinite loop");
-
+    pretty_log(Info, "Init end!! Starting infinite loop");    
     while(1);
 }

@@ -3,6 +3,8 @@
 
 #include <stddef.h>
 #include <sys/types.h>
+#include <vnode.h>
+#include <vfs.h>
 
 #define HEADER_SIZE 512
 #define PADDING_BYTE    0
@@ -32,13 +34,26 @@ struct ustar_item {
 
 typedef struct ustar_item ustar_item;
 
-void ustar_driver_init();
+struct ustar_mount {
+    
+    ustar_item *root_item;
+    
+};
+
+typedef struct ustar_mount  ustar_mount ;
+
+void ustar_driver_init(void *ustar_root_address);
 
 int ustar_open(const char *path, int flags, ...);
 int ustar_close(int fildes);
-ssize_t ustar_read(int fildes, char *buf, size_t nbytes);
+ssize_t ustar_read(vnode_t *vnode, int ustar_fildes, char *buf, size_t nbytes);
 bool ustar_is_zeroed(ustar_item *tar_item);
 ustar_item* ustar_seek(char *filename, ustar_item* tar_root);
 ssize_t ustar_find(char *filename, ustar_item* tar_root, ustar_item** tar_out);
+int ustar_lookup(const char *path, int flags, vnode_t *vnode);
+
+char* ustar_get_file_start(ustar_item *file_item);
+
+vnode_types ustar_get_type(char type);
 
 #endif

@@ -3,7 +3,7 @@
 ## Organization
 
 * All the operating system code is in the `src/` folder
-* The `tests/` folder contain some test that can be run without running the os.
+* The `tests/` folder contain some tests that can be run without running the os.
 * The `build/` folder contains the build related files.
 * Documentation is available in the `docs/` folder.
 * `examples` Contains the example applications.

@@ -10,8 +10,9 @@
 typedef enum {
     SYS_ZERO,
     SYS_EXAMPLE,
-    SYS_READ,
-    SYS_PRINT
+    SYS_PRINT,
+    SYS_OPEN,
+    SYS_READ
 } syscall_vector;
 
 bool _syscalls_init();

@@ -7,7 +7,7 @@
 
 #define pretty_assert(expected_value, returned_value, comparator, msg) \
     ({ \
-        printf("\t[%s] %s expected_value: %d returned value:  %d\n", __FUNCTION__, msg, expected_value, returned_value); \
+        printf("\t(%s) %s expected_value: %ld returned value:  %ld\n", __FUNCTION__, msg, expected_value, returned_value); \
         assert(expected_value comparator returned_value); \
     })
 

@@ -28,6 +28,8 @@ typedef enum {
 #define LOG_OUTPUT_FRAMEBUFFER (1 << 2)
 #define LOG_OUTPUT_COUNT 3
 
+#define DRK_UNIMPLEMENTED(msg) loglinef(Fatal, "(%s)[UNIMPLEMENTED]: "msg, __FUNCTION__);
+
 void init_log(size_t defaultOutputs, log_level_t trimBelowLevel, bool useVgaVideo);
 void set_log_trim_level(size_t newTrim);
 void logline(log_level_t level, const char* msg);
