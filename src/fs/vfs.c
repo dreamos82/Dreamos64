@@ -124,3 +124,8 @@ int vfs_read(vnode_t *vnode, void *buf, int flags, size_t nbytes) {
     }
     return 0;
 }
+
+int vfs_close (vnode_t *vnode) {
+    vnode_clear(vnode);
+    return 0;
+}

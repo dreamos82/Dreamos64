@@ -17,7 +17,7 @@ int close (int fildes) {
         }        
         pretty_logf(Verbose, "File to close size: %d", vnode_cache[fildes].size);
         if (vnode_cache[fildes].refcount-- <= 0) {
-            vnode_clear(&vnode_cache[fildes]);
+            vfs_close(&vnode_cache[fildes]);
         }
         return 0;
     }
