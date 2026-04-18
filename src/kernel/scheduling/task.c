@@ -27,6 +27,7 @@ task_t* create_task(char *name, bool is_supervisor) {
     new_task->vmm_data.root_table_phys = (uintptr_t) new_task->vm_root_page_table;
     void* vm_root_vaddress = hhdm_get_variable ((uintptr_t) new_task->vm_root_page_table);
     new_task->vmm_data.root_table_hhdm = (uintptr_t) vm_root_vaddress;
+    new_task->next_file_descriptor = 3; // Reserving space for stdin, stdou and stderr
     pretty_logf(Verbose, "vm_root_vaddress: %x", vm_root_vaddress);
     //prepare_virtual_memory_environment(new_task);
     if ( is_supervisor ){
@@ -212,4 +213,8 @@ void print_thread_list(size_t task_id) {
             thread = thread->next;
         }
     }
+}
+
+uint64_t task_get_next_file_descriptor(task_t *task){
+    return task->next_file_descriptor++;
 }

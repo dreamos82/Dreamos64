@@ -27,6 +27,7 @@ struct task_t {
     VmmInfo vmm_data;
 
     file_descriptor_t file_descriptors[DRMOS_MAX_FILE_DESCRIPTORS];
+    unsigned int next_file_descriptor;
 
     //List of threads
     struct thread_t* threads;
