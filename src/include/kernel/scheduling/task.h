@@ -42,6 +42,7 @@ task_t *create_task_from_func(char *name, void (*_entry_point)(void *), void *ar
 task_t *create_task_from_elf(char *name, void *args, Elf64_Ehdr *elf_header);
 
 task_t* get_task( size_t task_id );
+uint64_t task_get_next_file_descriptor();
 
 bool add_thread_to_task_by_id( size_t task_id, thread_t* thread );
 bool add_thread_to_task( task_t* task, thread_t* thread );
