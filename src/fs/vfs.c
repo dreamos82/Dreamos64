@@ -125,8 +125,12 @@ int vfs_read(vnode_t *vnode, void *buf, int flags, size_t nbytes) {
     return 0;
 }
 
-int vfs_close (vnode_t *vnode) {
-    vnode_clear(vnode);
+int vfs_close (vnode_t *vnode) {    
+    pretty_logf(Verbose, "Vnode refcount value: %d", vnode->refcount);
+    vnode->refcount--;
+    if(vnode->refcount == 0) {
+        vnode_clear(vnode);
+    }    
     return 0;
 }
 

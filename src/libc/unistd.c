@@ -15,7 +15,7 @@ int close (int fildes) {
             }
         }        
         pretty_logf(Verbose, "File to close size: %d", vnode_cache[fildes].size);
-        vnode_clear(&vnode_cache[fildes]);
+        vfs_close(&vnode_cache[fildes]);
         return 0;
     }
     return -1;
