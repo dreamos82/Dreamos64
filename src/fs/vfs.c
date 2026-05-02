@@ -127,10 +127,17 @@ int vfs_read(vnode_t *vnode, void *buf, int flags, size_t nbytes) {
 
 int vfs_close (vnode_t *vnode) {    
     pretty_logf(Verbose, "Vnode refcount value: %d", vnode->refcount);
+    if (vnode->vfs_root != NULL) {
+        mountpoint_t *mountpoint = vnode->vfs_root;
+        if (mountpoint->file_operations.close != NULL) {
+            //TODO: should pass a vnode to the close operation
+            mountpoint->file_operations.close(vnode);
+        }
+    }
     vnode->refcount--;
     if(vnode->refcount == 0) {
         vnode_clear(vnode);
-    }    
+    }
     return 0;
 }
 

@@ -19,8 +19,9 @@ int ustar_open(const char *path, int flags, ...) {
     return 3;
 }
 
-int ustar_close(int ustar_fildes) {
-    pretty_logf(Verbose, "called with fildes: %d 0 - Nothing to do for Close", ustar_fildes);
+int ustar_close(vnode_t *vnode) {
+    ustar_item *file_to_close= (ustar_item *)vnode->v_data;
+    pretty_logf(Verbose, "called with file name: %s 0 - Nothing to do for Close", file_to_close->filename);
     return 0;
 }
 

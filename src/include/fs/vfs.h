@@ -14,7 +14,7 @@
 // Probably the names of the functions here will be changed soon along with the args.
 struct fs_file_operations_t{     
     int (*open)(const char *, int, ... );
-    int (*close)(int);
+    int (*close)(vnode_t *);
     ssize_t (*read)(vnode_t *, int, char*, size_t);
     ssize_t (*write)(int,const void*, size_t);
 };
