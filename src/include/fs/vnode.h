@@ -1,5 +1,5 @@
-#ifndef __VNODE_H
-#define __VNODE_H
+#ifndef _VNODE_H
+#define _VNODE_H
 
 #include <sys/types.h>
 

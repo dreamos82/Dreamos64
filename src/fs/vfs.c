@@ -2,6 +2,7 @@
 #include <string.h>
 #include <ustar.h>
 #include <vfs.h>
+#include <vfs_errors.h>
 
 mountpoint_t mountpoints[MOUNTPOINTS_MAX];
 unsigned int vnode_index;
@@ -71,7 +72,7 @@ int vfs_get_mountpoint_id(const char *path, vnode_t *vnode) {
 int vfs_lookup(const char *path, int flags, vnode_t *vnode) {
     int mountpoint_id = vfs_get_mountpoint_id(path, vnode);
     if (mountpoint_id < 0) {
-        return -1;
+        return EOPEN_ERROR;
     }
     pretty_logf(Verbose, " --- mountpoint id for file: %d and flags: %d ", mountpoint_id, flags);
     mountpoint_t mountpoint = mountpoints[mountpoint_id];
@@ -80,11 +81,11 @@ int vfs_lookup(const char *path, int flags, vnode_t *vnode) {
     pretty_logf(Verbose, " --- relative path is: %s", relative_path);
     // This can be removed
     if (mountpoint.file_operations.open == NULL) {
-        return -1;
+        return EOPEN_ERROR;
     }
     
     if (mountpoint.vnode_operations.lookup == NULL) {
-        return -1;
+        return EOPEN_ERROR;
     }
 
     int error_code = mountpoint.vnode_operations.lookup(&relative_path[1], flags, vnode);
@@ -96,11 +97,11 @@ int vfs_lookup(const char *path, int flags, vnode_t *vnode) {
     // This will be removed, and replaced by the line above
     int driver_fd = mountpoint.file_operations.open(relative_path, flags);
     if (driver_fd < 0) {
-        return -1;
+        return EOPEN_ERROR;
     }
 
     if ( vnode_index > OPENEDFILES_MAX ) {
-        return -1;
+        return EOPEN_ERROR;
     }
 
     vnode->refcount++;
@@ -149,7 +150,7 @@ int vfs_open(const char *path, int flags) {
     vnode_t *vnode = vnode_get_next_free(&vnode_id);
     if ( vnode == NULL ) {
         pretty_log(Fatal, "Error cannot find vnode");
-        return -1;
+        return EOPEN_ERROR;
     }
 
     int result = vfs_lookup(path,flags, vnode);

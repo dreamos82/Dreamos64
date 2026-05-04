@@ -20,6 +20,7 @@ int ustar_open(const char *path, int flags, ...) {
 }
 
 int ustar_close(vnode_t *vnode) {
+    //The code below is only for debug purposes, it will be removed in the future.
     ustar_item *file_to_close= (ustar_item *)vnode->v_data;
     pretty_logf(Verbose, "called with file name: %s 0 - Nothing to do for Close", file_to_close->filename);
     return 0;
