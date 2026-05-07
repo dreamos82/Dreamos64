@@ -9,7 +9,7 @@
 
 int open(const char *path, int flags) {
     //syscall(....)
-    uint64_t new_fd = task_get_next_file_descriptor();
+    uint64_t new_fd = task_alloc_fd();
     pretty_logf(Verbose, "New Fd: %d", new_fd);
     return vfs_open(path, flags);
 }

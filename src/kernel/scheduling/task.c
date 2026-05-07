@@ -215,7 +215,7 @@ void print_thread_list(size_t task_id) {
     }
 }
 
-uint64_t task_get_next_file_descriptor(){
+uint64_t task_alloc_fd(){
     //The descriptor value is the one to be returned, and then increased
     task_t *current_task = current_executing_thread->parent_task;
     return current_task->next_file_descriptor++;
