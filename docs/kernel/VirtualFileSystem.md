@@ -57,7 +57,7 @@ __This part is a work in progress so the design can change at any moment__
 
 The kernel needs to know what are the supported FS types.
 
-So every suppoted FS needs to be regesitered with the kernel
+So every suppoted FS needs to be registered with the kernel
 
 There will be a list that will contain all the supported fs, every item will contain the basic info and all the structures needed. Especially a pointer to the fs init function. 
 
@@ -95,6 +95,22 @@ There are two types of operations:
 
 * `fs_file_operations`
 * `vnode_operations`
+
+### Vnode
+
+The vnode is defined as follows:
+
+```c
+struct vnode_t {
+    ssize_t size; // Size of the file
+    int refcount; // Number of processes pointing here
+    vnode_types v_type;
+    mountpoint_t *vfs_root;
+    void *v_data; // This will contains the data from the FS    
+};
+```
+
+The definition is not complete yet.
 
 #### Vnode Operations
 

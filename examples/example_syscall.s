@@ -16,7 +16,7 @@ main:
     int 0x80 ; Syscall
     cmp rax, -1
     je read_error
-    mov byte [rdx + rax], 0
+    mov byte [rdx + rax], 0 ; Adding \0 to the end of string
     jmp loop1
 read_error:
     mov rdi, SYS_PRINT ; Print syscall

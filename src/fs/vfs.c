@@ -2,6 +2,7 @@
 #include <string.h>
 #include <ustar.h>
 #include <vfs.h>
+#include <vfs_errors.h>
 
 mountpoint_t mountpoints[MOUNTPOINTS_MAX];
 unsigned int vnode_index;
@@ -71,7 +72,7 @@ int vfs_get_mountpoint_id(const char *path, vnode_t *vnode) {
 int vfs_lookup(const char *path, int flags, vnode_t *vnode) {
     int mountpoint_id = vfs_get_mountpoint_id(path, vnode);
     if (mountpoint_id < 0) {
-        return -1;
+        return EOPEN_ERROR;
     }
     pretty_logf(Verbose, " --- mountpoint id for file: %d and flags: %d ", mountpoint_id, flags);
     mountpoint_t mountpoint = mountpoints[mountpoint_id];
@@ -80,11 +81,11 @@ int vfs_lookup(const char *path, int flags, vnode_t *vnode) {
     pretty_logf(Verbose, " --- relative path is: %s", relative_path);
     // This can be removed
     if (mountpoint.file_operations.open == NULL) {
-        return -1;
+        return EOPEN_ERROR;
     }
     
     if (mountpoint.vnode_operations.lookup == NULL) {
-        return -1;
+        return EOPEN_ERROR;
     }
 
     int error_code = mountpoint.vnode_operations.lookup(&relative_path[1], flags, vnode);
@@ -96,11 +97,11 @@ int vfs_lookup(const char *path, int flags, vnode_t *vnode) {
     // This will be removed, and replaced by the line above
     int driver_fd = mountpoint.file_operations.open(relative_path, flags);
     if (driver_fd < 0) {
-        return -1;
+        return EOPEN_ERROR;
     }
 
     if ( vnode_index > OPENEDFILES_MAX ) {
-        return -1;
+        return EOPEN_ERROR;
     }
 
     vnode->refcount++;
@@ -123,4 +124,39 @@ int vfs_read(vnode_t *vnode, void *buf, int flags, size_t nbytes) {
         }
     }
     return 0;
+}
+
+int vfs_close (vnode_t *vnode) {    
+    pretty_logf(Verbose, "Vnode refcount value: %d", vnode->refcount);
+    if (vnode->vfs_root != NULL) {
+        mountpoint_t *mountpoint = vnode->vfs_root;
+        if (mountpoint->file_operations.close != NULL) {
+            //TODO: should pass a vnode to the close operation
+            mountpoint->file_operations.close(vnode);
+        }
+    }
+    vnode->refcount--;
+    if(vnode->refcount == 0) {
+        vnode_clear(vnode);
+    }
+    return 0;
+}
+
+int vfs_open(const char *path, int flags) {
+    pretty_logf(Verbose, "Try to open file: %s", path);
+    // In future if the vnode for that file already exists, it would be returned, and passed to vfs_lookup.
+    unsigned int cur_node_index = vnode_index;
+    int vnode_id;
+    vnode_t *vnode = vnode_get_next_free(&vnode_id);
+    if ( vnode == NULL ) {
+        pretty_log(Fatal, "Error cannot find vnode");
+        return EOPEN_ERROR;
+    }
+
+    int result = vfs_lookup(path,flags, vnode);
+    pretty_logf(Verbose, "file Size: %d", vnode->size);
+    if (result == 0) {
+        pretty_logf(Verbose, "file Size: %d", vnode_cache[cur_node_index].size);
+        return vnode_id;
+    }
 }

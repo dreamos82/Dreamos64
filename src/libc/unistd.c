@@ -7,15 +7,8 @@ int close (int fildes) {
         //TODO: it should check for opened files by all threads.
         //and do error checking for mountpoint close.
         pretty_logf(Verbose, "called with fildes: %d", fildes);
-        if (vnode_cache[fildes].vfs_root != NULL) {
-            mountpoint_t *mountpoint = vnode_cache[fildes].vfs_root;
-            if (mountpoint->file_operations.close != NULL) {
-                //TODO: should pass a vnode to the close operation
-                mountpoint->file_operations.close(fildes);
-            }
-        }        
         pretty_logf(Verbose, "File to close size: %d", vnode_cache[fildes].size);
-        vnode_clear(&vnode_cache[fildes]);
+        vfs_close(&vnode_cache[fildes]);
         return 0;
     }
     return -1;

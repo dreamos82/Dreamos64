@@ -45,7 +45,7 @@ typedef struct ustar_mount  ustar_mount ;
 void ustar_driver_init(void *ustar_root_address);
 
 int ustar_open(const char *path, int flags, ...);
-int ustar_close(int fildes);
+int ustar_close(vnode_t *vnode);
 ssize_t ustar_read(vnode_t *vnode, int ustar_fildes, char *buf, size_t nbytes);
 bool ustar_is_zeroed(ustar_item *tar_item);
 ustar_item* ustar_seek(char *filename, ustar_item* tar_root);

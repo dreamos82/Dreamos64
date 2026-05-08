@@ -14,7 +14,7 @@
 // Probably the names of the functions here will be changed soon along with the args.
 struct fs_file_operations_t{     
     int (*open)(const char *, int, ... );
-    int (*close)(int);
+    int (*close)(vnode_t *);
     ssize_t (*read)(vnode_t *, int, char*, size_t);
     ssize_t (*write)(int,const void*, size_t);
 };
@@ -47,5 +47,7 @@ int vfs_register(char *file_system_name, char *mountpoint, fs_file_operations_t 
 int vfs_lookup(const char *path, int flags, vnode_t *vnode);
 int vfs_read(vnode_t *vnode, void *buffer, int flags, size_t nbytes);
 int mount_fs(char *mountpoint, char* name, fs_file_operations_t file_operations);
+int vfs_open(const char *path, int flags);
+int vfs_close (vnode_t *vnode);
 char *vfs_get_relative_path (char *root_prefix, char *absolute_path);
 #endif
