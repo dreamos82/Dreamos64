@@ -1,7 +1,7 @@
 # DreamOS64
 
 
-[![C/C++ CI](https://github.com/dreamos82/Dreamos64/actions/workflows/c-cpp.yml/badge.svg)](https://github.com/dreamos82/Dreamos64/actions/workflows/c-cpp.yml) [![Discord Chat](https://img.shields.io/discord/578193015433330698.svg?style=flat)](https://discordapp.com/channels/578193015433330698/578193713340219392) ![](https://tokei.rs/b1/github/dreamos82/Dreamos64)
+[![C/C++ CI](https://codeberg.org/dreamos82/Dreamos64/actions/workflows/c-cpp.yml/badge.svg)](https://codeberg.org/dreamos82/DreamOs64/actions?workflow=c-cpp.yml) [![Discord Chat](https://img.shields.io/discord/578193015433330698.svg?style=flat)](https://discordapp.com/channels/578193015433330698/578193713340219392) ![](https://tokei.rs/b1/github/dreamos82/Dreamos64)
 
 
 **Attention:** Development moved to codeberg: https://codeberg.org/dreamos82/DreamOs64 This is kept as a synced Mirror. While I will look issues and PR here, I appreciate if this is done on codeberg.
