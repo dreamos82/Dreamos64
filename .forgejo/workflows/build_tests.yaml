@@ -8,7 +8,7 @@ on:
 jobs:
   build-dreamos:
 
-    runs-on: codeberg-tiny
+    runs-on: codeberg-small
 
     steps:
 
