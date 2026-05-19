@@ -10,7 +10,7 @@ The OS should be able to support both v1 and v2 PSF files. If running on linux t
 
 They  are stored compressed as `.gz` files, before using them with dreamos make sure to uncompress it. Then it has to be copied in the `$FONTS` folder and renamed as `default.psf`
 
-If curious to know the version of the psf used, or explore the psf there is a handy tool for linux called _gdbfed_ to tinker with the fonts. The sources are available [here](https://github.com/andrewshadura/gbdfed)
+If curious to know the version of the psf used, or explore the psf there is a handy tool for linux called _gbdfed_ to tinker with the fonts. The sources are available [here](https://github.com/andrewshadura/gbdfed)
 
 ## Compilation
 

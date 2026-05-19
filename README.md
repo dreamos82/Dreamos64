@@ -70,7 +70,7 @@ For a  complete guide on how to build _DreamOS64_ and the parameters that are av
 
 ### Build the OS
 
-Before building the os we need to copy a PSF font (either v1 or v2) in the fonts folder, and change its name to `default.psf` (even if we are building with framebuffer off).
+Before building the os we need to copy a PSF font (either v1 or v2) in the fonts folder, and change its name to `default.psf` (even if we are building with framebuffer off). A default font is already included.
 
 Once all the parameters in `build/Config.mk` are set, to build just type:
 
