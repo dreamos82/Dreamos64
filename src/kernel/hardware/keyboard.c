@@ -114,7 +114,8 @@ void handle_keyboard_interrupt() {
                         pretty_logf(Verbose, "ps2_op_set: %d", _ps2_op_head->nbytes);
                         _fb_putcharAt(read_char, cur_fb_column++, 19, 0xe58749, 0x000000);
                     } else {
-                        _ps2_op_head->read = true;
+                        _ps2_op_head->read = true;                        
+                        _ps2_op_head = _ps2_op_head->next;
                         //((char *)_ps2_op_head->buffer->buffer_virtual)[_ps2_op_head->nbytes] = '\0';
                         pretty_logf(Verbose, "Read operation complete: %d - %s", _ps2_op_head->nbytes, _ps2_op_head->buffer->buffer_virtual);
                     }
