@@ -4,6 +4,7 @@
 #include <rtc.h>
 #include <syscalls.h>
 #include <sys_read.h>
+#include <sys_open.h>
 
 bool _syscalls_init() {
     pretty_log(Verbose, "Initializing sycalls");
@@ -23,6 +24,9 @@ cpu_status_t *syscall_dispatch(cpu_status_t* regs) {
             break;
         case SYS_OPEN:
             pretty_logf(Verbose, "NOT IMPLEMENTED SYSCALL: %d", sc_num);
+            char *path = (char *) regs->rsi;
+            size_t flags = regs->rdx;
+            sys_open(path, flags);
             break;
         case SYS_READ:
             //SYS_READ: This syscall reads input from the keyboard

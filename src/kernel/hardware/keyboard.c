@@ -106,20 +106,21 @@ void handle_keyboard_interrupt() {
                         _fb_printStrAt(string, 0, 10, 0x000000, 0x1ad652);
                     }
                 #endif
-                if ( _ps2_op_head != NULL && _ps2_op_head->read == false ) {
-                    pretty_logf(Verbose, "length: %d - nbytes: %d", _ps2_op_head->buffer->length, _ps2_op_head->nbytes);
-                    if ( _ps2_op_head->nbytes < _ps2_op_head->buffer->length) {
-                        ((char *)_ps2_op_head->buffer->buffer_virtual)[_ps2_op_head->nbytes] = read_char;
-                        _ps2_op_head->nbytes++;
-                        pretty_logf(Verbose, "ps2_op_set: %d", _ps2_op_head->nbytes);
-                        _fb_putcharAt(read_char, cur_fb_column++, 19, 0xe58749, 0x000000);
-                    } else {
-                        _ps2_op_head->read = true;                        
-                        _ps2_op_head = _ps2_op_head->next;
-                        //((char *)_ps2_op_head->buffer->buffer_virtual)[_ps2_op_head->nbytes] = '\0';
-                        pretty_logf(Verbose, "Read operation complete: %d - %s", _ps2_op_head->nbytes, _ps2_op_head->buffer->buffer_virtual);
+                if ( _ps2_op_head != NULL) {
+                    if( _ps2_op_head->read == false ) {
+                        pretty_logf(Verbose, "length: %d - nbytes: %d", _ps2_op_head->buffer->length, _ps2_op_head->nbytes);
+                        if ( _ps2_op_head->nbytes < _ps2_op_head->buffer->length) {
+                            ((char *)_ps2_op_head->buffer->buffer_virtual)[_ps2_op_head->nbytes] = read_char;
+                            _ps2_op_head->nbytes++;
+                            pretty_logf(Verbose, "ps2_op_set: %d - char read: %c", _ps2_op_head->nbytes, read_char);
+                            _fb_putcharAt(read_char, cur_fb_column++, 19, 0xe58749, 0x000000);
+                        } else {
+                            _ps2_op_head->read = true;
+                            pretty_logf(Verbose, "Read operation complete: %d - %s - Next null? %d", _ps2_op_head->nbytes, _ps2_op_head->buffer->buffer_virtual, _ps2_op_head->next == NULL);
+                            _ps2_op_head = _ps2_op_head->next;                                                    
+                        }
                     }
-                }
+                } 
                 pretty_logf(Verbose, "\t+ Key is pressed pos %d: SC: %x - Code: %x - Mod: %x %c", buf_position, scancode, keyboard_buffer[buf_position].code, keyboard_buffer[buf_position].modifiers, kgetch(keyboard_buffer[buf_position]));
             }
             buf_position = BUF_STEP(buf_position);

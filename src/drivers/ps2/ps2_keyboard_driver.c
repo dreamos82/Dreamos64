@@ -37,7 +37,7 @@ void _ps2_keyboard_add_operation(pending_operation_t *new_op) {
     if ( _ps2_op_head == NULL) {
         pretty_logf(Verbose, "New op: nbytes: %d - read: %d", new_op->nbytes, new_op->read);
         _ps2_op_head = new_op;
-        _ps2_op_tail = _ps2_op_head;
+        _ps2_op_tail = NULL;
     } else {
         _ps2_op_tail->next = new_op;
         _ps2_op_tail = new_op;
@@ -45,7 +45,7 @@ void _ps2_keyboard_add_operation(pending_operation_t *new_op) {
 }
 
 void _ps2_keyboard_del_operation(pending_operation_t *op_to_delete) {
-    pending_operation_t *elmement_to_delete = _ps2_op_head;
+    pending_operation_t *element_to_delete = _ps2_op_head;
     _ps2_op_head = _ps2_op_head->next;
-    kfree(elmement_to_delete);
+    kfree(element_to_delete);
 }
