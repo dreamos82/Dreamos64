@@ -37,7 +37,7 @@ void _ps2_keyboard_add_operation(pending_operation_t *new_op) {
     if ( _ps2_op_head == NULL) {
         pretty_logf(Verbose, "New op: nbytes: %d - read: %d", new_op->nbytes, new_op->read);
         _ps2_op_head = new_op;
-        _ps2_op_tail = NULL;
+        _ps2_op_tail = new_op;
     } else {
         _ps2_op_tail->next = new_op;
         _ps2_op_tail = new_op;
