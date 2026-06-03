@@ -51,20 +51,20 @@ void init_keyboard() {
     uint8_t status_read = inportb(KEYBOARD_ENCODER_PORT);
     if(status_read == KEYBOARD_ACK_BYTE) {
         status_read = inportb(KEYBOARD_ENCODER_PORT);
-        pretty_logf(Verbose, "Found scancode set: 0x%x", status_read);
+        pretty_logf_to_serial(Verbose, "Found scancode set: 0x%x", status_read);
         kernel_settings.keyboard.scancode_set = status_read;
     } else {
-        pretty_log(Verbose, "Unable to read from keyboard");
+        pretty_log_to_serial(Verbose, "Unable to read from keyboard");
     }
     outportb(0x64, PS2_READ_CONFIGURATION_COMMAND);
     status_read = inportb(PS2_STATUS_REGISTER);
     while((status_read & 2) != 0) {
-        pretty_logf(Verbose, "Not ready yet... %x", status_read);
+        pretty_logf_to_serial(Verbose, "Not ready yet... %x", status_read);
         status_read = inportb(PS2_STATUS_REGISTER);
     }
     uint8_t configuration_byte = inportb(PS2_DATA_REGISTER);
     if((configuration_byte & (1 << 6)) != 0) {
-        pretty_log(Verbose, "Translation enabled");
+        pretty_log_to_serial(Verbose, "Translation enabled");
         kernel_settings.keyboard.translation_enabled = true;
     } else {
         kernel_settings.keyboard.translation_enabled = false;
@@ -74,7 +74,7 @@ void init_keyboard() {
 }
 
 uint8_t update_modifiers(key_modifiers modifier, bool is_pressed) {
-    pretty_logf(Verbose, "modifier: %x", modifier);
+    pretty_logf_to_serial(Verbose, "modifier: %x", modifier);
     if ( is_pressed == true ) {
         current_modifiers |= modifier;
     } else {
@@ -107,19 +107,19 @@ void handle_keyboard_interrupt() {
                     }
                 #endif
                 if ( _ps2_op_head != NULL && _ps2_op_head->read == false ) {
-                    pretty_logf(Verbose, "length: %d - nbytes: %d", _ps2_op_head->buffer->length, _ps2_op_head->nbytes);
+                    pretty_logf_to_serial(Verbose, "length: %d - nbytes: %d", _ps2_op_head->buffer->length, _ps2_op_head->nbytes);
                     if ( _ps2_op_head->nbytes < _ps2_op_head->buffer->length) {
                         ((char *)_ps2_op_head->buffer->buffer_virtual)[_ps2_op_head->nbytes] = read_char;
                         _ps2_op_head->nbytes++;
-                        pretty_logf(Verbose, "ps2_op_set: %d", _ps2_op_head->nbytes);
+                        pretty_logf_to_serial(Verbose, "ps2_op_set: %d", _ps2_op_head->nbytes);
                         _fb_putcharAt(read_char, cur_fb_column++, 19, 0xe58749, 0x000000);
                     } else {
                         _ps2_op_head->read = true;
                         //((char *)_ps2_op_head->buffer->buffer_virtual)[_ps2_op_head->nbytes] = '\0';
-                        pretty_logf(Verbose, "Read operation complete: %d - %s", _ps2_op_head->nbytes, _ps2_op_head->buffer->buffer_virtual);
+                        pretty_logf_to_serial(Verbose, "Read operation complete: %d - %s", _ps2_op_head->nbytes, _ps2_op_head->buffer->buffer_virtual);
                     }
                 }
-                pretty_logf(Verbose, "\t+ Key is pressed pos %d: SC: %x - Code: %x - Mod: %x %c", buf_position, scancode, keyboard_buffer[buf_position].code, keyboard_buffer[buf_position].modifiers, kgetch(keyboard_buffer[buf_position]));
+                pretty_logf_to_serial(Verbose, "\t+ Key is pressed pos %d: SC: %x - Code: %x - Mod: %x %c", buf_position, scancode, keyboard_buffer[buf_position].code, keyboard_buffer[buf_position].modifiers, kgetch(keyboard_buffer[buf_position]));
             }
             buf_position = BUF_STEP(buf_position);
         }

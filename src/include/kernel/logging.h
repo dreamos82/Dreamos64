@@ -29,6 +29,9 @@ typedef enum {
 #define LOG_OUTPUT_FRAMEBUFFER (1 << 2)
 #define LOG_OUTPUT_COUNT 3
 
+#define pretty_logf_to_serial(level, msg, ...)  loglinef_serial_only(level, "(%s): "msg,  __FUNCTION__, __VA_ARGS__);
+#define pretty_log_to_serial(level, msg)  loglinef_serial_only(level, "(%s): "msg,  __FUNCTION__);
+
 #define DRK_UNIMPLEMENTED(msg) loglinef(Fatal, "(%s)[UNIMPLEMENTED]: "msg, __FUNCTION__);
 
 void init_log(size_t defaultOutputs, log_level_t trimBelowLevel, bool useVgaVideo);
@@ -39,4 +42,5 @@ void loglinef(log_level_t level, const char* msg, ...);
 void logline_to(size_t outputs, log_level_t level, const char* msg);
 void loglinef_to(size_t outputs, log_level_t level, const char* msg, va_list format_args);
 
+void loglinef_serial_only(log_level_t level, const char* msg, ...);
 #endif

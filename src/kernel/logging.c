@@ -99,6 +99,13 @@ void loglinef(log_level_t level, const char* msg, ...) {
     va_end(args);
 }
 
+void loglinef_serial_only(log_level_t level, const char* msg, ...){
+    va_list args;
+    va_start(args, msg);
+    loglinef_to(LOG_OUTPUT_SERIAL, level, msg, args);
+    va_end(args);
+}
+
 void loglinef_to(size_t outputs, log_level_t level, const char* msg, va_list format_args)
 {
     char format_buffer[formatBufferLen];

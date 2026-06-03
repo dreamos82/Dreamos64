@@ -68,7 +68,7 @@ cpu_status_t* schedule(cpu_status_t* cur_status) {
 
     while (current_thread->tid != prev_thread_tid) {
         if (current_thread->status == SLEEP) {
-            pretty_logf(Verbose, "This thread %d is sleeping", current_thread->tid);
+            pretty_logf_to_serial(Verbose, "This thread %d is sleeping", current_thread->tid);
             //pretty_logf(Verbose, "Current uptime: %d - wakeup: %d", get_kernel_uptime(), current_thread->wakeup_time);
             if ( get_kernel_uptime() > current_thread->wakeup_time) {
                 //pretty_logf(Verbose, "--->WAKING UP: %d - thread_name: %s", current_thread->tid, current_thread->thread_name);
@@ -89,7 +89,7 @@ cpu_status_t* schedule(cpu_status_t* cur_status) {
         current_thread = scheduler_get_next_thread();
     }
 
-    pretty_logf(Verbose, "Current thread %d status: %d name: %s!", current_thread->status, current_thread->tid, current_thread->thread_name);
+    pretty_logf_to_serial(Verbose, "Current thread %d status: %d name: %s!", current_thread->status, current_thread->tid, current_thread->thread_name);
 
     // We have found a thread to run, let's update it's status
     thread_to_execute->status = RUN;
@@ -100,11 +100,11 @@ cpu_status_t* schedule(cpu_status_t* cur_status) {
     // ... every task has it's own addressing space, so we need to update the cr3 register
     //pretty_logf(Verbose, "Loading cr3: 0x%x", current_task->vm_root_page_table);
     load_cr3(current_task->vm_root_page_table);
-    pretty_logf(Verbose, "current_thread->execution_frame->rip: 0x%x, vmm_data is: 0x%x", current_executing_thread->execution_frame->rip, &(current_task->vmm_data));
+    pretty_logf_to_serial(Verbose, "current_thread->execution_frame->rip: 0x%x, vmm_data is: 0x%x", current_executing_thread->execution_frame->rip, &(current_task->vmm_data));
     // ... and finally we need to update the tss structure with the current thread rsp0
     kernel_tss.rsp0 = (uint64_t) current_executing_thread->rsp0;
     //pretty_log(Verbose, "leaving schedule...");
-    pretty_logf(Verbose, "next task to run: %d->(%s)", current_executing_thread->tid, current_executing_thread->thread_name);
+    pretty_logf_to_serial(Verbose, "next task to run: %d->(%s)", current_executing_thread->tid, current_executing_thread->thread_name);
     return current_executing_thread->execution_frame;
 }
 

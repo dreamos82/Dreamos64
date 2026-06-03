@@ -22,7 +22,7 @@ cpu_status_t *syscall_dispatch(cpu_status_t* regs) {
             //pretty_log(Verbose, "example");
             break;
         case SYS_OPEN:
-            pretty_logf(Verbose, "NOT IMPLEMENTED SYSCALL: %d", sc_num);
+            pretty_logf_to_serial(Verbose, "NOT IMPLEMENTED SYSCALL: %d", sc_num);
             break;
         case SYS_READ:
             //SYS_READ: This syscall reads input from the keyboard

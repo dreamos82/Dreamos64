@@ -35,7 +35,7 @@ pending_operation_t* _ps2_get_next_operation() {
 
 void _ps2_keyboard_add_operation(pending_operation_t *new_op) {
     if ( _ps2_op_head == NULL) {
-        pretty_logf(Verbose, "New op: nbytes: %d - read: %d", new_op->nbytes, new_op->read);
+        pretty_logf_to_serial(Verbose, "New op: nbytes: %d - read: %d", new_op->nbytes, new_op->read);
         _ps2_op_head = new_op;
         _ps2_op_tail = _ps2_op_head;
     } else {
