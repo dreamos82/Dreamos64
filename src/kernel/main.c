@@ -242,10 +242,9 @@ void kernel_start(unsigned long addr, unsigned long magic){
         _fb_printStrAndNumber("Counting up to: ", i, 0xFF33AA+i, 0x000000);
     }*/
     //_fb_scroll(&framebuffer_main_window, _psf_get_height(psf_font_version), 1, &framebuffer_logo_area, false);
-    //_fb_scroll(&framebuffer_main_window, _psf_get_height(psf_font_version), 1, NULL);
+    //_fb_scroll(&framebuffer_main_window, _psf_get_height(psf_font_version), 1, NULL);    
 #endif
     _syscalls_init();
-
     initialize_kheap();
     kernel_settings.paging.page_generation = 0;
     init_apic();
@@ -267,7 +266,6 @@ void kernel_start(unsigned long addr, unsigned long magic){
     initialize_tss();
     load_tss();
     asm("sti");
-
     uint32_t apic_ticks = calibrate_apic();
     kernel_settings.apic_timer.timer_ticks_base = apic_ticks;
     pretty_logf(Verbose, "Calibrated apic value: %u", apic_ticks);
@@ -327,6 +325,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
     pretty_logf(Verbose, "(END of Mapped memory: 0x%x)", end_of_mapped_memory);
     pretty_logf(Info, "init_basic_system: Memory lower (in kb): %d - upper (in kb): %d", tagmem->mem_lower, tagmem->mem_upper);
     struct multiboot_tag_basic_meminfo *virt_phys_addr = (struct multiboot_tag_basic_meminfo *) hhdm_get_variable( (size_t) multiboot_basic_meminfo );
-    pretty_log(Info, "Init end!! Starting infinite loop");    
+    init_log(LOG_OUTPUT_FRAMEBUFFER | LOG_OUTPUT_SERIAL, Verbose, false);
+    pretty_log(Info, "Init end!! Starting infinite loop");
     while(1);
 }

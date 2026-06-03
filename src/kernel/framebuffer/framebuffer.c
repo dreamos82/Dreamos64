@@ -208,12 +208,15 @@ void draw_logo(uint32_t start_x, uint32_t start_y) {
 
 void _fb_scroll(_fb_window_t *scrolling_window, uint32_t line_height, uint32_t number_of_lines_to_scroll, _fb_window_t *area_to_pin, bool clear_last_line) {
     _fb_window_t rectangles[4];
+    //init_log(LOG_OUTPUT_SERIAL, Verbose, false);
+    //pretty_logf(Verbose, "----Area to pin: x:%d y: %d", area_to_pin->x_orig, area_to_pin->y_orig );
     uint32_t *framebuffer = (uint32_t *) framebuffer_data.address;
     uint8_t n_rects = _fb_get_rectangles(rectangles, &framebuffer_main_window, area_to_pin);
+    init_log(LOG_OUTPUT_SERIAL | LOG_OUTPUT_FRAMEBUFFER, Verbose, false);
     uint32_t line_total_height = line_height * framebuffer_data.number_of_lines;
     uint32_t area_to_pin_width = 0;
     uint32_t area_to_pin_height = 0;
-
+    //pretty_logf(Verbose, "number of rectangles: %d", n_rects);
     if ( area_to_pin == NULL || n_rects == 0 ) {
         rectangles[0] = *scrolling_window;
         n_rects++;

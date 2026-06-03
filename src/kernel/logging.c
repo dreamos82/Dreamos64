@@ -22,6 +22,7 @@ size_t logTrimLevel;
 size_t fbCurrentLine;
 size_t fbMaxLine;
 bool useVgaOutput;
+
 void init_log(size_t defaultOutputs, log_level_t trimBelowLevel, bool useVgaVideo){
     if (defaultOutputs == LOG_OUTPUT_DONT_CARE)
         defaultOutputs = LOG_OUTPUT_SERIAL; //default to serial
@@ -46,11 +47,15 @@ void set_log_trim_level(size_t newTrim){
 }
 
 void logline(log_level_t level, const char* msg){
+    logline_to(logDestBitmap, level, msg);
+}
+
+void logline_to(size_t outputs, log_level_t level, const char* msg){
     if (level < logTrimLevel)
         return; //dont log things that we dont want to see for now. (would be nice to store these somewhere in the future perhaps, just not display them?)
 
     for (size_t i = 0; i < LOG_OUTPUT_COUNT; i++){
-        if ((logDestBitmap & (1 << i)) == 0)
+        if ((outputs & (1 << i)) == 0)
             continue; //bit is cleared, we should not log there
 
         switch (1 << i){
@@ -67,22 +72,10 @@ void logline(log_level_t level, const char* msg){
                 break;
 
             case LOG_OUTPUT_FRAMEBUFFER:
-                if (useVgaOutput) {
-                    _setVgaCursorPos(0, fbCurrentLine);
-                    _printStr(logLevelStrings[level]);
-                    _printStr(msg);
-                    fbCurrentLine++;
-                }
-                else {
-                    //TODO: fbCurrentLine should be aligned with cur_fbLine in the framebuffer case.
-                    // fbCurrentLine can be removed, but we probably need to still use _fb_printStrAt
-                    _fb_printStrAt(logLevelStrings[level], 0, fbCurrentLine, 0xFFFFFFFF, 0);
-                    _fb_printStrAt(msg, logLevelStrLen, fbCurrentLine, 0xFFFFFFFF, 0);
-                    fbCurrentLine++;
-                }
-
-                if (fbCurrentLine > fbMaxLine)
-                        fbCurrentLine = 0;
+                //TODO: fbCurrentLine should be aligned with cur_fbLine in the framebuffer case.
+                // fbCurrentLine can be removed, but we probably need to still use _fb_printStrAt
+                _fb_printStrAt(logLevelStrings[level], 0, cur_fb_line, 0xFFFFFFFF, 0);
+                _fb_printStr(msg, 0xFFFFFFFF, 0);
                 break;
 
             default:
@@ -97,14 +90,23 @@ void logline(log_level_t level, const char* msg){
     }
 }
 
-void loglinef(log_level_t level, const char* msg, ...)
+
+
+void loglinef(log_level_t level, const char* msg, ...) {
+    va_list args;
+    va_start(args, msg);
+    loglinef_to(logDestBitmap, level, msg, args);
+    va_end(args);
+}
+
+void loglinef_to(size_t outputs, log_level_t level, const char* msg, va_list format_args)
 {
     char format_buffer[formatBufferLen];
 
-    va_list format_args;
-    va_start(format_args, msg);
+    //va_list format_args;
+    //va_start(format_args, msg);
     vsprintf(format_buffer, msg, format_args);
-    va_end(format_args);
+    //va_end(format_args);
 
-    logline(level, format_buffer);
+    logline_to(outputs, level, format_buffer);
 }

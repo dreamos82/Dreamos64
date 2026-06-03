@@ -3,6 +3,7 @@
 
 #include <stddef.h>
 #include <stdbool.h>
+#include <stdarg.h>
 
 #define LOG_DEBUG 0
 #define LOG_VERBOSE 1
@@ -34,5 +35,8 @@ void init_log(size_t defaultOutputs, log_level_t trimBelowLevel, bool useVgaVide
 void set_log_trim_level(size_t newTrim);
 void logline(log_level_t level, const char* msg);
 void loglinef(log_level_t level, const char* msg, ...);
+
+void logline_to(size_t outputs, log_level_t level, const char* msg);
+void loglinef_to(size_t outputs, log_level_t level, const char* msg, va_list format_args);
 
 #endif

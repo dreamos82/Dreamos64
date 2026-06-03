@@ -40,7 +40,6 @@ void* map_framebuffer(framebuffer_info fbdata) {
 
 void set_fb_data(struct multiboot_tag_framebuffer *fbtag){
     //FRAMEBUFFER_MEM = (void*)(uint64_t)fbtag->common.framebuffer_addr;
-#if USE_FRAMEBUFFER == 1
     //framebuffer_data.address = (void*)(uint64_t)_FRAMEBUFFER_MEM_START;
     //framebuffer_data.address = hhdm_get_variable((uintptr_t) (fbtag->common.framebuffer_addr));
     framebuffer_data.pitch = fbtag->common.framebuffer_pitch;
@@ -61,7 +60,5 @@ void set_fb_data(struct multiboot_tag_framebuffer *fbtag){
     framebuffer_main_window.width = framebuffer_data.width;
     framebuffer_main_window.height = framebuffer_data.height;
     logo_area_ptr = NULL;
-
-#endif
 }
 

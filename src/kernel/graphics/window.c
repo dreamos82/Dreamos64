@@ -44,14 +44,14 @@ uint8_t _fb_get_rectangles(_fb_window_t *rectangles, _fb_window_t* main_window, 
     // We can have up to 4 rectangles surrounding an area.
     // How many depends on where the area.
     // The window and the area have the left side with same origin
-    pretty_logf(Verbose, "Main window: x %d, y %d, w %d, h %d", main_window->x_orig, main_window->y_orig, main_window->width, main_window->height);
-    pretty_logf(Verbose, "Area to intersect: x %d, y %d, w %d, h %d", area_to_intersect->x_orig, area_to_intersect->y_orig, area_to_intersect->width, area_to_intersect->height);
+    //pretty_logf(Verbose, "Main window: x %d, y %d, w %d, h %d - %x", main_window->x_orig, main_window->y_orig, main_window->width, main_window->height, area_to_intersect);
+    //pretty_logf(Verbose, "Area to intersect: x %d, y %d, w %d, h %d", area_to_intersect->x_orig, area_to_intersect->y_orig, area_to_intersect->width, area_to_intersect->height);
     if (main_window->x_orig < area_to_intersect->x_orig) {
         rectangles[cur_rectangle].x_orig = main_window->x_orig;
         rectangles[cur_rectangle].y_orig = main_window->y_orig;
         rectangles[cur_rectangle].width = area_to_intersect->x_orig - main_window->x_orig;
         rectangles[cur_rectangle].height = main_window->height;
-        pretty_logf(Verbose, "1 rectangle: %d, x_orig: %d, y_orig: %d, widht: %d, height: %d", cur_rectangle, rectangles[cur_rectangle].x_orig, rectangles[cur_rectangle].y_orig, rectangles[cur_rectangle].width, rectangles[cur_rectangle].height);
+        //pretty_logf(Verbose, "1 rectangle: %d, x_orig: %d, y_orig: %d, width: %d, height: %d", cur_rectangle, rectangles[cur_rectangle].x_orig, rectangles[cur_rectangle].y_orig, rectangles[cur_rectangle].width, rectangles[cur_rectangle].height);
         cur_rectangle++;
     }
     if (area_to_intersect->x_orig + area_to_intersect->width < main_window->x_orig + main_window->width) {
@@ -59,7 +59,7 @@ uint8_t _fb_get_rectangles(_fb_window_t *rectangles, _fb_window_t* main_window, 
         rectangles[cur_rectangle].y_orig = main_window->y_orig;
         rectangles[cur_rectangle].width = (main_window->x_orig + main_window->width) - (area_to_intersect->x_orig + area_to_intersect->width);
         rectangles[cur_rectangle].height = main_window->height;
-        pretty_logf(Verbose, "2 rectangle: %d, x_orig: %d, y_orig: %d, widht: %d, height: %d", cur_rectangle, rectangles[cur_rectangle].x_orig, rectangles[cur_rectangle].y_orig, rectangles[cur_rectangle].width, rectangles[cur_rectangle].height);
+        //pretty_logf(Verbose, "2 rectangle: %d, x_orig: %d, y_orig: %d, width: %d, height: %d", cur_rectangle, rectangles[cur_rectangle].x_orig, rectangles[cur_rectangle].y_orig, rectangles[cur_rectangle].width, rectangles[cur_rectangle].height);
         cur_rectangle++;
     }
     if ( main_window->y_orig  < area_to_intersect->y_orig) {
@@ -67,7 +67,7 @@ uint8_t _fb_get_rectangles(_fb_window_t *rectangles, _fb_window_t* main_window, 
         rectangles[cur_rectangle].width = area_to_intersect->width;
         rectangles[cur_rectangle].y_orig = main_window->y_orig;
         rectangles[cur_rectangle].height = area_to_intersect->y_orig - main_window->y_orig;
-        pretty_logf(Verbose, "3 rectangle: %d, x_orig: %d, y_orig: %d, widht: %d, height: %d", cur_rectangle, rectangles[cur_rectangle].x_orig, rectangles[cur_rectangle].y_orig, rectangles[cur_rectangle].width, rectangles[cur_rectangle].height);
+        //pretty_logf(Verbose, "3 rectangle: %d, x_orig: %d, y_orig: %d, width: %d, height: %d", cur_rectangle, rectangles[cur_rectangle].x_orig, rectangles[cur_rectangle].y_orig, rectangles[cur_rectangle].width, rectangles[cur_rectangle].height);
         cur_rectangle++;
 
     }
@@ -76,7 +76,7 @@ uint8_t _fb_get_rectangles(_fb_window_t *rectangles, _fb_window_t* main_window, 
         rectangles[cur_rectangle].width = area_to_intersect->width;
         rectangles[cur_rectangle].y_orig = (area_to_intersect->y_orig + area_to_intersect->height);
         rectangles[cur_rectangle].height = (main_window->y_orig + main_window->height) - (area_to_intersect->y_orig + area_to_intersect->height);
-        pretty_logf(Verbose, "4 rectangle: %d, x_orig: %d, y_orig: %d, widht: %d, height: %d", cur_rectangle, rectangles[cur_rectangle].x_orig, rectangles[cur_rectangle].y_orig, rectangles[cur_rectangle].width, rectangles[cur_rectangle].height);
+        //pretty_logf(Verbose, "4 rectangle: %d, x_orig: %d, y_orig: %d, width: %d, height: %d", cur_rectangle, rectangles[cur_rectangle].x_orig, rectangles[cur_rectangle].y_orig, rectangles[cur_rectangle].width, rectangles[cur_rectangle].height);
         cur_rectangle++;
     }
     return cur_rectangle;
