@@ -132,8 +132,8 @@ void _init_basic_system(unsigned long addr){
     vmm_init(VMM_LEVEL_SUPERVISOR, NULL);
 
     //Print framebuffer info
-    pretty_logf(Verbose, "Framebuffer info: (type: 0x%x) Address: 0x%x bpp: 0x%x", tagfb->common.framebuffer_type, tagfb->common.framebuffer_addr, tagfb->common.framebuffer_bpp);
-    pretty_logf(Verbose, "width: 0x%d - height: 0x%d - bpp: 0x%x - pitch: 0x%x", tagfb->common.framebuffer_width, tagfb->common.framebuffer_height, tagfb->common.framebuffer_bpp, tagfb->common.framebuffer_pitch);
+    pretty_logf(Info, "Framebuffer info: (type: 0x%x) Address: 0x%x bpp: 0x%x", tagfb->common.framebuffer_type, tagfb->common.framebuffer_addr, tagfb->common.framebuffer_bpp);
+    pretty_logf(Info, "width: 0x%d - height: 0x%d - bpp: 0x%x - pitch: 0x%x", tagfb->common.framebuffer_width, tagfb->common.framebuffer_height, tagfb->common.framebuffer_bpp, tagfb->common.framebuffer_pitch);
     set_fb_data(tagfb);
 
     uint32_t pw, ph, cw, ch;
@@ -167,7 +167,7 @@ void _init_basic_system(unsigned long addr){
         switch(tag->type){
             case MULTIBOOT_TAG_TYPE_MODULE:
                 loaded_module = (struct multiboot_tag_module *) tag;
-                pretty_logf(Verbose, " \t[Tag 0x%x] (%s): Size: 0x%x - mod_start: 0x%x : mod_end: 0x%x" , loaded_module->type, multiboot_names[loaded_module->type], loaded_module->size, loaded_module->mod_start, loaded_module->mod_end);
+                pretty_logf(Info, " \t[Tag 0x%x] (%s): Size: 0x%x - mod_start: 0x%x : mod_end: 0x%x" , loaded_module->type, multiboot_names[loaded_module->type], loaded_module->size, loaded_module->mod_start, loaded_module->mod_end);
                 bool module_result = _is_module_elf_hh(loaded_module);
                 if (module_result) {
                     elf_module = loaded_module;
@@ -181,7 +181,7 @@ void _init_basic_system(unsigned long addr){
                 }
                 break;
             default:
-                pretty_logf(Verbose, "\t[Tag 0x%x] (%s): Size: 0x%x",  tag->type, multiboot_names[tag->type], tag->size);
+                pretty_logf(Info, "\t[Tag 0x%x] (%s): Size: 0x%x",  tag->type, multiboot_names[tag->type], tag->size);
                 break;
         }
     }
@@ -270,8 +270,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
 
     uint32_t apic_ticks = calibrate_apic();
     kernel_settings.apic_timer.timer_ticks_base = apic_ticks;
-    pretty_logf(Verbose, "Calibrated apic value: %u", apic_ticks);
-    pretty_logf(Verbose, "(END of Mapped memory: 0x%x)", end_of_mapped_memory);
+    pretty_logf(Verbose, "Calibrated apic value: %u", apic_ticks);    
     vfs_init();
     uint64_t unix_timestamp = read_rtc_time();
     Elf64_Ehdr *elf_start = NULL;
@@ -324,9 +323,9 @@ void kernel_start(unsigned long addr, unsigned long magic){
     close(fd);
     //execute_runtime_tests();
     start_apic_timer(kernel_settings.apic_timer.timer_ticks_base, APIC_TIMER_SET_PERIODIC, kernel_settings.apic_timer.timer_divisor);
-    pretty_logf(Verbose, "(END of Mapped memory: 0x%x)", end_of_mapped_memory);
+    pretty_logf(Info, "(END of Mapped memory: 0x%x)", end_of_mapped_memory);
     pretty_logf(Info, "init_basic_system: Memory lower (in kb): %d - upper (in kb): %d", tagmem->mem_lower, tagmem->mem_upper);
     struct multiboot_tag_basic_meminfo *virt_phys_addr = (struct multiboot_tag_basic_meminfo *) hhdm_get_variable( (size_t) multiboot_basic_meminfo );
-    pretty_log(Info, "Init end!! Starting infinite loop");    
+    pretty_log(Info, "Init end!! Starting infinite loop");
     while(1);
 }
