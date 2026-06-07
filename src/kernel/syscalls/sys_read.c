@@ -1,4 +1,5 @@
 #include <devices.h>
+#include <framebuffer.h>
 #include <kheap.h>
 #include <logging.h>
 #include <ps2_keyboard_driver.h>
