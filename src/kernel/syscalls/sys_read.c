@@ -52,7 +52,7 @@ ssize_t sys_read_keyboard(void *buffer, size_t nbytes) {
         userspace_buffer->buffer_virtual = vm_copy_from_different_space( (uintptr_t) buffer, (uint64_t*) vmm_info.root_table_hhdm);
     //}
     if (userspace_buffer->buffer_virtual == NULL) {
-        pretty_log(Verbose, "Cannot convert given address");
+        pretty_log(Error, "Cannot convert given address");
         return 0;
     }
     if (nbytes > 0) {
@@ -68,5 +68,6 @@ ssize_t sys_read_keyboard(void *buffer, size_t nbytes) {
     while(new_pending_operation->nbytes < nbytes) {
         scheduler_yield();
     }
+    _fb_increaseLine();
     return new_pending_operation->nbytes;
 }

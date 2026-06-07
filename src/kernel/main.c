@@ -270,7 +270,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
 
     uint32_t apic_ticks = calibrate_apic();
     kernel_settings.apic_timer.timer_ticks_base = apic_ticks;
-    pretty_logf(Verbose, "Calibrated apic value: %u", apic_ticks);    
+    pretty_logf(Info, "Calibrated apic value: %u", apic_ticks);
     vfs_init();
     uint64_t unix_timestamp = read_rtc_time();
     Elf64_Ehdr *elf_start = NULL;
@@ -296,7 +296,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
     }
 
     #if USE_FRAMEBUFFER == 1
-    _fb_printStrAndNumberAt("Epoch time: ", unix_timestamp, 0, 11, 0xf5c4f1, 0x000000);
+    _fb_printStrAndNumber("Epoch time: ", unix_timestamp, 0xf5c4f1, 0x000000);
     #endif
     _ps2_keyboard_driver_init();
     void *test_alloc_vm = vmm_alloc(0x1000, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE, NULL);

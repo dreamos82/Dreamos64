@@ -99,25 +99,27 @@ void handle_keyboard_interrupt() {
                 keyboard_buffer[buf_position].is_pressed = true;
                 char read_char = kgetch(keyboard_buffer[buf_position]);
                 #if USE_FRAMEBUFFER == 1
-                    if (read_char != 0) {
+                    /*if (read_char != 0) {
                         char string[13] = "Pressed: ";
                         string[9] = read_char;
                         string[10] = '-';
                         _fb_printStrAt(string, 0, 10, 0x000000, 0x1ad652);
-                    }
+                    }*/
                 #endif
                 if ( _ps2_op_head != NULL) {
                     if( _ps2_op_head->read == false ) {
                         pretty_logf(Verbose, "length: %d - nbytes: %d", _ps2_op_head->buffer->length, _ps2_op_head->nbytes);
-                        if ( _ps2_op_head->nbytes < _ps2_op_head->buffer->length) {
+                        if ( _ps2_op_head->nbytes < _ps2_op_head->buffer->length ) {
                             ((char *)_ps2_op_head->buffer->buffer_virtual)[_ps2_op_head->nbytes] = read_char;
                             _ps2_op_head->nbytes++;
                             pretty_logf(Verbose, "ps2_op_set: %d - char read: %c", _ps2_op_head->nbytes, read_char);
-                            _fb_putcharAt(read_char, cur_fb_column++, 19, 0xe58749, 0x000000);
-                        } else {
+                            //_fb_putcharAt(read_char, cur_fb_column++, 19, 0xe58749, 0x000000);
+                            _fb_putchar(read_char, 0xe58749, 0x000000);
+                        } 
+                        if ( _ps2_op_head->nbytes == _ps2_op_head->buffer->length ) {
                             _ps2_op_head->read = true;
                             pretty_logf(Verbose, "Read operation complete: %d - %s - Next null? %d", _ps2_op_head->nbytes, _ps2_op_head->buffer->buffer_virtual, _ps2_op_head->next == NULL);
-                            _ps2_op_head = _ps2_op_head->next;                                                    
+                            _ps2_op_head = _ps2_op_head->next;
                         }
                     }
                 } 
