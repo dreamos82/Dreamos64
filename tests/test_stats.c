@@ -1,3 +1,4 @@
+#include "include/test_stats.h"
 #include <test_stats.h>
 #include <unistd.h>
 #include <stdint.h>
@@ -29,4 +30,10 @@ void send_stats(int fd, test_stats_t stats) {
     if (fd > 0) {
         write(fd, &stats, sizeof(test_stats_t));
     }
+}
+
+void update_global_stats(test_global_stats_t *global_stats, test_stats_t cur_stats) {
+    global_stats->stats.tests_passed += cur_stats.tests_passed;
+    global_stats->stats.tests_failed += cur_stats.tests_failed;
+    global_stats->total_modules++;
 }

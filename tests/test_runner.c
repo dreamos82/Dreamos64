@@ -1,9 +1,12 @@
+#include "include/test_stats.h"
 #include <test_stats.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+
+test_global_stats_t total_stats;
 
 int main() {
     int pipe_fd[2];
