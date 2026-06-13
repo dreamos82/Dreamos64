@@ -48,13 +48,6 @@ cpu_status_t *syscall_dispatch(cpu_status_t* regs) {
             size_t pos_x = regs->rcx;
             size_t pos_y = regs->r8;
             sys_print(print_buffer, print_nbytes, pos_x, pos_y);
-            /*if (pos_x == 0 && pos_y == 0) {
-                _fb_printStr(read_buffer, 0x27F549, 0x000000);
-                //_fb_printStr("The line above is printed after the read syscall.", 0xD3F527, 0x000000);
-            } else {
-                _fb_printStrAt(read_buffer, pos_x, pos_y, 0x27F549, 0x000000);
-                //_fb_printStrAt("The line above is printed after the read syscall.", pos_x, pos_y + 1, 0xD3F527, 0x000000);
-            }*/
             break;
         default:
             regs->rax = E_NO_SYSCALL;
