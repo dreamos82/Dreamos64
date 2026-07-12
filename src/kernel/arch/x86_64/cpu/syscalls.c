@@ -6,6 +6,7 @@
 #include <sys_read.h>
 #include <sys_open.h>
 #include <sys_print.h>
+#include <sys_exit.h>
 
 bool _syscalls_init() {
     pretty_log(Verbose, "Initializing sycalls");
@@ -48,6 +49,10 @@ cpu_status_t *syscall_dispatch(cpu_status_t* regs) {
             size_t pos_x = regs->rcx;
             size_t pos_y = regs->r8;
             sys_print(print_buffer, print_nbytes, pos_x, pos_y);
+            break;
+        case SYS_EXIT:
+            pretty_log(Info, "sys exit called");
+            sys_thread_exit((int) regs->rsi);
             break;
         default:
             regs->rax = E_NO_SYSCALL;
