@@ -66,23 +66,9 @@ void logline(log_level_t level, const char* msg){
                 debugcon_write_string("\r\n");
                 break;
 
-            case LOG_OUTPUT_FRAMEBUFFER:
-                if (useVgaOutput) {
-                    _setVgaCursorPos(0, fbCurrentLine);
-                    _printStr(logLevelStrings[level]);
-                    _printStr(msg);
-                    fbCurrentLine++;
-                }
-                else {
-                    //TODO: fbCurrentLine should be aligned with cur_fbLine in the framebuffer case.
-                    // fbCurrentLine can be removed, but we probably need to still use _fb_printStrAt
-                    _fb_printStrAt(logLevelStrings[level], 0, fbCurrentLine, 0xFFFFFFFF, 0);
-                    _fb_printStrAt(msg, logLevelStrLen, fbCurrentLine, 0xFFFFFFFF, 0);
-                    fbCurrentLine++;
-                }
-
-                if (fbCurrentLine > fbMaxLine)
-                        fbCurrentLine = 0;
+            case LOG_OUTPUT_FRAMEBUFFER:                    
+                _fb_printStrAt(logLevelStrings[level], 0, cur_fb_line, 0xFFFFFFFF, 0);
+                _fb_printStr(msg, 0xFFFFFFFF, 0);
                 break;
 
             default:

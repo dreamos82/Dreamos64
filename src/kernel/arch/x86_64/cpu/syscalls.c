@@ -4,6 +4,8 @@
 #include <rtc.h>
 #include <syscalls.h>
 #include <sys_read.h>
+#include <sys_open.h>
+#include <sys_print.h>
 
 bool _syscalls_init() {
     pretty_log(Verbose, "Initializing sycalls");
@@ -23,6 +25,9 @@ cpu_status_t *syscall_dispatch(cpu_status_t* regs) {
             break;
         case SYS_OPEN:
             pretty_logf(Verbose, "NOT IMPLEMENTED SYSCALL: %d", sc_num);
+            char *path = (char *) regs->rsi;
+            size_t flags = regs->rdx;
+            sys_open(path, flags);
             break;
         case SYS_READ:
             //SYS_READ: This syscall reads input from the keyboard
@@ -32,24 +37,17 @@ cpu_status_t *syscall_dispatch(cpu_status_t* regs) {
             size_t nbytes = regs->rcx;
             size_t bytes_read = sys_read(fildes, (void*)buffer, nbytes);
             regs->rax = bytes_read;
-            _fb_printStrAndNumberAt("Userspace address: 0x", buffer, 0, 15, 0xf5c4f1, 0x000000);
-            _fb_printStrAndNumberAt("nbytes: ", nbytes, 0, 16, 0xf5c4f1, 0x000000);
+            //_fb_printStrAndNumberAt("Userspace address: 0x", buffer, 0, 15, 0xf5c4f1, 0x000000);
+            //_fb_printStrAndNumberAt("nbytes: ", nbytes, 0, 16, 0xf5c4f1, 0x000000);
             break;
         case SYS_PRINT:
             //SYS_PRINT: This prints the buffer passed in `rsi`
             //TODO: Add position? Or handle position
-            char *read_buffer = (char *)regs->rsi;
-            size_t read_nbytes = regs->rdx;
+            char *print_buffer = (char *)regs->rsi;
+            size_t print_nbytes = regs->rdx;
             size_t pos_x = regs->rcx;
             size_t pos_y = regs->r8;
-            read_buffer[read_nbytes-1] = '\0';
-            if (pos_x == 0 && pos_y == 0) {
-                _fb_printStr(read_buffer, 0x27F549, 0x000000);
-                //_fb_printStr("The line above is printed after the read syscall.", 0xD3F527, 0x000000);
-            } else {
-                _fb_printStrAt(read_buffer, pos_x, pos_y, 0x27F549, 0x000000);
-                //_fb_printStrAt("The line above is printed after the read syscall.", pos_x, pos_y + 1, 0xD3F527, 0x000000);
-            }
+            sys_print(print_buffer, print_nbytes, pos_x, pos_y);
             break;
         default:
             regs->rax = E_NO_SYSCALL;

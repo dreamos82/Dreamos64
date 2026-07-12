@@ -7,7 +7,7 @@ main:
     mov rsi, message_string ; String to print
     mov rdx, 20 ; Size of string
     mov rcx, 0 ; xpos
-    mov r8, 18 ; ypos
+    mov r8, 0 ; ypos
     int 0x80
     mov rdi, SYS_READ ; Read syscall
     mov rsi, 0x0 ; File Descriptor
@@ -17,20 +17,41 @@ main:
     cmp rax, -1
     je read_error
     mov byte [rdx + rax], 0 ; Adding \0 to the end of string
-    jmp loop1
+    jmp next
 read_error:
     mov rdi, SYS_PRINT ; Print syscall
     mov rsi, error_string ; Print buffer
     mov rdx, 20
     int 0x80
     jmp read_error
-loop1:
+next:
     mov rdi, SYS_PRINT ; Print syscall
     lea rsi, userspace_buffer ; Print buffer
     mov rdx, 0x8 ; Size of print
     mov rcx, 0 ;xpos (optional)
-    mov r8, 25 ;ypos (optional)
+    mov r8, 0 ;ypos (optional)
     int 0x80 ; Syscall
+    mov rdi, SYS_PRINT ; Print syscall
+    lea rsi, second_string ; Print buffer
+    mov rdx, 17 ; Size of print
+    mov rcx, 0 ;xpos (optional)
+    mov r8, 0 ;ypos (optional)
+    int 0x80 ; Syscall
+    mov rdi, SYS_READ ; Read syscall
+    mov rsi, 0x0 ; File Descriptor
+    lea rdx, userspace_buffer ; Read buffer
+    mov rcx, 0x3 ; Size of read
+    int 0x80 ; Syscall
+    cmp rax, -1
+    je read_error
+    mov byte [rdx + rax], 0 ; Adding \0 to the end of string
+    mov rdi, SYS_PRINT ; Print syscall
+    lea rsi, userspace_buffer ; Print buffer
+    mov rdx, 0x8 ; Size of print
+    mov rcx, 0 ;xpos (optional)
+    mov r8, 0 ;ypos (optional)
+    int 0x80 ; Syscall
+loop1:
     jmp loop1
 
 
@@ -38,7 +59,7 @@ section .data
 
 error_string db "Keyboard read error", 0
 message_string db "Enter your text:", 0
-
+second_string db "How old are you?", 0
 
 section .bss
 

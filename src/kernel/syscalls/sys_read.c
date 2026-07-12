@@ -1,4 +1,5 @@
 #include <devices.h>
+#include <framebuffer.h>
 #include <kheap.h>
 #include <logging.h>
 #include <ps2_keyboard_driver.h>
@@ -43,19 +44,19 @@ ssize_t sys_read_keyboard(void *buffer, size_t nbytes) {
         pretty_log(Fatal, "Cannot allocate read structures");
     }
     pretty_logf(Verbose, "nbytes to read: %d - pending_op: 0x%x - userspace_buff: 0x%x - buffer: 0x%x", nbytes, new_pending_operation, userspace_buffer, buffer);
-    if (buffer_setup == false) {
+    //if (buffer_setup == false) {
         // I need to create a userspace_buffer_t item
         // This structure will be used to contain the information about the buffer in the
         userspace_buffer->info = vmm_info;
         userspace_buffer->buffer_base = (uintptr_t) buffer;
         userspace_buffer->length = nbytes;
         userspace_buffer->buffer_virtual = vm_copy_from_different_space( (uintptr_t) buffer, (uint64_t*) vmm_info.root_table_hhdm);
-    }
+    //}
     if (userspace_buffer->buffer_virtual == NULL) {
-        pretty_log(Verbose, "Cannot convert given address");
+        pretty_log(Error, "Cannot convert given address");
         return 0;
     }
-    if (nbytes > 0 && buffer_setup == false) {
+    if (nbytes > 0) {
         new_pending_operation->buffer = userspace_buffer;
         new_pending_operation->nbytes = 0;
         new_pending_operation->read = false;
@@ -68,5 +69,6 @@ ssize_t sys_read_keyboard(void *buffer, size_t nbytes) {
     while(new_pending_operation->nbytes < nbytes) {
         scheduler_yield();
     }
+    _fb_increaseLine();
     return new_pending_operation->nbytes;
 }
