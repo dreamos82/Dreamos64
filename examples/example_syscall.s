@@ -1,6 +1,7 @@
 extern main
 %define SYS_READ 4
 %define SYS_PRINT 2
+%define SYS_EXIT 5
 [bits 64]
 main:
     mov rdi, SYS_PRINT ; Print syscall
@@ -51,8 +52,9 @@ next:
     mov rcx, 0 ;xpos (optional)
     mov r8, 0 ;ypos (optional)
     int 0x80 ; Syscall
-loop1:
-    jmp loop1
+    mov rdi, SYS_EXIT
+    mov rsi, 33
+    int 0x80
 
 
 section .data

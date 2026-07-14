@@ -40,7 +40,6 @@ cpu_status_t* schedule(cpu_status_t* cur_status) {
     thread_t* prev_executing_thread;
     thread_t* thread_to_execute = idle_thread;
     uint16_t prev_thread_tid = -1;
-    //pretty_logf(Verbose, "Cur thread: %u %s", current_thread->tid, current_thread->thread_name);
     //pretty_logf(Verbose, "---Cur stack: 0x%x", cur_status->rsp);
     // First let's check if the current task need to be scheduled or not;
     if (current_executing_thread->status == SLEEP) {
@@ -68,7 +67,7 @@ cpu_status_t* schedule(cpu_status_t* cur_status) {
 
     while (current_thread->tid != prev_thread_tid) {
         if (current_thread->status == SLEEP) {
-            pretty_logf(Verbose, "This thread %d is sleeping", current_thread->tid);
+            pretty_logf(Info, "This thread %d is sleeping", current_thread->tid);
             if ( get_kernel_uptime() > current_thread->wakeup_time) {
                 current_thread->status = READY;
                 thread_to_execute = current_thread;
@@ -88,7 +87,7 @@ cpu_status_t* schedule(cpu_status_t* cur_status) {
         current_thread = scheduler_get_next_thread();
     }
 
-    pretty_logf(Debug, "Current thread %d status: %d name: %s!", current_thread->tid, current_thread->status, current_thread->thread_name);
+    pretty_logf(Info, "Current thread %d status: %d name: %s!", current_thread->tid, current_thread->status, current_thread->thread_name);
 
     // We have found a thread to run, let's update it's status
     thread_to_execute->status = RUN;
@@ -99,7 +98,7 @@ cpu_status_t* schedule(cpu_status_t* cur_status) {
     // ... every task has it's own addressing space, so we need to update the cr3 register
     //pretty_logf(Verbose, "Loading cr3: 0x%x", current_task->vm_root_page_table);
     load_cr3(current_task->vm_root_page_table);
-    pretty_logf(Debug, "current_thread->execution_frame->rip: 0x%x, vmm_data is: 0x%x", current_executing_thread->execution_frame->rip, &(current_task->vmm_data));
+    pretty_logf(Info, "current_thread->execution_frame->rip: 0x%x, vmm_data is: 0x%x", current_executing_thread->execution_frame->rip, &(current_task->vmm_data));
     // ... and finally we need to update the tss structure with the current thread rsp0
     kernel_tss.rsp0 = (uint64_t) current_executing_thread->rsp0;
     pretty_logf(Info, "next task to run: %d->(%s)", current_executing_thread->tid, current_executing_thread->thread_name);
@@ -171,7 +170,7 @@ thread_t* scheduler_get_next_thread() {
     }
     if (current_executing_thread->next == NULL) {
         return thread_list;
-    }    
+    }
     return current_executing_thread->next;
 }
 
