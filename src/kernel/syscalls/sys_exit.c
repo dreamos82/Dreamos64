@@ -18,6 +18,4 @@ void sys_thread_exit(int status) {
     current_executing_thread->status = DEAD;
     current_executing_thread->ticks = SCHEDULER_NUMBER_OF_TICKS;
     pretty_logf(Info, "Thread exiting with status: %d", status);
-    // An exited thread shouldn't exit, otherwise it can run into garbage.
-    while(1);
 }
