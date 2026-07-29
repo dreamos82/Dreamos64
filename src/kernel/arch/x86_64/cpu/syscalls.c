@@ -2,6 +2,7 @@
 #include <idt.h>
 #include <logging.h>
 #include <rtc.h>
+#include <scheduler.h>
 #include <syscalls.h>
 #include <sys_read.h>
 #include <sys_open.h>
@@ -38,8 +39,6 @@ cpu_status_t *syscall_dispatch(cpu_status_t* regs) {
             size_t nbytes = regs->rcx;
             size_t bytes_read = sys_read(fildes, (void*)buffer, nbytes);
             regs->rax = bytes_read;
-            //_fb_printStrAndNumberAt("Userspace address: 0x", buffer, 0, 15, 0xf5c4f1, 0x000000);
-            //_fb_printStrAndNumberAt("nbytes: ", nbytes, 0, 16, 0xf5c4f1, 0x000000);
             break;
         case SYS_PRINT:
             //SYS_PRINT: This prints the buffer passed in `rsi`
@@ -53,6 +52,7 @@ cpu_status_t *syscall_dispatch(cpu_status_t* regs) {
         case SYS_EXIT:
             pretty_log(Info, "sys exit called");
             sys_thread_exit((int) regs->rsi);
+            regs = schedule(regs);
             break;
         default:
             regs->rax = E_NO_SYSCALL;
