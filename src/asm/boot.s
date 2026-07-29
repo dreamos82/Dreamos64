@@ -192,11 +192,11 @@ read_multiboot:
         mov rcx, 0
         mov rbx, fbb_pt_tables - KERNEL_VIRTUAL_ADDR
         or rbx, PRESENT_BIT | WRITE_BIT
-        mov qword [(p2_table) + 8 * 488], rbx
+        mov qword [(p2_table - KERNEL_VIRTUAL_ADDR) + 8 * 488], rbx
         mov rbx, [rax + multiboot_tag_framebuffer.framebuffer_addr]
         .map_fb:
             or  rbx, PAGE_TABLE_ENTRY
-            mov qword [(fbb_pt_tables) + 8 * rcx], rbx
+            mov qword [(fbb_pt_tables - KERNEL_VIRTUAL_ADDR) + 8 * rcx], rbx
             add rbx, PAGE_SIZE
             inc rcx
             cmp rcx, 512
