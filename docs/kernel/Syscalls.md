@@ -51,7 +51,7 @@ Return value:
 
 ## 0x05 Thread Exit Syscall
 
-Gracefully terminates a thread. It put the thread in DEAD state, and a return code can be added.
+Gracefully terminates a thread, with an optional return code. It put the thread in DEAD state, and call the scheduler.
 
 * `rsi` status code
 
