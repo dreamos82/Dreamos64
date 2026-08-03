@@ -6,6 +6,10 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
+//
+//gcc -I include test_runner.c -o tests_runner.o
+
+
 test_global_stats_t total_stats;
 
 int main() {

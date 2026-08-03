@@ -8,7 +8,7 @@
 
 
 void test_init(unsigned int no_modules, test_runner_t **tests){
-    *tests = (test_stats_t *) malloc(no_modules * sizeof(test_runner_t));
+    *tests = (test_runner_t *) malloc(no_modules * sizeof(test_runner_t));
     for (int i = 0; i < no_modules; i++) {
         printf("Initializing module: %d - %d\n", i, sizeof(test_runner_t));
         tests[i]->stats.tests_passed = 0;
