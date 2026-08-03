@@ -9,32 +9,44 @@ extern uint32_t FRAMEBUFFER_MEMORY_SIZE;
 
 void page_fault_handler(uint64_t error_code) {
     // TODO: Add ptable info when using 4k pages
-    pretty_log(Verbose, "Welcome to #PF world - Not ready yet... ");
+    pretty_log(Info, "Welcome to #PF world - Not ready yet... ");
     uint64_t cr2_content = 0;
     uint64_t pd;
     uint64_t pdpr;
     uint64_t pml4;
+#if SMALL_PAGES == 1
+    uint64_t pt;
+    pt = PT_ENTRY(cr2_content);
+#endif
     asm ("mov %%cr2, %0" : "=r" (cr2_content) );
-    pretty_logf(Verbose, "-- Error code value: %d", error_code);
-    pretty_logf(Verbose, "--  Faulting address: 0x%X", cr2_content);
+    pretty_logf(Error, "-- Error code value: %d", error_code);
+    pretty_logf(Error, "--  Faulting address: 0x%X", cr2_content);
     cr2_content = cr2_content & VM_OFFSET_MASK;
     pretty_logf(Verbose, "-- Address prepared for PD/PT extraction (CR2): 0x%x", cr2_content);
     pd = PD_ENTRY(cr2_content);
     pdpr = PDPR_ENTRY(cr2_content);
     pml4 = PML4_ENTRY(cr2_content);
+    
     pretty_logf(Verbose, "Error flags: FETCH(%d) - RSVD(%d) - ACCESS(%d) - WRITE(%d) - PRESENT(%d)", \
             error_code&FETCH_VIOLATION, \
             error_code&RESERVED_VIOLATION, \
             error_code&ACCESS_VIOLATION, \
             error_code&WRITE_VIOLATION, \
             error_code&PRESENT_VIOLATION);
+    uint64_t *pt_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l, (uint64_t)  pml4, (uint64_t)  pdpr, (uint64_t)  pd));
     uint64_t *pd_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l,510l, (uint64_t) pml4, (uint64_t) pdpr));
     uint64_t *pdpr_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l,510l, 510l, (uint64_t) pml4));
-    uint64_t *pml4_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l,510l, 510l, 510l));
-    pretty_logf(Verbose, "Entries: pd: 0x%X - pdpr: 0x%X - PML4 0x%X", pd, pdpr, pml4);
-    pretty_logf(Verbose, "Entries: pd[0x%x]: 0x%X", pd, pd_table[pd]);
-    pretty_logf(Verbose, "Entries: pdpr[0x%x]: 0x%X", pdpr, pdpr_table[pdpr]);
-    pretty_logf(Verbose, "Entries: pml4[0x%x]: 0x%X", pml4, pml4_table[pml4]);
+    uint64_t *pml4_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l,510l, 510l, 510l));    
+    pretty_logf(Error, "Entries: pd: 0x%X - pdpr: 0x%X - PML4 0x%X", pd, pdpr, pml4);
+#if SMALL_PAGES == 1
+    pretty_logf(Error, "Entries: pt: 0x%X", pt);
+#endif    
+    pretty_logf(Error, "Entries: pd[0x%x]: 0x%X", pd, pd_table[pd]);
+    pretty_logf(Error, "Entries: pdpr[0x%x]: 0x%X", pdpr, pdpr_table[pdpr]);
+    pretty_logf(Error, "Entries: pml4[0x%x]: 0x%X", pml4, pml4_table[pml4]);
+#if SMALL_PAGES == 1
+    pretty_logf(Error, "Entries: pt[0x%x]: 0x%x", pt, pt_table[pt]);
+#endif
     asm("hlt");
 }
 

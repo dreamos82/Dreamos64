@@ -16,7 +16,26 @@ The first syscall is reserved for test purpose, and it should be never used.
 
 It prints always the string: `Hello from user world (through a syscall...)`
 
-## 0x02 Read from keyboard
+## 0x02 Print buffer on screen
+
+Print on screen content of buffer
+
+* `rsi`: buffer pointer
+* `rdx`: buffer size
+* `rcx`: [optional] X coord of the print
+* `r8`: [optional] Y coord of screen
+
+If `X` and `Y` are both 0, it will print on the next line available on the screen. Currently, for debug purposes, it also print an extra line, with a constant message.
+
+## 0x03 Open 
+
+Open a device (i.e. file)
+
+Arguments: 
+* `rsi`: path
+* `rdx`: flags
+
+## 0x04 Read from keyboard
 
 Read from keyboard 
 
@@ -29,14 +48,4 @@ Arguments:
 Return value: 
 * `rax`: number of characters read if success, -1 otherwise.
 
-## 0x03 Print buffer on screen
-
-Print on screen content of buffer
-
-* `rsi`: buffer pointer
-* `rdx`: buffer size
-* `rcx`: [optional] X coord of the print
-* `r8`: [optional] Y coord of screen
-
-If `X` and `Y` are both 0, it will print on the next line available on the screen. Currently, for debug purposes, it also print an extra line, with a constant message.
 
