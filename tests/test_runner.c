@@ -6,9 +6,11 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
+#define TESTS_FILE "tests"
 //
 //gcc -I include test_runner.c -o tests_runner.o
 
+unsigned int get_number_of_tests(FILE *fp);
 
 test_global_stats_t total_stats;
 
@@ -16,6 +18,12 @@ int main() {
     int pipe_fd[2];
 	pipe(pipe_fd);
 	pid_t pid = fork();
+    FILE *fp = fopen(TESTS_FILE, "r");
+    unsigned int no_lines = get_number_of_tests(fp);
+    if (fp == NULL) {
+        printf("FATAL: can't open tests file, make sure to have one in the current directory\n");
+        return -1;
+    }
     if (pid == 0) {
         char fd_str[10];
 		sprintf(fd_str, "%d", pipe_fd[1]);
@@ -31,4 +39,14 @@ int main() {
         printf("Passed:: %d\n", stats.tests_passed);
         printf("Failed:: %d\n", stats.tests_failed);
     }
+}
+
+unsigned int get_number_of_tests(FILE *fp) {
+    int counter = 0;
+    char line[256];
+    while (fgets(line, sizeof(line), fp)) {
+        counter++;
+        printf("%d: %s", counter, line);
+    }
+    return counter;
 }
