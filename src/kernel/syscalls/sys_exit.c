@@ -4,12 +4,10 @@
 #include <task.h>
 
 void sys_exit(int status) {
-    //task_t *current_task = current_executing_thread->parent_task;
-    //current_task->exit_code = status;
-    //current_task->status = EXTERMINATED;
     // Since the kernel schedule threads there is no status for the task
     // I need to terminate every single thread manually.
     // By setting their status to dead
+    pretty_log(Info, "Placeholder for sys_exit for task, not implemented yet");
     return;
 }
 

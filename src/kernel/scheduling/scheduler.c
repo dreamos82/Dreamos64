@@ -40,7 +40,6 @@ cpu_status_t* schedule(cpu_status_t* cur_status) {
     thread_t* prev_executing_thread;
     thread_t* thread_to_execute = idle_thread;
     uint16_t prev_thread_tid = -1;
-    //pretty_logf(Verbose, "---Cur stack: 0x%x", cur_status->rsp);
     // First let's check if the current task need to be scheduled or not;
     if (current_executing_thread->status == SLEEP) {
         // If the task has been placed to sleep it needs to be scheduled
