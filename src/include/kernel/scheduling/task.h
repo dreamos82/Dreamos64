@@ -14,6 +14,11 @@
 
 typedef struct task_t task_t;
 
+typedef enum {
+    ALIVE,
+    EXTERMINATED
+}task_status_e;
+
 /**
  * This struct contains the Task  Information
  */
@@ -26,13 +31,18 @@ struct task_t {
 
     VmmInfo vmm_data;
 
-    file_descriptor_t file_descriptors[DRMOS_MAX_FILE_DESCRIPTORS];
+    file_descriptor_t file_descriptors[DRMOS_MAX_FILE_DESCRIPTORS]; /**< The file descriptors opened by the current task */
     unsigned int next_file_descriptor;
 
     //List of threads
     struct thread_t* threads;
     task_t* parent;
     task_t* next;
+    
+    size_t running_threads;
+    
+    task_status_e status;
+    int exit_code; // This will be used by parent tasks in case they want to retrieve the exit code
 };
 
 extern size_t next_task_id;

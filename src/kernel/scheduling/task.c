@@ -28,6 +28,7 @@ task_t* create_task(char *name, bool is_supervisor) {
     void* vm_root_vaddress = hhdm_get_variable ((uintptr_t) new_task->vm_root_page_table);
     new_task->vmm_data.root_table_hhdm = (uintptr_t) vm_root_vaddress;
     new_task->next_file_descriptor = 3; // Reserving space for stdin, stdou and stderr
+    new_task->status = ALIVE;
     pretty_logf(Verbose, "vm_root_vaddress: %x", vm_root_vaddress);
     //prepare_virtual_memory_environment(new_task);
     if ( is_supervisor ){
@@ -101,7 +102,7 @@ task_t *create_task_from_func(char *name, void (*_entry_point)(void *), void *ar
     asm("cli");
     task_t* new_task = create_task(name,  is_supervisor);
     prepare_virtual_memory_environment(new_task);
-        if( is_supervisor) {
+    if( is_supervisor) {
         pretty_logf(Verbose, "creating new supervisor thread: %s", name);
         thread_t* thread = create_thread(name, _entry_point, args, new_task, is_supervisor, false);
         new_task->threads = thread;
@@ -112,6 +113,7 @@ task_t *create_task_from_func(char *name, void (*_entry_point)(void *), void *ar
     }
     scheduler_add_task(new_task);
     asm("sti");
+    return new_task;
 }
 
 void prepare_virtual_memory_environment(task_t* task) {
