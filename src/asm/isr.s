@@ -25,6 +25,7 @@ interrupt_service_routine_error_code_%1:
     mov rdi, rsp
     cld
     call interrupts_handler
+    mov rsp, rax    ; use the returned context
     restore_context
     add rsp, 16
     iretq

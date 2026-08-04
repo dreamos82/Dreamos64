@@ -93,6 +93,7 @@ thread_t* create_thread(char* thread_name, void (*_entry_point)(void *), void* a
     }
 
     scheduler_add_thread(new_thread);
+    parent_task->running_threads++;
     return new_thread;
 }
 
@@ -110,7 +111,7 @@ void thread_wakeup(thread_t* thread) {
 
 void thread_suicide_trap() {
     current_executing_thread->status = DEAD;
-    pretty_logf(Verbose, "(thread_suicide_trap) Suicide function called on thread: %d name: %s - Status: %s", current_executing_thread->tid, current_executing_thread->thread_name, get_thread_status(current_executing_thread));
+    pretty_logf(Info, "(thread_suicide_trap) Suicide function called on thread: %d name: %s - Status: %s", current_executing_thread->tid, current_executing_thread->thread_name, get_thread_status(current_executing_thread));
     while(1);
 }
 

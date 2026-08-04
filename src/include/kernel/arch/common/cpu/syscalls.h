@@ -12,7 +12,8 @@ typedef enum {
     SYS_EXAMPLE,
     SYS_PRINT,
     SYS_OPEN,
-    SYS_READ
+    SYS_READ,
+    SYS_EXIT
 } syscall_vector;
 
 bool _syscalls_init();

@@ -40,8 +40,6 @@ cpu_status_t* schedule(cpu_status_t* cur_status) {
     thread_t* prev_executing_thread;
     thread_t* thread_to_execute = idle_thread;
     uint16_t prev_thread_tid = -1;
-    //pretty_logf(Verbose, "Cur thread: %u %s", current_thread->tid, current_thread->thread_name);
-    //pretty_logf(Verbose, "---Cur stack: 0x%x", cur_status->rsp);
     // First let's check if the current task need to be scheduled or not;
     if (current_executing_thread->status == SLEEP) {
         // If the task has been placed to sleep it needs to be scheduled
@@ -60,18 +58,15 @@ cpu_status_t* schedule(cpu_status_t* cur_status) {
 
     if (current_executing_thread->status != SLEEP && current_executing_thread->status != DEAD) {
         current_executing_thread->status = READY;
-    }
+    }    
 
     prev_executing_thread = current_executing_thread;
     prev_thread_tid = prev_executing_thread->tid;
-    current_thread = scheduler_get_next_thread();
-
+    current_thread = scheduler_get_next_thread();    
     while (current_thread->tid != prev_thread_tid) {
         if (current_thread->status == SLEEP) {
-            pretty_logf(Verbose, "This thread %d is sleeping", current_thread->tid);
-            //pretty_logf(Verbose, "Current uptime: %d - wakeup: %d", get_kernel_uptime(), current_thread->wakeup_time);
+            pretty_logf(Info, "This thread %d is sleeping", current_thread->tid);
             if ( get_kernel_uptime() > current_thread->wakeup_time) {
-                //pretty_logf(Verbose, "--->WAKING UP: %d - thread_name: %s", current_thread->tid, current_thread->thread_name);
                 current_thread->status = READY;
                 thread_to_execute = current_thread;
                 break;
@@ -79,7 +74,8 @@ cpu_status_t* schedule(cpu_status_t* cur_status) {
         }
 
         if (current_thread->status == DEAD) {
-            remove_thread_from_task(current_thread->tid, current_thread->parent_task);
+            //the function below maybe could be removed
+            //remove_thread_from_task(current_thread->tid, current_thread->parent_task);
             scheduler_delete_thread(current_thread->tid);
         } else if (current_thread->status == READY || current_thread->status == NEW) {
             thread_to_execute = current_thread;
@@ -89,7 +85,8 @@ cpu_status_t* schedule(cpu_status_t* cur_status) {
         current_thread = scheduler_get_next_thread();
     }
 
-    pretty_logf(Debug, "Current thread %d status: %d name: %s!", current_thread->status, current_thread->tid, current_thread->thread_name);
+    pretty_logf(Verbose, "Current thread %d status: %d name: %s!", current_thread->tid, current_thread->status, current_thread->thread_name);
+    pretty_logf(Verbose, "Current thread to execute %d status: %d name: %s!", thread_to_execute->tid, thread_to_execute->status, thread_to_execute->thread_name);
 
     // We have found a thread to run, let's update it's status
     thread_to_execute->status = RUN;
@@ -100,11 +97,10 @@ cpu_status_t* schedule(cpu_status_t* cur_status) {
     // ... every task has it's own addressing space, so we need to update the cr3 register
     //pretty_logf(Verbose, "Loading cr3: 0x%x", current_task->vm_root_page_table);
     load_cr3(current_task->vm_root_page_table);
-    pretty_logf(Debug, "current_thread->execution_frame->rip: 0x%x, vmm_data is: 0x%x", current_executing_thread->execution_frame->rip, &(current_task->vmm_data));
+    pretty_logf(Verbose, "current_thread->execution_frame->rip: 0x%x, vmm_data is: 0x%x", current_executing_thread->execution_frame->rip, &(current_task->vmm_data));
     // ... and finally we need to update the tss structure with the current thread rsp0
     kernel_tss.rsp0 = (uint64_t) current_executing_thread->rsp0;
-    //pretty_log(Verbose, "leaving schedule...");
-    pretty_logf(Debug, "next task to run: %d->(%s)", current_executing_thread->tid, current_executing_thread->thread_name);
+    pretty_logf(Verbose, "next task to run: %d->(%s)", current_executing_thread->tid, current_executing_thread->thread_name);
     return current_executing_thread->execution_frame;
 }
 
@@ -120,7 +116,7 @@ void scheduler_add_thread(thread_t* thread) {
     thread->next = thread_list;
     thread_list_size++;
     thread_list = thread;
-    pretty_logf(Verbose, "(scheduler_add_thread) Adding thread: %s - %d", thread_list->thread_name, thread_list->tid);
+    pretty_logf(Info, "(scheduler_add_thread) Adding thread: %s - %d", thread_list->thread_name, thread_list->tid);
     if (current_executing_thread == NULL) {
         //This means that there are no tasks on the queue yet.
         current_executing_thread = thread;
@@ -128,7 +124,7 @@ void scheduler_add_thread(thread_t* thread) {
 }
 
 void scheduler_delete_thread(size_t thread_id) {
-    pretty_logf(Verbose, "(scheduler_delete_thread) Called with thread id: %d", thread_id);
+    pretty_logf(Info, "(scheduler_delete_thread) Called with thread id: %d", thread_id);
     thread_t *thread_item = thread_list;
     thread_t *prev_item = NULL;
 
@@ -142,20 +138,25 @@ void scheduler_delete_thread(size_t thread_id) {
         return;
     }
 
-    kfree(thread_item->execution_frame);
-    kfree((void*)(thread_item->stack - THREAD_DEFAULT_STACK_SIZE));
+    //The kfree functions are being kept commented for now while a mechanism to kill clean the thread will be refined
+    //kfree(thread_item->execution_frame);
+    //kfree((void*)(thread_item->stack - THREAD_DEFAULT_STACK_SIZE));
     if (thread_item == thread_list) {
         // If thread_item == thread_list it means that it is the first item so we just need
         // to make the root of the stack to point to the next item
-        thread_list = thread_list->next;
-        thread_list_size--;
+        thread_list = thread_list->next;        
     } else {
         // Otherwise we only need to make the previous thread
         // to point to thread pointe by the one we are deleting
-        prev_item->next = thread_item->next;
-        thread_list_size--;
+        prev_item->next = thread_item->next;        
     }
-    kfree(thread_item);
+    thread_list_size--;
+    task_t *parent_task = thread_item->parent_task;
+    parent_task->running_threads--;
+    if (parent_task->running_threads == 0) {
+        //Finished number of threads to run exterminate        
+    }
+    //kfree(thread_item);
 }
 
 thread_t* scheduler_get_next_thread() {

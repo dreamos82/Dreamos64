@@ -36,6 +36,8 @@ struct thread_t {
     thread_t* next_sibling; /**< This is the list of siblings of the current thread (belonging to the same task */
     thread_t* next; /**< This is the thread list used by scheduler */
     uintptr_t* rsp0;
+    
+    int exit_code; // This will be used by parent tasks in case they want to retrieve the exit code
 };
 
 

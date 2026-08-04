@@ -49,3 +49,12 @@ Return value:
 * `rax`: number of characters read if success, -1 otherwise.
 
 
+## 0x05 Thread Exit Syscall
+
+Gracefully terminates a thread, with an optional return code. It put the thread in DEAD state, and call the scheduler.
+
+* `rsi` status code
+
+Return value:
+
+* nothing

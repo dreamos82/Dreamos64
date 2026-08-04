@@ -37,9 +37,10 @@ void page_fault_handler(uint64_t error_code) {
     uint64_t *pd_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l,510l, (uint64_t) pml4, (uint64_t) pdpr));
     uint64_t *pdpr_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l,510l, 510l, (uint64_t) pml4));
     uint64_t *pml4_table = (uint64_t *) (SIGN_EXTENSION | ENTRIES_TO_ADDRESS(510l,510l, 510l, 510l));    
-    pretty_logf(Error, "Entries: pd: 0x%X - pdpr: 0x%X - PML4 0x%X", pd, pdpr, pml4);
 #if SMALL_PAGES == 1
-    pretty_logf(Error, "Entries: pt: 0x%X", pt);
+    pretty_logf(Error, "Entries: pd: 0x%X - pdpr: 0x%X - PML4 0x%X - PT 0x%x", pd, pdpr, pml4, pt);
+#else
+    pretty_logf(Error, "Entries: pd: 0x%X - pdpr: 0x%X - PML4 0x%X", pd, pdpr, pml4);
 #endif    
     pretty_logf(Error, "Entries: pd[0x%x]: 0x%X", pd, pd_table[pd]);
     pretty_logf(Error, "Entries: pdpr[0x%x]: 0x%X", pdpr, pdpr_table[pdpr]);
