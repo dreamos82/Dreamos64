@@ -12,6 +12,7 @@ int positions[5] = { 0, 1, 2, 0, 2 };
 vnode_t vnode;
 test_runner_t *tests;
 bool has_pipe = false;
+unsigned int number_of_tests = 0;
 
 int main(int argc, char **argv) {
     int pipe_fd = -1;
@@ -31,7 +32,8 @@ void prepare_tests(int pipe_fd){
     printf("===============================\n\n");
     test_init(1, &tests);
     add_test(1, "Testing Virtual File System Fucntions", test_get_mountpoint_id, tests);
-    tests[0].handler(pipe_fd);
+    number_of_tests++;
+    tests[0].handler(pipe_fd);    
 }
 
 void test_get_mountpoint_id(int pipe_fd) {
@@ -54,6 +56,7 @@ void test_get_mountpoint_id(int pipe_fd) {
     pretty_assert(last, positions[4], ==, "(test_get_mountpoint_id): Testing /usr/asd");
     printf("\tStats: module_id: %d, Title: %s, Tests Passed: %d\n", tests[0].stats.module_id, tests[0].stats.module_title, tests[0].stats.tests_passed);
     if ( has_pipe ) {
+        write(pipe_fd, &number_of_tests, sizeof(number_of_tests)); 
         send_stats(pipe_fd, tests[0].stats);
         close(pipe_fd);
     }

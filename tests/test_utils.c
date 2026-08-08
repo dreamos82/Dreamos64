@@ -2,28 +2,58 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <utils.h>
+#include <unistd.h>
 #include <test_common.h>
+#include <test_stats.h>
 
-void test_octascii_to_dec();
+test_runner_t *tests;
+bool has_pipe = false;
 
-int main(){
-    printf("Testing Utility functions  -\n");
-    printf("===============================\n\n");
-    test_octascii_to_dec();
+void prepare_tests(int pipe_fd);
+void test_octascii_to_dec(int pipe_fd);
+
+unsigned int number_of_tests = 0;
+int main(int argc, char **argv) {
+    int pipe_fd = -1;
+    if (argc > 1) {
+            //pipe_fd = atoi(argv[1]);
+            has_pipe = true;
+            pipe_fd = atoi(argv[1]);
+            printf("Found pipe id: %d\n", pipe_fd);
+    }
+    prepare_tests(pipe_fd);
     printf("\n");
 }
 
+void prepare_tests(int pipe_fd) {
+    printf("Testing Utility functions  \n");
+    printf("===============================\n\n");
+    test_init(1, &tests);
+    add_test(1, "Testing octal to decimal functions", test_octascii_to_dec, tests);
+    number_of_tests++;
+    tests[0].handler(pipe_fd);
+}
 
-void test_octascii_to_dec() {
+
+void test_octascii_to_dec(int pipe_fd) {
     printf("\nTesting octal to decimal functions\n");
     char filesize[12] = {'0','0','0','0','0','0','1','3','3','3','6','0'};
     int result = octascii_to_dec(filesize, 12);
+    pretty_assert_stat(5854, result, ==, tests[0].stats,"Testing to convert an octal ascii number to int");
     pretty_assert(5854, result, ==, "Testing to convert an octal ascii number to int");
     char filesize_zero[12] = {'0','0','0','0','0','0','0','0','0','0','0','0'};
     result = octascii_to_dec(filesize_zero, 12);
+    pretty_assert_stat(0, result, ==, tests[0].stats,"Testing to convert an octal ascii number to int");
     pretty_assert(0, result, ==, "Testing to convert an octal ascii number to int");
     char filesize_tt[12] = {'0','0','0','0','0','0','2','7','3','4','0', '0'};
     result = octascii_to_dec(filesize_tt, 12);
+    pretty_assert_stat(12000, result, ==, tests[9].stats, "Testing to convert an octal ascii number to int");
     pretty_assert(12000, result, ==, "Testing to convert an octal ascii number to int");
+    if ( has_pipe ) {
+        write(pipe_fd, &number_of_tests, sizeof(number_of_tests));
+        send_stats(pipe_fd, tests[0].stats);
+        close(pipe_fd);
+    }
 }
