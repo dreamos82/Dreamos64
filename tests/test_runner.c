@@ -8,7 +8,7 @@
 #include <sys/wait.h>
 
 #define TESTS_FILE "tests"
-//
+
 //gcc -I include test_runner.c -o tests_runner.o
 
 unsigned int get_number_of_tests(FILE *fp);
@@ -34,23 +34,11 @@ int main() {
     tests = malloc(no_lines * sizeof(char *));
     tests_stats = malloc(no_lines * sizeof(test_stats_t));
     get_tests(fp, no_lines, tests);
-    for (int i = 0; i < no_lines; i++) {
-        printf("Test: %s\n", tests[i]);
-        /*pid_t child_pid = fork();
-        if ( child_pid == 0 ) {
-            char fd_str[10];
-            sprintf(fd_str, "%d", pipe_fd[1]);
-            printf("Launching tests as child\n");
-            //close(pipe_fd[0]);
-            //execl("./test_vfs.o",	"test_vfs.o", fd_str, NULL);
-        }*/
-        
-    }
-    strcpy(tests[0], "./test_vfs.o");    
+    /*strcpy(tests[0], "./test_vfs.o");    
     strcpy(tests[1], "./test_tar.o");
-    strcpy(tests[2], "./test_utils.o");
+    strcpy(tests[2], "./test_utils.o");*/
     bool isForked = false;
-    for (int i=0; i < 3; i++) {
+    for (int i=0; i < no_lines; i++) {
         printf("Launching tests as child %s\n", tests[i]);
         pid_t pid = fork();        
         if (pid == 0) {
@@ -81,7 +69,7 @@ int main() {
     total_stats.stats.tests_failed = 0;
     if (!isForked) {
         close(pipe_fd[1]);
-        for (int i=0; i<3; i++) {
+        for (int i=0; i<no_lines; i++) {
             test_stats_t stats;        
             unsigned int no_tests = 0;
             read(pipe_fd[0], &no_tests, sizeof(no_tests));
@@ -124,6 +112,7 @@ unsigned int get_tests(FILE *fp, unsigned int no_lines, char **tests) {
     for (int i=0; i < no_lines; i++) {    
         tests[i] = (char *) malloc(32);
         fgets(tests[i], 32, fp);
+        tests[i][strcspn(tests[i], "\n")] = '\0';
     }
     return 0;
 }
