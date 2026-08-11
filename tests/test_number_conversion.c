@@ -5,47 +5,52 @@
 #include <assert.h>
 #include <limits.h>
 
+void test_decimal_conversion();
+void test_hex_conversion();
+
 int main(){
     printf("Testing Numbers conversion functions\n");
-    printf("\t [test_number_conversion][GetDecString]: Testing GetDecString ---\n");
+    test_decimal_conversion();
+    test_hex_conversion();
+}
+
+void test_decimal_conversion() {
     char test_buffer[6];
     int test_size = _getDecString(test_buffer, 250);
-    printf("\t [test_number_conversion][GetDecString]: Buffer should contain 250 and size should be 3: %s - %d\n", test_buffer, test_size);
-    assert(test_size == 3);
-    assert(strcmp(test_buffer, "250") == 0);
+    pretty_assert(3, test_size, ==, "Test with value 250, returned size:");
+    //pretty_assert(true, result, ==, "Testing tar_is_zeroed with an item set to zero");
+    //pretty_assert_stat(true, result, ==, tests[0].stats, "Testing tar_is_zeroed with an item set to zero");
+    pretty_assert(0, strcmp(test_buffer, "250"), ==, "test_buffer should contain 250 with strcmp");    
     test_size = _getDecString(test_buffer, 1530);
-    printf("\t [test_number_conversion][GetDecString]: Buffer should contain 1530 and size should be 4: %s - %d\n", test_buffer, test_size);
-    assert(test_size == 4);
-    assert(strcmp(test_buffer, "1530") == 0);
+    pretty_assert(4, test_size, ==, "Test with value 1530, returned size");
+    pretty_assert(0, strcmp(test_buffer, "1530"), ==, "test_buffer should contain 1530 with strcmp");
     test_size = _getDecString(test_buffer, -5);
-    printf("\t [test_number_conversion][GetDecString]: Buffer should contain -5 and size should be 2: %s - %d\n", test_buffer, test_size);
-    assert(test_size == 2);
-    assert(strcmp(test_buffer, "-5") == 0);
+    pretty_assert(2, test_size, ==, "Test with value -5");
+    pretty_assert(0, strcmp(test_buffer, "-5"), ==, "test_buffer should contain the value -5 with strcmp");
     test_size = _getDecString(test_buffer, 54321);
-    printf("\t [test_number_conversion][GetDecString]: Buffer should contain 54321 and size should be 5: %s - %d\n", test_buffer, test_size);
-    assert(test_size == 5);
-    assert(strcmp(test_buffer, "54321") == 0);
+    pretty_assert(5, test_size, ==, "testing with value 54321, returned size");
+    pretty_assert(0, strcmp(test_buffer, "54321"), ==, "test_buffer should contain 54321");
     char test_buffer_long[15];
     test_size = _getDecString(test_buffer_long, -2147483648);
-    printf("\t [test_number_conversion][GetDecString]: Buffer should contain -2147483648 and size should be 11: %s - %d\n", test_buffer_long, test_size);
-    assert(test_size == 11);
-    assert(strcmp(test_buffer_long, "-2147483648") == 0);
-    printf("Testing GetHexString\n");
-    test_size = _getHexString(test_buffer, 0x9AB, true);
-    printf("\t [test_number_conversion][GetHexString]: Buffer should contain 9AB and size should be 2: %s - %d\n", test_buffer, test_size);
-    assert(test_size == 3);
-    assert(strcmp(test_buffer, "9AB") == 0);
-    test_size = _getHexString(test_buffer, 0x2A, false);
-    printf("\t [test_number_conversion][GetHexString]: Buffer should contain 2a and size should be 1: %s - %d\n", test_buffer, test_size);
-    assert(test_size == 2);
-    assert(strcmp(test_buffer, "2a") == 0);
+    pretty_assert(11, test_size, ==, "Testing with long number returned size");
+    pretty_assert(0, strcmp(test_buffer_long, "-2147483648"), ==, "test_buffer should contain -2147483648 with strcmp");
     test_size = _getDecString(test_buffer_long, 2147483648);
-    printf("\t [test_number_conversion][GetHexString]: Buffer should contain 2147483648 and size should be 10: %s - %d\n", test_buffer_long, test_size);
-    assert(test_size == 10);
-    assert(strcmp(test_buffer_long, "2147483648") == 0);
-    printf("Testing GedUnsignedDecString\n");
+    pretty_assert(10, test_size, ==, "Testing with 2147483648, test_size value");
+    pretty_assert(0, strcmp(test_buffer_long, "2147483648"), ==, "test_buffer should contain: 2147483648");
     test_size = _getUnsignedDecString(test_buffer_long, 4294967295);
     printf("\t [test_number_conversion][UnsignedGetDecString]:  Buffer should contain 4294967295 and size should be 10: %s - %d\n", test_buffer_long, test_size);
-    assert(test_size == 10);
-    assert(strcmp(test_buffer_long, "4294967295") == 0);
+    pretty_assert(10, test_size,  ==,  "Testing with 4294967295 test_size value");
+    pretty_assert(0, strcmp(test_buffer_long, "4294967295"),  ==, "test_buffer should contain 4294967295");
+}
+
+void test_hex_conversion(){
+    printf("Testing GetHexString\n");
+    char test_buffer[6];
+    int test_size = _getHexString(test_buffer, 0x9AB, true);
+    pretty_assert(3, test_size, ==, "test hex conversion with value 0x9AB returned size");
+    pretty_assert(0, strcmp(test_buffer, "9AB"), ==, " test_buffer should contain 9AB");
+    test_size = _getHexString(test_buffer, 0x2A, false);    
+    pretty_assert(2, test_size, ==, "Testing with 0x2A, test_size value");
+    pretty_assert(0, strcmp(test_buffer, "2a"), ==, "test_buffer should contain 2a");
+    printf("Testing GedUnsignedDecString\n");
 }

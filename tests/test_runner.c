@@ -84,7 +84,7 @@ int main() {
             }
             printf("=================\n");
         }
-        printf("Total stas: \n");
+        printf("Total stats: \n");
         printf("\t Tests_passed: %d\n", total_stats.stats.tests_passed);
         printf("\t Tests_failed: %d\n", total_stats.stats.tests_failed);
         printf("\t Total tests: %d\n", total_stats.stats.tests_passed + total_stats.stats.tests_failed);
