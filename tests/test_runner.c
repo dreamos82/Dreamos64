@@ -74,7 +74,7 @@ int main() {
             unsigned int no_tests = 0;
             read(pipe_fd[0], &no_tests, sizeof(no_tests));
             printf("Number of tests received: %d\n", no_tests);
-            for(int i=0; i < no_tests; i++) {
+            for(int j=0; j < no_tests; j++) {
                 read(pipe_fd[0], &stats, sizeof(test_stats_t));
                 printf("module id: %d\n", stats.module_id);
                 printf("Test name: %s\n", stats.module_title);

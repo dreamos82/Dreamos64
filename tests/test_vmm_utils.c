@@ -44,16 +44,16 @@ void prepare_tests(int pipe_fd) {
 void test_utils() {
     size_t number_of_pages = get_number_of_pages_from_size(0x900);
     pretty_assert(1, number_of_pages, ==, "Testing number of pages for 0x900");
-    pretty_assert_stat(1, number_of_pages, ==, tests[0].stats, "Testing number of pages for 0x900");
+    pretty_assert_stat(1, number_of_pages, ==, tests[0].stats, "Testing number of pages for 0x900", has_pipe);
     number_of_pages = get_number_of_pages_from_size(0x0);
     pretty_assert(0, number_of_pages, ==, "Testing number of pages for 0x0");
     pretty_assert(0x200000, align_value_to_page(0x100), ==, "Testing alignment for for 0x100");
     pretty_assert(0x400000, align_value_to_page(0x200015), ==, "Testing number of pages for 0x200015");
     pretty_assert(0x200000, align_down(0x3c7000, 0x200000), ==, "Testing align_down");
     pretty_assert(0x600000, align_down(0x6c7000, 0x200000), ==, "Testing align_down");
-    pretty_assert_stat(0, number_of_pages, ==, tests[0].stats, "Testing number of pages for 0x0");
-    pretty_assert_stat(0x200000, align_value_to_page(0x100), ==, tests[0].stats, "Testing alignment for for 0x100");
-    pretty_assert_stat(0x400000, align_value_to_page(0x200015), ==, tests[0].stats, "Testing number of pages for 0x200015");
-    pretty_assert_stat(0x200000, align_down(0x3c7000, 0x200000), ==, tests[0].stats, "Testing align_down");
-    pretty_assert_stat(0x600000, align_down(0x6c7000, 0x200000), ==, tests[0].stats, "Testing align_down");
+    pretty_assert_stat(0, number_of_pages, ==, tests[0].stats, "Testing number of pages for 0x0", has_pipe);
+    pretty_assert_stat(0x200000, align_value_to_page(0x100), ==, tests[0].stats, "Testing alignment for for 0x100", has_pipe);
+    pretty_assert_stat(0x400000, align_value_to_page(0x200015), ==, tests[0].stats, "Testing number of pages for 0x200015", has_pipe);
+    pretty_assert_stat(0x200000, align_down(0x3c7000, 0x200000), ==, tests[0].stats, "Testing align_down", has_pipe);
+    pretty_assert_stat(0x600000, align_down(0x6c7000, 0x200000), ==, tests[0].stats, "Testing align_down", has_pipe);
 }

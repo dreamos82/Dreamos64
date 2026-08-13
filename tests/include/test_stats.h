@@ -1,6 +1,8 @@
 #ifndef __TEST_STATS__
 #define __TEST_STATS__
 
+#include <assert.h>
+
 typedef struct {
     unsigned int module_id;
     unsigned int tests_passed;
@@ -28,10 +30,12 @@ void add_test(unsigned int module_idx, char *module_title, void (*handler)(int),
 void send_stats(int fd, test_stats_t stats);
 void update_global_stats(test_global_stats_t *global_stats, test_stats_t cur_stats);
 
-#define pretty_assert_stat(expected_value, returned_value, comparator, stats, msg) \
+#define pretty_assert_stat(expected_value, returned_value, comparator, stats, msg, continue_on_fail) \
     ({ \
         printf("\t(%s) %s expected_value: %ld returned value:  %ld\n", __FUNCTION__, msg, expected_value, returned_value); \
-        if (expected_value comparator returned_value) { \
+        if (!continue_on_fail) { \
+            assert(expected_value comparator returned_value); \
+        } else if (expected_value comparator returned_value) { \
             stats.tests_passed++; \
         } else { \
             stats.tests_failed++; \

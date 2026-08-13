@@ -56,17 +56,17 @@ void test_is_zeroed(int pipe_fd) {
     printf("Testing Tar functions\n");
     bool result = ustar_is_zeroed(&zero_item);
     pretty_assert(true, result, ==, "Testing tar_is_zeroed with an item set to zero");
-    pretty_assert_stat(true, result, ==, tests[0].stats, "Testing tar_is_zeroed with an item set to zero");
+    pretty_assert_stat(true, result, ==, tests[0].stats, "Testing tar_is_zeroed with an item set to zero", has_pipe);
     result = ustar_is_zeroed(&tar_item);
     pretty_assert(false, result, ==, "Testing tar_is_zeroed with an item not zero");
-    pretty_assert_stat(false, result, ==, tests[0].stats, "Testing tar_is_zeroed with an item not zero");
+    pretty_assert_stat(false, result, ==, tests[0].stats, "Testing tar_is_zeroed with an item not zero", has_pipe);
 }
 
 void test_get_file_start(int pipe_fd) {
     printf("Testing tar get_file_start function\n");
     pretty_assert(NULL, ustar_get_file_start(NULL),  ==, "Testing get_file_start with NULL value");
-    pretty_assert_stat(NULL, ustar_get_file_start(NULL),  ==, tests[1].stats, "Testing get_file_start with NULL value");
+    pretty_assert_stat(NULL, ustar_get_file_start(NULL),  ==, tests[1].stats, "Testing get_file_start with NULL value", has_pipe);
     char *expected_result = (char *)(&example_item)+512;
     pretty_assert(expected_result, (char *) ustar_get_file_start(&example_item),  ==, "Testing get_file_start with example_item value");
-    pretty_assert_stat(expected_result, (char *) ustar_get_file_start(&example_item),  ==, tests[1].stats, "Testing get_file_start with example_item value");
+    pretty_assert_stat(expected_result, (char *) ustar_get_file_start(&example_item),  ==, tests[1].stats, "Testing get_file_start with example_item value", has_pipe);
 }
