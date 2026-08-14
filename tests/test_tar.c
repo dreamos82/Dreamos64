@@ -9,9 +9,9 @@
 #include <unistd.h>
 #include <ustar.h>
 
-void test_is_zeroed(int pipe_fd);
-void test_get_file_start(int pipe_fd);
-void prepare_tests(int pipe_fd);
+void test_is_zeroed(unsigned int id);
+void test_get_file_start(unsigned int id);
+void prepare_tests();
 
 ustar_item zero_item = {0};
 ustar_item tar_item = {0};
@@ -30,9 +30,11 @@ int main(int argc, char **argv) {
             printf("Found pipe id: %d\n", pipe_fd);
     }
     strcpy(tar_item.magic, "ustar");
-    prepare_tests(pipe_fd);        
-    tests[0].handler(pipe_fd);
-    tests[1].handler(pipe_fd);
+    prepare_tests(pipe_fd);
+    for (int i = 0; i < number_of_tests; i++) {
+        tests[i].handler(i);
+        print_stats(tests[i].stats);
+    }
     if ( has_pipe ) {
         write(pipe_fd, &number_of_tests, sizeof(number_of_tests));
         send_stats(pipe_fd, tests[0].stats);
@@ -42,7 +44,7 @@ int main(int argc, char **argv) {
     printf("\n");
 }
 
-void prepare_tests(int pipe_fd) {
+void prepare_tests() {
     printf("=Testing USTAR Utility function -\n");
     printf("=================================\n\n");
     test_init(2, &tests);
@@ -52,21 +54,21 @@ void prepare_tests(int pipe_fd) {
     number_of_tests++;
 }
 
-void test_is_zeroed(int pipe_fd) {
-    printf("Testing Tar functions\n");
+void test_is_zeroed(unsigned int id) {
+    printf("%d) %s:\n", tests[id].stats.module_id, tests[id].stats.module_title);
     bool result = ustar_is_zeroed(&zero_item);
     pretty_assert(true, result, ==, "Testing tar_is_zeroed with an item set to zero");
-    pretty_assert_stat(true, result, ==, tests[0].stats, "Testing tar_is_zeroed with an item set to zero", has_pipe);
+    pretty_assert_stat(true, result, ==, tests[id].stats, "Testing tar_is_zeroed with an item set to zero", has_pipe);
     result = ustar_is_zeroed(&tar_item);
     pretty_assert(false, result, ==, "Testing tar_is_zeroed with an item not zero");
-    pretty_assert_stat(false, result, ==, tests[0].stats, "Testing tar_is_zeroed with an item not zero", has_pipe);
+    pretty_assert_stat(false, result, ==, tests[id].stats, "Testing tar_is_zeroed with an item not zero", has_pipe);
 }
 
-void test_get_file_start(int pipe_fd) {
-    printf("Testing tar get_file_start function\n");
+void test_get_file_start(unsigned int id) {
+    printf("%d) %s:\n", tests[id].stats.module_id, tests[id].stats.module_title);
     pretty_assert(NULL, ustar_get_file_start(NULL),  ==, "Testing get_file_start with NULL value");
-    pretty_assert_stat(NULL, ustar_get_file_start(NULL),  ==, tests[1].stats, "Testing get_file_start with NULL value", has_pipe);
+    pretty_assert_stat(NULL, ustar_get_file_start(NULL),  ==, tests[id].stats, "Testing get_file_start with NULL value", has_pipe);
     char *expected_result = (char *)(&example_item)+512;
     pretty_assert(expected_result, (char *) ustar_get_file_start(&example_item),  ==, "Testing get_file_start with example_item value");
-    pretty_assert_stat(expected_result, (char *) ustar_get_file_start(&example_item),  ==, tests[1].stats, "Testing get_file_start with example_item value", has_pipe);
+    pretty_assert_stat(expected_result, (char *) ustar_get_file_start(&example_item),  ==, tests[id].stats, "Testing get_file_start with example_item value", has_pipe);
 }

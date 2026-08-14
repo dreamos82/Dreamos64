@@ -13,7 +13,7 @@ typedef struct {
 
 typedef struct {
     test_stats_t stats;
-    void (*handler)(int);
+    void (*handler)(unsigned int);
 } test_runner_t;
 
 typedef struct {
@@ -26,9 +26,10 @@ typedef struct {
 // The tests will be launched by the child process.
 
 void test_init(unsigned int no_modules, test_runner_t **tests);
-void add_test(unsigned int module_idx, char *module_title, void (*handler)(int), test_runner_t *tests);
+void add_test(unsigned int module_idx, char *module_title, void (*handler)(unsigned int), test_runner_t *tests);
 void send_stats(int fd, test_stats_t stats);
 void update_global_stats(test_global_stats_t *global_stats, test_stats_t cur_stats);
+void print_stats(test_stats_t stats);
 
 #define pretty_assert_stat(expected_value, returned_value, comparator, stats, msg, continue_on_fail) \
     ({ \

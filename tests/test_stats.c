@@ -18,7 +18,7 @@ void test_init(unsigned int no_modules, test_runner_t **tests){
     }    
 }
 
-void add_test(unsigned int module_idx, char *module_title, void (*handler)(), test_runner_t *tests) {
+void add_test(unsigned int module_idx, char *module_title, void (*handler)(unsigned int), test_runner_t *tests) {
     printf("(%d) Adding Test: %s\n", module_idx, module_title);
     strcpy(tests[module_idx-1].stats.module_title, module_title);
     tests[module_idx-1].stats.module_id = module_idx;
@@ -37,4 +37,9 @@ void update_global_stats(test_global_stats_t *global_stats, test_stats_t cur_sta
     global_stats->stats.tests_passed += cur_stats.tests_passed;
     global_stats->stats.tests_failed += cur_stats.tests_failed;
     global_stats->total_modules++;
+}
+
+
+void print_stats(test_stats_t stats) {
+    printf("\tStats: module_id: %d, Title: %s, Tests Passed: %d - Tests failed: %d\n", stats.module_id, stats.module_title, stats.tests_passed, stats.tests_failed);
 }
