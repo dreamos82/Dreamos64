@@ -13,13 +13,14 @@ void test_is_zeroed(unsigned int id);
 void test_get_file_start(unsigned int id);
 void prepare_tests();
 
+unsigned int number_of_tests = 0;
+
 ustar_item zero_item = {0};
 ustar_item tar_item = {0};
 ustar_item example_item = {0};
 
 bool has_pipe = false;
 test_runner_t *tests;
-unsigned int number_of_tests = 0;
 
 int main(int argc, char **argv) {
     int pipe_fd = -1;
@@ -31,6 +32,7 @@ int main(int argc, char **argv) {
     }
     strcpy(tar_item.magic, "ustar");
     prepare_tests();
+    printf("NT: %d\n", number_of_tests);
     for (unsigned int i = 0; i < number_of_tests; i++) {
         tests[i].handler(i);        
         print_stats(tests[i].stats);
