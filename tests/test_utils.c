@@ -8,15 +8,15 @@
 #include <test_common.h>
 #include <test_stats.h>
 
+unsigned int number_of_tests = 0;
 test_runner_t *tests;
 bool has_pipe = false;
 
 void prepare_tests();
 void test_octascii_to_dec(unsigned int id);
 
-unsigned int number_of_tests = 0;
 int main(int argc, char **argv) {
-    int pipe_fd = -1;
+    int pipe_fd = -1;    
     if (argc > 1) {
             //pipe_fd = atoi(argv[1]);
             has_pipe = true;

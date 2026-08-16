@@ -118,7 +118,7 @@ tests:
 	${TOOLCHAIN} ${TESTFLAGS} tests/test_vm.c tests/test_common.c src/kernel/arch/x86_64/system/vm.c src/kernel/mem/vmm_util.c  -o tests/test_vm.o
 	${TOOLCHAIN} ${TESTFLAGS} tests/test_vfs.c tests/test_stats.c tests/test_common.c src/utils/utils.c src/kernel/loaders/elf.c src/kernel/mem/vmm_util.c src/fs/vfs.c src/fs/vnode.c src/drivers/fs/ustar.c -o tests/test_vfs.o
 	${TOOLCHAIN} ${TESTFLAGS} tests/test_vmm_utils.c tests/test_stats.c tests/test_common.c  src/kernel/mem/vmm_util.c -o tests/test_vmm_utils.o
-	${TOOLCHAIN} ${TESTFLAGS} tests/test_window.c tests/test_common.c  src/kernel/graphics/window.c -o tests/test_window.o
+	${TOOLCHAIN} ${TESTFLAGS} tests/test_window.c tests/test_common.c tests/test_stats.c src/kernel/graphics/window.c -o tests/test_window.o
 	${TOOLCHAIN} ${TESTFLAGS} tests/test_elf.c tests/test_common.c tests/test_stats.c src/kernel/mem/vmm_util.c src/kernel/loaders/elf.c  -o tests/test_elf.o
 	${TOOLCHAIN} ${TESTFLAGS} tests/test_utils.c tests/test_stats.c tests/test_common.c src/kernel/loaders/elf.c src/utils/utils.c src/kernel/mem/vmm_util.c -o tests/test_utils.o
 	${TOOLCHAIN} ${TESTFLAGS} tests/test_tar.c tests/test_common.c tests/test_stats.c src/utils/utils.c src/kernel/loaders/elf.c src/drivers/fs/ustar.c src/kernel/mem/vmm_util.c -o tests/test_tar.o
