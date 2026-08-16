@@ -26,7 +26,6 @@ int main(int argc, char **argv) {
     prepare_tests(pipe_fd);
     tests[0].handler(0);
     print_stats(tests[0].stats);
-    print_stats(tests[0].stats);
     if ( has_pipe ) {
         write(pipe_fd, &number_of_tests, sizeof(number_of_tests));
         send_stats(pipe_fd, tests[0].stats);
@@ -49,13 +48,10 @@ void test_octascii_to_dec(unsigned int id) {
     char filesize[12] = {'0','0','0','0','0','0','1','3','3','3','6','0'};
     int result = octascii_to_dec(filesize, 12);
     pretty_assert_stat(5854, result, ==, tests[id].stats,"Testing to convert an octal ascii number to int", has_pipe);
-    //pretty_assert(5854, result, ==, "Testing to convert an octal ascii number to int");
     char filesize_zero[12] = {'0','0','0','0','0','0','0','0','0','0','0','0'};
     result = octascii_to_dec(filesize_zero, 12);
     pretty_assert_stat(0, result, ==, tests[id].stats,"Testing to convert an octal ascii number to int", has_pipe);
-    //pretty_assert(0, result, ==, "Testing to convert an octal ascii number to int");
     char filesize_tt[12] = {'0','0','0','0','0','0','2','7','3','4','0', '0'};
     result = octascii_to_dec(filesize_tt, 12);
     pretty_assert_stat(12000, result, ==, tests[id].stats, "Testing to convert an octal ascii number to int", has_pipe);
-    //pretty_assert(12000, result, ==, "Testing to convert an octal ascii number to int");
 }
