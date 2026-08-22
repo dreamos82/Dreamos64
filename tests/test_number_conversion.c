@@ -12,9 +12,9 @@ void test_decimal_conversion(unsigned int id);
 void test_hex_conversion(unsigned int id);
 void prepare_tests();
 
-unsigned int number_of_tests = 0;
 bool has_pipe = false;
 test_runner_t *tests;
+unsigned int number_of_tests = 0;
 
 int main(int argc, char **argv){
     int pipe_fd = -1;

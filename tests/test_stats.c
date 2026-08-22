@@ -7,14 +7,14 @@
 
 
 void test_init(unsigned int no_modules, test_runner_t **tests){
-    *tests = (test_runner_t *) malloc(no_modules * sizeof(test_runner_t*));
+    *tests = (test_runner_t *) malloc(no_modules * sizeof(test_runner_t));
     printf("Initializing no. modules: %d...", no_modules);
     for (int i = 0; i < no_modules; i++) {
-        tests[i] = (test_runner_t*) malloc(sizeof(test_runner_t));
-        tests[i]->stats.tests_passed = 0;
-        tests[i]->stats.tests_failed = 0;        
-        tests[i]->stats.module_id = 0;
-        tests[i]->handler = NULL;        
+        //tests[i] = (test_runner_t*) malloc(sizeof(test_runner_t));
+        (*tests)[i].stats.tests_passed = 0;
+        (*tests)[i].stats.tests_failed = 0;        
+        (*tests)[i].stats.module_id = 0;
+        (*tests)[i].handler = NULL;        
     }
     printf("Done\n");
 }
