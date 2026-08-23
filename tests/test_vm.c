@@ -45,8 +45,7 @@ int main(int argc, char **argv) {
         //send_stats(pipe_fd, tests[0].stats);
         //send_stats(pipe_fd, tests[1].stats);
         //send_stats(pipe_fd, tests[2].stats);
-        for(int j=0; j < number_of_tests; j++) {
-            printf("%d)%s\n", j, tests[j].stats.module_title);
+        for(int j=0; j < number_of_tests; j++) {            
             send_stats(pipe_fd, tests[j].stats);
         }
         close(pipe_fd);
