@@ -1,0 +1,8 @@
+./test_vfs.o
+./test_utils.o
+./test_tar.o
+./test_vmm_utils.o
+./test_number_conversion.o
+./test_elf.o
+./test_window.o
+./test_vm.o

@@ -24,7 +24,7 @@ int main(int argc, char **argv) {
     }
     prepare_tests(pipe_fd);
     tests[0].handler(0);
-    print_stats(tests[9].stats);
+    print_stats(tests[0].stats);
     if ( has_pipe ) {
         write(pipe_fd, &number_of_tests, sizeof(number_of_tests)); 
         send_stats(pipe_fd, tests[0].stats);
@@ -46,18 +46,13 @@ void test_get_mountpoint_id(unsigned int id) {
     printf("%d) %s:\n", tests[id].stats.module_id, tests[id].stats.module_title);
     int last = vfs_get_mountpoint_id("/home/dreamos82", &vnode);    
     pretty_assert_stat(last, positions[0], ==, tests[id].stats, "(test_get_mountpoint_id): Testing path /home/dreamos82", has_pipe);
-    //pretty_assert(positions[0], last, ==, "(test_get_mountpoint_id): Testing path /home/dreamos82");   
     last = vfs_get_mountpoint_id("/home/mount/dreamos82", &vnode);        
     pretty_assert_stat(last, positions[1], ==, tests[id].stats, "(test_get_mountpoint_id): Testing path /home/mount/dreamos82", has_pipe);
-    //pretty_assert(last, positions[1], ==, "(test_get_mountpoint_id): Testing path /home/mount/dreamos82");
     last = vfs_get_mountpoint_id("/usr", &vnode);    
     pretty_assert_stat(last, positions[2], ==, tests[id].stats, "(test_get_mountpoint_id): Testing /usr", has_pipe);
-    //pretty_assert(last, positions[2], ==, "(test_get_mountpoint_id): Testing /usr");
     last = vfs_get_mountpoint_id("/", &vnode);
     pretty_assert_stat(last, positions[3], ==, tests[id].stats,"(test_get_mountpoint_id): Testing /", has_pipe);
-    //pretty_assert(last, positions[3], ==, "(test_get_mountpoint_id): Testing /");
     last = vfs_get_mountpoint_id("/usr/asd", &vnode);
     pretty_assert_stat(last, positions[4], ==, tests[id].stats, "(test_get_mountpoint_id): Testing /usr/asd", has_pipe);
-    //pretty_assert(last, positions[4], ==, "(test_get_mountpoint_id): Testing /usr/asd");
     //printf("\tStats: module_id: %d, Title: %s, Tests Passed: %d\n", tests[id].stats.module_id, tests[id].stats.module_title, tests[id].stats.tests_passed);
 }

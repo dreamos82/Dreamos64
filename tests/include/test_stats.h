@@ -33,7 +33,7 @@ void print_stats(test_stats_t stats);
 
 #define pretty_assert_stat(expected_value, returned_value, comparator, stats, msg, continue_on_fail) \
     ({ \
-        printf("\t(%s) %s expected_value: %ld returned value:  %ld\n", __FUNCTION__, msg, expected_value, returned_value); \
+        printf("\t(%s) %s expected_value: %lx returned value:  %lx\n", __FUNCTION__, msg, expected_value, returned_value); \
         if (!continue_on_fail) { \
             assert(expected_value comparator returned_value); \
         } else if (expected_value comparator returned_value) { \

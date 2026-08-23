@@ -23,7 +23,8 @@ int main(int argc, char **argv) {
             pipe_fd = atoi(argv[1]);
             printf("Found pipe id: %d\n", pipe_fd);
     }
-    prepare_tests(pipe_fd);
+    prepare_tests();
+    printf("%d) %s:\n", tests[0].stats.module_id, tests[0].stats.module_title);
     tests[0].handler(0);
     print_stats(tests[0].stats);
     if ( has_pipe ) {
@@ -44,7 +45,6 @@ void prepare_tests() {
 
 
 void test_octascii_to_dec(unsigned int id) {
-    printf("%d) %s:\n", tests[id].stats.module_id, tests[id].stats.module_title);
     char filesize[12] = {'0','0','0','0','0','0','1','3','3','3','6','0'};
     int result = octascii_to_dec(filesize, 12);
     pretty_assert_stat(5854, result, ==, tests[id].stats,"Testing to convert an octal ascii number to int", has_pipe);

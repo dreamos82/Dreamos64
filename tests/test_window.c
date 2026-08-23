@@ -22,7 +22,9 @@ int main(int argc, char **argv) {
             printf("Found pipe id: %d\n", pipe_fd);
     }
     prepare_tests();
+    printf("%d) %s:\n", tests[0].stats.module_id, tests[0].stats.module_title);
     tests[0].handler(0);
+    print_stats(tests[0].stats);
      if ( has_pipe ) {
         write(pipe_fd, &number_of_tests, sizeof(number_of_tests));
         send_stats(pipe_fd, tests[0].stats);

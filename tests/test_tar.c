@@ -33,7 +33,6 @@ int main(int argc, char **argv) {
     }
     strcpy(tar_item.magic, "ustar");
     prepare_tests();
-    printf("NT: %d\n", number_of_tests);
     for (unsigned int i = 0; i < number_of_tests; i++) {
         tests[i].handler(i);        
         print_stats(tests[i].stats);
