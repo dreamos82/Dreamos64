@@ -42,10 +42,14 @@ int main(int argc, char **argv) {
     }
     if (has_pipe){
         write(pipe_fd, &number_of_tests, sizeof(number_of_tests));
+        //send_stats(pipe_fd, tests[0].stats);
+        //send_stats(pipe_fd, tests[1].stats);
+        //send_stats(pipe_fd, tests[2].stats);
         for(int j=0; j < number_of_tests; j++) {
+            printf("%d)%s\n", j, tests[j].stats.module_title);
             send_stats(pipe_fd, tests[j].stats);
-            close(pipe_fd);
         }
+        close(pipe_fd);
     }
     printf("\n");
 }
