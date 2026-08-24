@@ -40,9 +40,21 @@ The output will be:
 (test_gimme_five) Testing function gimme_five expected_value: 5 returned value:  5
 ```
 
+## Tests runner 
+
+One of the features I was curious to built, was a runner for the tests, and collect stats, but since I was running single programs, there wasn't a trivial way so I started to implement my custom solution. 
+
+The idea is pretty trivial: the runner will read the list of tests from a text files to be executed, spawn them using fork exec, and the tests will be executed as normal (but the tests will be aware that they have to send back the data), and once the data is collected the pipe will be used to send back the data. 
+
+The runner will execute tests sequentially, waiting for the previous to finish, before starting the next. 
+
+At the end of execution all results are collected in global stats. 
+
 ## How to add new tests
 
 Tests are simple C program, so if we just want to add a new test to an existing one, we just write the code we need, like the example in the _Testing with `pretty_assert_stat`_ section.
+
+If we want to test a new module. We need to create 
 
 ## The Tests runner
 
