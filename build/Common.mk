@@ -53,6 +53,8 @@ TESTFLAGS := -std=gnu99 \
         -DSMALL_PAGES=0 \
         -D_TEST_=1
 
+TEST_RUNNER_FLAGS := -I tests/include
+        
 LD_FLAGS :=
 
 PRJ_FOLDERS := src

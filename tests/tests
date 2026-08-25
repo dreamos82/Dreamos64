@@ -7,3 +7,4 @@
 ./test_window.o
 ./test_vm.o
 ./test_kheap.o
+./test_mem.o

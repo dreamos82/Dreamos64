@@ -50,6 +50,14 @@ int main(int argc, char **argv) {
         tests[i].handler(i);
         print_stats(tests[i].stats);
     }
+    if ( has_pipe ) {
+        printf("%d\n", number_of_tests);
+        write(pipe_fd, &number_of_tests, sizeof(number_of_tests));
+        for (int j=0; j<number_of_tests; j++) {
+            send_stats(pipe_fd, tests[j].stats);
+        }
+        close(pipe_fd);
+    }
     return 0;
 }
 
@@ -135,7 +143,6 @@ void test_pmm(unsigned int id){
     pretty_assert_stat(false, bit_value, ==, tests[id].stats, "Testing _bitmap_test_bit on frame 67 that should be false", has_pipe);
     bit_value = _bitmap_test_bit(70);
     pretty_assert_stat(true, bit_value, ==, tests[id].stats, "Testing _bitmap_test_bit, on frame 70 that should be true", has_pipe);
-    printf("\t [test_mem] (bitmap): Testing test_bit on frame 3 - should be 1\n");
     bit_value = _bitmap_test_bit(3);
     pretty_assert_stat(true, bit_value, ==, tests[id].stats, "Testing _bitmap_test_bit, on frame 3 that should be true", has_pipe);
     pmm_free_frame( (uint64_t*)0x400000 );
