@@ -1,5 +1,3 @@
-#include "include/test_stats.h"
-#include <assert.h>
 #include <elf.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -27,6 +25,7 @@ int main(int argc, char **argv) {
             printf("Found pipe id: %d\n", pipe_fd);
     }
     prepare_tests();
+    printf("%d) %s:\n", tests[id].stats.module_id, tests[id].stats.module_title);
     tests[0].handler(0);
     print_stats(tests[0].stats);
     if ( has_pipe ) {
@@ -34,7 +33,6 @@ int main(int argc, char **argv) {
         send_stats(pipe_fd, tests[0].stats);
         close(pipe_fd);
     }
-    printf("\tasd\n");
     return 0;
 }
 
@@ -49,7 +47,6 @@ void prepare_tests() {
 
 
 void test_elf(unsigned int id){
-    printf("%d) %s:\n", tests[id].stats.module_id, tests[id].stats.module_title);
     elf_example.e_ident[0] = 0x7f;
     elf_example.e_ident[1] = 'E';
     elf_example.e_ident[2] = 'L';
