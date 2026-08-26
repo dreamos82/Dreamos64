@@ -54,7 +54,30 @@ At the end of execution all results are collected in global stats.
 
 Tests are simple C program, so if we just want to add a new test to an existing one, we just write the code we need, like the example in the _Testing with `pretty_assert_stat`_ section.
 
-If we want to test a new module. We need to create 
+If we want to test a new module, is better to create a new file, following the same structure of one of the existing tests. 
+
+How to organize tests within files is totally arbitrary, anyway the best approach is to create a separate `function` for each component you want to test.
+
+What we need for every test module is: 
+
+* `main` function
+* `prepare_tests()` although not mandatory is to keep all tests consistent. 
+* `test_function`. 
+
+Inside the `main` we do the following steps: 
+
+* Check if a pipe descriptor has been passed, if yes, this means that the tests has been launched through `tests_runner`, in this case we need to convert the parameter passed to main into int  `pipe_fd`:
+```c
+    if (argc > 1) {
+            //pipe_fd = atoi(argv[1]);
+            has_pipe = true;
+            pipe_fd = atoi(argv[1]);
+            printf("Found pipe id: %d\n", pipe_fd);
+    }
+```
+
+
+
 
 ## The Tests runner
 
