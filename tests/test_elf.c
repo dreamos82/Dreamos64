@@ -25,7 +25,7 @@ int main(int argc, char **argv) {
             printf("Found pipe id: %d\n", pipe_fd);
     }
     prepare_tests();
-    printf("%d) %s:\n", tests[id].stats.module_id, tests[id].stats.module_title);
+    printf("%d) %s:\n", tests[0].stats.module_id, tests[0].stats.module_title);
     tests[0].handler(0);
     print_stats(tests[0].stats);
     if ( has_pipe ) {
