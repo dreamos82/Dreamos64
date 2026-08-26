@@ -88,7 +88,10 @@ int main() {
         printf("\t Tests_passed: %d\n", total_stats.stats.tests_passed);
         printf("\t Tests_failed: %d\n", total_stats.stats.tests_failed);
         printf("\t Total tests: %d\n", total_stats.stats.tests_passed + total_stats.stats.tests_failed);
-        
+        if (total_stats.stats.tests_failed != 0) {
+            printf("\t ONE OR MORE TESTS FAILED\n");
+            return -1;
+        }
     }
 }
 
