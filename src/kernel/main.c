@@ -298,7 +298,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
     #if USE_FRAMEBUFFER == 1
     _fb_printStrAndNumber("Epoch time: ", unix_timestamp, 0xf5c4f1, 0x000000);
     #endif
-    _ps2_keyboard_driver_init();
+    init_known_drivers();
     void *test_alloc_vm = vmm_alloc(0x1000, VMM_FLAGS_PRESENT | VMM_FLAGS_WRITE_ENABLE, NULL);
     vmm_free(test_alloc_vm, false, NULL);
     init_scheduler();

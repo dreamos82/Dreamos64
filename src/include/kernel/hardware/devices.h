@@ -5,6 +5,8 @@
 #include <unistd.h>
 #include <vmm.h>
 
+#define DEVICE_NAME_MAX_LEN 32
+
 typedef struct {
     enum {
         fd_invalid_descriptor,
@@ -14,9 +16,20 @@ typedef struct {
     void *pointer;
 } file_descriptor_t;
 
-struct driver{
+struct list_item_t{
     struct driver *next;
 };
+
+typedef struct list_item_t list_item_t; // This will go somewhere else
+typedef struct list_item_t driver_item_t;
+
+struct driver_header {    
+    driver_item_t drivers;
+    unsigned short d_type; // TODO: not sure about the type for now let's use a ushort
+    char device_name[DEVICE_NAME_MAX_LEN];
+};
+
+typedef struct driver_header driver_header_t;
 
 typedef struct userspace_buffer_t {
     // We need to pass the VMM info in order to be able to get the physical address and then the hhdm mapping of the buffer
@@ -40,11 +53,12 @@ typedef struct pending_operation_t {
     struct pending_operation_t *next; /**< Pointer to next operation */
 } pending_operation_t;
 
-typedef struct driver driver_item_t;
+//typedef struct driver_item_t driver_item_t;
 //typedef unsigned char _device_descriptor;
 
 typedef struct {
-    driver_item_t drivers;
+    driver_header_t header;
+    //driver_item_t drivers;
     unsigned char device_id;
     void (*init)(/* init args */);
     void (*shutdown)();

@@ -12,7 +12,7 @@ void _ps2_keyboard_driver_init() {
 
     pretty_log(Info, "Registering ps2 keboard driver");
     _ps2_default_driver.device_id = _device_descriptor++;
-    //_ps2_default_driver.drivers = NULL;
+    _ps2_default_driver.header.drivers.next = NULL;
     _ps2_default_driver.init = NULL;
     _ps2_default_driver.read = &_ps2_keyboard_read;
     _ps2_op_head = NULL;

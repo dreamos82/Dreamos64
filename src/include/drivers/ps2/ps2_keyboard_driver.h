@@ -7,6 +7,7 @@ extern struct driver* ps2_keyboard_driver;
 
 extern pending_operation_t *_ps2_op_head;
 extern pending_operation_t *_ps2_op_tail;
+extern device_t _ps2_default_driver;
 
 void _ps2_keyboard_driver_init();
 
