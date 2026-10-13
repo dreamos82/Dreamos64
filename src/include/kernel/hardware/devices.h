@@ -1,6 +1,7 @@
 #ifndef _DEVICES_H
 #define _DEVICES_H
 
+#include <list.h>
 #include <stdint.h>
 #include <unistd.h>
 #include <vmm.h>
@@ -16,16 +17,15 @@ typedef struct {
     void *pointer;
 } file_descriptor_t;
 
-struct list_item_t{
-    struct driver *next;
-};
+typedef enum {
+    DEVICE_T
+} device_type_t;
 
-typedef struct list_item_t list_item_t; // This will go somewhere else
 typedef struct list_item_t driver_item_t;
 
 struct driver_header {    
-    driver_item_t drivers;
-    unsigned short d_type; // TODO: not sure about the type for now let's use a ushort
+    driver_item_t drivers; //the first item of a struct is guaranteed to have the same address of the struct itself.
+    device_type_t d_type; // TODO: not sure about the type for now let's use a ushort
     char device_name[DEVICE_NAME_MAX_LEN];
 };
 

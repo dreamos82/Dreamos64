@@ -107,11 +107,14 @@ Will compile the OS with debug symbol, and launch qemu with remote debugging ena
 
 ### Unit tests
 
-There is a small set of tests implemented using asserts, if you want to run them just run:
+There is a small set of tests implemented using a small test suite I developed, with a macro that makes asserts more readable, and collect stats about the tests. 
+If you want to run them just run:
 
 ```bash
 make tests
 ```
+
+More information are available in the documentations [docs/Testing.md](docs/Testing.md)
 
 ### Known issues
 
