@@ -41,9 +41,9 @@ But at kernel level several things have been implemented:
 * Extremely basic multi-task/multi-thread support
 * Thread switching, thread_sleep and basic spinlock implementation
 * Basic Virtual Memory implementation
-* Initial Userspace support (so far can run only an idle userspace thread)
-* Basic syscall mechanism (two syscalls are present: one that read input from keyboard, only once and one that print the content of a buffer at line 17 of the framebuffer)
-* Initial basic ELF support (from kernel module)
+* Initial Userspace support (it can run basic programs loaded from the tar fs loaded in memory)
+* Basic syscall mechanism (three syscalls are present: one that read input from keyboard and one that print the content of a buffer at line 17 of the framebuffer and last one that exit from a program)
+* Initial basic ELF support (from kernel module or VFS)
 * Initial tar support (currently only kernel side): the elf is loaded from the tar file system.
 
 ## Prerequisites:
