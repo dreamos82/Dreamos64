@@ -23,11 +23,12 @@ void _ps2_keyboard_driver_init() {
 
 
 void _ps2_keyboard_shutdown(){
-
+    pretty_log(Info, "Nothing to shutdown for now");
 }
 
-void _ps2_keyboard_read(uint8_t *dst, uint8_t len) {
-
+void _ps2_keyboard_read(void *dst, uint8_t len) {
+    //pending_operation_t* keyboard_operation = (pending_operation_t *)dst;
+    _ps2_keyboard_add_operation((pending_operation_t *)dst);
 }
 
 

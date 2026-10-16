@@ -62,7 +62,7 @@ typedef struct {
     unsigned char device_id;
     void (*init)(/* init args */);
     void (*shutdown)();
-    void (*read)(uint8_t *dst, uint8_t len);
+    void (*read)(void *dst, uint8_t len); // Pointer is void* so various driver will know how to cast it. 
     void (*write)();
     void (*ioctl)();
 } device_t;

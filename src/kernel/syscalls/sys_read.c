@@ -9,8 +9,6 @@
 #include <vfs.h>
 #include <vmm_mapping.h>
 
-bool buffer_setup = false;
-
 ssize_t sys_read(int fildes, void *buf, size_t nbytes) {
     if (fildes >= 0 && fildes < OPENEDFILES_MAX) {
         int counter = 0;
@@ -44,14 +42,10 @@ ssize_t sys_read_keyboard(void *buffer, size_t nbytes) {
         pretty_log(Fatal, "Cannot allocate read structures");
     }
     pretty_logf(Verbose, "nbytes to read: %d - pending_op: 0x%x - userspace_buff: 0x%x - buffer: 0x%x", nbytes, new_pending_operation, userspace_buffer, buffer);
-    //if (buffer_setup == false) {
-        // I need to create a userspace_buffer_t item
-        // This structure will be used to contain the information about the buffer in the
-        userspace_buffer->info = vmm_info;
-        userspace_buffer->buffer_base = (uintptr_t) buffer;
-        userspace_buffer->length = nbytes;
-        userspace_buffer->buffer_virtual = vm_copy_from_different_space( (uintptr_t) buffer, (uint64_t*) vmm_info.root_table_hhdm);
-    //}
+    userspace_buffer->info = vmm_info;
+    userspace_buffer->buffer_base = (uintptr_t) buffer;
+    userspace_buffer->length = nbytes;
+    userspace_buffer->buffer_virtual = vm_copy_from_different_space( (uintptr_t) buffer, (uint64_t*) vmm_info.root_table_hhdm);
     if (userspace_buffer->buffer_virtual == NULL) {
         pretty_log(Error, "Cannot convert given address");
         return 0;
@@ -61,8 +55,8 @@ ssize_t sys_read_keyboard(void *buffer, size_t nbytes) {
         new_pending_operation->nbytes = 0;
         new_pending_operation->read = false;
         new_pending_operation->next = NULL;
-        _ps2_keyboard_add_operation(new_pending_operation);
-        buffer_setup = true;
+        _ps2_keyboard_read((void *) new_pending_operation, nbytes );
+        //_ps2_keyboard_add_operation(new_pending_operation);
     }
 
 
