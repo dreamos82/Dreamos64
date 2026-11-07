@@ -2,6 +2,7 @@
 #include <keyboard.h>
 #include <kheap.h>
 #include <logging.h>
+#include <string.h>
 #include <ps2_keyboard_driver.h>
 
 device_t _ps2_default_driver;
@@ -11,7 +12,8 @@ pending_operation_t *_ps2_op_tail;
 void _ps2_keyboard_driver_init() {
 
     pretty_log(Info, "Registering ps2 keboard driver");
-    _ps2_default_driver.header.d_type = DEVICE_T;
+    _ps2_default_driver.header.device_type = DEVICE_T;
+    strcpy(_ps2_default_driver.header.device_name, "keyboard");
     _ps2_default_driver.header.drivers.next = NULL;
     _ps2_default_driver.device_id = _device_descriptor++;
     _ps2_default_driver.header.drivers.next = NULL;
@@ -19,6 +21,7 @@ void _ps2_keyboard_driver_init() {
     _ps2_default_driver.read = &_ps2_keyboard_read;
     _ps2_op_head = NULL;
     _ps2_op_tail = NULL;
+    pretty_logf(Info, "ps2 keyboard driver registered with id: %d", _ps2_default_driver.device_id);
 }
 
 

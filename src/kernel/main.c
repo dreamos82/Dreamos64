@@ -328,5 +328,7 @@ void kernel_start(unsigned long addr, unsigned long magic){
     struct multiboot_tag_basic_meminfo *virt_phys_addr = (struct multiboot_tag_basic_meminfo *) hhdm_get_variable( (size_t) multiboot_basic_meminfo );
     pretty_log(Info, "Init end!! Starting infinite loop");
     init_log(LOG_OUTPUT_SERIAL, Info, false);
+    driver_header_t *item = get_device('c');
+    pretty_logf(Info, "This is the item i got: %s", item->device_name);
     while(1);
 }

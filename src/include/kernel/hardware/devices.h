@@ -25,7 +25,7 @@ typedef struct list_item_t driver_item_t;
 
 struct driver_header {    
     driver_item_t drivers; //the first item of a struct is guaranteed to have the same address of the struct itself.
-    device_type_t d_type; // TODO: not sure about the type for now let's use a ushort
+    device_type_t device_type; // TODO: not sure about the type for now let's use a ushort
     char device_name[DEVICE_NAME_MAX_LEN];
 };
 
@@ -71,5 +71,5 @@ extern unsigned char _device_descriptor;
 
 void _device_add_driver(device_t device);
 void init_known_drivers();
-
+driver_header_t* get_device(unsigned char _device_item);
 #endif
