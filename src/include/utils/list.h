@@ -4,7 +4,7 @@
 #define CONTAINER_OF(ptr, type, member) ((type *) ptr - offsetof(type, member))
 
 struct list_item_t{
-    struct driver *next;
+    struct list_item_t *next;
 };
 
 

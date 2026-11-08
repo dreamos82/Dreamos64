@@ -10,7 +10,6 @@ pending_operation_t *_ps2_op_head;
 pending_operation_t *_ps2_op_tail;
 
 void _ps2_keyboard_driver_init() {
-
     pretty_log(Info, "Registering ps2 keboard driver");
     _ps2_default_driver.header.device_type = DEVICE_T;
     strcpy(_ps2_default_driver.header.device_name, "keyboard");
